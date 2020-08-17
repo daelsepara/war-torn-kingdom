@@ -367,23 +367,15 @@
 	(VICTORY F)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT020 "\"Well, well, well, what have we here, friends?\" asks the old man.||He seems to be talking to someone next to him, although you are certain he is alone. \"Looks like a washed up adventurer to me!\" he says in answer to his own question, \"all wet and out of luck.\"||He carries on having a conversation -- a conversation that quickly turns into a heated debate. He is clearly quite mad.||\"Excuse me, umm, EXCUSE ME!,\" you shout above the hubbub in an attempt to grab the old man\"s attention. He stops and stares at you.||\"Is this the Isle of the Druids?\" you ask impatiently.||\"Indeed it is,\" says the old man, \"I see that you are from a far land so it is up to me to welcome you to Harkuna. But I think you may have much to do here as it is written in the stars that someone like you would come. Your destiny awaits you! Follow me, young adventurer.\"||The old man turns smartly about and begins walking up a path towards some hills. You can just see some sort of monolithic stone structure atop one of them.||\"Come on, come one, I\"ll show you the Gates of the World,\" the old man babbles.">
+<CONSTANT CHOICES020 <LTABLE "follow him" "explore the coast" "head into the nearby forest">>
+
 <ROOM STORY020
 	(DESC "020")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT020)
+	(CHOICES CHOICES020)
+	(DESTINATIONS <LTABLE STORY192 STORY128 STORY257>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY021

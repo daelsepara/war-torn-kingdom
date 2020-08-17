@@ -24,6 +24,14 @@
 <CONSTANT R-ANY 6> ; "possession of any of the item (s)"
 <CONSTANT R-MONEY 7> ; "tests abilility to pay indicated amount"
 
+; "for choices that have no requirements"
+
+<CONSTANT TWO-NONES <LTABLE R-NONE R-NONE>>
+<CONSTANT THREE-NONES <LTABLE R-NONE R-NONE R-NONE>>
+<CONSTANT FOUR-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE>>
+<CONSTANT FIVE-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE>>
+<CONSTANT SIX-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE>>
+
 ; "Give results"
 
 <CONSTANT GIVE-GIVEN 0>
@@ -392,7 +400,7 @@
             )>
         )>
         <COND (<SPECIAL-INTERRUPT-ROUTINE .KEY> <RETURN>)>
-        <COND (<EQUAL? .KEY !\q !\Q !\r !\R !\s !\S> <CRLF> <RETURN>)>
+        <COND (<EQUAL? .KEY !\c !\C !\i !\I !\q !\Q !\h !\H !\? !\r !\R !\s !\S> <CRLF> <RETURN>)>
     >
     <RETURN .KEY>>
 
@@ -1696,6 +1704,9 @@
         )>
         <COND (,CONTINUE-TO-CHOICES
             <SET KEY <PROCESS-STORY>>
+            <COND (<EQUAL? .KEY !\c !\C> <DESCRIBE-PLAYER> <PRESS-A-KEY> <SET KEY NONE>)>
+            <COND (<EQUAL? .KEY !\i !\I> <DESCRIBE-INVENTORY> <PRESS-A-KEY> <SET KEY NONE>)>
+            <COND (<EQUAL? .KEY !\h !\H !\?> <DISPLAY-HELP> <PRESS-A-KEY> <SET KEY NONE>)>
             <COND (<EQUAL? .KEY !\q !\Q> <CRLF> <TELL "Are you sure you want to quit the game?"> <COND(<YES?> <RETURN>)>)>
             <COND (<EQUAL? .KEY !\s !\S> <CRLF> <TELL "Save current progress?"> <COND (<YES?> <COND (<NOT <SAVE>> <EMPHASIZE "Save failed."> <PRESS-A-KEY>)>)>)>
             <COND (<EQUAL? .KEY !\r !\R> <CRLF> <TELL "Restore from a previous save?"> <COND (<YES?> <COND (<NOT <RESTORE>> <EMPHASIZE "Restore failed."> <PRESS-A-KEY>)>)>)>
