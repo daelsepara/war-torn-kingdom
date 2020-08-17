@@ -1,0 +1,43 @@
+; "Objects for War-Torn Kingdom"
+
+<OBJECT BATTLE-AXE
+    (DESC "battle-axe")
+    (SYNONYM AXE)
+    (ADJECTIVE BATTLE)
+    (FLAGS TAKEBIT WEAPONBIT)>
+
+<OBJECT MACE
+    (DESC "mace")
+    (SYNONYM MACE)
+    (FLAGS TAKEBIT WEAPONBIT)>
+
+<OBJECT SPEAR
+    (DESC "spear")
+    (SYNONYM SPEAR)
+    (FLAGS TAKEBIT WEAPONBIT)>
+
+<OBJECT STAFF
+    (DESC "staff")
+    (SYNONYM STAFF)
+    (FLAGS TAKEBIT WEAPONBIT)>
+
+<OBJECT SWORD
+    (DESC "sword")
+    (SYNONYM SWORD)
+    (FLAGS TAKEBIT WEAPONBIT)>
+
+; "Armor"
+
+<OBJECT LEATHER-JERKIN
+    (DESC "leather jerkin")
+    (SYNONYM JERKIN)
+    (ADJECTIVE LEATHER)
+    (DEFENSE 1)
+    (FLAGS TAKEBIT WEARBIT WORNBIT)>
+
+; "Objects"
+
+<OBJECT MAP
+    (DESC "map")
+    (SYNONYM MAP)
+    (FLAGS TAKEBIT)>

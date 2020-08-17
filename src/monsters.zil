@@ -1,0 +1,6 @@
+<OBJECT MONSTER-GOBLIN
+    (DESC "goblin")
+    (COMBAT 5)
+    (DEFENSE 7)
+    (STAMINA 6)
+    (FLAGS CONTBIT OPENBIT)>
