@@ -8,39 +8,61 @@
 <CONSTANT NONE <>>
 <CONSTANT F <>>
 
-<GLOBAL CURRENT-LOC NONE>
-<GLOBAL PERIOD-CR ".|">
-<GLOBAL EXCLAMATION-CR "!|">
+; "Choice Types"
+<CONSTANT R-NONE 0> 
+<CONSTANT R-ABILITY 1> ; "tests whether ABILITY exceeds certain score"
+<CONSTANT R-TEST-ABILITY 2> ; "test ABILITY versus difficulty roll"
+<CONSTANT R-RANDOM 3> ; "rolls a number of dice and choose destination based on threshold"
+<CONSTANT R-CODEWORDS 4> ; "presence of codeword(s)"
+<CONSTANT R-ITEMS 5> ; "possession of item (s)"
+<CONSTANT R-ANY 6> ; "possession of any of the item (s)"
+<CONSTANT R-MONEY 7> ; "tests abilility to pay indicated amount"
 
-; "Global Objects"
+; "Global objects and variables"
+
+<GLOBAL CURRENT-LOC NONE>
 <GLOBAL CURRENT-CHARACTER NONE>
 <GLOBAL CURRENT-VEHICLE NONE>
 <GLOBAL LIMIT-POSSESSIONS 12>
 
 <GLOBAL MONEY 0>
+
+; "deity worshipped"
+
 <GLOBAL GOD NONE>
+
+; "describes currency string"
 
 <OBJECT CURRENCY
     (DESC "shards")>
+
+; "container for codewords"
 
 <OBJECT CODEWORDS
     (DESC "Codewords")
     (SYNONYM CODEWORDS)
     (FLAGS CONTBIT OPENBIT)>
 
+; "container for blessings"
+
 <OBJECT BLESSINGS
     (DESC "Blessings")
     (SYNONYM BLESSINGS)
     (FLAGS CONTBIT OPENBIT)>
+
+; "container for titles and honors acquired"
 
 <OBJECT TITLES-AND-HONORS
     (DESC "Titles and Honors")
     (SYNONYM TITLES HONORS)
     (FLAGS CONTBIT OPENBIT)>
 
+; "container for resurrection arrangments"
+
 <OBJECT RESURRECTION-ARRANGEMENTS
     (DESC "Resurrection Arrangements")
-    (SYNONYM TITLES HONORS)
+    (SYNONYM ARRANGEMENTS)
+    (ADJECTIVE RESURRECTION)
     (FLAGS CONTBIT OPENBIT)>
 
 ; "Character Abilities"
@@ -78,7 +100,15 @@
 <PROPDEF DOOM F> ; "section ends in doom for the player"
 <PROPDEF VICTORY F> ; "section ends in victory for the player"
 
+; "miscellaneous"
+
+<GLOBAL PERIOD-CR ".|">
+<GLOBAL EXCLAMATION-CR "!|">
+
 ; "Gamebook Engine Routines"
+; ---------------------------------------------------------------------------------------------
+
+; "generic D6 roller"
 
 <ROUTINE ROLL-DICE ("OPT" DIE "AUX" (RESULT 0))
     <COND (<NOT .DIE> <SET DIE 1>)>
@@ -243,6 +273,7 @@
 
 ; "Story Routines - print story, process choices"
 ; ---------------------------------------------------------------------------------------------
+
 <ROUTINE PRINT-SECTION ("OPT" SECTION "AUX" TEXT)
     <COND (<NOT .SECTION> <SET SECTION ,HERE>)>
     <SET TEXT <GETP .SECTION ,P?STORY>>
