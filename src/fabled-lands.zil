@@ -1579,6 +1579,7 @@
         <HLIGHT 0>
         <COND (,RESURRECTION-ARRANGEMENTS <TELL D ,RESURRECTION-ARRANGEMENTS>)(ELSE <TELL "None">)>
         <CRLF>
+        <CRLF>
         <HLIGHT ,H-BOLD>
         <PRINT-CAP-OBJ ,CURRENCY>
         <HLIGHT 0>
