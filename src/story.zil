@@ -374,23 +374,15 @@ won't follow you there if they don't think you're good enough.\"||(Travelling ov
 	(CODEWORDS <LTABLE CODEWORD-AURIC>)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT021 "While making your way through the back streets of the poor quarter you are set upon by a knife-wielding thug who is intent on relieving you of your purse.">
+<CONSTANT CHOICES021 <LTABLE "Reason with him" "Fight">>
+
 <ROOM STORY021
 	(DESC "021")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT021)
+	(CHOICES CHOICES021)
+	(DESTINATIONS <LTABLE STORY689 STORY690>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY022
