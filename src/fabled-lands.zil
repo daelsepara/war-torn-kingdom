@@ -1147,14 +1147,10 @@
             <TELL "R">
             <HLIGHT 0>
             <TELL " - Restore from previous save" CR>
-            <HLIGHT ,H-BOLD>
-            <TELL "Q">
-            <HLIGHT 0>
-            <TELL " - Quit Game" CR>
             <TELL "Select which character?">
             <REPEAT ()
                 <SET KEY <INPUT 1>>
-                <COND (<OR <AND <G=? .KEY !\1> <L=? .KEY !\9> <L=? <- .KEY !\0> .COUNT>> <EQUAL? .KEY !\C !\c !\R !\r !\Q !\q>> <RETURN>)>
+                <COND (<OR <AND <G=? .KEY !\1> <L=? .KEY !\9> <L=? <- .KEY !\0> .COUNT>> <EQUAL? .KEY !\C !\c !\R !\r>> <RETURN>)>
             >
             <COND (<AND <G=? .KEY !\1> <L=? .KEY !\9>>
                 <SET CHOICE <- .KEY !\0>>
@@ -1192,12 +1188,6 @@
                 <COND (<NOT <RESTORE>>
                     <EMPHASIZE "Restore failed.">
                 )>
-            )(<EQUAL? .KEY !\Q !\q>
-                <CRLF>
-                <TELL CR "Are you sure?">
-                <COND (<YES?>
-                    <QUIT-MSG>
-                )>
             )(ELSE
                 <CRLF>
             )>
@@ -1227,14 +1217,10 @@
             <TELL "R">
             <HLIGHT 0>
             <TELL " - Return to character selection" CR>
-            <HLIGHT ,H-BOLD>
-            <TELL "Q">
-            <HLIGHT 0>
-            <TELL " - Quit Game" CR>
             <TELL "Select which profession?">
             <REPEAT ()
                 <SET KEY <INPUT 1>>
-                <COND (<OR <AND <G=? .KEY !\1> <L=? .KEY !\9> <L=? <- .KEY !\0> .COUNT>> <EQUAL? .KEY !\R !\r !\Q !\q>> <RETURN>)>
+                <COND (<OR <AND <G=? .KEY !\1> <L=? .KEY !\9> <L=? <- .KEY !\0> .COUNT>> <EQUAL? .KEY !\R !\r>> <RETURN>)>
             >
             <COND (<AND <G=? .KEY !\1> <L=? .KEY !\9>>
                 <SET CHOICE <- .KEY !\0>>
@@ -1270,12 +1256,6 @@
             )(<EQUAL? .KEY !\R !\r>
                 <CRLF>
                 <RETURN>
-            )(<EQUAL? .KEY !\Q !\q>
-                <CRLF>
-                <TELL CR "Are you sure?">
-                <COND (<YES?>
-                    <QUIT-MSG>
-                )>
             )>
         >
     )>
@@ -1296,10 +1276,10 @@
         <COND (<GETP .CHARACTER ,P?PROFESSION>
             <TELL "Profession: " D <GETP .CHARACTER ,P?PROFESSION> CR>
         )>
-        <TELL "Stamina: " N <GETP .CHARACTER ,P?STAMINA> CR>
-        <TELL "Defense: " N <CALCULATE-DEFENSE .CHARACTER .CHARACTER <GETP .CHARACTER ,P?POSSESSIONS>> CR>
-        <TELL "Money: " N <GETP .CHARACTER ,P?MONEY> CR>
-        <CRLF>
+        <TELL "STAMINA: " N <GETP .CHARACTER ,P?STAMINA> CR>
+        <TELL "DEFENSE: " N <CALCULATE-DEFENSE .CHARACTER .CHARACTER <GETP .CHARACTER ,P?POSSESSIONS>> CR>
+        <PRINT-CAP-OBJ ,CURRENCY>
+        <TELL ": " N <GETP .CHARACTER ,P?MONEY> CR>
         <TELL "CHARISMA: " N <GETP .CHARACTER ,P?CHARISMA> CR>
         <TELL "COMBAT: " N <GETP .CHARACTER ,P?COMBAT> CR>
         <TELL "MAGIC: " N <GETP .CHARACTER ,P?MAGIC> CR>
@@ -1556,6 +1536,11 @@
         <HLIGHT 0>
         <PRINT-CONTAINER ,BLESSINGS>
         <HLIGHT ,H-BOLD>
+        <TELL "Initiate: ">
+        <HLIGHT 0>
+        <COND (,DEITY <TELL D ,DEITY>)(ELSE <TELL "None">)>
+        <CRLF>
+        <HLIGHT ,H-BOLD>
         <TELL "Resurrection Arrangements: ">
         <HLIGHT 0>
         <COND (,RESURRECTION-ARRANGEMENTS <TELL D ,RESURRECTION-ARRANGEMENTS>)(ELSE <TELL "None">)>
@@ -1572,10 +1557,8 @@
     <COND (<GETP ,CURRENT-CHARACTER ,P?PROFESSION>
         <TELL "Profession: " D <GETP ,CURRENT-CHARACTER ,P?PROFESSION> CR>
     )>
-    <TELL "Stamina: " N <GETP ,CURRENT-CHARACTER ,P?STAMINA> CR>
-    <TELL "Defense: " N <CALCULATE-DEFENSE ,CURRENT-CHARACTER ,PLAYER> CR>
-    <TELL "Money: " N <GETP ,CURRENT-CHARACTER ,P?MONEY> CR>
-    <CRLF>
+    <TELL "STAMINA: " N <GETP ,CURRENT-CHARACTER ,P?STAMINA> CR>
+    <TELL "DEFENSE: " N <CALCULATE-DEFENSE ,CURRENT-CHARACTER ,PLAYER> CR>
     <TELL "CHARISMA: " N <GETP ,CURRENT-CHARACTER ,P?CHARISMA> CR>
     <TELL "COMBAT: " N <GETP ,CURRENT-CHARACTER ,P?COMBAT> CR>
     <TELL "MAGIC: " N <GETP ,CURRENT-CHARACTER ,P?MAGIC> CR>
