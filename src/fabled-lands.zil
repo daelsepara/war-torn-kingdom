@@ -90,7 +90,7 @@
     (FLAGS CONTBIT OPENBIT)>
 
 ; "deity worshipped"
-<GLOBAL GOD NONE>
+<GLOBAL DEITY NONE>
 
 ; "container for codewords"
 
@@ -1550,41 +1550,34 @@
         <TELL "Possessions: ">
         <HLIGHT 0>
         <PRINT-CONTAINER ,PLAYER>
-        <CRLF>
         <HLIGHT ,H-BOLD>
         <TELL D ,CODEWORDS ": ">
         <HLIGHT 0>
         <PRINT-CONTAINER ,CODEWORDS>
         <COND (<FIRST? VEHICLES>
-            <CRLF>
             <HLIGHT ,H-BOLD>
             <PRINT-CAP-OBJ ,VEHICLE>
             <TELL ": ">
             <HLIGHT 0>
             <PRINT-CONTAINER ,VEHICLES>
         )>
-        <CRLF>
         <HLIGHT ,H-BOLD>
         <TELL D ,TITLES-AND-HONOURS ": ">
         <HLIGHT 0>
         <PRINT-CONTAINER ,TITLES-AND-HONOURS>
-        <CRLF>
         <HLIGHT ,H-BOLD>
         <TELL D ,BLESSINGS ": ">
         <HLIGHT 0>
         <PRINT-CONTAINER ,BLESSINGS>
-        <CRLF>
         <HLIGHT ,H-BOLD>
         <TELL "Resurrection Arrangements: ">
         <HLIGHT 0>
         <COND (,RESURRECTION-ARRANGEMENTS <TELL D ,RESURRECTION-ARRANGEMENTS>)(ELSE <TELL "None">)>
         <CRLF>
-        <CRLF>
         <HLIGHT ,H-BOLD>
         <PRINT-CAP-OBJ ,CURRENCY>
         <HLIGHT 0>
-        <TELL ": ">
-        <TELL N ,MONEY CR>
+        <TELL ": " N ,MONEY CR>
     )>>
 
 <ROUTINE GAIN-CODEWORD (CODEWORD)

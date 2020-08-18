@@ -530,7 +530,7 @@ The number of scorpion men in the valley makes your heart quail; the place is to
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY033-EVENTS ("AUX" (FEE 800))
-	<COND (<EQUAL? ,GOD ,GOD-TYRNAI> <SET FEE 200>)>
+	<COND (<EQUAL? ,DEITY ,GOD-TYRNAI> <SET FEE 200>)>
 	<COND (<EQUAL? ,RESURRECTION-ARRANGEMENTS ,RESURRECTION-TYRNAI>
 		<EMPHASIZE "You already made resurrection arrangements at this temple!">
 	)(<G=? ,MONEY .FEE>
