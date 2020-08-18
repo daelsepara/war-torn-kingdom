@@ -498,62 +498,52 @@ harbourmaster.">
 	(TYPES <LTABLE R-NONE R-NONE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT031 "A dark emptiness surrounds you. Then, as if in your sleep, you see a tiny glimmer of light off in the distance. Suddenly you wake up, coughing and spluttering, up to your neck in water. You look around. You are floundering in the holy waters of Blessed Springs.||Standing at the side of the pool is a tall, slim, mustachioed man who says, \"I am Aklar the Bold. I found you as bottled dust in the lair of Vayss the Sea Dragon. By sprinkling your ashes into the holy waters, I have brought you back to life. I think a reward is in order, don't you?\"||\"As you can see, I have literally nothing to give you.\"||Aklar frowns in annoyance. \"Blast, I knew I should have taken one of the other bottles. Well, you'll just have to owe me a favor. A big favor.\"||\"I can hardly refuse.\"||\"Well, I must be about my business. We shall meet again, count on it.\"||With that he leaves.||You stagger out of the pool.">
+
 <ROOM STORY031
 	(DESC "031")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT031)
+	(CONTINUE STORY510)
+	(CODEWORDS <LTABLE CODEWORD-AKLAR>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT032 "You head across the hot, dusty and sparsely vegetated land. Vultures circle overhead -- presumably they think you're going to die. You wander on, until you come to a ridge. Down below, in a shallow valley, is a great mound of earth. Scorpion men crawl in and out of the many burrows that riddle the earth.
+The number of scorpion men in the valley makes your heart quail; the place is too deadly to enter.">
 
 <ROOM STORY032
 	(DESC "032")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT032)
+	(EVENTS STORY032-EVENTS)
+	(CONTINUE STORY492)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY032-EVENTS ()
+	<CODEWORD-JUMP ,CODEWORD-ARTIFACT ,STORY406>>
+
+<CONSTANT TEXT033 "Resurrection costs 200 Shards if you are an initiate, and 800 Shards if not. It is the last word in insurance. Once you have arranged for resurrection you need not fear death, as you will be magically restored to life here at the temple. To arrange resurrection, pay the fee.||You can have only one resurrection arranged at any one time. If you arrange another resurrection later at a different temple, the original one is cancelled. You do not get a refund.">
 
 <ROOM STORY033
 	(DESC "033")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT033)
+	(EVENTS STORY033-EVENTS)
+	(CONTINUE STORY282)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY033-EVENTS ("AUX" (FEE 800))
+	<COND (<EQUAL? ,GOD ,GOD-TYRNAI> <SET FEE 200>)>
+	<COND (<IN? ,RESURRECTION-TYRNAI ,RESURRECTION-ARRANGEMENTS>
+		<EMPHASIZE "You already made resurrection arrangements at this temple!">
+	)(<G=? ,MONEY .FEE>
+		<CRLF>
+		<TELL "Arrange resurrection at this temple?">
+		<COND (<YES?>
+			<COST-MONEY .FEE "paid">
+			<RESET-CONTAINER ,RESURRECTION-ARRANGEMENTS>
+			<MOVE ,RESURRECTION-TYRNAI ,RESURRECTION-ARRANGEMENTS>
+		)>
+	)(ELSE
+		<EMPHASIZE "You cannot afford a resurrection arrangement at this time.">
+	)>>
 
 <ROOM STORY034
 	(DESC "034")

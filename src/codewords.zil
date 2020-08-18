@@ -8,6 +8,10 @@
     (DESC "Acid")
     (SYNONYM ACID)>
 
+<OBJECT CODEWORD-AKLAR
+    (DESC "Aklar")
+    (SYNONYM AKLAR)>
+
 <OBJECT CODEWORD-AJAR
     (DESC "Ajar")
     (SYNONYM AJAR)>
