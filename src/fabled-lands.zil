@@ -1067,18 +1067,18 @@
     <PRESS-A-KEY>>
 
 <ROUTINE PROCESS-RANDOM (ODDS DESTINATIONS "AUX" EVENTS RESULT (DESTINATION NONE))
-    <SET EVENTS <GET .ODDS 0>>
+    <SET EVENTS <- <GET .ODDS 0> 1>>
     <SET DESTINATION ,HERE>
     <COND (<G? .EVENTS 0>
         <CRLF>
         <CRLF>
         <TELL "Triggering random event with " N .EVENTS " possible outcomes .." ,PERIOD-CR>
         <PRESS-A-KEY>
-        <SET RESULT <ROLL-DICE 2>>
+        <SET RESULT <ROLL-DICE <GET .ODDS 1>>>
         <CRLF>
         <TELL "You rolled " N .RESULT ".">
         <DO (I 1 .EVENTS)
-            <COND (<L=? .RESULT <GET .ODDS .I>>
+            <COND (<L=? .RESULT <GET .ODDS <+ .I 1>>>
                 <SET DESTINATION <GET .DESTINATIONS .I>>
                 <RETURN>
             )>

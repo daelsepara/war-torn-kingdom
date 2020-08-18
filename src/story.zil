@@ -483,7 +483,7 @@ won't follow you there if they don't think you're good enough.\"">
 	(STORY TEXT029)
 	(CHOICES CHOICES029)
 	(DESTINATIONS <LTABLE <LTABLE STORY613 STORY439 STORY165>>)
-	(REQUIREMENTS <LTABLE <LTABLE 4 9 12>>)
+	(REQUIREMENTS <LTABLE <LTABLE 2 4 9 12>>)
 	(TYPES <LTABLE R-RANDOM>)
 	(FLAGS LIGHTBIT)>
 
@@ -562,23 +562,16 @@ footing and fall to the ground.">
 	<LOSE-STAMINA 4 ,DIED-FROM-INJURIES ,STORY034>
 	<IF-ALIVE ,TEXT034-CONTINUED>>
 
+<CONSTANT TEXT035 "You come to the top of a windswept cliff. An ancient pillar of jumbled rock,
+pitted and weather-beaten, stands at the cliff's edge, like a broken finger pointing at the sky. Seagulls sing their song of desolation in the air.||Judging by the runes etched into the rock, the tor dates back to the time of the Shadar, a race that ruled Harkuna so long ago, they are lost in myth and legend.">
+<CONSTANT CHOICES035 <LTABLE "Examine the runes" "Go down to the beach" "Take the road to Trefoille" "Take the road to Marlock City">>
+
 <ROOM STORY035
 	(DESC "035")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT035)
+	(CHOICES CHOICES035)
+	(DESTINATIONS <LTABLE STORY515 STORY097 STORY602 STORY166>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY036
