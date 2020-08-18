@@ -138,18 +138,18 @@
 	<COND (<CHECK-CODEWORD ,CODEWORD-ALTITUDE> <RETURN ,STORY272>)>
 	<RETURN ,STORY685>>
 
-<CONSTANT TEXT010 "Yellowport is the second largest city in Sokara. It is mainly a trading town, and is known for its exotic goods from distant Ankon-Konu.||The Stinking River brings rich deposits of sulphur from the Lake of the Sea Dragon down to the town, where it is extracted and stored in the large waterfront warehouses run by the merchants' guild. From here, the mineral is exported all over Harkuna. But all that sulphur has its drawbacks. The stink is abominable, and much of the city has a yellowish hue. The river is so full of sulphur that it is virtually useless as drinking water. However, the demand for sulphur, especially from the sorcerous guilds, is great.||Politically much has changed in the past few years. The old and corrupt king of Sokara, Corin VII, has been deposed and executed in a military coup. General Grieve Marlock and the army now control Sokara. The old Council of Yellowport has been indefinitely dissolved and a provost marshal, Marloes Marlock, the general's brother, appointed as military governor of the town.||You can buy a townhouse in Yellowport for 200 Shards. Owning a townhouse gives you a place to rest and to store equipment. To leave Yellowport by sea, buy or sell ships and cargo, go to the harbormaster.">
+<CONSTANT TEXT010 "Yellowport is the second largest city in Sokara. It is mainly a trading town, and is known for its exotic goods from distant Ankon-Konu.||The Stinking River brings rich deposits of sulphur from the Lake of the Sea Dragon down to the town, where it is extracted and stored in the large waterfront warehouses run by the merchants' guild. From here, the mineral is exported all over Harkuna. But all that sulphur has its drawbacks. The stink is abominable, and much of the city has a yellowish hue. The river is so full of sulphur that it is virtually useless as drinking water. However, the demand for sulphur, especially from the sorcerous guilds, is great.||Politically much has changed in the past few years. The old and corrupt king of Sokara, Corin VII, has been deposed and executed in a military coup. General Grieve Marlock and the army now control Sokara. The old Council of Yellowport has been indefinitely dissolved and a provost marshal, Marloes Marlock, the general's brother, appointed as military governor of the town.||You can buy a townhouse in Yellowport for 200 Shards. Owning a townhouse gives you a place to rest and to store equipment. To leave Yellowport by sea, buy or sell ships and cargo, go to the harbourmaster.">
 
 <CONSTANT YELLOWPORT-CHOICES 
 	<LTABLE
 		"Call on Pyletes the Sage"
 		"Seek an audience with the provost marshal"
 		"Visit the market"
-		"Visit the harbormaster"
+		"Visit the harbourmaster"
 		"Go to the merchants' guild"
 		"Explore the city by day"
 		"Explore the city by night"
-		"Visit your town house"
+		"Visit your townhouse"
 		"Visit the Gold Dust Tavern"
 		"Visit the temple of Maka"
 		"Visit the temple of Elnir"
@@ -446,7 +446,7 @@ won't follow you there if they don't think you're good enough.\"">
 <ROUTINE STORY025-EVENTS ()
 	<CODEWORD-JUMP ,CODEWORD-ARTERY ,STORY399>>
 
-<CONSTANT TEXT026 "You set sail for Dweomer. The journey takes a few days but is uneventful. The captain can't believe his luck. \"I half-expected us to end up wrecked on rocks or seized by Uttakin slavers,\" he says with evident relief. You disembark at Dweomer harbor, on the Sorcerers' Isle.">
+<CONSTANT TEXT026 "You set sail for Dweomer. The journey takes a few days but is uneventful. The captain can't believe his luck. \"I half-expected us to end up wrecked on rocks or seized by Uttakin slavers,\" he says with evident relief. You disembark at Dweomer harbour, on the Sorcerers' Isle.">
 
 <ROOM STORY026
 	(DESC "026")
@@ -486,7 +486,7 @@ won't follow you there if they don't think you're good enough.\"">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT030 "The market is large and busy. At the corners of Brimstone Plaza, gigantic braziers burn sweet-smelling incense in an attempt to overpower the rotten-egg smell that permeates the whole city. There are many stalls and goods to choose from.||One trader is offering a treasure map for sale at 200 Shards. He will also buy any old treasure map for 150 Shards.||To buy cargo for a ship, you need to visit the warehouses at the
-harbormaster.">
+harbourmaster.">
 <CONSTANT CHOICES030 <LTABLE "buy armours/weapons/magical/equipment/other items" "sell armours/weapons/magical/equipment/other items" "buy treasure map" "go back to town">>
 
 <ROOM STORY030
