@@ -602,6 +602,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	<KEEP-ITEM ,BAG-OF-PEARLS>>
 
 <CONSTANT TEXT038 "Heavy black clouds race towards you across the sky, whipping the waves into a frenzy. The crew mutter among themselves fearfully.">
+<CONSTANT TEXT038-SAFETY "The blessing of Alvir and Valmir that confers safety from storms">
 <CONSTANT CHOICES038 <LTABLE "The storm hits with full fury (ship sinks/mast splits/you weather the storm)">>
 
 <ROOM STORY038
@@ -614,7 +615,16 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(TYPES <LTABLE R-RANDOM>)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY038-EVENTS ()
+<ROUTINE STORY038-EVENTS ("AUX" (DICE 1) (CONDITION 0))
+	<COND (<CHECK-BLESSING ,BLESSING-ALVIR-VALMIR>
+		<CRLF>
+		<TELL ,TEXT038-SAFETY>
+		<TELL ,PERIOD-CR>
+		<REMOVE ,BLESSING-ALVIR-VALMIR>
+		<STORY-JUMP ,STORY209>
+	)(ELSE
+		
+	)>
 	<RETURN>>
 
 <ROOM STORY039

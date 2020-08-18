@@ -74,59 +74,32 @@
 <GLOBAL STAMINA 0>
 <GLOBAL MAX-STAMINA 9>
 
-; "container for vehicles owned"
-
-<OBJECT VEHICLES
-    (DESC "vehicles")
-    (SYNONYM VEHICLES)
-    (FLAGS CONTBIT OPENBIT)>
-
-; "container for items given"
-
-<OBJECT GIVEBAG
-    (DESC "items to give")
-    (SYNONYM BAG)
-    (ADJECTIVE GIVE)
-    (FLAGS CONTBIT OPENBIT)>
-
 ; "deity worshipped"
 <GLOBAL DEITY NONE>
 
-; "container for codewords"
+; "container for vehicles owned"
+<OBJECT VEHICLES (DESC "vehicles") (FLAGS CONTBIT OPENBIT)>
 
-<OBJECT CODEWORDS
-    (DESC "Codewords")
-    (SYNONYM CODEWORDS)
-    (FLAGS CONTBIT OPENBIT)>
+; "container for items given"
+<OBJECT GIVEBAG (DESC "items to give") (FLAGS CONTBIT OPENBIT)>
+
+
+; "container for codewords"
+<OBJECT CODEWORDS (DESC "Codewords") (FLAGS CONTBIT OPENBIT)>
 
 ; "object to refer to all of your money"
-
-<OBJECT ALL-MONEY
-    (DESC "all your money")
-    (SYNONYM MONEY)
-    (ADJECTIVE ALL YOUR)
-    (FLAGS TAKEBIT NDESCBIT)>
+<OBJECT ALL-MONEY (DESC "all your money") (FLAGS TAKEBIT NDESCBIT)>
 
 ; "container for blessings"
-
-<OBJECT BLESSINGS
-    (DESC "Blessings")
-    (SYNONYM BLESSINGS)
-    (FLAGS CONTBIT OPENBIT)>
+<OBJECT BLESSINGS (DESC "Blessings") (FLAGS CONTBIT OPENBIT)>
 
 ; "container for titles and honours acquired"
-
-<OBJECT TITLES-AND-HONOURS
-    (DESC "Titles and Honours")
-    (SYNONYM TITLES HONOURS)
-    (FLAGS CONTBIT OPENBIT)>
+<OBJECT TITLES-AND-HONOURS (DESC "Titles and Honours") (FLAGS CONTBIT OPENBIT)>
 
 ; "container for resurrection arrangments"
-
 <GLOBAL RESURRECTION-ARRANGEMENTS NONE>
 
 ; "Character Abilities"
-
 <PROPDEF CHARISMA -1>
 <PROPDEF COMBAT -1>
 <PROPDEF MAGIC -1>
@@ -137,18 +110,16 @@
 <PROPDEF PROFESSION NONE>
 
 ; "Object properties"
-
 <PROPDEF QUANTITY -1>
 <PROPDEF CHARGES -1>
 <PROPDEF STARS -1>
+<PROPDEF CONDITION 0>
 
 ; "Computed Statistics"
-
 <PROPDEF DEFENSE -1>
 <PROPDEF STAMINA -1>
 
 ; "Story Properties"
-
 <PROPDEF BACKGROUND NONE> ; "routine to handle events that happen before story text is displayed"
 <PROPDEF STORY NONE> ; "text in the story section"
 <PROPDEF EVENTS NONE> ; "routine to handle events after text is displayed but before CHOICES/CONTINUE"
@@ -167,7 +138,6 @@
 <PROPDEF VICTORY F> ; "section ends in victory for the player"
 
 ; "miscellaneous"
-
 <GLOBAL PERIOD-CR ".|">
 <GLOBAL EXCLAMATION-CR "!|">
 
@@ -896,11 +866,9 @@
     )>
     <RTRUE>>
 
-<ROUTINE CHECK-BLESSING (BLESSING)
-    <COND (.BLESSING
-        <RETURN <IN? .BLESSING ,BLESSINGS>>
-    )>
-    <RTRUE>>
+<ROUTINE CHECK-BLESSING (BLESS)
+    <COND (<NOT .BLESS> <RTRUE>)>
+    <RETURN <IN? .BLESS ,BLESSINGS>>>
 
 <ROUTINE CHECK-CHARGES (ITEM "AUX" CHARGES)
     <COND (<NOT .ITEM> <RTRUE>)>
