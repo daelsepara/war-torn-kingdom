@@ -25,82 +25,62 @@
 	(CONTINUE STORY020)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT002 "The soldier recognizes you. He bows and says, \"Welcome, my lord. I will take you see King Nergan.\"||He leads you to Nergan\"s mountain stockade, where the king greets you warmly.||\"Ah, my local champion! It is always a pleasure to see you.||However, I was hoping you had spoken with General Beladai of the allied army -- we need that citadel. Now go. That is a royal command!\"||You leave, climbing down to the foothills of the mountains.">
+
 <ROOM STORY002
 	(DESC "002")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY002-BACKGROUND)
+	(STORY TEXT002)
+	(CONTINUE STORY474)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY002-BACKGROUND ()
+	<COND (<CHECK-ITEM ,CODED-MISSIVE>
+		<RETURN ,STORY676>
+	)(<CHECK-CODEWORD ,CODEWORD-DELIVER>
+		<RETURN ,STORY098>
+	)>
+	<RETURN ,STORY002>>
+
+<CONSTANT TEXT003 "You have come to the foothills of the Spine of Harkun, in the north west of Sokara. The view is impressive: a massive wall of forested mountains, whose rocky, white-flanked peaks soar skywards into the clouds. These parts of the mountains are unclimbable but you notice a large cave at the bottom of a mountain.">
+<CONSTANT CHOICES003 <LTABLE "Investigate the cave" "Go east to the Citadel of Velis Corin" "South into the wilderness">>
 
 <ROOM STORY003
 	(DESC "003")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT003)
+	(CHOICES CHOICES003)
+	(DESTINATIONS <LTABLE STORY665 STORY271 STORY276>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT004 "The priests of Alvir and Valmir are overjoyed that you have returned the *golden net*. The high priest rewards you with 100 Shards and a magic weapon, a rune-engraved trident.">
 
 <ROOM STORY004
 	(DESC "004")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT004)
+	(EVENTS STORY004-EVENTS)
+	(CONTINUE STORY220)
+	(ITEMS <LTABLE TRIDENT>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY004-EVENTS ()
+	<RETURN-ITEM ,GOLDEN-NET T>>
+
+<CONSTANT TEXT005 "It is a tough climb upwards but not impossible.">
+<CONSTANT CHOICES005 <LTABLE "Make a SCOUTING roll">>
 
 <ROOM STORY005
 	(DESC "005")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT005)
+	(EVENTS STORY005-EVENTS)
+	(CHOICES CHOICES005)
+	(DESTINATIONS <LTABLE <LTABLE STORY652 STORY529>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
 
+<ROUTINE STORY005-EVENTS ()
+	<COND (<CHECK-ITEM ,CLIMBING-GEAR> <STORY-JUMP ,STORY652>)>>
 <ROOM STORY006
 	(DESC "006")
 	(BACKGROUND NONE)
@@ -368,7 +348,7 @@
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT020 "\"Well, well, well, what have we here, friends?\" asks the old man.||He seems to be talking to someone next to him, although you are certain he is alone. \"Looks like a washed up adventurer to me!\" he says in answer to his own question, \"all wet and out of luck.\"||He carries on having a conversation -- a conversation that quickly turns into a heated debate. He is clearly quite mad.||\"Excuse me, umm, EXCUSE ME!,\" you shout above the hubbub in an attempt to grab the old man\"s attention. He stops and stares at you.||\"Is this the Isle of the Druids?\" you ask impatiently.||\"Indeed it is,\" says the old man, \"I see that you are from a far land so it is up to me to welcome you to Harkuna. But I think you may have much to do here as it is written in the stars that someone like you would come. Your destiny awaits you! Follow me, young adventurer.\"||The old man turns smartly about and begins walking up a path towards some hills. You can just see some sort of monolithic stone structure atop one of them.||\"Come on, come one, I\"ll show you the Gates of the World,\" the old man babbles.">
-<CONSTANT CHOICES020 <LTABLE "follow him" "explore the coast" "head into the nearby forest">>
+<CONSTANT CHOICES020 <LTABLE "Follow him" "Explore the coast" "Head into the nearby forest">>
 
 <ROOM STORY020
 	(DESC "020")
