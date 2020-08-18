@@ -41,7 +41,20 @@
     (DEFENSE 1)
     (FLAGS TAKEBIT WEARBIT WORNBIT)>
 
+<OBJECT HEAVY-PLATE
+    (DESC "heavy plate")
+    (SYNONYM PLATE)
+    (ADJECTIVE HEAVY)
+    (DEFENSE 6)
+    (FLAGS TAKEBIT WEARBIT)>
+
 ; "Objects"
+
+<OBJECT BOOK-OF-THE-SEVEN-SAGES
+    (DESC "Book of the Seven Sages")
+    (SYNONYM BOOK)
+    (ADJECTIVE SEVEN SAGES)
+    (FLAGS TAKEBIT)>
 
 <OBJECT CLIMBING-GEAR
     (DESC "climbing gear")

@@ -1,5 +1,3 @@
-<INSERT-FILE "numbers">
-
 <GLOBAL STARTING-POINT STORY001>
 
 ; "reset routines"
@@ -10,6 +8,7 @@
     <RETURN>>
 
 ; "story objects and variables"
+
 <CONSTANT BAD-ENDING "Your adventure ends here.|">
 <CONSTANT GOOD-ENDING "Further adventure awaits.|">
 
@@ -19,172 +18,19 @@
 <ROUTINE SPECIAL-INTERRUPT-ROUTINE (KEY)
 	<RFALSE>>
 
+<CONSTANT DIED-IN-COMBAT "You died in combat">
+<CONSTANT DIED-OF-HUNGER "You starved to death">
+<CONSTANT DIED-GREW-WEAKER "You grew weaker and eventually died">
+<CONSTANT DIED-FROM-INJURIES "You died from your injuries">
+<CONSTANT DIED-FROM-COLD "You eventually freeze to death">
+<CONSTANT NATURAL-HARDINESS "Your natural hardiness made you cope better with the situation">
+
 <CONSTANT HAVE-A "You have a">
 <CONSTANT HAVE-THE "You have the">
 <CONSTANT HAVE-CODEWORD "You have the codeword">
 <CONSTANT HAVE-NEITHER "You have neither">
 <CONSTANT IF-NOT "If not">
 <CONSTANT OTHERWISE "Otherwise">
-
-<ROUTINE BUY-STUFF (ITEM PLURAL PRICE "OPT" LIMIT "AUX" QUANTITIES)
-	<COND (<NOT .LIMIT> <SET LIMIT 8>)>
-	<COND (<G=? ,MONEY .PRICE>
-		<CRLF>
-		<TELL "Buy " D .ITEM " for " N .PRICE " " D ,CURRENCY " each?">
-		<COND (<YES?>
-			<REPEAT ()
-				<SET QUANTITIES <GET-NUMBER "How many will you buy" 0 .LIMIT>>
-				<COND (<G? .QUANTITIES 0>
-					<COND (<L=? <* .QUANTITIES .PRICE> ,MONEY>
-						<CRLF>
-						<HLIGHT ,H-BOLD>
-						<TELL "You purchased " N .QUANTITIES " ">
-						<COND (<G? .QUANTITIES 1> <TELL .PLURAL>)(ELSE <TELL D .ITEM>)>
-						<TELL ,PERIOD-CR>
-						<COST-MONEY <* .QUANTITIES .PRICE>>
-						<ADD-QUANTITY .ITEM .QUANTITIES>
-						<COND (<L? ,MONEY .PRICE> <RETURN>)>
-					)(ELSE
-						<EMPHASIZE "You can't afford that!">
-					)>
-				)(ELSE
-					<RETURN>
-				)>
-			>
-		)>
-	)>>
-
-<ROUTINE SELL-STUFF (ITEM PLURAL PRICE "AUX" (ITEMS-SOLD 0) (QUANTITY 0))
-	<SET QUANTITY <GETP .ITEM ,P?QUANTITY>>
-	<CRLF>
-	<TELL "Sell " D .ITEM " at " N .PRICE " " D ,CURRENCY " each?">
-	<COND (<YES?>
-		<SET ITEMS-SOLD <GET-NUMBER "How many will you sell" 0 .QUANTITY>>
-		<COND (<G? .ITEMS-SOLD 0>
-			<SETG ,MONEY <+ ,MONEY <* .ITEMS-SOLD .PRICE>>>
-			<SET .QUANTITY <- .QUANTITY .ITEMS-SOLD>>
-			<CRLF>
-			<TELL "You sold " N .ITEMS-SOLD " ">
-			<HLIGHT ,H-BOLD>
-			<COND (<G? .ITEMS-SOLD 1> <TELL .PLURAL>)(ELSE <TELL D .ITEM>)>
-			<HLIGHT 0>
-			<TELL ,PERIOD-CR>
-			<COND (<G? .QUANTITY 0>
-				<PUTP .ITEM ,P?QUANTITY .QUANTITY>
-			)(ELSE
-				<PUTP .ITEM ,P?QUANTITY 1>
-				<REMOVE .ITEM>
-			)>
-		)>
-	)>>
-
-<ROUTINE PREVENT-DEATH ("OPT" STORY)
-	<COND (<NOT .STORY> <SET STORY ,HERE>)>
-	<COND (<GETP .STORY ,P?DOOM> <PUTP .STORY ,P?DOOM F>)>>
-
-<ROUTINE GET-NUMBER (MESSAGE "OPT" MINIMUM MAXIMUM "AUX" COUNT)
-	<REPEAT ()
-		<CRLF>
-		<TELL .MESSAGE>
-		<COND (<AND <OR <ASSIGNED? MINIMUM> <ASSIGNED? MAXIMUM>> <G? .MAXIMUM .MINIMUM>>
-			<TELL " (" N .MINIMUM "-" N .MAXIMUM ")">
-		)>
-		<TELL "? ">
-		<READLINE>
-		<COND (<EQUAL? <GETB ,LEXBUF 1> 1> <SET COUNT <CONVERT-TO-NUMBER 1 10>>
-			<COND (<OR .MINIMUM .MAXIMUM>
-				<COND (<AND <G=? .COUNT .MINIMUM> <L=? .COUNT .MAXIMUM>> <RETURN>)>
-			)(<G? .COUNT 0>
-				<RETURN>
-			)>
-		)>
-	>
-	<RETURN .COUNT>>
-
-<ROUTINE DELETE-CODEWORD (CODEWORD)
-	<COND (<AND .CODEWORD <CHECK-CODEWORD .CODEWORD>>
-		<CRLF>
-		<TELL "[You lose the codeword ">
-		<HLIGHT ,H-BOLD>
-		<TELL D .CODEWORD "]" CR>
-		<HLIGHT 0>
-		<REMOVE .CODEWORD>
-	)>>
-
-<ROUTINE KEEP-ITEM (ITEM "OPT" JUMP)
-	<CRLF>
-	<TELL "Keep " T .ITEM "?">
-	<COND (<YES?>
-		<COND (<NOT <CHECK-ITEM .ITEM>> <TAKE-ITEM .ITEM>)>
-		<COND (.JUMP <STORY-JUMP .JUMP>)>
-		<RTRUE>
-	)>
-	<COND (<CHECK-ITEM .ITEM> <LOSE-ITEM .ITEM>)>
-	<RFALSE>>
-
-<ROUTINE ADD-QUANTITY (OBJECT "OPT" AMOUNT CONTAINER "AUX" QUANTITY CURRENT)
-	<COND (<NOT .OBJECT> <RETURN>)>
-	<COND (<L=? .AMOUNT 0> <RETURN>)>
-	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
-	<COND (<EQUAL? .CONTAINER ,PLAYER>
-		<DO (I 1 .AMOUNT)
-			<TAKE-ITEM .OBJECT>
-		>
-	)(ELSE
-		<SET CURRENT <GETP .OBJECT ,P?QUANTITY>>
-		<SET QUANTITY <+ .CURRENT .AMOUNT>>
-		<PUTP .OBJECT ,P?QUANTITY .QUANTITY>
-	)>>
-
-<ROUTINE CHECK-VEHICLE (RIDE)
-	<COND (<OR <IN? .RIDE ,VEHICLES> <AND ,CURRENT-VEHICLE <EQUAL? ,CURRENT-VEHICLE .RIDE>>> <RTRUE>)>
-	<RFALSE>>
-
-<ROUTINE TAKE-VEHICLE (VEHICLE)
-	<COND (.VEHICLE
-		<COND (,CURRENT-VEHICLE <REMOVE ,CURRENT-VEHICLE>)>
-		<MOVE .VEHICLE ,VEHICLES>
-		<SETG CURRENT-VEHICLE .VEHICLE>
-		<UPDATE-STATUS-LINE>
-	)>>
-
-<ROUTINE LOSE-VEHICLE (VEHICLE)
-	<COND (.VEHICLE
-		<COND (<CHECK-VEHICLE .VEHICLE>
-			<REMOVE .VEHICLE>
-			<SETG CURRENT-VEHICLE NONE>
-			<UPDATE-STATUS-LINE>
-		)>
-	)>>
-
-<ROUTINE TAKE-STUFF (ITEM PLURAL "OPT" AMOUNT "AUX" TAKEN)
-	<COND (<NOT .AMOUNT> <SET .AMOUNT 1>)>
-	<CRLF>
-	<TELL "Take the ">
-	<COND (<G? .AMOUNT 1> <TELL .PLURAL>)(<TELL D .ITEM>)>
-	<TELL "?">
-	<COND (<YES?>
-		<COND (<G? .AMOUNT 1>
-			<SET TAKEN <GET-NUMBER "How many will you take" 0 .AMOUNT>>
-			<ADD-QUANTITY .ITEM .AMOUNT ,PLAYER>
-			<RETURN .TAKEN>
-		)(ELSE
-			<TAKE-ITEM .ITEM>
-			<RETURN 1>
-		)>
-	)>
-	<RETURN 0>>
-
-<ROUTINE TAKE-QUANTITIES (OBJECT PLURAL MESSAGE "OPT" AMOUNT)
-	<CRLF>
-	<TELL "Take the " .PLURAL "?">
-	<COND (<YES?> <ADD-QUANTITY .OBJECT <GET-NUMBER .MESSAGE 0 .AMOUNT> ,PLAYER>)>>
-
-<ROUTINE ITEM-JUMP (ITEM STORY)
-	<COND (<CHECK-ITEM .ITEM> <STORY-JUMP .STORY>)>>
-
-<ROUTINE CODEWORD-JUMP (CODEWORD STORY)
-	<COND (<CHECK-CODEWORD .CODEWORD> <STORY-JUMP .STORY>)>>
 
 <CONSTANT TEXT001 "The first sound is the gentle murmur of waves some way off. The cry of gulls. Then the sensation of a softly stirring sea breeze and the baking sun on your back.||If that was all, you could imagine yourself in paradise, but as your senses return you start to feel the aches in every muscle. And then you remember the shipwreck.||You force open your eyes, caked shut by a crust of salt. You are lying on a beach, a desolate slab of wet sand that glistens in the merciless glare of the sun. Small crabs break away as you stir, scurrying for cover amid the long strands of seaweed.||\"Not... food for you yet...\" you murmur, wincing at the pain of cracked lips. Your mouth is dry and there is a pounding in your head born of fatigue and thirst. You don\"t care about the headache or the bruises, just as long as you\"re alive.||As you lie gathering your strength, you hear somebody coming along the shore.">
 <CONSTANT CHOICES001 <LTABLE "Lie still until he's gone" "Speak to him">>
@@ -258,254 +104,265 @@
 <ROUTINE STORY006-EVENTS ()
 	<SELECT-FROM-LIST <LTABLE MANDOLIN POTION-OF-HEALING SCROLL-OF-EBRON> 3 3>>
 
+<CONSTANT TEXT007 "Much to your embarrassment, you get lost in the vast forest. You wander around for days until you finally emerge at the Bronze Hills.">
+
 <ROOM STORY007
 	(DESC "007")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT007)
+	(CONTINUE STORY110)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT008 "You step through the archway. Immediately the symbols on the stone begin to glow with red-hot energy; your hair stands on end and your body tingles. A crackling nimbus of blue-white force engulfs you, the sky darkens and thunder and lightning crash and leap across the heavens. Suddenly, your vision fades, and everything goes black.||When your sight returns, you find yourself at the gates of a large city, set on an ochre-coloured river. A vile stink of brimstone permeates the air. You wrinkle your face up in disgust and gag involuntarily.||\"Welcome to Yellowport,\" says a passing merchant.">
 
 <ROOM STORY008
 	(DESC "008")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT008)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY009
 	(DESC "009")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY009-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY009-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-ALTITUDE> <RETURN ,STORY272>)>
+	<RETURN ,STORY685>>
+
+<CONSTANT TEXT010 "Yellowport is the second largest city in Sokara. It is mainly a trading town, and is known for its exotic goods from distant Ankon-Konu.||The Stinking River brings rich deposits of sulphur from the Lake of the Sea Dragon down to the town, where it is extracted and stored in the large waterfront warehouses run by the merchants' guild. From here, the mineral is exported all over Harkuna. But all that sulphur has its drawbacks. The stink is abominable, and much of the city has a yellowish hue. The river is so full of sulphur that it is virtually useless as drinking water. However, the demand for sulphur, especially from the sorcerous guilds, is great.||Politically much has changed in the past few years. The old and corrupt king of Sokara, Corin VII, has been deposed and executed in a military coup. General Grieve Marlock and the army now control Sokara. The old Council of Yellowport has been indefinitely dissolved and a provost marshal, Marloes Marlock, the general's brother, appointed as military governor of the town.||You can buy a townhouse in Yellowport for 200 Shards. Owning a townhouse gives you a place to rest and to store equipment. To leave Yellowport by sea, buy or sell ships and cargo, go to the harbormaster.">
+
+<CONSTANT YELLOWPORT-CHOICES 
+	<LTABLE
+		"Call on Pyletes the Sage"
+		"Seek an audience with the provost marshal"
+		"Visit the market"
+		"Visit the harbormaster"
+		"Go to the merchants' guild"
+		"Explore the city by day"
+		"Explore the city by night"
+		"Visit your town house"
+		"Visit the Gold Dust Tavern"
+		"Visit the temple of Maka"
+		"Visit the temple of Elnir"
+		"Visit the temple of Alvir and Valmir"
+		"Visit the temple of Tyrnai"
+		"Travel north-east toward Venefax"
+		"Head north-west to Trefoille"
+		"Follow the Stinking River north"
+		"Strike out north-west, across country"
+		"Visit your secret cache"
+		"Go down into the sewers"
+	>>
+
+<CONSTANT YELLOWPORT-DESTINATIONS
+	<LTABLE
+		STORY040
+		STORY523
+		STORY030
+		STORY555
+		STORY405
+		STORY302
+		STORY442
+		STORY300
+		STORY506
+		STORY141
+		STORY316
+		STORY220
+		STORY526
+		STORY621
+		STORY233
+		STORY082
+		STORY558
+		STORY327
+		STORY460
+	>>
+
+<CONSTANT YELLOWPORT-REQUIREMENTS
+	<LTABLE
+		<LTABLE CODEWORD-ARTIFACT BOOK-OF-THE-SEVEN-SAGES>
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		CODEWORD-ABIDE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		CODEWORD-ACID
+		CODEWORD-AJAR
+	>>
+
+<CONSTANT YELLOWPORT-TYPES
+	<LTABLE
+		R-CODEWORD-ITEM
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-CODEWORD
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-CODEWORD
+		R-CODEWORD
+	>>
 
 <ROOM STORY010
 	(DESC "010")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY010-BACKGROUND)
+	(STORY TEXT010)
+	(EVENTS STORY010-EVENTS)
+	(CHOICES YELLOWPORT-CHOICES)
+	(DESTINATIONS YELLOWPORT-DESTINATIONS)
+	(REQUIREMENTS YELLOWPORT-REQUIREMENTS)
+	(TYPES YELLOWPORT-TYPES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY010-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-ASSASSIN>
+		<RETURN ,STORY050>
+	)(<CHECK-VISITS-EQUAL ,STORY010 4>
+		<RETURN ,STORY273>
+	)>>
+
+<ROUTINE STORY010-EVENTS ()
+	<COND (<AND <NOT <CHECK-CODEWORD ,CODEWORD-ABIDE>> <G=? ,MONEY 200>>
+		<CRLF>
+		<TELL "Would you like to buy a townhouse in Yellowport (200 " D ,CURRENCY ")?">
+		<COND (<YES?>
+			<COST-MONEY 200>
+			<GAIN-CODEWORDS <LTABLE CODEWORD-ABIDE>>
+		)>
+	)>>
+
+<CONSTANT TEXT011 "A narrow path leads up the hill, the top of which is crowned with a circle of large obsidian standing stones, hewn from solid rock. Despite the bitter wind that blows across these hills, the stones are unweathered and seem but newly lain. They form three archways, each carved with mystic symbols and runes of power.">
 
 <ROOM STORY011
 	(DESC "011")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT011)
+	(CONTINUE STORY065)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT012 "You tell them a story of tragic love between a merman and a human princess. The merfolk are moved to shed briny tears, and one of them plants a languorous kiss on your lips.||You find you can indeed breathe underwater now. The merfolk lead you into the depths, where they swim playfully around you.||Suddenly, a hideous form looms out of the murk. It is like a giant squid, but it carries a spear in one of its many tentacles and wears rudimentary armour. Great black eyes shine with an implacable alien intelligence. The merfolk dart away in fright, leaving you alone with the creature.">
 
 <ROOM STORY012
 	(DESC "012")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT012)
+	(EVENTS STORY012-EVENTS)
+	(CONTINUE STORY238)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY012-EVENTS ()
+	<CODEWORD-JUMP ,CODEWORD-ANCHOR ,STORY116>>
+
+<CONSTANT TEXT013 "\"The Violet Ocean's a dangerous place, Cap'n,\" says the first mate. \"The crew
+won't follow you there if they don't think you're good enough.\"||(Travelling over the Blood-Dark Sea is not possible at this time. You turn back)">
 
 <ROOM STORY013
 	(DESC "013")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT013)
+	(CONTINUE STORY507)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT014 "Someone stabs you in the back.">
+<CONSTANT TEXT014-CONTINUED "You spin around just as a beefy, disreputable-looking thug comes for you again with a long dagger.||\"Get the snooping swine!\" yells the man with the eye patch">
 
 <ROOM STORY014
 	(DESC "014")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT014)
+	(EVENTS STORY014-EVENTS)
+	(CONTINUE STORY476)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY014-EVENTS ()
+	<LOSE-STAMINA 5 ,DIED-FROM-INJURIES ,STORY014>
+	<COND (<IS-ALIVE>
+		<CRLF>
+		<TELL ,TEXT014-CONTINUED>
+		<TELL ,PERIOD-CR>
+		<COMBAT-MONSTER ,MONSTER-THUG 3 6 13>
+		<CHECK-COMBAT ,MONSTER-THUG>
+	)>>
+
+<CONSTANT TEXT015 "Three drunken army officers accost you on the street.">
 
 <ROOM STORY015
 	(DESC "015")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT015)
+	(EVENTS STORY015-EVENTS)
+	(CONTINUE STORY686)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY015-EVENTS ()
+	<TITLE-JUMP ,TITLE-PROTECTOR-SOKARA ,STORY542>>
 
 <ROOM STORY016
 	(DESC "016")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY016-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY016-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY016 1> <RETURN ,STORY251>)>
+	<RETURN ,STORY688>>
+
+<CONSTANT TEXT017 "The horse and you hit the wall. There is a bright flash, and you find that you have passed straight through into the hill. It must be a faerie mound -- and that's not good. The horse you are riding abruptly changes shape in a puff of smoke. You find yourself on the back of a little knobbly-limbed, white-faced goblin, who promptly collapses under your weight.||You are in a cavern lit by mouse-sized faerie folk, who flit about in the air blazing like fireflies. The other horses have also turned into goblins, elves and faeries of all shapes and sizes.||\"What have we here?\" whispers a pale, dark-eyed elfin woman, dressed in silvery cobwebs and wearing a platinum crown.||\"An overweight mortal sitting on poor old Gobrash, your majesty,\" groans the goblin you are sitting on.||You realize you are in great danger here. There's no telling what the faerie folk will do to you. The queen signals to her people and they close in around you ominously.">
+<CONSTANT CHOICES017 <LTABLE "Make a SANCTITY roll">>
 
 <ROOM STORY017
 	(DESC "017")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT017)
+	(CHOICES CHOICES017)
+	(DESTINATIONS <LTABLE <LTABLE STORY626 STORY268>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SANCTITY 9>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT018 "You spin them a tale about how your poor brother, a mercenary in Grieve Marlock's personal guard, lost his legs in the fight to overthrow the old king, and that you have spent all your money on looking after him.||Several of the militia are brought to tears by your eloquent speech. They end up having a whip-round among themselves for your brother, and they give you 15 Shards. Chuckling to yourself, you return to the city centre.">
 
 <ROOM STORY018
 	(DESC "018")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT018)
+	(EVENTS STORY018-EVENTS)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY018-EVENTS ()
+	<GAIN-MONEY 15>>
+
+<CONSTANT TEXT019 "The Dragon Knights are impressed with your combat skills. Your opponent comes round, ruefully rubbing his neck. Grudgingly, he admits to your superior skill and hands you his weapon and armour. You get an ordinary sword and a suit of heavy plate (Defence +6).">
 
 <ROOM STORY019
 	(DESC "019")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 2)
+	(STORY TEXT019)
+	(EVENTS STORY019-EVENTS)
+	(CONTINUE STORY276)
+	(ITEMS <LTABLE SWORD HEAVY-PLATE>)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT020 "Wary of danger, you lose no time in getting to your feet, but it is only an old man gathering driftwood.||\"What have we here?\" he asks, edging closer. \"All wet and out of luck, you look. Washed-up, eh?\"||\"Where is this?\" Your eyes take in the empty shore, the cliffs, the forest of the hinterland. None of it is familiar to you.||\"You don't know?\" The old man gives you a keener look, and a more serious look comes into his eyes. \"Can it be? After all my waiting, the prophecy is fulfilled at last?\"||\"Prophecy? What are you talking about?\"||\"It was written in the stars that someone like you would come. A traveler from a far land. Great things are in store for you, my young friend.\"||The old man turns smartly about and begins walking up a path. Looking past him, you can just make out a monolithic stone structure atop the cliffs.||\"You still haven't told me where I am.\"||\"This is the Isle of the Druids.\" He gestures to the west. \"The great continent of Harkuna lies a few leagues that way. But if you want to explore it, you'd better come with me.\"||\"Come with you where?\"||He points. \"That ring of stones up there. It's called the Gates of the World.\"">
+<ROUTINE STORY019-EVENTS ()
+	<COND (<CHECK-VISITS-MORE ,STORY019 2> <GAIN-CODEWORD ,CODEWORD-ANVIL>)>>
+
+<CONSTANT TEXT020 "Wary of danger, you lose no time in getting to your feet, but it is only an old man gathering driftwood.||\"What have we here?\" he asks, edging closer. \"All wet and out of luck, you look. Washed-up, eh?\"||\"Where is this?\" Your eyes take in the empty shore, the cliffs, the forest of the hinterland. None of it is familiar to you.||\"You don't know?\" The old man gives you a keener look, and a more serious look comes into his eyes. \"Can it be? After all my waiting, the prophecy is fulfilled at last?\"||\"Prophecy? What are you talking about?\"||\"It was written in the stars that someone like you would come. A traveller from a far land. Great things are in store for you, my young friend.\"||The old man turns smartly about and begins walking up a path. Looking past him, you can just make out a monolithic stone structure atop the cliffs.||\"You still haven't told me where I am.\"||\"This is the Isle of the Druids.\" He gestures to the west. \"The great continent of Harkuna lies a few leagues that way. But if you want to explore it, you'd better come with me.\"||\"Come with you where?\"||He points. \"That ring of stones up there. It's called the Gates of the World.\"">
 <CONSTANT CHOICES020 <LTABLE "Follow him" "Explore the Coast" "Head into the nearby forest">>
 
 <ROOM STORY020
@@ -13057,18 +12914,15 @@
 	(VICTORY F)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT CHOICES681 <LTABLE "Make a SCOUTING roll">>
+
 <ROOM STORY681
 	(DESC "681")
-	(BACKGROUND STORY681-BACKGROUND)
+	(CHOICES CHOICES681)
+	(DESTINATIONS <LTABLE <LTABLE STORY652 STORY529>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY681-BACKGROUND ()
-	<COND (<TEST-ABILITY ,CURRENT-CHARACTER ,ABILITY-SCOUTING 10>
-		<CRLF><CRLF>
-		<RETURN ,STORY652>
-	)>
-	<CRLF><CRLF>
-	<RETURN ,STORY529>>
 
 <ROOM STORY682
 	(DESC "682")

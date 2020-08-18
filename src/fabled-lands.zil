@@ -3,6 +3,8 @@
 <INSERT-FILE "monsters">
 <INSERT-FILE "objects">
 <INSERT-FILE "codewords">
+<INSERT-FILE "titles">
+<INSERT-FILE "numbers">
 <INSERT-FILE "story">
 
 ; "Global constants"
@@ -24,9 +26,13 @@
 <CONSTANT R-CODEWORD 4> ; "presence of codeword(s)"
 <CONSTANT R-CODEWORDS 5> ; "presence of codeword(s)"
 <CONSTANT R-ITEM 6> ; "possession of item (s)"
-<CONSTANT R-ITEMS 7> ; "possession of all these item (s)"
+<CONSTANT R-ALL 7> ; "possession of all these item (s)"
 <CONSTANT R-ANY 8> ; "possession of any of the item (s)"
 <CONSTANT R-MONEY 9> ; "tests abilility to pay indicated amount"
+<CONSTANT R-CODEWORD-ITEM 10> ; "presence of codeword and item"
+<CONSTANT R-DISCHARGE 11> ; "discharge a weapon"
+<CONSTANT R-TITLES 12> ; "check for presence of titles"
+<CONSTANT R-VISITS 13> ; "check if location was visited multiple times"
 
 ; "Ability Types"
 <CONSTANT ABILITY-CHARISMA 1>
@@ -106,11 +112,11 @@
     (SYNONYM BLESSINGS)
     (FLAGS CONTBIT OPENBIT)>
 
-; "container for titles and honors acquired"
+; "container for titles and honours acquired"
 
-<OBJECT TITLES-AND-HONORS
-    (DESC "Titles and Honors")
-    (SYNONYM TITLES HONORS)
+<OBJECT TITLES-AND-HONOURS
+    (DESC "Titles and Honours")
+    (SYNONYM TITLES HONOURS)
     (FLAGS CONTBIT OPENBIT)>
 
 ; "container for resurrection arrangments"
@@ -157,7 +163,7 @@
 <PROPDEF CODEWORDS NONE> ; "list of codewords gained"
 <PROPDEF GOD NONE> ; "God gained"
 <PROPDEF BLESSING NONE> ; "blessings gained"
-<PROPDEF TITLES NONE> ; "titles and honors gained"
+<PROPDEF TITLES NONE> ; "titles and honours gained"
 <PROPDEF MARKS -1> ; "counts the number of times the section has been visited"
 <PROPDEF DOOM F> ; "section ends in doom for the player"
 <PROPDEF VICTORY F> ; "section ends in victory for the player"
@@ -349,7 +355,25 @@
     <COND (<EQUAL? .CHARACTER ,CURRENT-CHARACTER> <SET RESULT <+ .RESULT <FIND-BEST ,P?COMBAT NONE ,BLESSINGS>>>)>
     <COND (<G? .RESULT 12> <SET .RESULT 12>)>
     <RETURN .RESULT>>
-       
+
+; "Wrapper for combat. Sets DOOM on result"
+<ROUTINE CHECK-COMBAT (MONSTER "OPT" STORY)
+    <COND (<NOT .STORY> <SET STORY ,HERE>)>
+    <COND (<FIGHT .MONSTER>
+       <PREVENT-DEATH .STORY>
+       <RTRUE>
+    )(ELSE
+        <PUTP .STORY ,P?DOOM T>
+        <RFALSE>
+    )>>
+
+; "Initialize Monser Stats"
+
+<ROUTINE COMBAT-MONSTER (MONSTER COMBAT DEFENSE STAMINA)
+    <PUT .MONSTER ,P?COMBAT .COMBAT>
+    <PUT .MONSTER ,P?DEFENSE .DEFENSE>
+    <PUT .MONSTER ,P?DEFENSE .STAMINA>>
+
 ; "Display combatants' status"
 
 <ROUTINE COMBAT-STATUS (ROUND MONSTER STAMINA-PLAYER STAMINA-MONSTER)
@@ -433,6 +457,48 @@
 ; "Story Routines - print story, process choices"
 ; ---------------------------------------------------------------------------------------------
 
+<ROUTINE ADD-QUANTITY (OBJECT "OPT" AMOUNT CONTAINER "AUX" QUANTITY CURRENT)
+	<COND (<NOT .OBJECT> <RETURN>)>
+	<COND (<L=? .AMOUNT 0> <RETURN>)>
+	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
+	<COND (<EQUAL? .CONTAINER ,PLAYER>
+		<DO (I 1 .AMOUNT)
+			<TAKE-ITEM .OBJECT>
+		>
+	)(ELSE
+		<SET CURRENT <GETP .OBJECT ,P?QUANTITY>>
+		<SET QUANTITY <+ .CURRENT .AMOUNT>>
+		<PUTP .OBJECT ,P?QUANTITY .QUANTITY>
+	)>>
+
+<ROUTINE BUY-STUFF (ITEM PLURAL PRICE "OPT" LIMIT "AUX" QUANTITIES)
+	<COND (<NOT .LIMIT> <SET LIMIT 8>)>
+	<COND (<G=? ,MONEY .PRICE>
+		<CRLF>
+		<TELL "Buy " D .ITEM " for " N .PRICE " " D ,CURRENCY " each?">
+		<COND (<YES?>
+			<REPEAT ()
+				<SET QUANTITIES <GET-NUMBER "How many will you buy" 0 .LIMIT>>
+				<COND (<G? .QUANTITIES 0>
+					<COND (<L=? <* .QUANTITIES .PRICE> ,MONEY>
+						<CRLF>
+						<HLIGHT ,H-BOLD>
+						<TELL "You purchased " N .QUANTITIES " ">
+						<COND (<G? .QUANTITIES 1> <TELL .PLURAL>)(ELSE <TELL D .ITEM>)>
+						<TELL ,PERIOD-CR>
+						<COST-MONEY <* .QUANTITIES .PRICE>>
+						<ADD-QUANTITY .ITEM .QUANTITIES>
+						<COND (<L? ,MONEY .PRICE> <RETURN>)>
+					)(ELSE
+						<EMPHASIZE "You can't afford that!">
+					)>
+				)(ELSE
+					<RETURN>
+				)>
+			>
+		)>
+	)>>
+
 <ROUTINE CHECK-BACKGROUND ("AUX" BACKGROUND STORY)
     <SET BACKGROUND <GETP ,HERE ,P?BACKGROUND>>
     <COND (.BACKGROUND
@@ -441,12 +507,20 @@
         <UPDATE-STATUS-LINE>
     )>>
 
+<ROUTINE CHECK-VEHICLE (RIDE)
+	<COND (<OR <IN? .RIDE ,VEHICLES> <AND ,CURRENT-VEHICLE <EQUAL? ,CURRENT-VEHICLE .RIDE>>> <RTRUE>)>
+	<RFALSE>>
+
 <ROUTINE CHECK-DOOM ("AUX" DOOM)
     <SET DOOM <GETP ,HERE ,P?DOOM>>
     <COND (.DOOM
         <PRINT-ENDING BAD-ENDING 3>
         <SETG CONTINUE-TO-CHOICES F>
     )>>
+
+<ROUTINE CHECK-EVENTS ("AUX" EVENTS)
+    <SET EVENTS <GETP ,HERE ,P?EVENTS>>
+    <COND (.EVENTS <APPLY .EVENTS>)>>
 
 <ROUTINE CHECK-VICTORY ("AUX" VICTORY)
     <SET VICTORY <GETP ,HERE ,P?VICTORY>>
@@ -459,9 +533,19 @@
         <SETG CONTINUE-TO-CHOICES F>
     )>>
 
-<ROUTINE CHECK-EVENTS ("AUX" EVENTS)
-    <SET EVENTS <GETP ,HERE ,P?EVENTS>>
-    <COND (.EVENTS <APPLY .EVENTS>)>>
+<ROUTINE CODEWORD-JUMP (CODEWORD STORY)
+	<COND (<CHECK-CODEWORD .CODEWORD> <STORY-JUMP .STORY>)>>
+
+<ROUTINE DELETE-CODEWORD (CODEWORD)
+	<COND (<AND .CODEWORD <CHECK-CODEWORD .CODEWORD>>
+		<CRLF>
+		<TELL "You lose the codeword ">
+		<HLIGHT ,H-ITALIC>
+		<TELL D .CODEWORD>
+		<HLIGHT 0>
+		<TELL ,PERIOD-CR>
+		<REMOVE .CODEWORD>
+	)>>
 
 <ROUTINE IF-ALIVE (TEXT)
     <COND (<IS-ALIVE> <TELL CR .TEXT CR>)>>
@@ -470,6 +554,41 @@
     <COND (<NOT .THRESHOLD> <SET THRESHOLD 0>)>
     <COND (<G? ,STAMINA .THRESHOLD> <RTRUE>)>
     <RFALSE>>
+
+<ROUTINE ITEM-JUMP (ITEM STORY)
+	<COND (<CHECK-ITEM .ITEM> <STORY-JUMP .STORY>)>>
+
+<ROUTINE KEEP-ITEM (ITEM "OPT" JUMP)
+	<CRLF>
+	<TELL "Keep " T .ITEM "?">
+	<COND (<YES?>
+		<COND (<NOT <CHECK-ITEM .ITEM>> <TAKE-ITEM .ITEM>)>
+		<COND (.JUMP <STORY-JUMP .JUMP>)>
+		<RTRUE>
+	)>
+	<COND (<CHECK-ITEM .ITEM> <LOSE-ITEM .ITEM>)>
+	<RFALSE>>
+
+<ROUTINE LOSE-VEHICLE (VEHICLE)
+	<COND (.VEHICLE
+		<COND (<CHECK-VEHICLE .VEHICLE>
+			<REMOVE .VEHICLE>
+			<SETG CURRENT-VEHICLE NONE>
+			<UPDATE-STATUS-LINE>
+		)>
+	)>>
+
+<ROUTINE MARK-VISITS ("OPT" SECTION VISITS)
+    <COND (<NOT .SECTION> <SET SECTION ,HERE>)>
+    <SET VISITS <GETP .SECTION ,P?VISITS>>
+    <COND (.VISITS
+        <INC .VISITS>
+        <PUTP .SECTION ,P?VISITS .VISITS>
+    )>>
+
+<ROUTINE PREVENT-DEATH ("OPT" STORY)
+	<COND (<NOT .STORY> <SET STORY ,HERE>)>
+	<COND (<GETP .STORY ,P?DOOM> <PUTP .STORY ,P?DOOM F>)>>
 
 <ROUTINE PRINT-SECTION ("OPT" SECTION "AUX" TEXT)
     <COND (<NOT .SECTION> <SET SECTION ,HERE>)>
@@ -486,9 +605,30 @@
     <SET TYPES <GETP ,HERE ,P?TYPES>>
     <TELL CR "What will you choose? ">
     <REPEAT ()
-        <SET KEY <INPUT 1>>
-        <COND (<AND <G=? .KEY !\1> <L=? .KEY !\9>>
-            <SET CHOICE <- .KEY !\0>>
+        <REPEAT ()
+            <SET KEY <INPUT 1>>
+            <COND (
+                <OR
+                    <AND <G=? .KEY !\1> <L=? .KEY !\9>>
+                    <AND <G=? .KEY !\A> <L=? .KEY !\J> <G? <GET .CHOICES 0> 9>>
+                    <AND <G=? .KEY !\a> <L=? .KEY !\j> <G? <GET .CHOICES 0> 9>>
+                    <AND <EQUAL? .KEY !\C !\c> <L? <GET .CHOICES 0> 12>>
+                    <AND <EQUAL? .KEY !\H !\h> <L? <GET .CHOICES 0> 17>>
+                    <AND <EQUAL? .KEY !\I !\i> <L? <GET .CHOICES 0> 18>>
+                    <EQUAL? .KEY !\? !\Q !\q !\R !\r !\S !\s>
+                >
+                <RETURN>
+            )>
+        >
+        <COND (
+            <OR
+                <AND <G=? .KEY !\1> <L=? .KEY !\9>>
+                <AND <G=? .KEY !\A> <L=? .KEY !\J> <G? <GET .CHOICES 0> 9>>
+                <AND <G=? .KEY !\a> <L=? .KEY !\j> <G? <GET .CHOICES 0> 9>>
+            >
+            <COND (<AND <G=? .KEY !\1> <L=? .KEY !\9>> <SET CHOICE <- .KEY !\0>>)>
+            <COND (<AND <G=? .KEY !\A> <L=? .KEY !\J>> <SET CHOICE <+ <- .KEY !\A> 10>>)>
+            <COND (<AND <G=? .KEY !\a> <L=? .KEY !\j>> <SET CHOICE <+ <- .KEY !\a> 10>>)>
             <COND (<AND <G=? <GET .CHOICES 0> 1> <L=? .CHOICE <GET .CHOICES 0>>>
                 <COND (.REQUIREMENTS <SET LIST <GET .REQUIREMENTS .CHOICE>>)>
                 <COND (<AND <G=? .CHOICE 1> <L=? .CHOICE <GET .DESTINATIONS 0>> <L=? .CHOICE <GET .TYPES 0>>>
@@ -515,10 +655,29 @@
                             <HLIGHT 0>
                             <PRESS-A-KEY>
                         )>
+                    )(<AND <EQUAL? .TYPE R-CODEWORDS> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+                        <COND (<CHECK-CODEWORDS .LIST>
+                            <SETG HERE <GET .DESTINATIONS .CHOICE>>
+                            <CRLF>
+                        )(ELSE
+                            <NOT-ALL-ANY R-ALL .LIST ,CODEWORDS>
+                        )>
                     )(<AND <EQUAL? .TYPE R-ITEM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
                         <COND (<CHECK-ITEM .LIST>
                             <SETG HERE <GET .DESTINATIONS .CHOICE>>
                             <CRLF>
+                        )(ELSE
+                            <NOT-POSSESSED .LIST>
+                        )>
+                    )(<AND <OR <EQUAL? .TYPE R-DISCHARGE> <EQUAL? .TYPE R-ITEM>> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+                        <COND (<CHECK-ITEM .LIST>
+                            <COND (<CHECK-CHARGES .LIST>
+                                <COND (<EQUAL? .TYPE R-DISCHARGE> <DISCHARGE-ITEM .LIST 1>)>
+                                <SETG HERE <GET .DESTINATIONS .CHOICE>>
+                                <CRLF>
+                            )(ELSE
+                                <NOT-CHARGED <GET .REQUIREMENTS .CHOICE>>
+                            )>
                         )(ELSE
                             <HLIGHT ,H-BOLD>
                             <CRLF><CRLF>
@@ -533,6 +692,25 @@
                             <HLIGHT 0>
                             <PRESS-A-KEY>
                         )>
+                    )(<AND <EQUAL? .TYPE R-CODEWORD-ITEM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+                        <COND (<AND <CHECK-CODEWORD <GET .LIST 1>> <CHECK-ITEM <GET .LIST 2>>>
+                            <SETG HERE <GET .DESTINATIONS .CHOICE>>
+                            <CRLF>
+                        )(ELSE
+                            <HLIGHT ,H-BOLD>
+                            <CRLF><CRLF>
+                            <TELL "You do not have " T <GET .LIST 1> " codeword or ">
+                            <COND (<FSET? <GET .LIST 2> ,NARTICLEBIT>
+                                <TELL "the">
+                            )(<FSET? <GET .LIST 2> ,VOWELBIT>
+                                <TELL "an">
+                            )(ELSE
+                                <TELL "a">
+                            )>
+                            <TELL " " D <GET .LIST 2> ,EXCLAMATION-CR>
+                            <HLIGHT 0>
+                            <PRESS-A-KEY>
+                        )>
                     )>
                     <RETURN>
                 )(ELSE
@@ -543,8 +721,14 @@
                 )>
             )>
         )>
-        <COND (<SPECIAL-INTERRUPT-ROUTINE .KEY> <RETURN>)>
-        <COND (<EQUAL? .KEY !\c !\C !\i !\I !\q !\Q !\h !\H !\? !\r !\R !\s !\S> <CRLF> <RETURN>)>
+        <COND (<OR <AND <G=? .KEY !\A> <L=? .KEY !\Z>> <AND <G=? .KEY !\a> <L=? .KEY !\z>>>
+            <COND (<AND <G=? .KEY !\A> <L=? .KEY !\Z> <G=? <GET .CHOICES 0> <+ <- .KEY !\A> 10>> <SPECIAL-INTERRUPT-ROUTINE .KEY>> <RETURN>)>
+            <COND (<AND <G=? .KEY !\a> <L=? .KEY !\z> <G=? <GET .CHOICES 0> <+ <- .KEY !\a> 10>> <SPECIAL-INTERRUPT-ROUTINE .KEY>> <RETURN>)>
+        )>
+        <COND (<EQUAL? .KEY !\? !\q !\Q !\r !\R !\s !\S> <CRLF> <RETURN>)>
+        <COND (<AND <EQUAL? .KEY !\c !\C> <L? <GET .CHOICES 0> 12>> <CRLF> <RETURN>)>
+        <COND (<AND <EQUAL? .KEY !\h !\H> <L? <GET .CHOICES 0> 17>> <CRLF> <RETURN>)>
+        <COND (<AND <EQUAL? .KEY !\i !\I> <L? <GET .CHOICES 0> 18>> <CRLF> <RETURN>)>
     >
     <RETURN .KEY>>
 
@@ -563,15 +747,29 @@
                 <SET CHOICE-TYPE <GET .TYPES .I>>
                 <COND (.REQUIREMENTS <SET LIST <GET .REQUIREMENTS .I>>)>
                 <HLIGHT ,H-BOLD>
-                <TELL N .I ") ">
+                <COND (<L? .I 10>
+                    <TELL N .I> 
+                )(ELSE
+                    <TELL C <+ !\A <- .I 10>>>
+                )>
+                <TELL ") ">
                 <HLIGHT 0>
                 <TELL <GET .CHOICES .I>>
-                <COND (<AND <EQUAL? .CHOICE-TYPE ,R-TEST-ABILITY> .REQUIREMENTS> <TELL " (" N <GET .LIST 2> " difficulty)">)>
-                <COND (<AND <EQUAL? .CHOICE-TYPE ,R-ITEM ,R-CODEWORD> .REQUIREMENTS> <TELL " "> <COND (<EQUAL? .CHOICE-TYPE ,R-ITEM> <HLIGHT ,H-BOLD>)(ELSE <HLIGHT ,H-ITALIC>)> <TELL D .LIST> <HLIGHT 0>)>
+                <COND (<AND <EQUAL? .CHOICE-TYPE ,R-TEST-ABILITY> .REQUIREMENTS> <TELL " (Difficulty: "> <HLIGHT ,H-BOLD> <TELL N <GET .LIST 2>> <HLIGHT 0> <TELL")">)>
+                <COND (<AND <EQUAL? .CHOICE-TYPE ,R-ITEM ,R-CODEWORD ,R-DISCHARGE> .REQUIREMENTS> <TELL " ("> <COND (<EQUAL? .CHOICE-TYPE ,R-ITEM ,R-DISCHARGE> <HLIGHT ,H-BOLD>)(ELSE <HLIGHT ,H-ITALIC>)> <TELL D .LIST> <HLIGHT 0> <TELL ")">)>
+                <COND (<AND <EQUAL? .CHOICE-TYPE ,R-CODEWORD-ITEM> .REQUIREMENTS> <TELL " ("> <HLIGHT ,H-ITALIC> <TELL D <GET .LIST 1>> <HLIGHT 0> <TELL " and "> <HLIGHT ,H-BOLD> <TELL D <GET .LIST 2>> <HLIGHT 0> <TELL ")">)>
+                <COND (<AND <EQUAL? .CHOICE-TYPE R-MONEY> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (" N .LIST " " D ,CURRENCY ")">)>)>
+                <COND (<AND <EQUAL? .CHOICE-TYPE R-ANY> .REQUIREMENTS> <PRINT-ANY .LIST>)>
+                <COND (<AND <EQUAL? .CHOICE-TYPE R-ALL> .REQUIREMENTS> <PRINT-ALL .LIST>)>
+                <COND (<AND <EQUAL? .CHOICE-TYPE R-VISITS> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (visited > " N .LIST " times)">)>)>
                 <CRLF>
             >
             <SET CHOICE <PROCESS-CHOICES .CHOICES>>
-            <COND (.CHOICE <RETURN>)>
+            <COND (.CHOICE
+                <COND (<AND <G=? .CHOICE !\A> <L=? .CHOICE !\Z> <G=? <GET .CHOICES 0> <+ <- .CHOICE !\A> 10>>> <SET .CHOICE NONE> <RETURN>)>
+                <COND (<AND <G=? .CHOICE !\a> <L=? .CHOICE !\z> <G=? <GET .CHOICES 0> <+ <- .CHOICE !\a> 10>>> <SET .CHOICE NONE> <RETURN>)>
+                <RETURN>
+            )>
         >
         <COND (<EQUAL? .CURRENT-LOC ,HERE> <SETG RUN-ONCE F>)>
         <RETURN .CHOICE>
@@ -582,12 +780,73 @@
     )>
     <RETURN !\x>>
 
+<ROUTINE SELL-STUFF (ITEM PLURAL PRICE "AUX" (ITEMS-SOLD 0) (QUANTITY 0))
+	<SET QUANTITY <GETP .ITEM ,P?QUANTITY>>
+	<CRLF>
+	<TELL "Sell " D .ITEM " at " N .PRICE " " D ,CURRENCY " each?">
+	<COND (<YES?>
+		<SET ITEMS-SOLD <GET-NUMBER "How many will you sell" 0 .QUANTITY>>
+		<COND (<G? .ITEMS-SOLD 0>
+			<SETG ,MONEY <+ ,MONEY <* .ITEMS-SOLD .PRICE>>>
+			<SET .QUANTITY <- .QUANTITY .ITEMS-SOLD>>
+			<CRLF>
+			<TELL "You sold " N .ITEMS-SOLD " ">
+			<HLIGHT ,H-BOLD>
+			<COND (<G? .ITEMS-SOLD 1> <TELL .PLURAL>)(ELSE <TELL D .ITEM>)>
+			<HLIGHT 0>
+			<TELL ,PERIOD-CR>
+			<COND (<G? .QUANTITY 0>
+				<PUTP .ITEM ,P?QUANTITY .QUANTITY>
+			)(ELSE
+				<PUTP .ITEM ,P?QUANTITY 1>
+				<REMOVE .ITEM>
+			)>
+		)>
+	)>>
+
 <ROUTINE STORY-JUMP (STORY)
     <COND (.STORY
         <SETG HERE .STORY>
         <SETG CONTINUE-TO-CHOICES F>
         <PRESS-A-KEY>
     )>>
+
+<ROUTINE TAKE-VEHICLE (VEHICLE)
+	<COND (.VEHICLE
+		<COND (,CURRENT-VEHICLE <REMOVE ,CURRENT-VEHICLE>)>
+		<MOVE .VEHICLE ,VEHICLES>
+		<SETG CURRENT-VEHICLE .VEHICLE>
+		<UPDATE-STATUS-LINE>
+	)>>
+
+<ROUTINE TAKE-QUANTITIES (OBJECT PLURAL MESSAGE "OPT" AMOUNT)
+	<CRLF>
+	<TELL "Take the " .PLURAL "?">
+	<COND (<YES?> <ADD-QUANTITY .OBJECT <GET-NUMBER .MESSAGE 0 .AMOUNT> ,PLAYER>)>>
+
+<ROUTINE TAKE-STUFF (ITEM PLURAL "OPT" AMOUNT "AUX" TAKEN)
+	<COND (<NOT .AMOUNT> <SET .AMOUNT 1>)>
+	<CRLF>
+	<TELL "Take the ">
+	<COND (<G? .AMOUNT 1> <TELL .PLURAL>)(<TELL D .ITEM>)>
+	<TELL "?">
+	<COND (<YES?>
+		<COND (<G? .AMOUNT 1>
+			<SET TAKEN <GET-NUMBER "How many will you take" 0 .AMOUNT>>
+			<ADD-QUANTITY .ITEM .AMOUNT ,PLAYER>
+			<RETURN .TAKEN>
+		)(ELSE
+			<TAKE-ITEM .ITEM>
+			<RETURN 1>
+		)>
+	)>
+	<RETURN 0>>
+
+<ROUTINE TITLE-JUMP (TITLE STORY "AUX")
+	<COND (<CHECK-TITLE .TITLE> <STORY-JUMP .STORY>)>>
+
+<ROUTINE TITLES-JUMP (TITLES STORY "AUX")
+	<COND (<CHECK-TITLES .TITLES> <STORY-JUMP .STORY>)>>
 
 ; "Story - Choice Requirements Validations"
 ; ---------------------------------------------------------------------------------------------
@@ -638,6 +897,17 @@
         <RETURN <AND <IN? .ITEM ,PLAYER> <G? .QUANTITY 0>>>
     )>>
 
+<ROUTINE CHECK-MONEY (AMOUNT)
+    <COND (<OR <AND <G? .AMOUNT 0> <L? ,MONEY .AMOUNT>> <L=? ,MONEY 0>>
+        <CRLF><CRLF>
+        <HLIGHT ,H-BOLD>
+        <TELL "You do not have enough " D ,CURRENCY ,PERIOD-CR>
+        <HLIGHT 0>
+        <PRESS-A-KEY>
+        <RFALSE>
+    )>
+    <RTRUE>>
+
 <ROUTINE CHECK-STAMINA (AMOUNT)
     <COND (<G? .AMOUNT 0>
         <COND (<L=? ,STAMINA .AMOUNT>
@@ -651,29 +921,36 @@
     )>
     <RTRUE>>
 
-<ROUTINE CHECK-MONEY (AMOUNT)
-    <COND (<OR <AND <G? .AMOUNT 0> <L? ,MONEY .AMOUNT>> <L=? ,MONEY 0>>
-        <CRLF><CRLF>
-        <HLIGHT ,H-BOLD>
-        <TELL "You do not have enough " D ,CURRENCY ,PERIOD-CR>
-        <HLIGHT 0>
-        <PRESS-A-KEY>
-        <RFALSE>
-    )>
+<ROUTINE CHECK-TITLE (TITLE)
+    <COND (<NOT .TITLE> <RTRUE>)>
+    <RETURN <IN? .TITLE ,TITLES-AND-HONOURS>>>
+
+<ROUTINE CHECK-TITLES (TITLES "AUX" COUNT)
+    <SET COUNT <GET .TITLES 0>>
+    <DO (I 1 .COUNT)
+        <COND (<NOT <CHECK-TITLE <GET .TITLES .I>>> <RFALSE>)>
+    >
     <RTRUE>>
 
-<ROUTINE CHECK-POSSESSIONS (ITEM)
-    <COND (.ITEM
-        <COND (<NOT <CHECK-ITEM .ITEM>>
-            <NOT-POSSESSED .ITEM>
-            <RFALSE>
-        )>
+<ROUTINE CHECK-VISITS-EQUAL ("OPT" LOCATION COUNTER "AUX" VISITS)
+    <COND (<NOT .LOCATION> <SET LOCATION ,HERE>)>
+    <COND (<NOT .COUNTER> <SET .COUNTER 1>)>
+    <SET VISITS <GETP .LOCATION ,P?VISITS>>
+    <COND (.VISITS
+        <RETURN <EQUAL? .VISITS .COUNTER>>
     )>
-    <RTRUE>>
+    <RFALSE>>
+
+<ROUTINE CHECK-VISITS-MORE ("OPT" LOCATION COUNTER "AUX" VISITS)
+    <COND (<NOT .LOCATION> <SET LOCATION ,HERE>)>
+    <COND (<NOT .COUNTER> <SET .COUNTER 1>)>
+    <SET VISITS <GETP .LOCATION ,P?VISITS>>
+    <COND (.VISITS <RETURN <G? .VISITS .COUNTER>>)>
+    <RFALSE>>
 
 <ROUTINE NOT-ALL-ANY (TYPE LIST "OPT" CONTAINER "AUX" COUNT)
     <COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
-    <COND (<EQUAL? .TYPE R-ANY R-ITEMS>
+    <COND (<EQUAL? .TYPE R-ANY R-ALL>
         <SET COUNT <GET .LIST 0>>
         <HLIGHT ,H-BOLD>
         <CRLF>
@@ -681,7 +958,7 @@
         <COND (<G? .COUNT 1>
             <COND (<EQUAL? .TYPE R-ANY>
                 <TELL "any">
-            )(<EQUAL? .TYPE R-ITEMS>
+            )(<EQUAL? .TYPE R-ALL>
                 <TELL "all">
             )>
             <TELL " of the">
@@ -713,7 +990,7 @@
                 <HLIGHT 0>
                 <COND (<EQUAL? .TYPE R-ANY>
                     <PRINT-ANY .LIST>
-                )(<EQUAL? .TYPE R-ITEMS>
+                )(<EQUAL? .TYPE R-ALL>
                     <PRINT-ALL .LIST>
                 )>
             )(ELSE
@@ -729,17 +1006,24 @@
         <PRESS-A-KEY>
     )>>
 
-<ROUTINE NOT-CHARGED (OBJ)
+<ROUTINE NOT-CHARGED (OBJECT)
     <CRLF><CRLF>
     <HLIGHT ,H-BOLD>
-    <TELL CT .OBJ " has no charges left" ,PERIOD-CR>
+    <TELL CT .OBJECT " has no charges left" ,PERIOD-CR>
     <HLIGHT 0>
     <PRESS-A-KEY>>
 
-<ROUTINE NOT-POSSESSED (OBJ)
-    <CRLF><CRLF>
+<ROUTINE NOT-POSSESSED (OBJECT)
     <HLIGHT ,H-BOLD>
-    <TELL "You do not possess " A .OBJ ,PERIOD-CR>
+    <CRLF><CRLF>
+    <TELL "You do not have ">
+    <COND (<FSET? .OBJECT ,NARTICLEBIT>
+        <TELL "the">
+    )(ELSE
+        <TELL "a">
+        <COND (<FSET? .OBJECT ,VOWELBIT> <TELL "n">)>
+    )>
+    <TELL " " D .OBJECT ,EXCLAMATION-CR>
     <HLIGHT 0>
     <PRESS-A-KEY>>
 
@@ -1193,7 +1477,7 @@
             <TELL "Profession: " D <GETP ,CURRENT-CHARACTER ,P?PROFESSION> CR>
         )>
         <TELL "Stamina: " N <GETP ,CURRENT-CHARACTER ,P?STAMINA> CR>
-        <TELL "Defense: " N <GETP ,CURRENT-CHARACTER ,P?DEFENSE> CR>
+        <TELL "Defense: " N <CALCULATE-DEFENSE ,CURRENT-CHARACTER ,PLAYER> CR>
         <TELL "Money: " N <GETP ,CURRENT-CHARACTER ,P?MONEY> CR>
         <CRLF>
         <TELL "CHARISMA: " N <GETP ,CURRENT-CHARACTER ,P?CHARISMA> CR>
@@ -1209,7 +1493,7 @@
         <PRINT-CONTAINER ,PLAYER>
         <CRLF>
         <HLIGHT ,H-BOLD>
-        <TELL "Codewords: ">
+        <TELL D ,CODEWORDS ": ">
         <HLIGHT 0>
         <PRINT-CONTAINER ,CODEWORDS>
         <COND (<FIRST? VEHICLES>
@@ -1222,10 +1506,36 @@
         )>
         <CRLF>
         <HLIGHT ,H-BOLD>
+        <TELL D ,TITLES-AND-HONOURS ": ">
+        <HLIGHT 0>
+        <PRINT-CONTAINER ,TITLES-AND-HONOURS>
+        <CRLF>
+        <HLIGHT ,H-BOLD>
+        <TELL D ,BLESSINGS ": ">
+        <HLIGHT 0>
+        <PRINT-CONTAINER ,BLESSINGS>
+        <CRLF>
+        <HLIGHT ,H-BOLD>
+        <TELL D ,RESURRECTION-ARRANGEMENTS ": ">
+        <HLIGHT 0>
+        <PRINT-CONTAINER ,RESURRECTION-ARRANGEMENTS>
+        <CRLF>
+        <HLIGHT ,H-BOLD>
         <PRINT-CAP-OBJ ,CURRENCY>
         <HLIGHT 0>
         <TELL ": ">
         <TELL N ,MONEY CR>
+    )>>
+
+<ROUTINE GAIN-CODEWORD (CODEWORD)
+    <COND (<NOT <CHECK-CODEWORD .CODEWORD>>
+        <CRLF>
+        <TELL "You gained the codeword ">
+        <HLIGHT ,H-BOLD>
+        <TELL D .CODEWORD>
+        <HLIGHT 0>
+        <TELL ,PERIOD-CR>
+        <MOVE .CODEWORD ,CODEWORDS>
     )>>
 
 <ROUTINE GAIN-CODEWORDS ("OPT" CODEWORDS COUNT)
@@ -1233,18 +1543,12 @@
     <COND (.CODEWORDS
         <SET COUNT <GET .CODEWORDS 0>>
         <DO (I 1 .COUNT)
-            <CRLF>
-            <TELL "You gained the codeword ">
-            <HLIGHT ,H-BOLD>
-            <TELL D <GET .CODEWORDS .I>>
-            <HLIGHT 0>
-            <TELL ,PERIOD-CR>
-            <MOVE <GET .CODEWORDS .I> ,CODEWORDS>
+            <GAIN-CODEWORD <GET .CODEWORDS .I>>
         >
     )>>
 
-<ROUTINE GAIN-ITEMS ("AUX" ITEMS COUNT)
-    <SET ITEMS <GETP ,HERE ,P?ITEMS>>
+<ROUTINE GAIN-ITEMS ("OPT" ITEMS "AUX" COUNT)
+    <COND (<NOT .ITEMS> <SET ITEMS <GETP ,HERE ,P?ITEMS>>)>
     <COND (.ITEMS
         <SET COUNT <GET .ITEMS 0>>
         <DO (I 1 .COUNT)
@@ -1365,18 +1669,18 @@
 <ROUTINE LOSE-ITEM (ITEM "OPT" (SILENT F))
     <REMOVE-ITEM .ITEM "lost" F .SILENT>>
 
-<ROUTINE LOSE-STAMINA (DMG MSG STORY)
-    <SETG STAMINA <- ,STAMINA .DMG>>
+<ROUTINE LOSE-STAMINA (DAMAGE MESSAGE STORY)
+    <SETG STAMINA <- ,STAMINA .DAMAGE>>
     <COND (<L? ,STAMINA 0> <SETG STAMINA 0>)>
     <UPDATE-STATUS-LINE>
     <CRLF>
     <HLIGHT ,H-BOLD>
     <COND (<L? ,STAMINA 1>
-        <TELL .MSG>
+        <TELL .MESSAGE>
         <SETG CONTINUE-TO-CHOICES F>
     )(ELSE
         <PUTP .STORY ,P?DOOM F>
-        <TELL "You lost " N .DMG " stamina">
+        <TELL "You lost " N .DAMAGE " stamina">
     )>
     <HLIGHT 0>
     <TELL ,PERIOD-CR>
@@ -1819,6 +2123,25 @@
     )>
     <RETURN 0>>
 
+<ROUTINE GET-NUMBER (MESSAGE "OPT" MINIMUM MAXIMUM "AUX" COUNT)
+	<REPEAT ()
+		<CRLF>
+		<TELL .MESSAGE>
+		<COND (<AND <OR <ASSIGNED? MINIMUM> <ASSIGNED? MAXIMUM>> <G? .MAXIMUM .MINIMUM>>
+			<TELL " (" N .MINIMUM "-" N .MAXIMUM ")">
+		)>
+		<TELL "? ">
+		<READLINE>
+		<COND (<EQUAL? <GETB ,LEXBUF 1> 1> <SET COUNT <CONVERT-TO-NUMBER 1 10>>
+			<COND (<OR .MINIMUM .MAXIMUM>
+				<COND (<AND <G=? .COUNT .MINIMUM> <L=? .COUNT .MAXIMUM>> <RETURN>)>
+			)(<G? .COUNT 0>
+				<RETURN>
+			)>
+		)>
+	>
+	<RETURN .COUNT>>
+
 <ROUTINE PRESS-A-KEY ()
     <TELL CR "[Press a key to continue]" CR>
     <INPUT 1>
@@ -1841,6 +2164,9 @@
     <COND (,HERE
         <CURSET 1 1>
         <TELL D ,HERE>
+        <COND (<G? <GETP ,HERE ,P?VISITS> 1>
+            <TELL " (Visited " N <GETP ,HERE ,P?VISITS> " times)">
+        )>
         <COND (,CURRENT-CHARACTER
             <COND (,CURRENT-VEHICLE <TELL " " D ,CURRENT-VEHICLE>)>
             <CURSET 1 <- .WIDTH 16>>
@@ -1863,20 +2189,6 @@
 ; "Gamebook loop routines"
 ; ---------------------------------------------------------------------------------------------
 
-<ROUTINE QUIT-MSG ()
-    <TELL CR "Thanks for playing" ,PERIOD-CR>
-    <QUIT>>
-
-<ROUTINE PRINT-ENDING (MESSAGE "OPT" COLOR)
-    <COND (<NOT .COLOR> <SET COLOR 1>)>
-    <CRLF>
-    <HLIGHT ,H-BOLD>
-    <COLOR .COLOR 0>
-    <TELL .MESSAGE>
-    <COLOR 1 0>
-    <HLIGHT 0>
-    <GAMES-UP>>
-
 <ROUTINE GAMES-UP ("OPT" TEXT "AUX" W)
     <COND (.TEXT <TELL .TEXT CR>)>
     <CRLF>
@@ -1897,6 +2209,20 @@
         >
     >>
 
+<ROUTINE PRINT-ENDING (MESSAGE "OPT" COLOR)
+    <COND (<NOT .COLOR> <SET COLOR 1>)>
+    <CRLF>
+    <HLIGHT ,H-BOLD>
+    <COLOR .COLOR 0>
+    <TELL .MESSAGE>
+    <COLOR 1 0>
+    <HLIGHT 0>
+    <GAMES-UP>>
+
+<ROUTINE QUIT-MSG ()
+    <TELL CR "Thanks for playing" ,PERIOD-CR>
+    <QUIT>>
+
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
 
@@ -1908,14 +2234,15 @@
     <RESET-STORY>
     <CHOOSE-CHARACTER>
     <SETG HERE ,STARTING-POINT>
-    <UPDATE-STATUS-LINE>
     <SETG RUN-ONCE T>
     <REPEAT ()
         <CRLF>
         <RESET-CHOICES>
+        <MARK-VISITS>
         <CHECK-BACKGROUND>
         <SET CURRENT-LOC ,HERE>
         <GOTO ,HERE>
+        <UPDATE-STATUS-LINE>
         <PRINT-SECTION>
         <CHECK-EVENTS>
         <COND (<EQUAL? .CURRENT-LOC ,HERE>
@@ -1929,11 +2256,11 @@
         <COND (,CONTINUE-TO-CHOICES
             <SET KEY <PROCESS-STORY>>
             <COND (<EQUAL? .KEY !\c !\C> <DESCRIBE-PLAYER> <PRESS-A-KEY> <SET KEY NONE>)>
-            <COND (<EQUAL? .KEY !\i !\I> <DESCRIBE-INVENTORY> <PRESS-A-KEY> <SET KEY NONE>)>
             <COND (<EQUAL? .KEY !\h !\H !\?> <DISPLAY-HELP> <PRESS-A-KEY> <SET KEY NONE>)>
+            <COND (<EQUAL? .KEY !\i !\I> <DESCRIBE-INVENTORY> <PRESS-A-KEY> <SET KEY NONE>)>
             <COND (<EQUAL? .KEY !\q !\Q> <CRLF> <TELL "Are you sure you want to quit the game?"> <COND(<YES?> <RETURN>)>)>
-            <COND (<EQUAL? .KEY !\s !\S> <CRLF> <TELL "Save current progress?"> <COND (<YES?> <COND (<NOT <SAVE>> <EMPHASIZE "Save failed."> <PRESS-A-KEY>)>)>)>
             <COND (<EQUAL? .KEY !\r !\R> <CRLF> <TELL "Restore from a previous save?"> <COND (<YES?> <COND (<NOT <RESTORE>> <EMPHASIZE "Restore failed."> <PRESS-A-KEY>)>)>)>
+            <COND (<EQUAL? .KEY !\s !\S> <CRLF> <TELL "Save current progress?"> <COND (<YES?> <COND (<NOT <SAVE>> <EMPHASIZE "Save failed."> <PRESS-A-KEY>)>)>)>
             <COND (<EQUAL? .KEY !\x !\X> <RETURN>)>
         )>
         <UPDATE-STATUS-LINE>
