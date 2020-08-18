@@ -123,11 +123,7 @@
 
 ; "container for resurrection arrangments"
 
-<OBJECT RESURRECTION-ARRANGEMENTS
-    (DESC "Resurrection Arrangements")
-    (SYNONYM ARRANGEMENTS)
-    (ADJECTIVE RESURRECTION)
-    (FLAGS CONTBIT OPENBIT)>
+<GLOBAL RESURRECTION-ARRANGEMENTS NONE>
 
 ; "Character Abilities"
 
@@ -1570,9 +1566,9 @@
         <PRINT-CONTAINER ,BLESSINGS>
         <CRLF>
         <HLIGHT ,H-BOLD>
-        <TELL D ,RESURRECTION-ARRANGEMENTS ": ">
+        <TELL "Resurrection Arrangements: ">
         <HLIGHT 0>
-        <PRINT-CONTAINER ,RESURRECTION-ARRANGEMENTS>
+        <COND (,RESURRECTION-ARRANGEMENTS <TELL D ,RESURRECTION-ARRANGEMENTS>)(ELSE <TELL "None">)>
         <CRLF>
         <HLIGHT ,H-BOLD>
         <PRINT-CAP-OBJ ,CURRENCY>

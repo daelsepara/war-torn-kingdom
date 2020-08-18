@@ -531,15 +531,14 @@ The number of scorpion men in the valley makes your heart quail; the place is to
 
 <ROUTINE STORY033-EVENTS ("AUX" (FEE 800))
 	<COND (<EQUAL? ,GOD ,GOD-TYRNAI> <SET FEE 200>)>
-	<COND (<IN? ,RESURRECTION-TYRNAI ,RESURRECTION-ARRANGEMENTS>
+	<COND (<EQUAL? ,RESURRECTION-ARRANGEMENTS ,RESURRECTION-TYRNAI>
 		<EMPHASIZE "You already made resurrection arrangements at this temple!">
 	)(<G=? ,MONEY .FEE>
 		<CRLF>
 		<TELL "Arrange resurrection at this temple?">
 		<COND (<YES?>
 			<COST-MONEY .FEE "paid">
-			<RESET-CONTAINER ,RESURRECTION-ARRANGEMENTS>
-			<MOVE ,RESURRECTION-TYRNAI ,RESURRECTION-ARRANGEMENTS>
+			<SETG RESURRECTION-ARRANGEMENTS ,RESURRECTION-TYRNAI>
 		)>
 	)(ELSE
 		<EMPHASIZE "You cannot afford a resurrection arrangement at this time.">
