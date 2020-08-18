@@ -9,6 +9,7 @@
 <ROUTINE RESET-STORY ()
 	<PUTP ,STORY014 ,P?DOOM T>
 	<PUTP ,STORY034 ,P?DOOM T>
+	<PUTP ,STORY036 ,P?DOOM T>
     <RETURN>>
 
 ; "story objects and variables"
@@ -574,62 +575,47 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT036 "Soon you realize you are completely lost in this strange, magical forest. You wander around for days, barely able to find enough food and water.">
+<CONSTANT TEXT036-CONTINUED "You eventually stagger out of the forest to the coast.">
+
 <ROOM STORY036
 	(DESC "036")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT036)
+	(EVENTS STORY036-EVENTS)
+	(CONTINUE STORY128)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY036-EVENTS ()
+	<LOSE-STAMINA 4 ,DIED-OF-HUNGER ,STORY036>>
+
+<CONSTANT TEXT037 "Your men have been fishing with a net. This time, however, they have caught a large shark. Afterwards, when it has been cut open, you find the remains of some poor sailor. Inside his leather pouch, you find a bag of pearls, which you can take if you wish.">
 
 <ROOM STORY037
 	(DESC "037")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT037)
+	(EVENTS STORY037-EVENTS)
+	(CONTINUE STORY507)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY037-EVENTS ()
+	<KEEP-ITEM ,BAG-OF-PEARLS>>
+
+<CONSTANT TEXT038 "Heavy black clouds race towards you across the sky, whipping the waves into a frenzy. The crew mutter among themselves fearfully.">
+<CONSTANT CHOICES038 <LTABLE "The storm hits with full fury (ship sinks/mast splits/you weather the storm)">>
 
 <ROOM STORY038
 	(DESC "038")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT038)
+	(EVENTS STORY038-EVENTS)
+	(CHOICES CHOICES038)
+	(DESTINATIONS <LTABLE <LTABLE STORY325 STORY397 STORY209>>)
+	(REQUIREMENTS <LTABLE <LTABLE 1 3 5 20>>)
+	(TYPES <LTABLE R-RANDOM>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY038-EVENTS ()
+	<RETURN>>
 
 <ROOM STORY039
 	(DESC "039")
