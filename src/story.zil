@@ -1,3 +1,5 @@
+<INSERT-FILE "numbers">
+
 <GLOBAL STARTING-POINT STORY001>
 
 ; "reset routines"
@@ -17,32 +19,197 @@
 <ROUTINE SPECIAL-INTERRUPT-ROUTINE (KEY)
 	<RFALSE>>
 
-<CONSTANT TEXT001 "The approach of dawn has turned the sky a milky grey-green, like jade. The sea is a luminous pane of silver. Holding the tiller of your sailing boat, you keep your gaze fixed on the glittering constellation known as the Spider. It marks the north, and by keeping it to port you know you are still on course.||The sun appears in a trembling burst of red fire at the rim of the world. Slowly the chill of night gives way to brazen warmth. You lick your parched lips. There is a little water sloshing in the bottom of the barrel by your feet, but not enough to see you through another day.||Sealed in a scroll case tucked into your jerkin is the parchment map your grandfather gave to you on his death-bed. You remember his stirring tales of far sea voyages, of kingdoms beyond the western horizon, of sorcerous islands and ruined palaces filled with treasure. As a child you dreamed of nothing else but the magical quests that were in store if you too became an adventurer.||You never expected to die in an open boat before your adventures even began.||Securing the tiller, you unroll the map and study it again. You hardly need to. Every detail is etched into your memory by now. According to your reckoning, you should have reached the east coast of Harkuna, the great northern continent, days ago.||A pasty grey blob splatters on to the map. After a moment of stunned surprise, you look up and curse the seagull circling directly overhead. Then it strikes you -- where there's a seagull, there may be land.||You leap to your feet and scan the horizon. Sure enough, a line of white cliffs lie a league to the north. Have you been sailing along the coast all this time without realising the mainland was so close?||Steering towards the cliffs, you feel the boat judder against rough waves. A howling wind whips plumes of spindrift across the sea. Breakers pound the high cliffs. The tiller is yanked out of your hands. The little boat is spun around, out of control, and goes plunging in towards the coast.||You leap clear at the last second. There is the snap of timber, the roaring crescendo of the waves -- and then silence as you go under. Striking out wildly, you try to swim clear of the razor- sharp rocks. For a while the undertow threatens to drag you down, then suddenly a wave catches you and flings you contemptuously up on to the beach.||Battered and bedraggled you lie gasping for breath until you hear someone walking along the shore towards you. Wary of danger, you lose no time in getting to your feet. Confronting you is an old man clad in a dirty loin-cloth. His eyes have a feverish bright look that is suggestive of either a mystic or a madman.">
+<CONSTANT HAVE-A "You have a">
+<CONSTANT HAVE-THE "You have the">
+<CONSTANT HAVE-CODEWORD "You have the codeword">
+<CONSTANT HAVE-NEITHER "You have neither">
+<CONSTANT IF-NOT "If not">
+<CONSTANT OTHERWISE "Otherwise">
+
+<ROUTINE BUY-STUFF (ITEM PLURAL PRICE "OPT" LIMIT "AUX" QUANTITIES)
+	<COND (<NOT .LIMIT> <SET LIMIT 8>)>
+	<COND (<G=? ,MONEY .PRICE>
+		<CRLF>
+		<TELL "Buy " D .ITEM " for " N .PRICE " " D ,CURRENCY " each?">
+		<COND (<YES?>
+			<REPEAT ()
+				<SET QUANTITIES <GET-NUMBER "How many will you buy" 0 .LIMIT>>
+				<COND (<G? .QUANTITIES 0>
+					<COND (<L=? <* .QUANTITIES .PRICE> ,MONEY>
+						<CRLF>
+						<HLIGHT ,H-BOLD>
+						<TELL "You purchased " N .QUANTITIES " ">
+						<COND (<G? .QUANTITIES 1> <TELL .PLURAL>)(ELSE <TELL D .ITEM>)>
+						<TELL ,PERIOD-CR>
+						<COST-MONEY <* .QUANTITIES .PRICE>>
+						<ADD-QUANTITY .ITEM .QUANTITIES>
+						<COND (<L? ,MONEY .PRICE> <RETURN>)>
+					)(ELSE
+						<EMPHASIZE "You can't afford that!">
+					)>
+				)(ELSE
+					<RETURN>
+				)>
+			>
+		)>
+	)>>
+
+<ROUTINE SELL-STUFF (ITEM PLURAL PRICE "AUX" (ITEMS-SOLD 0) (QUANTITY 0))
+	<SET QUANTITY <GETP .ITEM ,P?QUANTITY>>
+	<CRLF>
+	<TELL "Sell " D .ITEM " at " N .PRICE " " D ,CURRENCY " each?">
+	<COND (<YES?>
+		<SET ITEMS-SOLD <GET-NUMBER "How many will you sell" 0 .QUANTITY>>
+		<COND (<G? .ITEMS-SOLD 0>
+			<SETG ,MONEY <+ ,MONEY <* .ITEMS-SOLD .PRICE>>>
+			<SET .QUANTITY <- .QUANTITY .ITEMS-SOLD>>
+			<CRLF>
+			<TELL "You sold " N .ITEMS-SOLD " ">
+			<HLIGHT ,H-BOLD>
+			<COND (<G? .ITEMS-SOLD 1> <TELL .PLURAL>)(ELSE <TELL D .ITEM>)>
+			<HLIGHT 0>
+			<TELL ,PERIOD-CR>
+			<COND (<G? .QUANTITY 0>
+				<PUTP .ITEM ,P?QUANTITY .QUANTITY>
+			)(ELSE
+				<PUTP .ITEM ,P?QUANTITY 1>
+				<REMOVE .ITEM>
+			)>
+		)>
+	)>>
+
+<ROUTINE PREVENT-DEATH ("OPT" STORY)
+	<COND (<NOT .STORY> <SET STORY ,HERE>)>
+	<COND (<GETP .STORY ,P?DOOM> <PUTP .STORY ,P?DOOM F>)>>
+
+<ROUTINE GET-NUMBER (MESSAGE "OPT" MINIMUM MAXIMUM "AUX" COUNT)
+	<REPEAT ()
+		<CRLF>
+		<TELL .MESSAGE>
+		<COND (<AND <OR <ASSIGNED? MINIMUM> <ASSIGNED? MAXIMUM>> <G? .MAXIMUM .MINIMUM>>
+			<TELL " (" N .MINIMUM "-" N .MAXIMUM ")">
+		)>
+		<TELL "? ">
+		<READLINE>
+		<COND (<EQUAL? <GETB ,LEXBUF 1> 1> <SET COUNT <CONVERT-TO-NUMBER 1 10>>
+			<COND (<OR .MINIMUM .MAXIMUM>
+				<COND (<AND <G=? .COUNT .MINIMUM> <L=? .COUNT .MAXIMUM>> <RETURN>)>
+			)(<G? .COUNT 0>
+				<RETURN>
+			)>
+		)>
+	>
+	<RETURN .COUNT>>
+
+<ROUTINE DELETE-CODEWORD (CODEWORD)
+	<COND (<AND .CODEWORD <CHECK-CODEWORD .CODEWORD>>
+		<CRLF>
+		<TELL "[You lose the codeword ">
+		<HLIGHT ,H-BOLD>
+		<TELL D .CODEWORD "]" CR>
+		<HLIGHT 0>
+		<REMOVE .CODEWORD>
+	)>>
+
+<ROUTINE KEEP-ITEM (ITEM "OPT" JUMP)
+	<CRLF>
+	<TELL "Keep " T .ITEM "?">
+	<COND (<YES?>
+		<COND (<NOT <CHECK-ITEM .ITEM>> <TAKE-ITEM .ITEM>)>
+		<COND (.JUMP <STORY-JUMP .JUMP>)>
+		<RTRUE>
+	)>
+	<COND (<CHECK-ITEM .ITEM> <LOSE-ITEM .ITEM>)>
+	<RFALSE>>
+
+<ROUTINE ADD-QUANTITY (OBJECT "OPT" AMOUNT CONTAINER "AUX" QUANTITY CURRENT)
+	<COND (<NOT .OBJECT> <RETURN>)>
+	<COND (<L=? .AMOUNT 0> <RETURN>)>
+	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
+	<COND (<EQUAL? .CONTAINER ,PLAYER>
+		<DO (I 1 .AMOUNT)
+			<TAKE-ITEM .OBJECT>
+		>
+	)(ELSE
+		<SET CURRENT <GETP .OBJECT ,P?QUANTITY>>
+		<SET QUANTITY <+ .CURRENT .AMOUNT>>
+		<PUTP .OBJECT ,P?QUANTITY .QUANTITY>
+	)>>
+
+<ROUTINE CHECK-VEHICLE (RIDE)
+	<COND (<OR <IN? .RIDE ,VEHICLES> <AND ,CURRENT-VEHICLE <EQUAL? ,CURRENT-VEHICLE .RIDE>>> <RTRUE>)>
+	<RFALSE>>
+
+<ROUTINE TAKE-VEHICLE (VEHICLE)
+	<COND (.VEHICLE
+		<COND (,CURRENT-VEHICLE <REMOVE ,CURRENT-VEHICLE>)>
+		<MOVE .VEHICLE ,VEHICLES>
+		<SETG CURRENT-VEHICLE .VEHICLE>
+		<UPDATE-STATUS-LINE>
+	)>>
+
+<ROUTINE LOSE-VEHICLE (VEHICLE)
+	<COND (.VEHICLE
+		<COND (<CHECK-VEHICLE .VEHICLE>
+			<REMOVE .VEHICLE>
+			<SETG CURRENT-VEHICLE NONE>
+			<UPDATE-STATUS-LINE>
+		)>
+	)>>
+
+<ROUTINE TAKE-STUFF (ITEM PLURAL "OPT" AMOUNT "AUX" TAKEN)
+	<COND (<NOT .AMOUNT> <SET .AMOUNT 1>)>
+	<CRLF>
+	<TELL "Take the ">
+	<COND (<G? .AMOUNT 1> <TELL .PLURAL>)(<TELL D .ITEM>)>
+	<TELL "?">
+	<COND (<YES?>
+		<COND (<G? .AMOUNT 1>
+			<SET TAKEN <GET-NUMBER "How many will you take" 0 .AMOUNT>>
+			<ADD-QUANTITY .ITEM .AMOUNT ,PLAYER>
+			<RETURN .TAKEN>
+		)(ELSE
+			<TAKE-ITEM .ITEM>
+			<RETURN 1>
+		)>
+	)>
+	<RETURN 0>>
+
+<ROUTINE TAKE-QUANTITIES (OBJECT PLURAL MESSAGE "OPT" AMOUNT)
+	<CRLF>
+	<TELL "Take the " .PLURAL "?">
+	<COND (<YES?> <ADD-QUANTITY .OBJECT <GET-NUMBER .MESSAGE 0 .AMOUNT> ,PLAYER>)>>
+
+<ROUTINE ITEM-JUMP (ITEM STORY)
+	<COND (<CHECK-ITEM .ITEM> <STORY-JUMP .STORY>)>>
+
+<ROUTINE CODEWORD-JUMP (CODEWORD STORY)
+	<COND (<CHECK-CODEWORD .CODEWORD> <STORY-JUMP .STORY>)>>
+
+<CONSTANT TEXT001 "The first sound is the gentle murmur of waves some way off. The cry of gulls. Then the sensation of a softly stirring sea breeze and the baking sun on your back.||If that was all, you could imagine yourself in paradise, but as your senses return you start to feel the aches in every muscle. And then you remember the shipwreck.||You force open your eyes, caked shut by a crust of salt. You are lying on a beach, a desolate slab of wet sand that glistens in the merciless glare of the sun. Small crabs break away as you stir, scurrying for cover amid the long strands of seaweed.||\"Not... food for you yet...\" you murmur, wincing at the pain of cracked lips. Your mouth is dry and there is a pounding in your head born of fatigue and thirst. You don\"t care about the headache or the bruises, just as long as you\"re alive.||As you lie gathering your strength, you hear somebody coming along the shore.">
+<CONSTANT CHOICES001 <LTABLE "Lie still until he's gone" "Speak to him">>
 
 <ROOM STORY001
 	(DESC "001")
 	(STORY TEXT001)
-	(CONTINUE STORY020)
+	(CHOICES CHOICES001)
+	(DESTINATIONS <LTABLE STORY736 STORY020>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT002 "The soldier recognizes you. He bows and says, \"Welcome, my lord. I will take you see King Nergan.\"||He leads you to Nergan\"s mountain stockade, where the king greets you warmly.||\"Ah, my local champion! It is always a pleasure to see you.||However, I was hoping you had spoken with General Beladai of the allied army -- we need that citadel. Now go. That is a royal command!\"||You leave, climbing down to the foothills of the mountains.">
+<CONSTANT TEXT002 "You are face to face with a soldier. But is he friend -- or foe?">
+<CONSTANT CHOICES002 <LTABLE HAVE-A HAVE-CODEWORD HAVE-NEITHER>>
 
 <ROOM STORY002
 	(DESC "002")
-	(BACKGROUND STORY002-BACKGROUND)
 	(STORY TEXT002)
-	(CONTINUE STORY474)
+	(CHOICES CHOICES002)
+	(DESTINATIONS <LTABLE STORY676 STORY098 STORY680>)
+	(REQUIREMENTS <LTABLE CODED-MISSIVE CODEWORD-DELIVER NONE>)
+	(TYPES <LTABLE R-ITEM R-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY002-BACKGROUND ()
-	<COND (<CHECK-ITEM ,CODED-MISSIVE>
-		<RETURN ,STORY676>
-	)(<CHECK-CODEWORD ,CODEWORD-DELIVER>
-		<RETURN ,STORY098>
-	)>
-	<RETURN ,STORY002>>
-
-<CONSTANT TEXT003 "You have come to the foothills of the Spine of Harkun, in the north west of Sokara. The view is impressive: a massive wall of forested mountains, whose rocky, white-flanked peaks soar skywards into the clouds. These parts of the mountains are unclimbable but you notice a large cave at the bottom of a mountain.">
+<CONSTANT TEXT003 "You have come to the foothills of the Spine of Harkun, in the north west of Sokara. The view is impressive: a massive wall of forested mountains, whose rocky, white-flanked peaks soar skywards into the clouds. These parts of the mountains are unscalable but you notice a large cave at the bottom of a mountain.">
 <CONSTANT CHOICES003 <LTABLE "Investigate the cave" "Go east to the Citadel of Velis Corin" "South into the wilderness">>
 
 <ROOM STORY003
@@ -53,7 +220,7 @@
 	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT004 "The priests of Alvir and Valmir are overjoyed that you have returned the *golden net*. The high priest rewards you with 100 Shards and a magic weapon, a rune-engraved trident.">
+<CONSTANT TEXT004 "The priests of Alvir and Valmir are overjoyed that you have returned the golden net. The high priest rewards you with 100 Shards and a rune-engraved magic weapon.">
 
 <ROOM STORY004
 	(DESC "004")
@@ -64,41 +231,32 @@
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY004-EVENTS ()
-	<RETURN-ITEM ,GOLDEN-NET T>>
+	<RETURN-ITEM ,GOLDEN-NET T>
+	<GAIN-MONEY 100>>
 
 <CONSTANT TEXT005 "It is a tough climb upwards but not impossible.">
-<CONSTANT CHOICES005 <LTABLE "Make a SCOUTING roll">>
 
 <ROOM STORY005
 	(DESC "005")
 	(STORY TEXT005)
 	(EVENTS STORY005-EVENTS)
-	(CHOICES CHOICES005)
-	(DESTINATIONS <LTABLE <LTABLE STORY652 STORY529>>)
-	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(CONTINUE STORY681)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY005-EVENTS ()
-	<COND (<CHECK-ITEM ,CLIMBING-GEAR> <STORY-JUMP ,STORY652>)>>
+	<ITEM-JUMP ,CLIMBING-GEAR ,STORY652>>
+
+<CONSTANT TEXT006 "The chest springs open with a click. Inside you find 60 Shards, a mandolin (CHARISMA +1), and a potion of healing. The potion can be used once at any time (even in combat) to restore 5 Stamina points.||There is also an ancient religious text about the gods of Uttaku, called the scroll of Ebron, which reveals that one of the gods of the Uttakin is called Ebron, and that he has fourteen angles. You double-check but that's what it says. Not angels, angles.">
+
 <ROOM STORY006
 	(DESC "006")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT006)
+	(EVENTS STORY006-EVENTS)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY006-EVENTS ()
+	<SELECT-FROM-LIST <LTABLE MANDOLIN POTION-OF-HEALING SCROLL-OF-EBRON> 3 3>>
 
 <ROOM STORY007
 	(DESC "007")
@@ -347,8 +505,8 @@
 	(VICTORY F)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT020 "\"Well, well, well, what have we here, friends?\" asks the old man.||He seems to be talking to someone next to him, although you are certain he is alone. \"Looks like a washed up adventurer to me!\" he says in answer to his own question, \"all wet and out of luck.\"||He carries on having a conversation -- a conversation that quickly turns into a heated debate. He is clearly quite mad.||\"Excuse me, umm, EXCUSE ME!,\" you shout above the hubbub in an attempt to grab the old man\"s attention. He stops and stares at you.||\"Is this the Isle of the Druids?\" you ask impatiently.||\"Indeed it is,\" says the old man, \"I see that you are from a far land so it is up to me to welcome you to Harkuna. But I think you may have much to do here as it is written in the stars that someone like you would come. Your destiny awaits you! Follow me, young adventurer.\"||The old man turns smartly about and begins walking up a path towards some hills. You can just see some sort of monolithic stone structure atop one of them.||\"Come on, come one, I\"ll show you the Gates of the World,\" the old man babbles.">
-<CONSTANT CHOICES020 <LTABLE "Follow him" "Explore the coast" "Head into the nearby forest">>
+<CONSTANT TEXT020 "Wary of danger, you lose no time in getting to your feet, but it is only an old man gathering driftwood.||\"What have we here?\" he asks, edging closer. \"All wet and out of luck, you look. Washed-up, eh?\"||\"Where is this?\" Your eyes take in the empty shore, the cliffs, the forest of the hinterland. None of it is familiar to you.||\"You don't know?\" The old man gives you a keener look, and a more serious look comes into his eyes. \"Can it be? After all my waiting, the prophecy is fulfilled at last?\"||\"Prophecy? What are you talking about?\"||\"It was written in the stars that someone like you would come. A traveler from a far land. Great things are in store for you, my young friend.\"||The old man turns smartly about and begins walking up a path. Looking past him, you can just make out a monolithic stone structure atop the cliffs.||\"You still haven't told me where I am.\"||\"This is the Isle of the Druids.\" He gestures to the west. \"The great continent of Harkuna lies a few leagues that way. But if you want to explore it, you'd better come with me.\"||\"Come with you where?\"||He points. \"That ring of stones up there. It's called the Gates of the World.\"">
+<CONSTANT CHOICES020 <LTABLE "Follow him" "Explore the Coast" "Head into the nearby forest">>
 
 <ROOM STORY020
 	(DESC "020")
@@ -356,6 +514,7 @@
 	(CHOICES CHOICES020)
 	(DESTINATIONS <LTABLE STORY192 STORY128 STORY257>)
 	(TYPES THREE-NONES)
+	(CODEWORDS <LTABLE CODEWORD-AURIC>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY021
@@ -12862,6 +13021,1216 @@
 
 <ROOM STORY679
 	(DESC "679")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY680
+	(DESC "680")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY681
+	(DESC "681")
+	(BACKGROUND STORY681-BACKGROUND)
+	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY681-BACKGROUND ()
+	<COND (<TEST-ABILITY ,CURRENT-CHARACTER ,ABILITY-SCOUTING 10>
+		<CRLF><CRLF>
+		<RETURN ,STORY652>
+	)>
+	<CRLF><CRLF>
+	<RETURN ,STORY529>>
+
+<ROOM STORY682
+	(DESC "682")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY683
+	(DESC "683")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY684
+	(DESC "684")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY685
+	(DESC "685")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY686
+	(DESC "686")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY687
+	(DESC "687")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY688
+	(DESC "688")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY689
+	(DESC "689")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY690
+	(DESC "690")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY691
+	(DESC "691")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY692
+	(DESC "692")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY693
+	(DESC "693")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY694
+	(DESC "694")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY695
+	(DESC "695")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY696
+	(DESC "696")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY697
+	(DESC "697")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY698
+	(DESC "698")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY699
+	(DESC "699")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY700
+	(DESC "700")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY701
+	(DESC "701")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY702
+	(DESC "702")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY703
+	(DESC "703")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY704
+	(DESC "704")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY705
+	(DESC "705")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY706
+	(DESC "706")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY707
+	(DESC "707")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY708
+	(DESC "708")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY709
+	(DESC "709")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY710
+	(DESC "710")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY711
+	(DESC "711")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY712
+	(DESC "712")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY713
+	(DESC "713")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY714
+	(DESC "714")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY715
+	(DESC "715")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY716
+	(DESC "716")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY717
+	(DESC "717")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY718
+	(DESC "718")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY719
+	(DESC "719")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY720
+	(DESC "720")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY721
+	(DESC "721")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY722
+	(DESC "722")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY723
+	(DESC "723")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY724
+	(DESC "724")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY725
+	(DESC "725")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY726
+	(DESC "726")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY727
+	(DESC "727")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY728
+	(DESC "728")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY729
+	(DESC "729")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY730
+	(DESC "730")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY731
+	(DESC "731")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY732
+	(DESC "732")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY733
+	(DESC "733")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY734
+	(DESC "734")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY735
+	(DESC "735")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY736
+	(DESC "736")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY737
+	(DESC "737")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY738
+	(DESC "738")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY739
+	(DESC "739")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY740
+	(DESC "740")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY741
+	(DESC "741")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY742
+	(DESC "742")
+	(BACKGROUND NONE)
+	(STORY NONE)
+	(EVENTS NONE)
+	(CHOICES NONE)
+	(DESTINATIONS NONE)
+	(REQUIREMENTS NONE)
+	(TYPES NONE)
+	(CONTINUE NONE)
+	(ITEMS NONE)
+	(CODEWORDS NONE)
+	(GOD NONE)
+	(BLESSING NONE)
+	(TITLES NONE)
+	(DOOM F)
+	(VICTORY F)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY743
+	(DESC "743")
 	(BACKGROUND NONE)
 	(STORY NONE)
 	(EVENTS NONE)
