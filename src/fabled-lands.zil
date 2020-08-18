@@ -33,6 +33,7 @@
 <CONSTANT R-DISCHARGE 11> ; "discharge a weapon"
 <CONSTANT R-TITLES 12> ; "check for presence of titles"
 <CONSTANT R-VISITS 13> ; "check if location was visited multiple times"
+<CONSTANT R-RANK 14> ; "check if location was visited multiple times"
 
 ; "Ability Types"
 <CONSTANT ABILITY-CHARISMA 1>
@@ -711,6 +712,23 @@
                             <HLIGHT 0>
                             <PRESS-A-KEY>
                         )>
+                    )(<AND <EQUAL? .TYPE R-MONEY> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+                        <COND (<CHECK-MONEY .LIST>
+                            <SETG HERE <GET .DESTINATIONS .CHOICE>>
+                            <CRLF>
+                            <COND (<G? .LIST 0>
+                                <COST-MONEY .LIST "paid">
+                                <PRESS-A-KEY>
+                            )>
+                        )>
+                    )(<AND <EQUAL? .TYPE R-RANK> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+                        <COND (<CHECK-RANK .LIST>
+                            <SETG HERE <GET .DESTINATIONS .CHOICE>>
+                            <CRLF>
+                        )>
+                    )(<AND <EQUAL? .TYPE R-RANDOM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+                        <SETG HERE <PROCESS-RANDOM .LIST <GET .DESTINATIONS .CHOICE>>>
+                        <CRLF>
                     )>
                     <RETURN>
                 )(ELSE
@@ -759,6 +777,7 @@
                 <COND (<AND <EQUAL? .CHOICE-TYPE ,R-ITEM ,R-CODEWORD ,R-DISCHARGE> .REQUIREMENTS> <TELL " ("> <COND (<EQUAL? .CHOICE-TYPE ,R-ITEM ,R-DISCHARGE> <HLIGHT ,H-BOLD>)(ELSE <HLIGHT ,H-ITALIC>)> <TELL D .LIST> <HLIGHT 0> <TELL ")">)>
                 <COND (<AND <EQUAL? .CHOICE-TYPE ,R-CODEWORD-ITEM> .REQUIREMENTS> <TELL " ("> <HLIGHT ,H-ITALIC> <TELL D <GET .LIST 1>> <HLIGHT 0> <TELL " and "> <HLIGHT ,H-BOLD> <TELL D <GET .LIST 2>> <HLIGHT 0> <TELL ")">)>
                 <COND (<AND <EQUAL? .CHOICE-TYPE R-MONEY> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (" N .LIST " " D ,CURRENCY ")">)>)>
+                <COND (<AND <EQUAL? .CHOICE-TYPE R-RANK> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (Rank "> <HLIGHT ,H-BOLD> <TELL N .LIST> <HLIGHT 0> <TELL ")">)>)>
                 <COND (<AND <EQUAL? .CHOICE-TYPE R-ANY> .REQUIREMENTS> <PRINT-ANY .LIST>)>
                 <COND (<AND <EQUAL? .CHOICE-TYPE R-ALL> .REQUIREMENTS> <PRINT-ALL .LIST>)>
                 <COND (<AND <EQUAL? .CHOICE-TYPE R-VISITS> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (visited > " N .LIST " times)">)>)>
@@ -908,6 +927,20 @@
     )>
     <RTRUE>>
 
+<ROUTINE CHECK-RANK (LEVEL "OPT" CHARACTER "AUX" RANK)
+    <COND (<NOT .CHARACTER> <SET CHARACTER ,CURRENT-CHARACTER>)>
+    <SET RANK <GETP .CHARACTER ,P?RANK>>
+    <COND (<AND .RANK <G=? .RANK .LEVEL>>
+        <RTRUE>
+    )(ELSE
+        <CRLF><CRLF>
+        <HLIGHT ,H-BOLD>
+        <TELL "Your Rank is not high enough" ,EXCLAMATION-CR>
+        <HLIGHT 0>
+        <PRESS-A-KEY>
+    )>
+    <RFALSE>>
+
 <ROUTINE CHECK-STAMINA (AMOUNT)
     <COND (<G? .AMOUNT 0>
         <COND (<L=? ,STAMINA .AMOUNT>
@@ -1026,6 +1059,26 @@
     <TELL " " D .OBJECT ,EXCLAMATION-CR>
     <HLIGHT 0>
     <PRESS-A-KEY>>
+
+<ROUTINE PROCESS-RANDOM (ODDS DESTINATIONS "AUX" EVENTS RESULT (DESTINATION NONE))
+    <SET EVENTS <GET .ODDS 0>>
+    <SET DESTINATION ,HERE>
+    <COND (<G? .EVENTS 0>
+        <CRLF>
+        <CRLF>
+        <TELL "Triggering random event with " N .EVENTS " possible outcomes .." ,PERIOD-CR>
+        <PRESS-A-KEY>
+        <SET RESULT <ROLL-DICE 2>>
+        <CRLF>
+        <TELL "You rolled " N .RESULT ".">
+        <DO (I 1 .EVENTS)
+            <COND (<L=? .RESULT <GET .ODDS .I>>
+                <SET DESTINATION <GET .DESTINATIONS .I>>
+                <RETURN>
+            )>
+        >
+    )>
+    <RETURN .DESTINATION>>
 
 ; "Story - Support Routines (display)"
 ; ---------------------------------------------------------------------------------------------

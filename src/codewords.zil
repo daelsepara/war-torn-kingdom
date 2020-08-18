@@ -24,6 +24,10 @@
     (DESC "Anvil")
     (SYNONYM ANVIL)>
 
+<OBJECT CODEWORD-ARTERY
+    (DESC "Artery")
+    (SYNONYM ARTERY)>
+
 <OBJECT CODEWORD-ARTIFACT
     (DESC "Artifact")
     (SYNONYM ARTIFACT)>

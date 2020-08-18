@@ -1,4 +1,6 @@
-<GLOBAL STARTING-POINT STORY001>
+<INSERT-FILE "merchants">
+
+<GLOBAL STARTING-POINT STORY030>
 
 ; "reset routines"
 <ROUTINE RESET-OBJECTS ()
@@ -11,6 +13,7 @@
 
 <CONSTANT BAD-ENDING "Your adventure ends here.|">
 <CONSTANT GOOD-ENDING "Further adventure awaits.|">
+<CONSTANT ENDING-BLOOD-DARK-SEA "Further adventure awaits at Fabled Lands 3: Over the Blood-Dark Sea.|">
 
 <OBJECT CURRENCY (DESC "shards")>
 <OBJECT VEHICLE (DESC "ship")>
@@ -31,6 +34,12 @@
 <CONSTANT HAVE-NEITHER "You have neither">
 <CONSTANT IF-NOT "If not">
 <CONSTANT OTHERWISE "Otherwise">
+
+<CONSTANT TEXT-ROLL-COMBAT "Make a COMBAT roll">
+<CONSTANT TEXT-ROLL-CHARISMA "Make a CHARISMA roll">
+<CONSTANT TEXT-ROLL-MAGIC "Make a MAGIC roll">
+<CONSTANT TEXT-ROLL-SANCTITY "Make a SANCTITY roll">
+<CONSTANT TEXT-ROLL-SCOUTING "Make a SCOUTING roll">
 
 <CONSTANT TEXT001 "The first sound is the gentle murmur of waves some way off. The cry of gulls. Then the sensation of a softly stirring sea breeze and the baking sun on your back.||If that was all, you could imagine yourself in paradise, but as your senses return you start to feel the aches in every muscle. And then you remember the shipwreck.||You force open your eyes, caked shut by a crust of salt. You are lying on a beach, a desolate slab of wet sand that glistens in the merciless glare of the sun. Small crabs break away as you stir, scurrying for cover amid the long strands of seaweed.||\"Not... food for you yet...\" you murmur, wincing at the pain of cracked lips. Your mouth is dry and there is a pounding in your head born of fatigue and thirst. You don\"t care about the headache or the bruises, just as long as you\"re alive.||As you lie gathering your strength, you hear somebody coming along the shore.">
 <CONSTANT CHOICES001 <LTABLE "Lie still until he's gone" "Speak to him">>
@@ -273,12 +282,16 @@
 	<CODEWORD-JUMP ,CODEWORD-ANCHOR ,STORY116>>
 
 <CONSTANT TEXT013 "\"The Violet Ocean's a dangerous place, Cap'n,\" says the first mate. \"The crew
-won't follow you there if they don't think you're good enough.\"||(Travelling over the Blood-Dark Sea is not possible at this time. You turn back)">
+won't follow you there if they don't think you're good enough.\"">
+<CONSTANT CHOICES013 <LTABLE "Demand that the crew follow your orders" TEXT-ROLL-CHARISMA "Turn back">>
 
 <ROOM STORY013
 	(DESC "013")
 	(STORY TEXT013)
-	(CONTINUE STORY507)
+	(CHOICES CHOICES013)
+	(DESTINATIONS <LTABLE BLOOD-DARK-SEA <LTABLE BLOOD-DARK-SEA STORY507> STORY507>)
+	(REQUIREMENTS <LTABLE 4 <LTABLE ABILITY-CHARISMA 12> NONE>)
+	(TYPES <LTABLE R-RANK R-TEST-ABILITY R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT014 "Someone stabs you in the back.">
@@ -325,7 +338,7 @@ won't follow you there if they don't think you're good enough.\"||(Travelling ov
 	<RETURN ,STORY688>>
 
 <CONSTANT TEXT017 "The horse and you hit the wall. There is a bright flash, and you find that you have passed straight through into the hill. It must be a faerie mound -- and that's not good. The horse you are riding abruptly changes shape in a puff of smoke. You find yourself on the back of a little knobbly-limbed, white-faced goblin, who promptly collapses under your weight.||You are in a cavern lit by mouse-sized faerie folk, who flit about in the air blazing like fireflies. The other horses have also turned into goblins, elves and faeries of all shapes and sizes.||\"What have we here?\" whispers a pale, dark-eyed elfin woman, dressed in silvery cobwebs and wearing a platinum crown.||\"An overweight mortal sitting on poor old Gobrash, your majesty,\" groans the goblin you are sitting on.||You realize you are in great danger here. There's no telling what the faerie folk will do to you. The queen signals to her people and they close in around you ominously.">
-<CONSTANT CHOICES017 <LTABLE "Make a SANCTITY roll">>
+<CONSTANT CHOICES017 <LTABLE TEXT-ROLL-SANCTITY>>
 
 <ROOM STORY017
 	(DESC "017")
@@ -385,175 +398,104 @@ won't follow you there if they don't think you're good enough.\"||(Travelling ov
 	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT022 "You reach down and deftly pull out the ceramic plug. A gush of foul-smelling emerald green liquid spills on to the floor, and the golem twitches once before collapsing. The other golem is coming to life, however. You'll have to be quick to get it in time.">
+<CONSTANT CHOICES022 <LTABLE TEXT-ROLL-COMBAT>>
+
 <ROOM STORY022
 	(DESC "022")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT022)
+	(CHOICES CHOICES022)
+	(DESTINATIONS <LTABLE <LTABLE STORY539 STORY647>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-COMBAT 9>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT023 "As you stride forward, they look up with expressions of luminous rage.||\"Get you back, mortal,\" warns one, \"or I'll touch you with my grave-cold hands and then it'll be your dying day.\"">
+<CONSTANT CHOICES023 <LTABLE "Attack them" "Call on your god to banish them">>
 
 <ROOM STORY023
 	(DESC "023")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT023)
+	(CHOICES CHOICES023)
+	(DESTINATIONS <LTABLE STORY479 STORY520>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT024 "You will need to subdue the king and his henchmen with a spell.">
+<CONSTANT CHOICES024 <LTABLE TEXT-ROLL-MAGIC>>
 
 <ROOM STORY024
 	(DESC "024")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT024)
+	(CHOICES CHOICES024)
+	(DESTINATIONS <LTABLE <LTABLE STORY644 STORY208>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-MAGIC 12>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT025 "Captain Vorkung is impressed with your claims of loyalty to the rightful king. He decides you might be useful to their cause, and you are led, blindfolded, through a secret pass to a mountain stockade.||King Nergan gives you an audience in a makeshift throne room. He is a young, and handsome man, who seems committed to his country. He leads you aside, into a private chamber.||\"I have need of one such as you,\" he says. \"Yellowport groans under the yoke of Governor Marloes Marlock, the brother of General Grieve Marlock. If you can get into the palace at Yellowport and assassinate Marloes, I will be eternally grateful.\"">
 
 <ROOM STORY025
 	(DESC "025")
 	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT025)
+	(EVENTS STORY025-EVENTS)
+	(CONTINUE STORY735)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY025-EVENTS ()
+	<CODEWORD-JUMP ,CODEWORD-ARTERY ,STORY399>>
+
+<CONSTANT TEXT026 "You set sail for Dweomer. The journey takes a few days but is uneventful. The captain can't believe his luck. \"I half-expected us to end up wrecked on rocks or seized by Uttakin slavers,\" he says with evident relief. You disembark at Dweomer harbor, on the Sorcerers' Isle.">
 
 <ROOM STORY026
 	(DESC "026")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT026)
+	(CONTINUE BLOOD-DARK-SEA)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT027 "Either you are recklessly brave or very foolish to visit the palace where you assassinated the governor. Provost Marshal Royzer has established new security procedures, and it is impossible for you to see him.">
 
 <ROOM STORY027
 	(DESC "027")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT027)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT028 "You jump into the air and hit the ground rolling. You come up, bruised but alive, in time to see the horses ride straight into the rocky wall of a low hill. To your amazement, they pass straight through the rock and disappear. Silence falls across the land like a blanket. There is no sign of them, not even tracks. You camp for the night and the next day set off once more.">
+<CONSTANT CHOICES028 <LTABLE "North across country" "East to the road" "To Trefoille" "To Marlock City" "West towards the River Grimm">>
 
 <ROOM STORY028
 	(DESC "028")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT028)
+	(CHOICES CHOICES028)
+	(DESTINATIONS <LTABLE STORY560 STORY558 STORY250 STORY100 STORY099>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT029 "Your ship is sailing in the coastal waters beside Yellowport. There are a number of other ships, mostly merchantmen, but there are also a few warships of the Sokaran Imperial Navy. \"At least we won't be plagued by pirates with the navy around,\" says the first mate.">
+<CONSTANT CHOICES029 <LTABLE "Random Event (Storm/An uneventful voyage/Sokaran war galley)">>
 
 <ROOM STORY029
 	(DESC "029")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT029)
+	(CHOICES CHOICES029)
+	(DESTINATIONS <LTABLE <LTABLE STORY613 STORY439 STORY165>>)
+	(REQUIREMENTS <LTABLE <LTABLE 4 9 12>>)
+	(TYPES <LTABLE R-RANDOM>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT030 "The market is large and busy. At the corners of Brimstone Plaza, gigantic braziers burn sweet-smelling incense in an attempt to overpower the rotten-egg smell that permeates the whole city. There are many stalls and goods to choose from.||One trader is offering a treasure map for sale at 200 Shards. He will also buy any old treasure map for 150 Shards.||To buy cargo for a ship, you need to visit the warehouses at the
+harbormaster.">
+<CONSTANT CHOICES030 <LTABLE "buy armours/weapons/magical/equipment/other items" "sell armours/weapons/magical/equipment/other items" "buy treasure map" "sell any old treasuremap" "go back to town">>
 
 <ROOM STORY030
 	(DESC "030")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY STORY030)
+	(CHOICES CHOICES030)
+	(DESTINATIONS <LTABLE STORY030-BUY STORY030-SELL STORY200 STORY030-SELL-MAP STORY010>)
+	(REQUIREMENTS <LTABLE NONE NONE 200 TREASURE-MAP NONE>)
+	(TYPES <LTABLE R-NONE R-NONE R-MONEY R-ITEM R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY031
@@ -12906,7 +12848,7 @@ won't follow you there if they don't think you're good enough.\"||(Travelling ov
 	(VICTORY F)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT CHOICES681 <LTABLE "Make a SCOUTING roll">>
+<CONSTANT CHOICES681 <LTABLE TEXT-ROLL-SCOUTING>>
 
 <ROOM STORY681
 	(DESC "681")
@@ -14094,3 +14036,7 @@ won't follow you there if they don't think you're good enough.\"||(Travelling ov
 	(VICTORY F)
 	(FLAGS LIGHTBIT)>
 
+<ROOM BLOOD-DARK-SEA
+	(DESC "Blood Dark Sea")
+	(VICTORY ENDING-BLOOD-DARK-SEA)
+	(FLAGS LIGHTBIT)>
