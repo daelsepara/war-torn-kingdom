@@ -7,6 +7,8 @@
 	<RETURN>>
 
 <ROUTINE RESET-STORY ()
+	<PUTP ,STORY014 ,P?DOOM T>
+	<PUTP ,STORY034 ,P?DOOM T>
     <RETURN>>
 
 ; "story objects and variables"
@@ -544,24 +546,21 @@ The number of scorpion men in the valley makes your heart quail; the place is to
 		<EMPHASIZE "You cannot afford a resurrection arrangement at this time.">
 	)>>
 
+<CONSTANT TEXT034 "You make it only fifty feet up the sheer rock face before you lose your
+footing and fall to the ground.">
+<CONSTANT TEXT034-CONTINUED "You try again.">
+
 <ROOM STORY034
 	(DESC "034")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT034)
+	(EVENTS STORY034-EVENTS)
+	(CONTINUE STORY658)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY034-EVENTS ()
+	<LOSE-STAMINA 4 ,DIED-FROM-INJURIES ,STORY034>
+	<IF-ALIVE ,TEXT034-CONTINUED>>
 
 <ROOM STORY035
 	(DESC "035")
