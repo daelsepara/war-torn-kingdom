@@ -1,6 +1,6 @@
 <INSERT-FILE "merchants">
 
-<GLOBAL STARTING-POINT STORY030>
+<GLOBAL STARTING-POINT STORY001>
 
 ; "reset routines"
 <ROUTINE RESET-OBJECTS ()
@@ -487,15 +487,15 @@ won't follow you there if they don't think you're good enough.\"">
 
 <CONSTANT TEXT030 "The market is large and busy. At the corners of Brimstone Plaza, gigantic braziers burn sweet-smelling incense in an attempt to overpower the rotten-egg smell that permeates the whole city. There are many stalls and goods to choose from.||One trader is offering a treasure map for sale at 200 Shards. He will also buy any old treasure map for 150 Shards.||To buy cargo for a ship, you need to visit the warehouses at the
 harbormaster.">
-<CONSTANT CHOICES030 <LTABLE "buy armours/weapons/magical/equipment/other items" "sell armours/weapons/magical/equipment/other items" "buy treasure map" "sell any old treasuremap" "go back to town">>
+<CONSTANT CHOICES030 <LTABLE "buy armours/weapons/magical/equipment/other items" "sell armours/weapons/magical/equipment/other items" "buy treasure map" "go back to town">>
 
 <ROOM STORY030
 	(DESC "030")
-	(STORY STORY030)
+	(STORY TEXT030)
 	(CHOICES CHOICES030)
-	(DESTINATIONS <LTABLE STORY030-BUY STORY030-SELL STORY200 STORY030-SELL-MAP STORY010>)
-	(REQUIREMENTS <LTABLE NONE NONE 200 TREASURE-MAP NONE>)
-	(TYPES <LTABLE R-NONE R-NONE R-MONEY R-ITEM R-NONE>)
+	(DESTINATIONS <LTABLE STORY030-BUY STORY030-SELL STORY200 STORY010>)
+	(REQUIREMENTS <LTABLE NONE NONE 200 NONE>)
+	(TYPES <LTABLE R-NONE R-NONE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY031

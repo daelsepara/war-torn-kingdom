@@ -54,6 +54,7 @@
 <CONSTANT FOUR-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE>>
 <CONSTANT FIVE-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE>>
 <CONSTANT SIX-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE>>
+<CONSTANT EIGHT-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE>>
 
 ; "Give results"
 
@@ -2022,18 +2023,28 @@
         <CRLF>
         <DO (I 1 .ITEMS)
             <HLIGHT ,H-BOLD>
-            <TELL N .I>
+            <COND (<L? .I 10>
+                <TELL N .I>
+            )(ELSE
+                <TELL C <+ !\A <- .I 10>>>
+            )>
             <HLIGHT 0>
-            <TELL " - " D <GET .WARES .I> " (" N <GET .PRICELIST .I> " " D ,CURRENCY ")" CR>
+            <TELL " - ">
+            <PRINT-ITEM <GET .WARES .I> T>
+            <TELL " (" N <GET .PRICELIST .I> " " D ,CURRENCY ")" CR>
         >
-        <HLIGHT ,H-BOLD>
-        <TELL "C">
-        <HLIGHT 0>
-        <TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
-        <HLIGHT ,H-BOLD>
-        <TELL "I">
-        <HLIGHT 0>
-        <TELL " - Display inventory" CR>
+        <COND (<L? .ITEMS 12>
+            <HLIGHT ,H-BOLD>
+            <TELL "C">
+            <HLIGHT 0>
+            <TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
+        )>
+        <COND (<L? .ITEMS 18>
+            <HLIGHT ,H-BOLD>
+            <TELL "I">
+            <HLIGHT 0>
+            <TELL " - Display inventory" CR>
+        )>
         <HLIGHT ,H-BOLD>
         <TELL "0">
         <HLIGHT 0>
@@ -2043,52 +2054,72 @@
             <SET KEY <INPUT 1>>
             <COND (
                 <OR
-                    <AND <OR <EQUAL? .KEY !\c !\C> <AND <EQUAL? .KEY !\i !\I> <EQUAL? .CONTAINER ,PLAYER>>>>
+                    <AND <EQUAL? .KEY !\c !\C> <EQUAL? .CONTAINER ,PLAYER> <L? .ITEMS 12>>
+                    <AND <EQUAL? .KEY !\i !\I> <EQUAL? .CONTAINER ,PLAYER> <L? .ITEMS 18>>
+                    <AND <EQUAL? .KEY !\h !\H> <L? .ITEMS 17>>
                     <AND <G=? .KEY !\1> <L=? .KEY !\9> <L=? <- .KEY !\0> .ITEMS>>
-                    <EQUAL? .KEY !\h !\H !\? !\0>
+                    <AND <G=? .KEY !\A> <L=? .KEY !\J> <G? .ITEMS 9> <L=? <+ <- .KEY !\A> 10> .ITEMS>>
+                    <AND <G=? .KEY !\a> <L=? .KEY !\j> <G? .ITEMS 9> <L=? <+ <- .KEY !\a> 10> .ITEMS>>
+                    <EQUAL? .KEY !\? !\0>
                 >
                 <RETURN>
             )>
         >
         <CRLF>
-        <COND (<EQUAL? .KEY !\c !\C> <DESCRIBE-PLAYER> <PRESS-A-KEY>)>
-        <COND (<AND <EQUAL? .KEY !\i !\I> <EQUAL? .CONTAINER ,PLAYER>> <DESCRIBE-INVENTORY> <PRESS-A-KEY>)>
-        <COND (<EQUAL? .KEY !\h !\H !\?> <DISPLAY-HELP> <PRESS-A-KEY>)>
-        <COND (<AND <G? .KEY 48> <L? .KEY <+ .ITEMS 49>>>
-            <SET ITEM <- .KEY 48>>
+        <COND (<AND <EQUAL? .KEY !\c !\C> <EQUAL? .CONTAINER ,PLAYER> <L? .ITEMS 12>> <DESCRIBE-PLAYER> <PRESS-A-KEY>)>
+        <COND (<AND <EQUAL? .KEY !\i !\I> <EQUAL? .CONTAINER ,PLAYER> <L? .ITEMS 18>> <DESCRIBE-INVENTORY> <PRESS-A-KEY>)>
+        <COND (<AND <EQUAL? .KEY !\h !\H> <L? .ITEMS 17>> <DISPLAY-HELP> <PRESS-A-KEY>)>
+        <COND (<EQUAL? .KEY !\?> <DISPLAY-HELP> <PRESS-A-KEY>)>
+        <COND (
+            <OR
+                <AND <G=? .KEY !\1> <L=? .KEY !\9> <L=? <- .KEY !\0> .ITEMS>>
+                <AND <G=? .KEY !\A> <L=? .KEY !\J> <G? .ITEMS 9> <L=? <+ <- .KEY !\A> 10> .ITEMS>>
+                <AND <G=? .KEY !\a> <L=? .KEY !\j> <G? .ITEMS 9> <L=? <+ <- .KEY !\a> 10> .ITEMS>>
+            >
+            <COND (<AND <G=? .KEY !\1> <L=? .KEY !\9> <L=? <- .KEY !\0> .ITEMS>>
+                <SET ITEM <- .KEY !\0>>
+            )(<AND <G=? .KEY !\A> <L=? .KEY !\J> <G? .ITEMS 9> <L=? <+ <- .KEY !\A> 10> .ITEMS>>
+                <SET ITEM <+ <- .KEY !\A> 10>>
+            )(<AND <G=? .KEY !\a> <L=? .KEY !\j> <G? .ITEMS 9> <L=? <+ <- .KEY !\a> 10> .ITEMS>>
+                <SET ITEM <+ <- .KEY !\a> 10>>
+            )>
             <CRLF>
             <COND (<NOT .SELL>
-                <TELL "Purchase " D <GET .WARES .ITEM> " (" N <GET .PRICELIST .ITEM> " " D ,CURRENCY ")?">
+                <TELL "Purchase ">
+                <PRINT-ITEM <GET .WARES .ITEM> T>
+                <TELL " (" N <GET .PRICELIST .ITEM> " " D ,CURRENCY ")?">
             )(ELSE
-                <TELL "Sell " D <GET .WARES .ITEM> " (" N <GET .PRICELIST .ITEM> " " D ,CURRENCY ")?">
+                <TELL "Sell ">
+                <PRINT-ITEM <GET .WARES .ITEM> T>
+                <TELL " (" N <GET .PRICELIST .ITEM> " " D ,CURRENCY ")?">
             )>
             <COND (<YES?>
-                <HLIGHT ,H-BOLD>
                 <COND (<NOT .SELL>
                     <CRLF>
                     <COND (<L? ,MONEY <GET .PRICELIST .ITEM>>
-                        <TELL "You can't afford " T <GET .WARES .ITEM> ,EXCLAMATION-CR>
+                        <TELL "You can't afford the ">
+                        <PRINT-ITEM <GET .WARES .ITEM> T>
+                        <TELL ,EXCLAMATION-CR>
                     )(ELSE
-                        <COND (<L? ,MONEY <GET .PRICELIST .ITEM>>
-                            <TELL "You can't afford " T <GET .WARES .ITEM> ,EXCLAMATION-CR>
-                        )(ELSE
-                            <COND (<FSET? <GET .WARES .ITEM> ,TAKEBIT>
-                                <COND (<IN? <GET .WARES .ITEM> .CONTAINER>
-                                    <TELL "You already have " T <GET .WARES .ITEM> ,EXCLAMATION-CR>
-                                )(ELSE
-                                    <SETG MONEY <- ,MONEY <GET .PRICELIST .ITEM>>>
-                                    <TELL "You bought " T <GET .WARES .ITEM> CR>
-                                    <COND (<AND <EQUAL? .CONTAINER ,PLAYER> <EQUAL? <COUNT-POSSESSIONS> LIMIT-POSSESSIONS> <NOT <IN? <GET .WARES .ITEM> .CONTAINER>>>
-                                        <CRLF>
-                                        <TELL "You are carrying too many items." CR>
-                                        <DROP-REPLACE-ITEM <GET .WARES .ITEM>>
-                                    )(ELSE
-                                        <MOVE <GET .WARES .ITEM> .CONTAINER>
-                                    )>
-                                )>
+                        <COND (<FSET? <GET .WARES .ITEM> ,TAKEBIT>
+                            <COND (<IN? <GET .WARES .ITEM> .CONTAINER>
+                                <TELL "You already have the ">
+                                <PRINT-ITEM <GET .WARES .ITEM> T>
+                                <TELL ,EXCLAMATION-CR>
                             )(ELSE
-                                <TELL "You can't have that" ,EXCLAMATION-CR>
+                                <SETG MONEY <- ,MONEY <GET .PRICELIST .ITEM>>>
+                                <TELL "You bought the ">
+                                <PRINT-ITEM <GET .WARES .ITEM> T>
+                                <CRLF>
+                                <COND (<AND <EQUAL? .CONTAINER ,PLAYER> <EQUAL? <COUNT-POSSESSIONS> LIMIT-POSSESSIONS> <NOT <IN? <GET .WARES .ITEM> .CONTAINER>>>
+                                    <EMPHASIZE "You are carrying too many items.">
+                                    <DROP-REPLACE-ITEM <GET .WARES .ITEM>>
+                                )(ELSE
+                                    <MOVE <GET .WARES .ITEM> .CONTAINER>
+                                )>
                             )>
+                        )(ELSE
+                            <TELL "You can't have that" ,EXCLAMATION-CR>
                         )>
                     )>
                 )(ELSE
@@ -2097,10 +2128,11 @@
                         <SETG MONEY <+ ,MONEY <GET .PRICELIST .ITEM>>>
                     )(ELSE
                         <CRLF>
-                        <TELL "You do not have any " D  <GET .WARES .ITEM> ,EXCLAMATION-CR>
+                        <TELL "You do not have any ">
+                        <PRINT-ITEM <GET .WARES .ITEM> T>
+                        <TELL ,EXCLAMATION-CR>
                     )>
                 )>
-                <HLIGHT 0>
             )>
         )>
         <UPDATE-STATUS-LINE>
