@@ -1,0 +1,2 @@
+#!/bin/bash
+grep "<" *.zil | grep -E "<OBJECT |<ROOM |<ROUTINE |<CONSTANT |<GLOBAL |<PROPDEF" | wc -l

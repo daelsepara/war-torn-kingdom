@@ -319,7 +319,7 @@ won't follow you there if they don't think you're good enough.\"">
 	<LOSE-STAMINA 5 ,DIED-FROM-INJURIES ,STORY014>
 	<COND (<IS-ALIVE>
 		<CRLF>
-		<TELL ,TEXT014-CONTINUED>
+		<TELL TEXT014-CONTINUED>
 		<TELL ,PERIOD-CR>
 		<COMBAT-MONSTER ,MONSTER-THUG 3 6 13>
 		<CHECK-COMBAT ,MONSTER-THUG ,STORY014>
@@ -625,7 +625,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 <ROUTINE STORY038-EVENTS ("AUX" (DICE 1) (CONDITION 0) ODDS PARAMETERS)
 	<COND (<CHECK-BLESSING ,BLESSING-ALVIR-VALMIR>
 		<CRLF>
-		<TELL ,TEXT038-SAFETY>
+		<TELL TEXT038-SAFETY>
 		<TELL ,PERIOD-CR>
 		<DELETE-BLESSING ,BLESSING-ALVIR-VALMIR>
 		<STORY-JUMP ,STORY209>
@@ -750,7 +750,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	<COND (<IS-ALIVE>
 		<AFFLICTED-WITH ,DISEASE-GHOULBITE>
 		<CRLF>
-		<TELL ,TEXT045-CONTINUED>
+		<TELL TEXT045-CONTINUED>
 		<TELL ,PERIOD-CR>
 	)>>
 
