@@ -1,4 +1,4 @@
-<GLOBAL STARTING-POINT STORY045>
+<GLOBAL STARTING-POINT STORY001>
 
 ; "reset routines"
 <ROUTINE RESET-OBJECTS ()
@@ -700,8 +700,8 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 		<SET MODIFIER 3>
 		<EMPHASIZE "The rat poison adds +3 to your COMBAT rolls.">
 	)>
-	<COMBAT-MONSTER ,TWO-RATMEN 6 9 9>
-	<COND (<CHECK-COMBAT ,TWO-RATMEN ,STORY042 .MODIFIER>
+	<COMBAT-MONSTER ,MONSTER-TWO-RATMEN 6 9 9>
+	<COND (<CHECK-COMBAT ,MONSTER-TWO-RATMEN ,STORY042 .MODIFIER>
 		<STORY-JUMP ,STORY423>
 	)(ELSE
 		<STORY-JUMP ,STORY308>
@@ -718,8 +718,8 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY043-EVENTS ()
-	<COMBAT-MONSTER ,TOMB-GUARDIAN 6 8 12>
-	<CHECK-COMBAT ,TOMB-GUARDIAN ,STORY043>>
+	<COMBAT-MONSTER ,MONSTER-TOMB-GUARDIAN 6 8 12>
+	<CHECK-COMBAT ,MONSTER-TOMB-GUARDIAN ,STORY043>>
 
 <CONSTANT TEXT044 "You decide that discretion would be the better part of valor in this case, and step aside. The officers laugh contemptuously, and swagger past. Nothing else happens tonight.">
 
@@ -11596,24 +11596,20 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(VICTORY F)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT617 "A desperate battle ensues.">
+
 <ROOM STORY617
 	(DESC "617")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
+	(STORY TEXT617)
+	(EVENTS STORY617-EVENTS)
+	(CONTINUE STORY196)
+	(DOOM T)
 	(VICTORY F)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY617-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-GHOUL 3 7 15>
+	<CHECK-COMBAT ,MONSTER-GHOUL ,STORY617>>
 
 <ROOM STORY618
 	(DESC "618")
