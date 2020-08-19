@@ -13,6 +13,7 @@
 	<PUTP ,STORY042 ,P?DOOM T>
 	<PUTP ,STORY043 ,P?DOOM T>
 	<PUTP ,STORY045 ,P?DOOM T>
+	<PUTP ,STORY617 ,P?DOOM T>
     <RETURN>>
 
 ; "story objects and variables"
