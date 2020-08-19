@@ -64,9 +64,11 @@
 <CONSTANT ABILITY-SANCTITY 4>
 <CONSTANT ABILITY-SCOUTING 5>
 <CONSTANT ABILITY-THIEVERY 6>
+
 ; "computed abilities"
 <CONSTANT ABILITY-DEFENSE 7>
 <CONSTANT ABILITY-STAMINA 8>
+
 ; "ability labels"
 <CONSTANT ABILITIES <LTABLE "CHARISMA" "COMBAT" "MAGIC" "SANCTITY" "SCOUTING" "THIEVERY" "DEFENSE" "STAMINA">>
 
@@ -91,14 +93,8 @@
 ; "GOD worshipped"
 <GLOBAL GOD NONE>
 
-; "container for vehicles owned"
-<OBJECT VEHICLES (DESC "vehicles") (FLAGS CONTBIT OPENBIT)>
-
-; "container for items given"
-<OBJECT GIVEBAG (DESC "items to give") (FLAGS CONTBIT OPENBIT)>
-
-; "container for codewords"
-<OBJECT CODEWORDS (DESC "Codewords") (FLAGS CONTBIT OPENBIT)>
+; "resurrection arrangment"
+<GLOBAL RESURRECTION-ARRANGEMENTS NONE>
 
 ; "object to refer to all of your money"
 <OBJECT ALL-MONEY (DESC "all your money") (FLAGS TAKEBIT NDESCBIT)>
@@ -106,11 +102,17 @@
 ; "container for blessings"
 <OBJECT BLESSINGS (DESC "Blessings") (FLAGS CONTBIT OPENBIT)>
 
+; "container for codewords"
+<OBJECT CODEWORDS (DESC "Codewords") (FLAGS CONTBIT OPENBIT)>
+
+; "container for items given"
+<OBJECT GIVEBAG (DESC "items to give") (FLAGS CONTBIT OPENBIT)>
+
 ; "container for titles and honours acquired"
 <OBJECT TITLES-AND-HONOURS (DESC "Titles and Honours") (FLAGS CONTBIT OPENBIT)>
 
-; "container for resurrection arrangments"
-<GLOBAL RESURRECTION-ARRANGEMENTS NONE>
+; "container for vehicles owned"
+<OBJECT VEHICLES (DESC "vehicles") (FLAGS CONTBIT OPENBIT)>
 
 ; "Character Object Properties"
 <PROPDEF CHARISMA -1>
@@ -150,9 +152,8 @@
 <PROPDEF ITEMS NONE> ; "list of items gained"
 <PROPDEF CODEWORDS NONE> ; "list of codewords gained"
 <PROPDEF GOD NONE> ; "God gained"
-<PROPDEF BLESSING NONE> ; "blessings gained"
+<PROPDEF BLESSINGS NONE> ; "blessings gained"
 <PROPDEF TITLES NONE> ; "titles and honours gained"
-<PROPDEF MARKS -1> ; "counts the number of times the section has been visited"
 <PROPDEF DOOM F> ; "section ends in doom for the player"
 <PROPDEF VICTORY F> ; "section ends in victory for the player"
 
@@ -274,6 +275,7 @@
     <TELL "'s attack was ineffective" ,EXCLAMATION-CR>
     <HLIGHT 0>>
 
+; "messages during rounds of combat"
 <ROUTINE ATTACK-MESSAGE (ATTACKER DEFENDER ATTACK DAMAGE)
     <CRLF>
     <HLIGHT ,H-BOLD>
@@ -297,8 +299,16 @@
     <HLIGHT 0>
     <TELL ,PERIOD-CR>>
 
-; "Calculate defense score"
+; "Calculate combat score"
+<ROUTINE CALCULATE-COMBAT (CHARACTER "OPT" CONTAINER "AUX" (RESULT 0))
+    <COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
+    <SET RESULT <+ .RESULT <GETP .CHARACTER ,P?COMBAT>>>
+    <SET RESULT <+ .RESULT <FIND-BEST ,P?COMBAT ,WEARBIT .CONTAINER>>>
+    <COND (<EQUAL? .CHARACTER ,CURRENT-CHARACTER> <SET RESULT <+ .RESULT <FIND-BEST ,P?COMBAT NONE ,BLESSINGS>>>)>
+    <COND (<G? .RESULT 12> <SET .RESULT 12>)>
+    <RETURN .RESULT>>
 
+; "Calculate defense score"
 <ROUTINE CALCULATE-DEFENSE (CHARACTER "OPT" CONTAINER (LIST NONE) "AUX" (RESULT 0))
     <COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
     <COND (<G? <GETP .CHARACTER ,P?DEFENSE> 0>
@@ -316,16 +326,6 @@
     <COND (<G? .RESULT 12> <SET .RESULT 12>)>
     <RETURN .RESULT>>
 
-; "Calculate combat score"
-
-<ROUTINE CALCULATE-COMBAT (CHARACTER "OPT" CONTAINER "AUX" (RESULT 0))
-    <COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
-    <SET RESULT <+ .RESULT <GETP .CHARACTER ,P?COMBAT>>>
-    <SET RESULT <+ .RESULT <FIND-BEST ,P?COMBAT ,WEARBIT .CONTAINER>>>
-    <COND (<EQUAL? .CHARACTER ,CURRENT-CHARACTER> <SET RESULT <+ .RESULT <FIND-BEST ,P?COMBAT NONE ,BLESSINGS>>>)>
-    <COND (<G? .RESULT 12> <SET .RESULT 12>)>
-    <RETURN .RESULT>>
-
 ; "Wrapper for combat. Sets DOOM on result"
 <ROUTINE CHECK-COMBAT (MONSTER "OPT" STORY)
     <COND (<NOT .STORY> <SET STORY ,HERE>)>
@@ -338,14 +338,12 @@
     )>>
 
 ; "Initialize Monser Stats"
-
 <ROUTINE COMBAT-MONSTER (MONSTER COMBAT DEFENSE STAMINA)
     <PUT .MONSTER ,P?COMBAT .COMBAT>
     <PUT .MONSTER ,P?DEFENSE .DEFENSE>
     <PUT .MONSTER ,P?DEFENSE .STAMINA>>
 
 ; "Display combatants' status"
-
 <ROUTINE COMBAT-STATUS (ROUND MONSTER STAMINA-PLAYER STAMINA-MONSTER)
     <CRLF>
     <HLIGHT ,H-BOLD>
@@ -424,50 +422,8 @@
     <HLIGHT 0>
     <TELL ,PERIOD-CR>>
 
-; "Story Routines - print story, process choices"
+; "Story Routines - print story, process choices, triggers"
 ; ---------------------------------------------------------------------------------------------
-
-<ROUTINE ADD-QUANTITY (OBJECT "OPT" AMOUNT CONTAINER "AUX" QUANTITY CURRENT)
-	<COND (<NOT .OBJECT> <RETURN>)>
-	<COND (<L=? .AMOUNT 0> <RETURN>)>
-	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
-	<COND (<EQUAL? .CONTAINER ,PLAYER>
-		<DO (I 1 .AMOUNT)
-			<TAKE-ITEM .OBJECT>
-		>
-	)(ELSE
-		<SET CURRENT <GETP .OBJECT ,P?QUANTITY>>
-		<SET QUANTITY <+ .CURRENT .AMOUNT>>
-		<PUTP .OBJECT ,P?QUANTITY .QUANTITY>
-	)>>
-
-<ROUTINE BUY-STUFF (ITEM PLURAL PRICE "OPT" LIMIT "AUX" QUANTITIES)
-	<COND (<NOT .LIMIT> <SET LIMIT 8>)>
-	<COND (<G=? ,MONEY .PRICE>
-		<CRLF>
-		<TELL "Buy " D .ITEM " for " N .PRICE " " D ,CURRENCY " each?">
-		<COND (<YES?>
-			<REPEAT ()
-				<SET QUANTITIES <GET-NUMBER "How many will you buy" 0 .LIMIT>>
-				<COND (<G? .QUANTITIES 0>
-					<COND (<L=? <* .QUANTITIES .PRICE> ,MONEY>
-						<CRLF>
-						<HLIGHT ,H-BOLD>
-						<TELL "You purchased " N .QUANTITIES " ">
-						<COND (<G? .QUANTITIES 1> <TELL .PLURAL>)(ELSE <TELL D .ITEM>)>
-						<TELL ,PERIOD-CR>
-						<COST-MONEY <* .QUANTITIES .PRICE>>
-						<ADD-QUANTITY .ITEM .QUANTITIES>
-						<COND (<L? ,MONEY .PRICE> <RETURN>)>
-					)(ELSE
-						<EMPHASIZE "You can't afford that!">
-					)>
-				)(ELSE
-					<RETURN>
-				)>
-			>
-		)>
-	)>>
 
 <ROUTINE CHECK-BACKGROUND ("AUX" BACKGROUND STORY)
     <SET BACKGROUND <GETP ,HERE ,P?BACKGROUND>>
@@ -476,10 +432,6 @@
         <COND (.STORY <SETG HERE .STORY>)>
         <UPDATE-STATUS-LINE>
     )>>
-
-<ROUTINE CHECK-VEHICLE (RIDE)
-	<COND (<OR <IN? .RIDE ,VEHICLES> <AND ,CURRENT-VEHICLE <EQUAL? ,CURRENT-VEHICLE .RIDE>>> <RTRUE>)>
-	<RFALSE>>
 
 <ROUTINE CHECK-DOOM ("AUX" DOOM)
     <SET DOOM <GETP ,HERE ,P?DOOM>>
@@ -515,27 +467,30 @@
 <ROUTINE CODEWORD-JUMP (CODEWORD STORY)
 	<COND (<CHECK-CODEWORD .CODEWORD> <STORY-JUMP .STORY>)>>
 
-<ROUTINE DELETE-BLESSING (BLESSING)
-	<COND (<AND .BLESSING <CHECK-BLESSING .BLESSING>>
-		<CRLF>
-		<TELL "You lose the blessing of ">
-		<HLIGHT ,H-ITALIC>
-		<TELL D .BLESSING>
-		<HLIGHT 0>
-		<TELL ,PERIOD-CR>
-		<REMOVE .BLESSING>
-	)>>
+<ROUTINE GAIN-BLESSINGS ("OPT" BLESSINGS)
+    <COND (<NOT .BLESSINGS> <SET BLESSINGS <GETP ,HERE ,P?BLESSINGS>>)>
+    <GAIN-OBJECTS .BLESSINGS GAIN-BLESSING>>
 
-<ROUTINE DELETE-CODEWORD (CODEWORD)
-	<COND (<AND .CODEWORD <CHECK-CODEWORD .CODEWORD>>
-		<CRLF>
-		<TELL "You lose the codeword ">
-		<HLIGHT ,H-ITALIC>
-		<TELL D .CODEWORD>
-		<HLIGHT 0>
-		<TELL ,PERIOD-CR>
-		<REMOVE .CODEWORD>
-	)>>
+<ROUTINE GAIN-CODEWORDS ("OPT" CODEWORDS)
+    <COND (<NOT .CODEWORDS> <SET CODEWORDS <GETP ,HERE ,P?CODEWORDS>>)>
+    <GAIN-OBJECTS .CODEWORDS GAIN-CODEWORD>>
+
+<ROUTINE GAIN-ITEMS ("OPT" ITEMS)
+    <COND (<NOT .ITEMS> <SET ITEMS <GETP ,HERE ,P?ITEMS>>)>
+    <GAIN-OBJECTS .ITEMS TAKE-ITEM>>
+
+<ROUTINE GAIN-OBJECTS (OBJECTS GAIN-ROUTINE "AUX" COUNT)
+    <COND (<NOT .OBJECTS> <RETURN>)>
+    <COND (.OBJECTS
+        <SET COUNT <GET .OBJECTS 0>>
+        <DO (I 1 .COUNT)
+            <APPLY .GAIN-ROUTINE <GET .OBJECTS .I>>
+        >
+    )>>
+
+<ROUTINE GAIN-TITLES ("OPT" TITLES)
+    <COND (<NOT .TITLES> <SET TITLES <GETP ,HERE ,P?TITLES>>)>
+    <GAIN-OBJECTS .TITLES GAIN-TITLE>>
 
 <ROUTINE IF-ALIVE (TEXT)
     <COND (<IS-ALIVE> <TELL CR .TEXT CR>)>>
@@ -547,26 +502,6 @@
 
 <ROUTINE ITEM-JUMP (ITEM STORY)
 	<COND (<CHECK-ITEM .ITEM> <STORY-JUMP .STORY>)>>
-
-<ROUTINE KEEP-ITEM (ITEM "OPT" JUMP)
-	<CRLF>
-	<TELL "Keep " T .ITEM "?">
-	<COND (<YES?>
-		<COND (<NOT <CHECK-ITEM .ITEM>> <TAKE-ITEM .ITEM>)>
-		<COND (.JUMP <STORY-JUMP .JUMP>)>
-		<RTRUE>
-	)>
-	<COND (<CHECK-ITEM .ITEM> <LOSE-ITEM .ITEM>)>
-	<RFALSE>>
-
-<ROUTINE LOSE-VEHICLE (VEHICLE)
-	<COND (.VEHICLE
-		<COND (<CHECK-VEHICLE .VEHICLE>
-			<REMOVE .VEHICLE>
-			<SETG CURRENT-VEHICLE NONE>
-			<UPDATE-STATUS-LINE>
-		)>
-	)>>
 
 <ROUTINE MARK-VISITS ("OPT" SECTION VISITS)
     <COND (<NOT .SECTION> <SET SECTION ,HERE>)>
@@ -788,67 +723,12 @@
     )>
     <RETURN !\x>>
 
-<ROUTINE SELL-STUFF (ITEM PLURAL PRICE "AUX" (ITEMS-SOLD 0) (QUANTITY 0))
-	<SET QUANTITY <GETP .ITEM ,P?QUANTITY>>
-	<CRLF>
-	<TELL "Sell " D .ITEM " at " N .PRICE " " D ,CURRENCY " each?">
-	<COND (<YES?>
-		<SET ITEMS-SOLD <GET-NUMBER "How many will you sell" 0 .QUANTITY>>
-		<COND (<G? .ITEMS-SOLD 0>
-			<SETG ,MONEY <+ ,MONEY <* .ITEMS-SOLD .PRICE>>>
-			<SET .QUANTITY <- .QUANTITY .ITEMS-SOLD>>
-			<CRLF>
-			<TELL "You sold " N .ITEMS-SOLD " ">
-			<HLIGHT ,H-BOLD>
-			<COND (<G? .ITEMS-SOLD 1> <TELL .PLURAL>)(ELSE <TELL D .ITEM>)>
-			<HLIGHT 0>
-			<TELL ,PERIOD-CR>
-			<COND (<G? .QUANTITY 0>
-				<PUTP .ITEM ,P?QUANTITY .QUANTITY>
-			)(ELSE
-				<PUTP .ITEM ,P?QUANTITY 1>
-				<REMOVE .ITEM>
-			)>
-		)>
-	)>>
-
 <ROUTINE STORY-JUMP (STORY)
     <COND (.STORY
         <SETG HERE .STORY>
         <SETG CONTINUE-TO-CHOICES F>
         <PRESS-A-KEY>
     )>>
-
-<ROUTINE TAKE-VEHICLE (VEHICLE)
-	<COND (.VEHICLE
-		<COND (,CURRENT-VEHICLE <REMOVE ,CURRENT-VEHICLE>)>
-		<MOVE .VEHICLE ,VEHICLES>
-		<SETG CURRENT-VEHICLE .VEHICLE>
-		<UPDATE-STATUS-LINE>
-	)>>
-
-<ROUTINE TAKE-QUANTITIES (OBJECT PLURAL MESSAGE "OPT" AMOUNT)
-	<CRLF>
-	<TELL "Take the " .PLURAL "?">
-	<COND (<YES?> <ADD-QUANTITY .OBJECT <GET-NUMBER .MESSAGE 0 .AMOUNT> ,PLAYER>)>>
-
-<ROUTINE TAKE-STUFF (ITEM PLURAL "OPT" AMOUNT "AUX" TAKEN)
-	<COND (<NOT .AMOUNT> <SET .AMOUNT 1>)>
-	<CRLF>
-	<TELL "Take the ">
-	<COND (<G? .AMOUNT 1> <TELL .PLURAL>)(<TELL D .ITEM>)>
-	<TELL "?">
-	<COND (<YES?>
-		<COND (<G? .AMOUNT 1>
-			<SET TAKEN <GET-NUMBER "How many will you take" 0 .AMOUNT>>
-			<ADD-QUANTITY .ITEM .AMOUNT ,PLAYER>
-			<RETURN .TAKEN>
-		)(ELSE
-			<TAKE-ITEM .ITEM>
-			<RETURN 1>
-		)>
-	)>
-	<RETURN 0>>
 
 <ROUTINE TITLE-JUMP (TITLE STORY "AUX")
 	<COND (<CHECK-TITLE .TITLE> <STORY-JUMP .STORY>)>>
@@ -858,6 +738,7 @@
 
 ; "Story - Choice Requirements Validations"
 ; ---------------------------------------------------------------------------------------------
+
 <ROUTINE CHECK-ALL (ITEMS "OPT" CONTAINER "AUX" COUNT)
     <COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
     <COND (.ITEMS
@@ -957,6 +838,10 @@
         <COND (<NOT <CHECK-TITLE <GET .TITLES .I>>> <RFALSE>)>
     >
     <RTRUE>>
+
+<ROUTINE CHECK-VEHICLE (RIDE)
+	<COND (<OR <IN? .RIDE ,VEHICLES> <AND ,CURRENT-VEHICLE <EQUAL? ,CURRENT-VEHICLE .RIDE>>> <RTRUE>)>
+	<RFALSE>>
 
 <ROUTINE CHECK-VISITS-EQUAL ("OPT" LOCATION COUNTER "AUX" VISITS)
     <COND (<NOT .LOCATION> <SET LOCATION ,HERE>)>
@@ -1304,9 +1189,6 @@
     >
     <RETURN .COUNT>>
 
-<ROUTINE COUNT-POSSESSIONS ()
-    <RETURN <COUNT-CONTAINER ,PLAYER>>>
-
 <ROUTINE PRINT-CONTAINER (CONTAINER "AUX" COUNT ITEMS)
     <COUNT-CONTAINER .CONTAINER>
     <SET COUNT 0>
@@ -1344,6 +1226,48 @@
 ; "Player or Item routines"
 ; ---------------------------------------------------------------------------------------------
 
+<ROUTINE ADD-QUANTITY (OBJECT "OPT" AMOUNT CONTAINER "AUX" QUANTITY CURRENT)
+	<COND (<NOT .OBJECT> <RETURN>)>
+	<COND (<L=? .AMOUNT 0> <RETURN>)>
+	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
+	<COND (<EQUAL? .CONTAINER ,PLAYER>
+		<DO (I 1 .AMOUNT)
+			<TAKE-ITEM .OBJECT>
+		>
+	)(ELSE
+		<SET CURRENT <GETP .OBJECT ,P?QUANTITY>>
+		<SET QUANTITY <+ .CURRENT .AMOUNT>>
+		<PUTP .OBJECT ,P?QUANTITY .QUANTITY>
+	)>>
+
+<ROUTINE BUY-STUFF (ITEM PLURAL PRICE "OPT" LIMIT "AUX" QUANTITIES)
+	<COND (<NOT .LIMIT> <SET LIMIT 8>)>
+	<COND (<G=? ,MONEY .PRICE>
+		<CRLF>
+		<TELL "Buy " D .ITEM " for " N .PRICE " " D ,CURRENCY " each?">
+		<COND (<YES?>
+			<REPEAT ()
+				<SET QUANTITIES <GET-NUMBER "How many will you buy" 0 .LIMIT>>
+				<COND (<G? .QUANTITIES 0>
+					<COND (<L=? <* .QUANTITIES .PRICE> ,MONEY>
+						<CRLF>
+						<HLIGHT ,H-BOLD>
+						<TELL "You purchased " N .QUANTITIES " ">
+						<COND (<G? .QUANTITIES 1> <TELL .PLURAL>)(ELSE <TELL D .ITEM>)>
+						<TELL ,PERIOD-CR>
+						<COST-MONEY <* .QUANTITIES .PRICE>>
+						<ADD-QUANTITY .ITEM .QUANTITIES>
+						<COND (<L? ,MONEY .PRICE> <RETURN>)>
+					)(ELSE
+						<EMPHASIZE "You can't afford that!">
+					)>
+				)(ELSE
+					<RETURN>
+				)>
+			>
+		)>
+	)>>
+
 <ROUTINE COST-MONEY (COST "OPT" REASON)
     <CRLF>
     <HLIGHT ,H-BOLD>
@@ -1359,8 +1283,38 @@
     <COND (<L? ,MONEY 0> <SETG MONEY 0>)>
     <UPDATE-STATUS-LINE>>
 
-<ROUTINE LOSE-MONEY (COST)
-    <COST-MONEY .COST "lose">>
+<ROUTINE COUNT-BLESSINGS (ITEM "AUX" (ITEMS 0) (BLESSINGS 0) (PROPERTY NONE))
+    <COND (.ITEM
+        <SET ITEMS <GET ,ABILITIES 0>>
+        <DO (I 1 .ITEMS)
+            <SET PROPERTY <GET-ABILITY-PROPERTY .I>>
+            <COND (<AND .PROPERTY <G? <GETP .ITEM .PROPERTY> 0>> <INC .BLESSINGS>)> 
+        >
+    )>
+    <RETURN .BLESSINGS>>
+
+<ROUTINE COUNT-POSSESSIONS ()
+    <RETURN <COUNT-CONTAINER ,PLAYER>>>
+
+<ROUTINE DELETE-BLESSING (BLESSING)
+    <DELETE-OBJECT .BLESSING CHECK-BLESSING "blessing of">>
+
+<ROUTINE DELETE-CODEWORD (CODEWORD)
+    <DELETE-OBJECT .CODEWORD CHECK-CODEWORD "codeword">>
+
+<ROUTINE DELETE-TITLE (TITLE)
+    <DELETE-OBJECT .TITLE CHECK-TITLE "title of">>
+
+<ROUTINE DELETE-OBJECT (OBJECT CHECK-ROUTINE DESCRIPTION "OPT" (RENDER H-BOLD))
+	<COND (<AND .OBJECT <APPLY .CHECK-ROUTINE .OBJECT>>
+		<CRLF>
+		<TELL "You lose the " .DESCRIPTION " ">
+		<HLIGHT .RENDER>
+		<TELL D .OBJECT>
+		<HLIGHT 0>
+		<TELL ,PERIOD-CR>
+		<REMOVE .OBJECT>
+	)>>
 
 <ROUTINE DISCHARGE-ITEM (ITEM "OPT" AMOUNT "AUX" (CHARGES 0))
 	<SET CHARGES <GETP .ITEM ,P?CHARGES>>
@@ -1370,95 +1324,6 @@
 		<COND (<L? .CHARGES 1> <SET CHARGES 0>)>
 		<PUTP .ITEM ,P?CHARGES .CHARGES>
 	)>>
-
-<ROUTINE DROP-REPLACE-ITEM (OBJ "AUX" KEY COUNT ITEM CHOICE QUANTITY)
-    <COND (<AND .OBJ <G=? <COUNT-POSSESSIONS> ,LIMIT-POSSESSIONS>>
-        <REPEAT ()
-            <CRLF>
-            <TELL "Please choose an item to drop:" CR>
-            <SET COUNT 0>
-            <SET ITEM <FIRST? ,PLAYER>>
-            <REPEAT ()
-                <COND (<NOT .ITEM> <RETURN>)>
-                <COND (<NOT <FSET? .ITEM ,NDESCBIT>>
-                    <INC .COUNT>
-                    <HLIGHT ,H-BOLD>
-                    <TELL N .COUNT>
-                    <HLIGHT 0>
-                    <TELL " - " T .ITEM>
-                    <SET QUANTITY <GETP .ITEM ,P?QUANTITY>>
-                    <COND (<G? .QUANTITY 0> <TELL " (" N .QUANTITY ")">)>
-                    <CRLF>
-                )>
-                <SET ITEM <NEXT? .ITEM>>
-            >
-            <HLIGHT ,H-BOLD>
-            <TELL N <+ .COUNT 1>>
-            <HLIGHT 0>
-            <TELL " - drop " T .OBJ " instead" ,PERIOD-CR>
-            <REPEAT ()
-                <SET KEY <INPUT 1>>
-                <COND (<AND <G? .KEY !\0> <L=? .KEY <+ .COUNT 49>>> <RETURN>)>
-            >
-            <COND (<AND <G? .KEY 48> <L? .KEY <+ .COUNT 49>>>
-                <SET CHOICE <- .KEY 48>>
-                <SET ITEM <GET-ITEM .CHOICE>>
-                <COND (.ITEM
-                    <CRLF>
-                    <TELL "Drop " T .ITEM "?">
-                    <COND (<YES?>
-                        <HLIGHT 0>
-                        <TELL CR "You dropped ">
-                        <HLIGHT ,H-BOLD>
-                        <TELL T .ITEM>
-                        <HLIGHT 0>
-                        <TELL " and took ">
-                        <HLIGHT ,H-BOLD>
-                        <TELL T .OBJ>
-                        <HLIGHT 0>
-                        <TELL ,PERIOD-CR>
-                        <COND (<NOT <EQUAL? .ITEM .OBJ>>
-                            <SET QUANTITY <GETP .ITEM ,P?QUANTITY>>
-                            <COND (<G? .QUANTITY 0>
-                                <DEC .QUANTITY>
-                                <COND (<G? .QUANTITY 0>
-                                    <PUTP .ITEM ,P?QUANTITY .QUANTITY>
-                                )(ELSE
-                                    <PUTP .ITEM ,P?QUANTITY 1>
-                                    <REMOVE .ITEM>
-                                )>
-                            )(<EQUAL? .QUANTITY 0>
-                                <PUTP .ITEM ,P?QUANTITY 1>
-                                <REMOVE .ITEM>
-                            )(ELSE
-                                <REMOVE .ITEM>
-                            )>
-                            <COND (<IN? .OBJ ,PLAYER>
-                                <SET QUANTITY <GETP .OBJ ,P?QUANTITY>>
-                                <COND (<G=? .QUANTITY 0> <PUTP .OBJ ,P?QUANTITY <+ .QUANTITY 1>>)>
-                            )>
-                            <MOVE .OBJ ,PLAYER>
-                        )>
-                        <RETURN>
-                    )>
-                )>
-            )(<EQUAL? .KEY <+ .COUNT 49>>
-                <CRLF>
-                <TELL "Drop " T .OBJ "?">
-                <COND (<YES?>
-                    <HLIGHT 0>
-                    <TELL CR "You dropped ">
-                    <HLIGHT ,H-BOLD>
-                    <TELL T .OBJ>
-                    <HLIGHT 0>
-                    <TELL ,PERIOD-CR>
-                    <SET QUANTITY <GETP .OBJ ,P?QUANTITY>>
-                    <COND (<L? .QUANTITY 0> <REMOVE .OBJ>)>
-                    <RETURN>
-                )>
-            )>
-        >
-    )>>
 
 <ROUTINE DESCRIBE-INVENTORY ("AUX" COUNT)
     <COND (,CURRENT-CHARACTER
@@ -1569,34 +1434,100 @@
     <COND (,GOD <TELL D ,GOD>)(ELSE <TELL "None">)>
     <CRLF>>
 
+<ROUTINE DROP-REPLACE-ITEM (OBJ "AUX" KEY COUNT ITEM CHOICE QUANTITY)
+    <COND (<AND .OBJ <G=? <COUNT-POSSESSIONS> ,LIMIT-POSSESSIONS>>
+        <REPEAT ()
+            <CRLF>
+            <TELL "Please choose an item to drop:" CR>
+            <SET COUNT 0>
+            <SET ITEM <FIRST? ,PLAYER>>
+            <REPEAT ()
+                <COND (<NOT .ITEM> <RETURN>)>
+                <COND (<NOT <FSET? .ITEM ,NDESCBIT>>
+                    <INC .COUNT>
+                    <HLIGHT ,H-BOLD>
+                    <TELL N .COUNT>
+                    <HLIGHT 0>
+                    <TELL " - " T .ITEM>
+                    <SET QUANTITY <GETP .ITEM ,P?QUANTITY>>
+                    <COND (<G? .QUANTITY 0> <TELL " (" N .QUANTITY ")">)>
+                    <CRLF>
+                )>
+                <SET ITEM <NEXT? .ITEM>>
+            >
+            <HLIGHT ,H-BOLD>
+            <TELL N <+ .COUNT 1>>
+            <HLIGHT 0>
+            <TELL " - drop " T .OBJ " instead" ,PERIOD-CR>
+            <REPEAT ()
+                <SET KEY <INPUT 1>>
+                <COND (<AND <G? .KEY !\0> <L=? .KEY <+ .COUNT 49>>> <RETURN>)>
+            >
+            <COND (<AND <G? .KEY 48> <L? .KEY <+ .COUNT 49>>>
+                <SET CHOICE <- .KEY 48>>
+                <SET ITEM <GET-ITEM .CHOICE>>
+                <COND (.ITEM
+                    <CRLF>
+                    <TELL "Drop " T .ITEM "?">
+                    <COND (<YES?>
+                        <HLIGHT 0>
+                        <TELL CR "You dropped ">
+                        <HLIGHT ,H-BOLD>
+                        <TELL T .ITEM>
+                        <HLIGHT 0>
+                        <TELL " and took ">
+                        <HLIGHT ,H-BOLD>
+                        <TELL T .OBJ>
+                        <HLIGHT 0>
+                        <TELL ,PERIOD-CR>
+                        <COND (<NOT <EQUAL? .ITEM .OBJ>>
+                            <SET QUANTITY <GETP .ITEM ,P?QUANTITY>>
+                            <COND (<G? .QUANTITY 0>
+                                <DEC .QUANTITY>
+                                <COND (<G? .QUANTITY 0>
+                                    <PUTP .ITEM ,P?QUANTITY .QUANTITY>
+                                )(ELSE
+                                    <PUTP .ITEM ,P?QUANTITY 1>
+                                    <REMOVE .ITEM>
+                                )>
+                            )(<EQUAL? .QUANTITY 0>
+                                <PUTP .ITEM ,P?QUANTITY 1>
+                                <REMOVE .ITEM>
+                            )(ELSE
+                                <REMOVE .ITEM>
+                            )>
+                            <COND (<IN? .OBJ ,PLAYER>
+                                <SET QUANTITY <GETP .OBJ ,P?QUANTITY>>
+                                <COND (<G=? .QUANTITY 0> <PUTP .OBJ ,P?QUANTITY <+ .QUANTITY 1>>)>
+                            )>
+                            <MOVE .OBJ ,PLAYER>
+                        )>
+                        <RETURN>
+                    )>
+                )>
+            )(<EQUAL? .KEY <+ .COUNT 49>>
+                <CRLF>
+                <TELL "Drop " T .OBJ "?">
+                <COND (<YES?>
+                    <HLIGHT 0>
+                    <TELL CR "You dropped ">
+                    <HLIGHT ,H-BOLD>
+                    <TELL T .OBJ>
+                    <HLIGHT 0>
+                    <TELL ,PERIOD-CR>
+                    <SET QUANTITY <GETP .OBJ ,P?QUANTITY>>
+                    <COND (<L? .QUANTITY 0> <REMOVE .OBJ>)>
+                    <RETURN>
+                )>
+            )>
+        >
+    )>>
+
+<ROUTINE GAIN-BLESSING (BLESSING)
+    <GAIN-OBJECT .BLESSING ,BLESSINGS "blessing" CHECK-BLESSING>>
+
 <ROUTINE GAIN-CODEWORD (CODEWORD)
-    <COND (<NOT <CHECK-CODEWORD .CODEWORD>>
-        <CRLF>
-        <TELL "You gained the codeword ">
-        <HLIGHT ,H-BOLD>
-        <TELL D .CODEWORD>
-        <HLIGHT 0>
-        <TELL ,PERIOD-CR>
-        <MOVE .CODEWORD ,CODEWORDS>
-    )>>
-
-<ROUTINE GAIN-CODEWORDS ("OPT" CODEWORDS COUNT)
-    <COND (<NOT .CODEWORDS> <SET CODEWORDS <GETP ,HERE ,P?CODEWORDS>>)>
-    <COND (.CODEWORDS
-        <SET COUNT <GET .CODEWORDS 0>>
-        <DO (I 1 .COUNT)
-            <GAIN-CODEWORD <GET .CODEWORDS .I>>
-        >
-    )>>
-
-<ROUTINE GAIN-ITEMS ("OPT" ITEMS "AUX" COUNT)
-    <COND (<NOT .ITEMS> <SET ITEMS <GETP ,HERE ,P?ITEMS>>)>
-    <COND (.ITEMS
-        <SET COUNT <GET .ITEMS 0>>
-        <DO (I 1 .COUNT)
-            <TAKE-ITEM <GET .ITEMS .I>>
-        >
-    )>>
+    <GAIN-OBJECT .CODEWORD ,CODEWORDS "codeword" CHECK-CODEWORD>>
 
 <ROUTINE GAIN-MONEY (AMOUNT)
     <CRLF>
@@ -1607,6 +1538,17 @@
     <TELL ,PERIOD-CR>
     <SETG MONEY <+ ,MONEY .AMOUNT>>
     <UPDATE-STATUS-LINE>>
+
+<ROUTINE GAIN-OBJECT (OBJECT CONTAINER DESCRIPTION CHECK-ROUTINE)
+    <COND (<NOT <APPLY .CHECK-ROUTINE .OBJECT>>
+        <CRLF>
+        <TELL "You gained the " .DESCRIPTION " ">
+        <HLIGHT ,H-BOLD>
+        <TELL D .OBJECT>
+        <HLIGHT 0>
+        <TELL ,PERIOD-CR>
+        <MOVE .OBJECT .CONTAINER>
+    )>>
 
 <ROUTINE GAIN-STAMINA (POINTS "AUX" DIFF)
     <COND (<L? ,STAMINA ,MAX-STAMINA>
@@ -1624,6 +1566,9 @@
         <TELL " stamina" ,PERIOD-CR>
         <HLIGHT 0>
     )>>
+
+<ROUTINE GAIN-TITLE (TITLE)
+    <GAIN-OBJECT .TITLE ,TITLES-AND-HONOURS "title" CHECK-TITLE>>
 
 <ROUTINE GET-ITEM (ITEM "OPT" CONTAINER "AUX" ITEMS COUNT)
     <COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
@@ -1708,8 +1653,22 @@
 <ROUTINE GIVE-ITEM (ITEM "OPT" (SILENT F))
     <REMOVE-ITEM .ITEM "gave" F .SILENT>>
 
+<ROUTINE KEEP-ITEM (ITEM "OPT" JUMP)
+	<CRLF>
+	<TELL "Keep " T .ITEM "?">
+	<COND (<YES?>
+		<COND (<NOT <CHECK-ITEM .ITEM>> <TAKE-ITEM .ITEM>)>
+		<COND (.JUMP <STORY-JUMP .JUMP>)>
+		<RTRUE>
+	)>
+	<COND (<CHECK-ITEM .ITEM> <LOSE-ITEM .ITEM>)>
+	<RFALSE>>
+
 <ROUTINE LOSE-ITEM (ITEM "OPT" (SILENT F))
     <REMOVE-ITEM .ITEM "lost" F .SILENT>>
+
+<ROUTINE LOSE-MONEY (COST)
+    <COST-MONEY .COST "lose">>
 
 <ROUTINE LOSE-STAMINA (DAMAGE MESSAGE STORY)
     <SETG STAMINA <- ,STAMINA .DAMAGE>>
@@ -1728,15 +1687,14 @@
     <TELL ,PERIOD-CR>
     <RETURN>>
 
-<ROUTINE COUNT-BLESSINGS (ITEM "AUX" (ITEMS 0) (BLESSINGS 0) (PROPERTY NONE))
-    <COND (.ITEM
-        <SET ITEMS <GET ,ABILITIES 0>>
-        <DO (I 1 .ITEMS)
-            <SET PROPERTY <GET-ABILITY-PROPERTY .I>>
-            <COND (<AND .PROPERTY <G? <GETP .ITEM .PROPERTY> 0>> <INC .BLESSINGS>)> 
-        >
-    )>
-    <RETURN .BLESSINGS>>
+<ROUTINE LOSE-VEHICLE (VEHICLE)
+	<COND (.VEHICLE
+		<COND (<CHECK-VEHICLE .VEHICLE>
+			<REMOVE .VEHICLE>
+			<SETG CURRENT-VEHICLE NONE>
+			<UPDATE-STATUS-LINE>
+		)>
+	)>>
 
 <ROUTINE PRINT-BLESSINGS (ITEM "OPT"  "AUX" (COUNT 0) (ITEMS 0) (SCORE 0) (PROPERTY NONE))
     <COND (<G? <COUNT-BLESSINGS .ITEM> 0>
@@ -1931,6 +1889,30 @@
     )>
     <RETURN>>
 
+<ROUTINE SELL-STUFF (ITEM PLURAL PRICE "AUX" (ITEMS-SOLD 0) (QUANTITY 0))
+	<SET QUANTITY <GETP .ITEM ,P?QUANTITY>>
+	<CRLF>
+	<TELL "Sell " D .ITEM " at " N .PRICE " " D ,CURRENCY " each?">
+	<COND (<YES?>
+		<SET ITEMS-SOLD <GET-NUMBER "How many will you sell" 0 .QUANTITY>>
+		<COND (<G? .ITEMS-SOLD 0>
+			<SETG ,MONEY <+ ,MONEY <* .ITEMS-SOLD .PRICE>>>
+			<SET .QUANTITY <- .QUANTITY .ITEMS-SOLD>>
+			<CRLF>
+			<TELL "You sold " N .ITEMS-SOLD " ">
+			<HLIGHT ,H-BOLD>
+			<COND (<G? .ITEMS-SOLD 1> <TELL .PLURAL>)(ELSE <TELL D .ITEM>)>
+			<HLIGHT 0>
+			<TELL ,PERIOD-CR>
+			<COND (<G? .QUANTITY 0>
+				<PUTP .ITEM ,P?QUANTITY .QUANTITY>
+			)(ELSE
+				<PUTP .ITEM ,P?QUANTITY 1>
+				<REMOVE .ITEM>
+			)>
+		)>
+	)>>
+
 <ROUTINE TAKE-ITEM (ITEM "AUX" QUANTITY)
     <COND (.ITEM
         <CRLF>
@@ -1958,6 +1940,37 @@
         )>
     )>
     <WEAR-BEST>>
+
+<ROUTINE TAKE-QUANTITIES (OBJECT PLURAL MESSAGE "OPT" AMOUNT)
+	<CRLF>
+	<TELL "Take the " .PLURAL "?">
+	<COND (<YES?> <ADD-QUANTITY .OBJECT <GET-NUMBER .MESSAGE 0 .AMOUNT> ,PLAYER>)>>
+
+<ROUTINE TAKE-STUFF (ITEM PLURAL "OPT" AMOUNT "AUX" TAKEN)
+	<COND (<NOT .AMOUNT> <SET .AMOUNT 1>)>
+	<CRLF>
+	<TELL "Take the ">
+	<COND (<G? .AMOUNT 1> <TELL .PLURAL>)(<TELL D .ITEM>)>
+	<TELL "?">
+	<COND (<YES?>
+		<COND (<G? .AMOUNT 1>
+			<SET TAKEN <GET-NUMBER "How many will you take" 0 .AMOUNT>>
+			<ADD-QUANTITY .ITEM .AMOUNT ,PLAYER>
+			<RETURN .TAKEN>
+		)(ELSE
+			<TAKE-ITEM .ITEM>
+			<RETURN 1>
+		)>
+	)>
+	<RETURN 0>>
+
+<ROUTINE TAKE-VEHICLE (VEHICLE)
+	<COND (.VEHICLE
+		<COND (,CURRENT-VEHICLE <REMOVE ,CURRENT-VEHICLE>)>
+		<MOVE .VEHICLE ,VEHICLES>
+		<SETG CURRENT-VEHICLE .VEHICLE>
+		<UPDATE-STATUS-LINE>
+	)>>
 
 <ROUTINE WEAR-BEST ("AUX" ITEMS DEFENSE (SCORE 0))
     <SET ITEMS <FIRST? ,PLAYER>>
@@ -2148,6 +2161,9 @@
         <SET ITEM .NEXT>
     >>
 
+<ROUTINE RESET-BLESSINGS ()
+    <RESET-CONTAINER ,BLESSINGS>>
+
 <ROUTINE RESET-CHOICES ()
     <SETG CONTINUE-TO-CHOICES T>>
 
@@ -2159,12 +2175,18 @@
 
 <ROUTINE RESET-PLAYER ()
     <SETG CURRENT-CHARACTER NONE>
-    <SETG MONEY 0>
-    <SETG STAMINA 0>
+    <SETG CURRENT-VEHICLE NONE>
+    <SETG GOD NONE>
     <SETG MAX-STAMINA 0>
-    <RESET-POSSESSIONS>
+    <SETG MONEY 0>
+    <SETG RESURRECTION-ARRANGEMENTS NONE>
+    <SETG STAMINA 0>
+    <RESET-BLESSINGS>
     <RESET-CODEWORDS>
-    <RESET-GIVEBAG>>
+    <RESET-GIVEBAG>
+    <RESET-POSSESSIONS>
+    <RESET-TITLES>
+    <RESET-VEHICLES>>
 
 <ROUTINE RESET-POSSESSIONS ()
     <RESET-CONTAINER ,PLAYER>>
@@ -2177,6 +2199,12 @@
     <DO (I 1 .ITEMS)
         <PUT TEMP-LIST .I NONE>
     >>
+
+<ROUTINE RESET-TITLES ()
+    <RESET-CONTAINER ,TITLES-AND-HONOURS>>
+
+<ROUTINE RESET-VEHICLES ()
+    <RESET-CONTAINER ,VEHICLES>>
 
 ; "System/Utility/Miscellaneous routines"
 ; ---------------------------------------------------------------------------------------------
@@ -2330,6 +2358,8 @@
         <COND (,RUN-ONCE
             <GAIN-ITEMS>
             <GAIN-CODEWORDS>
+            <GAIN-BLESSINGS>
+            <GAIN-TITLES>
         )>
         <COND (,CONTINUE-TO-CHOICES
             <SET KEY <PROCESS-STORY>>
