@@ -1,7 +1,8 @@
-<GLOBAL STARTING-POINT STORY040>
+<GLOBAL STARTING-POINT STORY045>
 
 ; "reset routines"
 <ROUTINE RESET-OBJECTS ()
+	<FSET ,LEATHER-JERKIN ,WORNBIT>
 	<RETURN>>
 
 <ROUTINE RESET-STORY ()
@@ -9,6 +10,9 @@
 	<PUTP ,STORY014 ,P?DOOM T>
 	<PUTP ,STORY034 ,P?DOOM T>
 	<PUTP ,STORY036 ,P?DOOM T>
+	<PUTP ,STORY042 ,P?DOOM T>
+	<PUTP ,STORY043 ,P?DOOM T>
+	<PUTP ,STORY045 ,P?DOOM T>
     <RETURN>>
 
 ; "story objects and variables"
@@ -317,7 +321,7 @@ won't follow you there if they don't think you're good enough.\"">
 		<TELL ,TEXT014-CONTINUED>
 		<TELL ,PERIOD-CR>
 		<COMBAT-MONSTER ,MONSTER-THUG 3 6 13>
-		<CHECK-COMBAT ,MONSTER-THUG>
+		<CHECK-COMBAT ,MONSTER-THUG ,STORY014>
 	)>>
 
 <CONSTANT TEXT015 "Three drunken army officers accost you on the street.">
@@ -503,7 +507,7 @@ harbourmaster.">
 	(TYPES <LTABLE R-NONE R-NONE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT031 "A dark emptiness surrounds you. Then, as if in your sleep, you see a tiny glimmer of light off in the distance. Suddenly you wake up, coughing and spluttering, up to your neck in water. You look around. You are floundering in the holy waters of Blessed Springs.||Standing at the side of the pool is a tall, slim, mustachioed man who says, \"I am Aklar the Bold. I found you as bottled dust in the lair of Vayss the Sea Dragon. By sprinkling your ashes into the holy waters, I have brought you back to life. I think a reward is in order, don't you?\"||\"As you can see, I have literally nothing to give you.\"||Aklar frowns in annoyance. \"Blast, I knew I should have taken one of the other bottles. Well, you'll just have to owe me a favor. A big favor.\"||\"I can hardly refuse.\"||\"Well, I must be about my business. We shall meet again, count on it.\"||With that he leaves.||You stagger out of the pool.">
+<CONSTANT TEXT031 "A dark emptiness surrounds you. Then, as if in your sleep, you see a tiny glimmer of light off in the distance. Suddenly you wake up, coughing and spluttering, up to your neck in water. You look around. You are floundering in the holy waters of Blessed Springs.||Standing at the side of the pool is a tall, slim, mustachioed man who says, \"I am Aklar the Bold. I found you as bottled dust in the lair of Vayss the Sea Dragon. By sprinkling your ashes into the holy waters, I have brought you back to life. I think a reward is in order, don't you?\"||\"As you can see, I have literally nothing to give you.\"||Aklar frowns in annoyance. \"Blast, I knew I should have taken one of the other bottles. Well, you'll just have to owe me a favour. A big favour.\"||\"I can hardly refuse.\"||\"Well, I must be about my business. We shall meet again, count on it.\"||With that he leaves.||You stagger out of the pool.">
 
 <ROOM STORY031
 	(DESC "031")
@@ -671,100 +675,83 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	<DELETE-CODEWORD ,CODEWORD-ARTIFACT>
 	<RETURN-ITEM ,BOOK-OF-THE-SEVEN-SAGES T>>
 
+<CONSTANT TEXT041 "The inside of the dome is lit with an eerie yellowish glow that comes from the sea-moss that carpets the ceiling. At the far end, a grotto in the wall contains an idol made from sea shells and coral, presumably of Oannes, the god of the repulsive ones. At its feet lies the golden net of Alvir and Valmir, the object of your quest. Between you and the idol swim several of the giant squid-creatures, carrying out various undersea chores.">
+<CONSTANT CHOICES041 <LTABLE "Swim back to Shadar Tor" "Fight your way to the golden net" "Trust to your magical prowess" "Rack your memory for a solution">>
+
 <ROOM STORY041
 	(DESC "041")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT041)
+	(CHOICES CHOICES041)
+	(DESTINATIONS <LTABLE STORY035 STORY121 STORY592 STORY487>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT042 "Two hulking shapes appear out of the shadows as if from nowhere. They are hideous creatures: manlike, standing on two legs, but with the tail and hairy features of a gigantic rat. Their yellowing teeth snap at you as they lunge for you; the ratmen also wield wicked-looking shortswords in their hands. \"Gut the human!\" yells one of them in a bestial voice. You must fight them, both at once, as if they were one opponent.">
 
 <ROOM STORY042
 	(DESC "042")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT042)
+	(EVENTS STORY042-EVENTS)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY042-EVENTS ("AUX" (MODIFIER 0))
+	<COND (<CHECK-ITEM ,RAT-POISON>
+		<SET MODIFIER 3>
+		<EMPHASIZE "The rat poison adds +3 to your COMBAT rolls.">
+	)>
+	<COMBAT-MONSTER ,TWO-RATMEN 6 9 9>
+	<COND (<CHECK-COMBAT ,TWO-RATMEN ,STORY042 .MODIFIER>
+		<STORY-JUMP ,STORY423>
+	)(ELSE
+		<STORY-JUMP ,STORY308>
+	)>>
+
+<CONSTANT TEXT043 "You must fight the Tomb Guardian. Luckily, your magic weapon will be effective.">
 
 <ROOM STORY043
 	(DESC "043")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT043)
+	(EVENTS STORY043-EVENTS)
+	(CONTINUE STORY490)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY043-EVENTS ()
+	<COMBAT-MONSTER ,TOMB-GUARDIAN 6 8 12>
+	<CHECK-COMBAT ,TOMB-GUARDIAN ,STORY043>>
+
+<CONSTANT TEXT044 "You decide that discretion would be the better part of valor in this case, and step aside. The officers laugh contemptuously, and swagger past. Nothing else happens tonight.">
 
 <ROOM STORY044
 	(DESC "044")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT044)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT045 "The little girl runs off before you can talk to her. You thread your way through the pitted tombstones and brooding crypts of the cemetery, under a pale moon that bathes the graveyard in a sickly, pallid light. Suddenly, a foul stench fills your nostrils, and a figure rises up out of the shadows. Yellow eyes glow with feral blood-lust, and the creature sinks its black teeth into your arm before you can react.">
+<CONSTANT TEXT045-CONTINUED "The ghoul, a rotting, walking corpse, lunges for you again">
+<CONSTANT CHOICES045 <LTABLE "Fight it" "Invoke the power of the gods" "If you have any">>
 
 <ROOM STORY045
 	(DESC "045")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT045)
+	(EVENTS STORY045-EVENTS)
+	(CHOICES CHOICES045)
+	(DESTINATIONS <LTABLE STORY617 STORY155 STORY303>)
+	(REQUIREMENTS <LTABLE NONE NONE SALT-AND-IRON-FILINGS>)
+	(TYPES <LTABLE R-NONE R-NONE R-ITEM>)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY045-EVENTS ()
+	<COND (,RUN-ONCE <LOSE-STAMINA 4 ,DIED-GREW-WEAKER ,STORY045>)>
+	<COND (<IS-ALIVE>
+		<AFFLICTED-WITH ,DISEASE-GHOULBITE>
+		<CRLF>
+		<TELL ,TEXT045-CONTINUED>
+		<TELL ,PERIOD-CR>
+	)>>
 
 <ROOM STORY046
 	(DESC "046")
@@ -5763,24 +5750,18 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(VICTORY F)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT309 "As you move closer to the sarcophagus, your foot crosses the edge of the pentacle by a few inches. It is enough. The lid of the sarcophagus explodes into the air with a deafening crash, and a pillar of black smoke erupts from the stone coffin. The smoke hurtles towards you, like a miniature tornado. You must fight the tomb guardian.">
+
 <ROOM STORY309
 	(DESC "309")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT309)
+	(EVENTS STORY309-EVENTS)
+	(CONTINUE STORY260)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY309-EVENTS ("AUX" WEAPON)
+	<SET WEAPON <FIND-BEST ,P?COMBAT ,WEAPONBIT ,PLAYER>>
+	<COND (<G? .WEAPON 0> <STORY-JUMP ,STORY043>)>>
 
 <ROOM STORY310
 	(DESC "310")
