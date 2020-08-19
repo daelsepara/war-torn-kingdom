@@ -119,27 +119,28 @@
 <OBJECT VEHICLES (DESC "vehicles") (FLAGS CONTBIT OPENBIT)>
 
 ; "Character Object Properties"
-<PROPDEF CHARISMA -1>
-<PROPDEF COMBAT -1>
-<PROPDEF MAGIC -1>
-<PROPDEF SANCTITY -1>
-<PROPDEF SCOUTING -1>
-<PROPDEF THIEVERY -1>
-<PROPDEF RANK -1>
+<PROPDEF CHARISMA NONE>
+<PROPDEF COMBAT NONE>
+<PROPDEF MAGIC NONE>
+<PROPDEF SANCTITY NONE>
+<PROPDEF SCOUTING NONE>
+<PROPDEF THIEVERY NONE>
+<PROPDEF RANK NONE>
 <PROPDEF PROFESSION NONE>
 
 ; "Computed Statistics"
-<PROPDEF DEFENSE -1>
-<PROPDEF STAMINA -1>
+<PROPDEF DEFENSE NONE>
+<PROPDEF STAMINA NONE>
 
 ; "NON-PERSON OBJECTS"
 ; ---------------------------------------------------------------------------------------------
 
 ; "Properties"
-<PROPDEF QUANTITY -1>
-<PROPDEF CHARGES -1>
-<PROPDEF STARS -1>
-<PROPDEF STATUS 0>
+<PROPDEF QUANTITY NONE>
+<PROPDEF CHARGES NONE>
+<PROPDEF STARS NONE>
+<PROPDEF STATUS NONE>
+<PROPDEF EFFECTS NONE>
 
 ; "STORY"
 ; ---------------------------------------------------------------------------------------------
@@ -158,6 +159,7 @@
 <PROPDEF GOD NONE> ; "God gained"
 <PROPDEF BLESSINGS NONE> ; "blessings gained"
 <PROPDEF TITLES NONE> ; "titles and honours gained"
+<PROPDEF VISITS NONE>
 <PROPDEF DOOM F> ; "section ends in doom for the player"
 <PROPDEF VICTORY F> ; "section ends in victory for the player"
 
