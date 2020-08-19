@@ -1,5 +1,3 @@
-<INSERT-FILE "merchants">
-
 <GLOBAL STARTING-POINT STORY001>
 
 ; "reset routines"
@@ -7,6 +5,7 @@
 	<RETURN>>
 
 <ROUTINE RESET-STORY ()
+	<PUTP ,STORY038 ,P?REQUIREMENTS ,STORY038-ODDS>
 	<PUTP ,STORY014 ,P?DOOM T>
 	<PUTP ,STORY034 ,P?DOOM T>
 	<PUTP ,STORY036 ,P?DOOM T>
@@ -14,6 +13,7 @@
 
 ; "story objects and variables"
 
+; "endings"
 <CONSTANT BAD-ENDING "Your adventure ends here.|">
 <CONSTANT GOOD-ENDING "Further adventure awaits.|">
 <CONSTANT ENDING-BLOOD-DARK-SEA "Further adventure awaits at Fabled Lands 3: Over the Blood-Dark Sea.|">
@@ -43,6 +43,8 @@
 <CONSTANT TEXT-ROLL-MAGIC "Make a MAGIC roll">
 <CONSTANT TEXT-ROLL-SANCTITY "Make a SANCTITY roll">
 <CONSTANT TEXT-ROLL-SCOUTING "Make a SCOUTING roll">
+
+<CONSTANT STORY038-ODDS <LTABLE <LTABLE 1 3 5 20>>>
 
 <CONSTANT TEXT001 "The first sound is the gentle murmur of waves some way off. The cry of gulls. Then the sensation of a softly stirring sea breeze and the baking sun on your back.||If that was all, you could imagine yourself in paradise, but as your senses return you start to feel the aches in every muscle. And then you remember the shipwreck.||You force open your eyes, caked shut by a crust of salt. You are lying on a beach, a desolate slab of wet sand that glistens in the merciless glare of the sun. Small crabs break away as you stir, scurrying for cover amid the long strands of seaweed.||\"Not... food for you yet...\" you murmur, wincing at the pain of cracked lips. Your mouth is dry and there is a pounding in your head born of fatigue and thirst. You don\"t care about the headache or the bruises, just as long as you\"re alive.||As you lie gathering your strength, you hear somebody coming along the shore.">
 <CONSTANT CHOICES001 <LTABLE "Lie still until he's gone" "Speak to him">>
@@ -533,7 +535,7 @@ The number of scorpion men in the valley makes your heart quail; the place is to
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY033-EVENTS ("AUX" (FEE 800))
-	<COND (<EQUAL? ,DEITY ,GOD-TYRNAI> <SET FEE 200>)>
+	<COND (<EQUAL? ,GOD ,GOD-TYRNAI> <SET FEE 200>)>
 	<COND (<EQUAL? ,RESURRECTION-ARRANGEMENTS ,RESURRECTION-TYRNAI>
 		<EMPHASIZE "You already made resurrection arrangements at this temple!">
 	)(<G=? ,MONEY .FEE>
@@ -602,7 +604,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	<KEEP-ITEM ,BAG-OF-PEARLS>>
 
 <CONSTANT TEXT038 "Heavy black clouds race towards you across the sky, whipping the waves into a frenzy. The crew mutter among themselves fearfully.">
-<CONSTANT TEXT038-SAFETY "The blessing of Alvir and Valmir that confers safety from storms">
+<CONSTANT TEXT038-SAFETY "The blessing of Alvir and Valmir confers safety from storms">
 <CONSTANT CHOICES038 <LTABLE "The storm hits with full fury (ship sinks/mast splits/you weather the storm)">>
 
 <ROOM STORY038
@@ -615,35 +617,43 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(TYPES <LTABLE R-RANDOM>)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY038-EVENTS ("AUX" (DICE 1) (CONDITION 0))
+<ROUTINE STORY038-EVENTS ("AUX" (DICE 1) (CONDITION 0) ODDS PARAMETERS)
 	<COND (<CHECK-BLESSING ,BLESSING-ALVIR-VALMIR>
 		<CRLF>
 		<TELL ,TEXT038-SAFETY>
 		<TELL ,PERIOD-CR>
-		<REMOVE ,BLESSING-ALVIR-VALMIR>
+		<DELETE-BLESSING ,BLESSING-ALVIR-VALMIR>
 		<STORY-JUMP ,STORY209>
 	)(ELSE
-		
+		<SET ODDS <GETP ,STORY038 ,P?REQUIREMENTS>>
+		<SET PARAMETERS <GET .ODDS 1>>
+		<COND (<EQUAL? ,CURRENT-VEHICLE ,SHIP-BRIGANTINE>
+			<SET DICE 2>
+		)(<EQUAL? ,CURRENT-VEHICLE ,SHIP-GALLEON>
+			<SET DICE 3>
+		)>
+		<PUT .PARAMETERS 1 .DICE>
+		<COND (,CURRENT-VEHICLE
+			<SET CONDITION <GETP ,CURRENT-VEHICLE ,P?STATUS>>
+			<COND (<AND .CONDITION <EQUAL? .CONDITION ,CONDITION-EXCELLENT>>
+				<PUT .PARAMETERS 2 1>
+				<PUT .PARAMETERS 3 3>
+				<PUT .PARAMETERS 4 18>
+			)>
+		)>
 	)>
 	<RETURN>>
 
+<CONSTANT TEXT039 "You and some of your crew clamber aboard the wreck. You find some dead sailors amid the wreckage. Their bodies are curiously bloated.">
+<CONSTANT CHOICES039 <LTABLE TEXT-ROLL-SCOUTING>>
+
 <ROOM STORY039
 	(DESC "039")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSING NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT039)
+	(CHOICES CHOICES039)
+	(DESTINATIONS <LTABLE <LTABLE STORY194 STORY465>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 9>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY040
