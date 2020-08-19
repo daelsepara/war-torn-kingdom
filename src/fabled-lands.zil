@@ -1972,6 +1972,59 @@
 		<UPDATE-STATUS-LINE>
 	)>>
 
+<ROUTINE UPGRADE-ABILITIES (POINTS "AUX" KEY ABILITY CURRENT)
+    <COND (<NOT ,CURRENT-CHARACTER> <RETURN>)>
+    <REPEAT ()
+        <COND (<L=? .POINTS 0> <RETURN>)>
+        <CRLF>
+        <TELL "You have " N .POINTS " point">
+        <COND (<G? .POINTS 1> <TELL "s">)>
+        <TELL " to allocate:" CR>
+        <DO (I 1 6)
+            <HLIGHT ,H-BOLD>
+            <TELL N .I >
+            <HLIGHT 0>
+            <TELL " - " <GET ,ABILITIES .I> " (" N <GET-ABILITY-SCORE ,CURRENT-CHARACTER .I> ")" CR>
+        >
+        <TELL "Select ability to improve:">
+        <REPEAT ()
+            <SET KEY <INPUT 1>>
+            <COND (<AND <G=? .KEY !\1> <L=? .KEY !\8>> <RETURN>)>
+        >
+        <CRLF>
+        <SET ABILITY <- .KEY !\0>>
+        <SET CURRENT <GET-ABILITY-SCORE ,CURRENT-CHARACTER .ABILITY>>
+        <COND (<L? .CURRENT 6>
+            <CRLF>
+            <TELL "Add +1 to " <GET ,ABILITIES .ABILITY> "?">
+            <COND (<YES?>
+                <CRLF>
+                <TELL "Your ">
+                <HLIGHT ,H-BOLD>
+                <TELL <GET ,ABILITIES .ABILITY>>
+                <HLIGHT 0>
+                <TELL " score improved from ">
+                <HLIGHT ,H-BOLD>
+                <TELL N .CURRENT>
+                <HLIGHT 0>
+                <TELL " -> ">
+                <HLIGHT ,H-BOLD>
+                <INC .CURRENT>
+                <TELL N .CURRENT ,EXCLAMATION-CR>
+                <HLIGHT 0>
+                <PUTP ,CURRENT-CHARACTER <GET-ABILITY-PROPERTY .ABILITY> .CURRENT>
+                <DEC .POINTS>
+            )>
+        )(ELSE
+            <CRLF>
+            <TELL "Your ">
+            <HLIGHT ,H-BOLD>
+            <TELL <GET ,ABILITIES .ABILITY>>
+            <HLIGHT 0>
+            <TELL " score is already at a maximum" ,EXCLAMATION-CR>
+        )>
+    >>
+
 <ROUTINE WEAR-BEST ("AUX" ITEMS DEFENSE (SCORE 0))
     <SET ITEMS <FIRST? ,PLAYER>>
     <REPEAT ()

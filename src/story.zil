@@ -667,6 +667,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY040-EVENTS ()
+	<UPGRADE-ABILITIES 1>
 	<DELETE-CODEWORD ,CODEWORD-ARTIFACT>
 	<RETURN-ITEM ,BOOK-OF-THE-SEVEN-SAGES T>>
 
