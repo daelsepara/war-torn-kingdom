@@ -1,14 +1,3 @@
-<INSERT-FILE "instructions">
-<INSERT-FILE "characters">
-<INSERT-FILE "monsters">
-<INSERT-FILE "objects">
-<INSERT-FILE "codewords">
-<INSERT-FILE "titles">
-<INSERT-FILE "numbers">
-<INSERT-FILE "merchants">
-<INSERT-FILE "abilities">
-<INSERT-FILE "story">
-
 ; "GLOBALS"
 ; ---------------------------------------------------------------------------------------------
 
@@ -162,6 +151,7 @@
 <PROPDEF VISITS NONE>
 <PROPDEF DOOM F> ; "section ends in doom for the player"
 <PROPDEF VICTORY F> ; "section ends in victory for the player"
+<PROPDEF INVESTMENTS NONE>
 
 ; "Gamebook Engine Routines"
 ; ---------------------------------------------------------------------------------------------
@@ -2216,3 +2206,14 @@
         )>
         <UPDATE-STATUS-LINE>
     >>
+
+<INSERT-FILE "story">
+<INSERT-FILE "instructions">
+<INSERT-FILE "numbers">
+<INSERT-FILE "merchants">
+<INSERT-FILE "abilities">
+<INSERT-FILE "objects">
+<INSERT-FILE "codewords">
+<INSERT-FILE "monsters">
+<INSERT-FILE "characters">
+<INSERT-FILE "titles">

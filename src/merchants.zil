@@ -1,3 +1,90 @@
+<ROUTINE GUILD-INVESTMENTS ("OPT" STORY "AUX" INVESTMENTS KEY INVESTMENT)
+    <COND (<NOT .STORY> <SET STORY ,HERE>)>
+    <COND (<GETP .STORY ,P?INVESTMENTS>
+        <REPEAT ()
+            <SET INVESTMENTS <GETP .STORY ,P?INVESTMENTS>>
+            <COND (<AND <L? ,MONEY 100> <L=? .INVESTMENTS 0>> <RETURN>)>
+            <CRLF>
+            <TELL "Current investments: " N .INVESTMENTS CR>
+            <CRLF>
+            <HLIGHT ,H-BOLD>
+            <TELL "1">
+            <HLIGHT 0>
+            <TELL " - Invest (in multiples of 100 " D ,CURRENCY ")" CR>
+            <HLIGHT ,H-BOLD>
+            <TELL "2">
+            <HLIGHT 0>
+            <TELL " - Withdraw investments" CR>
+            <HLIGHT ,H-BOLD>
+            <TELL "0">
+            <HLIGHT 0>
+            <TELL " - Bye" CR>
+            <TELL "You are currently carrying: " N ,MONEY " " D ,CURRENCY "." CR>
+            <TELL "Select what to do next: ">
+            <REPEAT ()
+                <SET KEY <INPUT 1>>
+                <COND (<EQUAL? .KEY !\0 !\1 !\2> <RETURN>)>
+            >
+            <COND (<EQUAL? .KEY !\1>
+                <CRLF>
+                <COND (<G? ,MONEY 100>
+                    <REPEAT ()
+                        <CRLF>
+                        <SET INVESTMENT <GET-NUMBER "How much will you invest" 0 ,MONEY>>
+                        <COND (<G? .INVESTMENT 0>
+                            <COND (<OR <L? .INVESTMENT 100> <G? <MOD .INVESTMENT 100> 0>>
+                                <EMPHASIZE "Only amounts that are multiples of 100 are accepted!">
+                            )(ELSE
+                                <CRLF>
+                                <TELL "Are you sure?">
+                                <COND (<YES?>
+                                    <PUTP .STORY ,P?INVESTMENTS <+ .INVESTMENTS .INVESTMENT>>
+                                    <SETG MONEY <- ,MONEY .INVESTMENT>>
+                                    <EMPHASIZE "Excellent!">
+                                    <UPDATE-STATUS-LINE>
+                                )>
+                                <RETURN>
+                            )>
+                        )>
+                    >
+                )(ELSE
+                    <EMPHASIZE "You do not have enough money!">
+                )>
+            )(<EQUAL? .KEY !\2>
+                <CRLF>
+                <COND (<G? .INVESTMENTS 0>
+                    <REPEAT ()
+                        <CRLF>
+                        <SET INVESTMENT <GET-NUMBER "How much will you withdraw" 0 .INVESTMENTS>>
+                        <COND (<G? .INVESTMENT 0>
+                            <CRLF>
+                            <TELL "Are you sure?">
+                            <COND (<YES?>
+                                <PUTP .STORY ,P?INVESTMENTS <- .INVESTMENTS .INVESTMENT>>
+                                <SETG MONEY <+ ,MONEY .INVESTMENT>>
+                                <EMPHASIZE "Please consider investing again in the future!">
+                                <UPDATE-STATUS-LINE>
+                            )>
+                            <RETURN>
+                        )>
+                    >
+                )(ELSE
+                    <EMPHASIZE "You have not made any investment!">
+                )>
+            )(<EQUAL? .KEY !\0>
+                <CRLF>
+                <CRLF>
+                <TELL "Are you sure?">
+                <COND (<YES?>
+                    <EMPHASIZE "See you next time!">
+                    <RETURN>
+                )(ELSE
+                    <EMPHASIZE "Excellent!">
+                )>
+            )>
+        >
+    )>>
+
 <CONSTANT CHOICES030-BUY <LTABLE "Buy armour" "Buy weapons" "Buy Magical Equipment" "Buy other items" "Return to the Market">>
 
 <ROOM STORY030-BUY
