@@ -4,11 +4,10 @@ ZIL Implementation of War-Torn Kingdom (Quest / Fabled Lands Game book) by Dave 
 
 | **Cover art** | **Back cover blurb**|
 |:-:|-|
-|![Cover Art](/images/war-torn-kingdom.jpg)|SET OUT ON A JOURNEY OF INCREDIBLE ADVENTURE ROLE-PLAYING IN LANDS BEYOND YOUR IMAGINATION<br><br>Choose for yourself what role to play, where to go, and what to do.<br><br>In THE WAR-TORN KINGDOM revolution rages in Sokara. You can join forces with the king to restore his throe, or look for profit working for the dictator, Grieve Marlock. Use fighting skills or sorcery, bribery or skullduggery to survive the back streets. Descend to the sewers of Yellowport to defeat the vile rat-king, Skabb. Retrieve the golden net from the Repulsive oOnes under the sea -- and use the rewards of your victories to travel beyond the boundaries of the known world.<br><br>Your journeys will bring you foes and friends, danger and triumph, fortune and fame -- and more adventures than you have ever dreamed of!|
+|![Cover Art](/images/war-torn-kingdom.jpg)|SET OUT ON A JOURNEY OF INCREDIBLE ADVENTURE ROLE-PLAYING IN LANDS BEYOND YOUR IMAGINATION<br><br>Choose for yourself what role to play, where to go, and what to do.<br><br>In THE WAR-TORN KINGDOM revolution rages in Sokara. You can join forces with the king to restore his throne, or look for profit working for the dictator, Grieve Marlock. Use fighting skills or sorcery, bribery or skullduggery to survive the back streets. Descend to the sewers of Yellowport to defeat the vile rat-king, Skabb. Retrieve the golden net from the Repulsive Ones under the sea -- and use the rewards of your victories to travel beyond the boundaries of the known world.<br><br>Your journeys will bring you foes and friends, danger and triumph, fortune and fame -- and more adventures than you have ever dreamed of!|
 | |FOR ONE PLAYER. This book includes:<br>* A pair of dice<br>* 14 reusable adventure sheets<br>* Character profiles<br>* 2 maps of Fabled Lands of Quest<br>* All the instruction syou need to start your very own adventure|
 | |*This is role-playing as you've never known it before -- in the perilous world of QUEST!*|
 | |*Cover illustration by Kevin Jenkins|
-| | |
 | |**Map of Sokara**| 
 | |![Map](/images/map-of-sokara.jpg)<br>**From: [The Gallery: Art of Russ Nicholson](https://russnicholson.blogspot.com/)|
 
