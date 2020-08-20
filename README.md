@@ -11,10 +11,10 @@ ZIL Implementation of War-Torn Kingdom (Quest / Fabled Lands Game book) by Dave 
 | |**Map of Sokara**| 
 | |![Map](/images/map-of-sokara.jpg)<br>**From: [The Gallery: Art of Russ Nicholson](https://russnicholson.blogspot.com/)|
 
-## Full Map
+## Full Map (c) 2018 Megara Entertainment
 ![Full Map](/images/fabled-lands-map.png)
 
-## Full Cover Art
+## Full Cover Art (c) Kevin Jenkins
 ![Full Cover Art](/images/full-cover-art.jpg)
 
 ## Additional Copyright Information 
@@ -22,7 +22,7 @@ ZIL Implementation of War-Torn Kingdom (Quest / Fabled Lands Game book) by Dave 
 ```
 Text copyright (c) 1995, 2010 Dave Morris and Jamie Thomson
 Illustrations copyright (c) 1995 Russ Nicholson
-Map copyright (c) 1995 Macmillan Children's books
+Map copyright (c) 1995 Macmillan Children's books, (c) 2018 Megara Entertainment
 
 Published 1997 by Prince Stern Sloan, Inc.,
 A member of The Putnam & Grosset Group, New York, New York.
