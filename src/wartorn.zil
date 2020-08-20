@@ -15,7 +15,7 @@
     <TELL IFID>
     <CRLF>
     <GAME-BOOK>
-    <QUIT-MSG>>
+    <QUIT-MESSAGE>>
 
 ; "GLOBALS"
 ; ---------------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@
 <CONSTANT R-ITEM 6> ; "possession of item (s)"
 <CONSTANT R-ALL 7> ; "possession of all these item (s)"
 <CONSTANT R-ANY 8> ; "possession of any of the item (s)"
-<CONSTANT R-MONEY 9> ; "tests abilility to pay indicated amount"
+<CONSTANT R-MONEY 9> ; "tests ability to pay indicated amount"
 <CONSTANT R-CODEWORD-ITEM 10> ; "presence of codeword and item"
 <CONSTANT R-DISCHARGE 11> ; "discharge a weapon"
 <CONSTANT R-TITLES 12> ; "check for presence of titles"
@@ -96,7 +96,7 @@
 ; "GOD worshipped"
 <GLOBAL GOD NONE>
 
-; "resurrection arrangment"
+; "resurrection arrangement"
 <GLOBAL RESURRECTION-ARRANGEMENTS NONE>
 
 ; "object to refer to all of your money"
@@ -147,7 +147,7 @@
 ; "STORY"
 ; ---------------------------------------------------------------------------------------------
 
-<GLOBAL CURRENT-LOC NONE>
+<GLOBAL CURRENT-LOCATION NONE>
 <GLOBAL CONTINUE-TO-CHOICES T>
 <GLOBAL RUN-ONCE F>
 <GLOBAL STARTING-POINT STORY001>
@@ -174,7 +174,7 @@
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
 
-<ROUTINE GAME-BOOK ("AUX" KEY CURRENT-LOC)
+<ROUTINE GAME-BOOK ("AUX" KEY CURRENT-LOCATION)
     <INSTRUCTIONS>
     <RESET-PLAYER>
     <RESET-OBJECTS>
@@ -188,12 +188,12 @@
         <RESET-CHOICES>
         <MARK-VISITS>
         <CHECK-BACKGROUND>
-        <SET CURRENT-LOC ,HERE>
+        <SET CURRENT-LOCATION ,HERE>
         <GOTO ,HERE>
         <UPDATE-STATUS-LINE>
         <PRINT-SECTION>
         <CHECK-EVENTS>
-        <COND (<EQUAL? .CURRENT-LOC ,HERE>
+        <COND (<EQUAL? .CURRENT-LOCATION ,HERE>
             <CHECK-DOOM>
             <CHECK-VICTORY>
         )>
@@ -480,12 +480,12 @@
     >
     <RETURN .KEY>>
 
-<ROUTINE PROCESS-STORY ("AUX" COUNT CHOICES TYPES REQUIREMENTS LIST CONTINUE CURRENT-LOC CHOICE CHOICE-TYPE)
+<ROUTINE PROCESS-STORY ("AUX" COUNT CHOICES TYPES REQUIREMENTS LIST CONTINUE CURRENT-LOCATION CHOICE CHOICE-TYPE)
     <SET CHOICES <GETP ,HERE ,P?CHOICES>>
     <SET TYPES <GETP ,HERE ,P?TYPES>>
     <SET REQUIREMENTS <GETP ,HERE ,P?REQUIREMENTS>>
     <SET CONTINUE <GETP ,HERE ,P?CONTINUE>>
-    <SET CURRENT-LOC ,HERE>
+    <SET CURRENT-LOCATION ,HERE>
     <SETG RUN-ONCE T>
     <COND (.CHOICES
         <REPEAT ()
@@ -520,7 +520,7 @@
                 <RETURN>
             )>
         >
-        <COND (<EQUAL? .CURRENT-LOC ,HERE> <SETG RUN-ONCE F>)>
+        <COND (<EQUAL? .CURRENT-LOCATION ,HERE> <SETG RUN-ONCE F>)>
         <RETURN .CHOICE>
     )(.CONTINUE
         <SETG HERE .CONTINUE>
@@ -1161,7 +1161,7 @@
     <COND (,CURRENT-CHARACTER
         <DESCRIBE-PLAYER-BACKGROUND>
         <DESCRIBE-PLAYER-STATS>
-        <DESCRIBE-PLAYER-POSESSIONS>
+        <DESCRIBE-PLAYER-POSSESSIONS>
         <DESCRIBE-PLAYER-CODEWORDS>
         <DESCRIBE-PLAYER-VEHICLES>
         <DESCRIBE-PLAYER-TITLES>
@@ -1206,7 +1206,7 @@
     <HLIGHT 0>
     <TELL ": " N ,MONEY CR>>
 
-<ROUTINE DESCRIBE-PLAYER-POSESSIONS ()
+<ROUTINE DESCRIBE-PLAYER-POSSESSIONS ()
     <CRLF>
     <HLIGHT ,H-BOLD>
     <TELL "Possessions: ">
@@ -1373,16 +1373,16 @@
         <MOVE .OBJECT .CONTAINER>
     )>>
 
-<ROUTINE GAIN-STAMINA (POINTS "AUX" DIFF)
+<ROUTINE GAIN-STAMINA (POINTS "AUX" DIFFERENCE)
     <COND (<L? ,STAMINA ,MAX-STAMINA>
-        <SET DIFF <- ,MAX-STAMINA ,STAMINA>>
+        <SET DIFFERENCE <- ,MAX-STAMINA ,STAMINA>>
         <CRLF>
         <SETG STAMINA <+ ,STAMINA .POINTS>>
         <HLIGHT ,H-BOLD>
         <TELL "You gained ">
         <COND (<G? ,STAMINA ,MAX-STAMINA>
             <SETG STAMINA ,MAX-STAMINA>
-            <TELL N .DIFF>
+            <TELL N .DIFFERENCE>
         )(ELSE
             <TELL N .POINTS>
         )>
@@ -2208,7 +2208,7 @@
             <COND (<EQUAL? .W ,W?RESTART>
                 <RESTART>
             )(<EQUAL? .W ,W?QUIT>
-                <QUIT-MSG>
+                <QUIT-MESSAGE>
             )(T
                 <TELL CR "(Please type RESTART or QUIT) > ">
             )>
@@ -2225,7 +2225,7 @@
     <HLIGHT 0>
     <GAMES-UP>>
 
-<ROUTINE QUIT-MSG ()
+<ROUTINE QUIT-MESSAGE ()
     <TELL CR "Thanks for playing" ,PERIOD-CR>
     <QUIT>>
 
@@ -2269,7 +2269,7 @@
 
 <OBJECT CHARACTER-ANDRIEL
     (DESC "Andriel The Hammer")
-    (LDESC "Andriel seeks frame trhough adventure and the glory of battle. He left his homeland when an extended outbreak of peace made his skills redundant there. He is blunt and outspoken, but scrupulously follows the warrior's code. He knows that the merchants' guild in Yellowport needs assitance.")
+    (LDESC "Andriel seeks frame through adventure and the glory of battle. He left his homeland when an extended outbreak of peace made his skills redundant there. He is blunt and outspoken, but scrupulously follows the warrior's code. He knows that the merchants' guild in Yellowport needs assistance.")
     (RANK 1)
     (PROFESSION PROFESSION-WARRIOR)
     (STAMINA 9)
@@ -2285,7 +2285,7 @@
 
 <OBJECT CHARACTER-MARANA
     (DESC "Marana Fireheart")
-    (LDESC "Marana is a fiercely independent woman who gew up inthe backstreets of her home town. Forced to flee because she was too active in her chosen profession, she has come to new lands to seek her fortune. Devious and resourceful, she can break in almost anywhere. She has heard that the temple of Sig in Marlock City needs the services of a rogue.")
+    (LDESC "Marana is a fiercely independent woman who grew up in the backstreets of her home town. Forced to flee because she was too active in her chosen profession, she has come to new lands to seek her fortune. Devious and resourceful, she can break in almost anywhere. She has heard that the temple of Sig in Marlock City needs the services of a rogue.")
     (RANK 1)
     (PROFESSION PROFESSION-ROGUE)
     (STAMINA 9)
@@ -2301,7 +2301,7 @@
 
 <OBJECT CHARACTER-IGNATIUS
     (DESC "Ignatius The Devout")
-    (LDESC "Ignatius is a traveler whose desire is to learn all he can about the deities of the Fabled Lands. His strong beliefs give his sermons added zest, and he has enthralled many a crowd with his impassioned speeches. He is looking for the house of priests in Marlock City.")
+    (LDESC "Ignatius is a traveller whose desire is to learn all he can about the deities of the Fabled Lands. His strong beliefs give his sermons added zest, and he has enthralled many a crowd with his impassioned speeches. He is looking for the house of priests in Marlock City.")
     (RANK 1)
     (PROFESSION PROFESSION-PRIEST)
     (STAMINA 9)
@@ -2317,7 +2317,7 @@
 
 <OBJECT CHARACTER-ASTARIEL
     (DESC "Astariel Skysong")
-    (LDESC "Astariel has the wanderlust, and chafes if he has to remain in one place for any length of time. He enjoys the freedom of the open road and the thought that he never knows what adventures each new day will bring. He lives by his wis and is a familiar figure at tavern firesides, where he regales travelers with his tales.")
+    (LDESC "Astariel has the wanderlust, and chafes if he has to remain in one place for any length of time. He enjoys the freedom of the open road and the thought that he never knows what adventures each new day will bring. He lives by his wits and is a familiar figure at tavern firesides, where he regales travellers with his tales.")
     (RANK 1)
     (PROFESSION PROFESSION-TROUBADOUR)
     (STAMINA 9)
@@ -2636,7 +2636,7 @@
     (FLAGS TAKEBIT)>
 
 <OBJECT LOCKPICKS
-    (DESC "locpicks")
+    (DESC "lockpicks")
     (THIEVERY 1)
     (FLAGS TAKEBIT)>
 
@@ -2750,7 +2750,7 @@
     (STAMINA 12)
     (FLAGS CONTBIT OPENBIT PERSONBIT)>
 
-; "Titles and Honors for War-Torn Kingdom"
+; "Titles and Honours for War-Torn Kingdom"
 ; ---------------------------------------------------------------------------------------------
 
 <OBJECT TITLE-PROTECTOR-SOKARA (DESC "Protector of Sokara")>
@@ -2929,7 +2929,7 @@
         <RFALSE>
     )>>
 
-; "Initialize Monser Stats"
+; "Initialize Monster Stats"
 <ROUTINE COMBAT-MONSTER (MONSTER COMBAT DEFENSE STAMINA)
     <PUT .MONSTER ,P?COMBAT .COMBAT>
     <PUT .MONSTER ,P?DEFENSE .DEFENSE>
@@ -3065,50 +3065,50 @@
     <HLIGHT 0>
     <RETURN .RESULT>>
 
-<ROUTINE POWER (BASE EXP)
-    <COND (<G? .EXP 0>
-        <RETURN <* .BASE <POWER .BASE <- .EXP 1>>>>
+<ROUTINE POWER (BASE EXPONENT)
+    <COND (<G? .EXPONENT 0>
+        <RETURN <* .BASE <POWER .BASE <- .EXPONENT 1>>>>
     )(ELSE
         <RETURN 1>
     )>>
 
-<ROUTINE GET-DIGIT (CHAR "OPT" BASE "AUX" DIGIT)
+<ROUTINE GET-DIGIT (CHARACTER "OPT" BASE "AUX" DIGIT)
     <COND (<NOT .BASE> <SET BASE 10>)>
     <SET DIGIT 0>
-    <COND (<AND <G? .BASE 10> <G=? .CHAR !\A> <L=? .CHAR !\Z>>
-        <SET DIGIT <+ <- .CHAR !\A> 10>>
-    )(<AND <G? .BASE 10> <G=? .CHAR !\a> <L=? .CHAR !\z>>
-        <SET DIGIT <+ <- .CHAR !\a> 10>>
-    )(<AND <G=? .CHAR !\0> <L=? .CHAR !\9>>
-        <SET DIGIT <- .CHAR !\0>>
+    <COND (<AND <G? .BASE 10> <G=? .CHARACTER !\A> <L=? .CHARACTER !\Z>>
+        <SET DIGIT <+ <- .CHARACTER !\A> 10>>
+    )(<AND <G? .BASE 10> <G=? .CHARACTER !\a> <L=? .CHARACTER !\z>>
+        <SET DIGIT <+ <- .CHARACTER !\a> 10>>
+    )(<AND <G=? .CHARACTER !\0> <L=? .CHARACTER !\9>>
+        <SET DIGIT <- .CHARACTER !\0>>
     )>
     <COND (<OR <G? .DIGIT <- .BASE 1>> <L? .DIGIT 0>> <RETURN 0>)>
     <RETURN .DIGIT>>
 
-<ROUTINE TO-INTEGER (START LEN "OPT" BASE "AUX" NUM CHAR SIG)
+<ROUTINE TO-INTEGER (START LENGTH "OPT" BASE "AUX" NUMBER CHARACTER SIGN)
     <COND (<NOT .BASE> <SET BASE 10>)>
-    <SET SIG 1>
-    <SET NUM 0>
-    <DO (I 1 .LEN)
-        <SET CHAR <GETB ,READBUF <+ .START .I>>>
+    <SET SIGN 1>
+    <SET NUMBER 0>
+    <DO (I 1 .LENGTH)
+        <SET CHARACTER <GETB ,READBUF <+ .START .I>>>
         <COND (<OR
-            <AND <G=? .CHAR !\0> <L=? .CHAR !\9>>
+            <AND <G=? .CHARACTER !\0> <L=? .CHARACTER !\9>>
             <AND <G? .BASE 10> <L=? .BASE 36> 
                 <OR 
-                    <AND <G=? .CHAR !\A> <L=? .CHAR !\Z>> 
-                    <AND <G=? .CHAR !\a> <L=? .CHAR !\z>>
+                    <AND <G=? .CHARACTER !\A> <L=? .CHARACTER !\Z>> 
+                    <AND <G=? .CHARACTER !\a> <L=? .CHARACTER !\z>>
                 >
             >>
-            <SET NUM <+ .NUM <* <GET-DIGIT .CHAR .BASE> <POWER .BASE <- .LEN .I>>>>>
-        )(<AND <EQUAL? .I 1> <EQUAL? .CHAR !\- !\+>>
-            <COND (<EQUAL? .CHAR !\->
-                <SET SIG -1>
+            <SET NUMBER <+ .NUMBER <* <GET-DIGIT .CHARACTER .BASE> <POWER .BASE <- .LENGTH .I>>>>>
+        )(<AND <EQUAL? .I 1> <EQUAL? .CHARACTER !\- !\+>>
+            <COND (<EQUAL? .CHARACTER !\->
+                <SET SIGN -1>
             )>
         )(ELSE
             <RETURN 0>
         )>
     >
-    <RETURN <* .SIG .NUM>>>
+    <RETURN <* .SIGN .NUMBER>>>
 
 <ROUTINE CONVERT-TO-NUMBER (N "OPT" BASE "AUX" INDEX START LEN)
     <COND (<NOT .BASE> <SET BASE 10>)>
@@ -4079,7 +4079,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	<COMBAT-MONSTER ,MONSTER-TOMB-GUARDIAN 6 8 12>
 	<CHECK-COMBAT ,MONSTER-TOMB-GUARDIAN ,STORY043>>
 
-<CONSTANT TEXT044 "You decide that discretion would be the better part of valor in this case, and step aside. The officers laugh contemptuously, and swagger past. Nothing else happens tonight.">
+<CONSTANT TEXT044 "You decide that discretion would be the better part of valour in this case, and step aside. The officers laugh contemptuously, and swagger past. Nothing else happens tonight.">
 
 <ROOM STORY044
 	(DESC "044")
@@ -4127,23 +4127,15 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
     <DELETE-CODEWORD ,CODEWORD-ELDRITCH>
     <GUILD-INVESTMENTS>>
 
+<CONSTANT TEXT047 "The Forest of Larun is a mighty swathe of densely packed trees, a slice of primordial nature in the middle of busy, industrious Sokara.">
+<CONSTANT CHOICES047 <LTABLE "Venture deeper into the forest" "Venture deeper into the forest" "North to the Bronze Hills" "West to the River Grimm" "South into the countryside" "East to the road">>
+
 <ROOM STORY047
 	(DESC "047")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT047)
+	(CHOICES CHOICES047)
+	(DESTINATIONS <LTABLE STORY596 STORY110 STORY333 STORY560 STORY387>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY048
