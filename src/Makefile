@@ -1,12 +1,6 @@
-all: clean
-	zilf -w kingdom.zil
-	-zapf -ab kingdom.zap > kingdom_freq.xzap
-	rm kingdom_freq.zap
-	zapf kingdom.zap
+all: clean wartorn
 
-test: clean
-	zilf -w kingdom.zil
-	zapf kingdom.zap
+test: clean wartorn-test
 
 wartorn: clean
 	zilf -w wartorn.zil
