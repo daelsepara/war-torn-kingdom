@@ -2504,8 +2504,10 @@
 <OBJECT CODEWORD-ALMANAC (DESC "Almanac")>
 <OBJECT CODEWORD-ANCHOR (DESC "Anchor")>
 <OBJECT CODEWORD-ANVIL (DESC "Anvil")>
+<OBJECT CODEWORD-ARMOUR (DESC "Armour")>
 <OBJECT CODEWORD-ARTERY (DESC "Artery")>
 <OBJECT CODEWORD-ARTIFACT (DESC "Artifact")>
+<OBJECT CODEWORD-ASPEN (DESC "Aspen")>
 <OBJECT CODEWORD-ASSASSIN (DESC "Assassin")>
 <OBJECT CODEWORD-ATTAR (DESC "Attar")>
 <OBJECT CODEWORD-AURIC (DESC "Auric")>
@@ -2735,7 +2737,7 @@
     (FLAGS TAKEBIT)>
 
 <OBJECT OFFICERS-PASS
-    (DESC "officers pass")
+    (DESC "officer's pass")
     (FLAGS TAKEBIT)>
 
 <OBJECT POTION-OF-HEALING
@@ -2785,9 +2787,11 @@
 ; GODS
 ; ---------------------------------------------------------------------------------------------
 
-<OBJECT GOD-TYRNAI (DESC "Tyrnai the War God")>
-<OBJECT GOD-LACUNA (DESC "Lacuna")>
 <OBJECT GOD-ALVIR-VALMIR (DESC "Alvir and Valmir the Twin Gods")>
+<OBJECT GOD-ELNIR (DESC "Elnir")>
+<OBJECT GOD-LACUNA (DESC "Lacuna")>
+<OBJECT GOD-MAKA (DESC "Maka")>
+<OBJECT GOD-TYRNAI (DESC "Tyrnai the War God")>
 
 ; Blessings
 ; ---------------------------------------------------------------------------------------------
@@ -3400,6 +3404,25 @@
 ; "Temple Routines"
 ; ---------------------------------------------------------------------------------------------
 
+<ROUTINE CURE-DISEASES (FEE DISCOUNT INITIATE)
+    <COND (<NOT .INITIATE> <RETURN>)>
+    <COND (<EQUAL? ,GOD .INITIATE> <SET FEE .DISCOUNT>)>
+    <COND (<L=? <COUNT-CONTAINER ,AILMENTS> 0>
+        <EMPHASIZE "You are not afflicted with poisons or diseases of any kind!">
+    )(<G=? ,MONEY .FEE>
+        <CRLF>
+        <TELL "Pay " N .FEE " " D ,CURRENCY " for a cure?">
+        <COND (<YES?>
+            <COST-MONEY .FEE "paid">
+            <CRLF>
+			<TELL "You are cured of: ">
+			<PRINT-CONTAINER ,AILMENTS>
+			<RESET-CONTAINER ,AILMENTS>
+        )>
+    )(ELSE
+        <EMPHASIZE "You cannot afford a cure at this time.">
+    )>>
+
 <ROUTINE PURCHASE-BLESSING (FEE DISCOUNT INITIATE BLESSING)
     <COND (<NOT .BLESSING> <RETURN>)>
     <COND (<NOT .INITIATE> <RETURN>)>
@@ -3427,7 +3450,7 @@
 				<CRLF>
 				<TELL "Renounce the worship of " D .WORSHIP "?">
 				<COND (<YES?>
-					<SETG MONEY <- ,MONEY .FEE>>
+					<COST-MONEY .FEE "paid">
 					<UPDATE-STATUS-LINE>
 				)>
 			)(ELSE
@@ -3612,6 +3635,7 @@
     <PUTP ,STORY055 ,P?DOOM T>
 	<PUTP ,STORY060 ,P?DOOM T>
 	<PUTP ,STORY064 ,P?DOOM T>
+	<PUTP ,STORY069 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>
     <RETURN>>
 
@@ -4758,194 +4782,126 @@ is off, you return to the city centre.">
 	)>
 	<RETURN>>
 
+<CONSTANT TEXT071 "Nagil is the Lord of the Lands of the Dead, and his temple in Marlock City is covered in friezes and gargoyles of ornate design, depicting the souls of the dead on their journey to the underworld.Inside, it is cool and dark, hung with black velvet drapes.||A poster on the wall reads: \"Wanted: person of unusual resourcefulness. See temple warden.\"">
+<CONSTANT CHOICES071 <LTABLE "Become an initiate" "Renounce worship" "Make resurrection arrangements" "Visit the warden" "Leave the temple">>
+
 <ROOM STORY071
 	(DESC "071")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY071-BACKGROUND)
+	(STORY TEXT071)
+	(CHOICES CHOICES071)
+	(DESTINATIONS <LTABLE STORY409 STORY187 STORY478 STORY048 STORY100>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY071-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-AGUE> <RETURN ,STORY517>)>
+	<RETURN ,STORY071>>
+
+<CONSTANT TEXT072 "You manage to shrug off the effects of the gas.">
+<CONSTANT CHOICES072 <LTABLE "Attack the beast" "Run off">>
 
 <ROOM STORY072
 	(DESC "072")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT072)
+	(CHOICES CHOICES072)
+	(DESTINATIONS <LTABLE STORY371 STORY527>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT073 "If you are an initiate it costs only 10 Shards to purchase Elnir's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again when you make a failed CHARISMA roll. It is only good for one reroll. You can have only one CHARISMA blessing at any one time. Once it is used up, you can return to any branch of the temple of Elnir to buy a new one.">
 
 <ROOM STORY073
 	(DESC "073")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT073)
+	(EVENTS STORY073-EVENTS)
+	(CONTINUE STORY568)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY073-EVENTS ()
+	<PURCHASE-BLESSING 25 10 ,GOD-ELNIR ,BLESSING-CHARISMA>>
+
+<CONSTANT TEXT074 "A fisherman will take you all the way to Yellowport for 15 Shards. Amazingly, despite the apparent fragility of the small vessel, you arrive without incident.">
 
 <ROOM STORY074
 	(DESC "074")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT074)
+	(EVENTS STORY074-EVENTS)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY074-EVENTS ()
+	<COST-MONEY 15 "paid">>
+
+<CONSTANT TEXT075 "The high priest takes you to a private chamber. \"You may be just what the temple needs,\" he says, \"a good, old-fashioned thief. There is a suit of armour made entirely from gold -- ceremonial only, of course. Nevertheless, we would like to, er, have it donated to us.\"||\"I see,\" you reply, \"and where is the armour?\"||\"Well, that's the tricky part -- it's in the Temple of Tyrnai, in Caran Baru. In fact, it's worn by the idol of Tyrnai himself in the temple. Can you bring us the gold chain mail of Tyrnai? In return, we will instruct you in the roguish arts.\"">
+<CONSTANT CHOICES075 <LTABLE "Take up the mission for the temple of Sig" IF-NOT>>
 
 <ROOM STORY075
 	(DESC "075")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY STORY075)
+	(CHOICES CHOICES075)
+	(DESTINATIONS <LTABLE STORY235 STORY235>)
+	(REQUIREMENTS <LTABLE CODEWORD-ARMOUR NONE>)
+	(TYPES <LTABLE R-GAIN-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT076 "You are an accomplished street brawler, and after only a few minutes' furious fighting, the three officers are laid out unconscious in the street. Several people gathered to watch the brawl. Most of them give a cheer at your performance. General Marlock's troops have not endeared themselves to the populace.||You find about 25 Shards on them along with an officer's pass">
 
 <ROOM STORY076
 	(DESC "076")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT076)
+	(EVENTS STORY076-EVENTS)
+	(CONTINUE STORY100)
+	(ITEMS <LTABLE OFFICERS-PASS>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY076-EVENTS ()
+	<GAIN-MONEY 25>>
+
+<CONSTANT TEXT077 "\"It is fortunate that we have a Chosen One of Maka at this temple,\" says the
+high priestess. \"Only the Chosen Ones have the goddess-given powers to cure the afflicted.\"||It costs 75 Shards (only 30 if you are an initiate of Maka) to be cured of a poison or a disease.">
 
 <ROOM STORY077
 	(DESC "077")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT077)
+	(EVENTS STORY077-EVENTS)
+	(CONTINUE STORY141)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY077-EVENTS ()
+	<CURE-DISEASES 75 30 ,GOD-MAKA>>
+
+<CONSTANT CHOICES078 <LTABLE TEXT-ROLL-SCOUTING>>
 
 <ROOM STORY078
 	(DESC "078")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES078)
+	(DESTINATIONS <LTABLE <LTABLE STORY524 STORY415>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT079 "You try to lose them in the tunnels. It is hard because they know the layout better than you do.">
+<CONSTANT CHOICES079 <LTABLE TEXT-ROLL-SCOUTING>>
 
 <ROOM STORY079
 	(DESC "079")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT079)
+	(CHOICES CHOICES079)
+	(DESTINATIONS <LTABLE <LTABLE STORY224 STORY381>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 14>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT080 "You grab the woman's wrist a split-second before she can cut the strings of your money pouch. You drag her around to face you, but she meets your outraged scowl with a swashbuckling grin.||\"You've got good reflexes,\" she says. \"Most of the street scum around here are too drink-sodden or dimwitted to notice the loss of a few Shards. Want to earn some real money?\"">
+<CONSTANT CHOICES080 <LTABLE "Accept her offer" "Refuse and leave">>
 
 <ROOM STORY080
 	(DESC "080")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT080)
+	(CHOICES CHOICES080)
+	(DESTINATIONS <LTABLE STORY425 STORY010>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY081
@@ -5841,23 +5797,12 @@ is off, you return to the city centre.">
 	(VICTORY F)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT128 "You make your way around the coast. The interior of the island appears to be heavily forested. After a while, however, you come to a bay in which a couple of ships are anchored. A small settlement nestles on the beach, and you make your way towards it.">
+
 <ROOM STORY128
 	(DESC "128")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT128)
+	(CONTINUE STORY195)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY129
@@ -7114,23 +7059,16 @@ is off, you return to the city centre.">
 	(VICTORY F)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT195 "The Trading Post is a small village, set up here by enterprising settlers from the mainland. Its main export appears to be furs from the forest.||The mayor, a fat genial fellow, who greets you personally, insists that one day the Trading Post will be a thriving town. There is not a lot here yet, however: a small market, a quay, the settlers' houses, and a shrine to Lacuna the Huntress, goddess of nature.">
+<CONSTANT CHOICES195 <LTABLE "Visit the shrine to Lacuna" "Visit the market" "Visit the quayside" "Visit the Green Man Inn" "Climb the hill that overlooks the town" "Go inland, into the forest">>
+
 <ROOM STORY195
 	(DESC "195")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT195)
+	(CHOICES CHOICES195)
+	(DESTINATIONS <LTABLE STORY544 STORY452 STORY332 STORY181 STORY011 STORY257>)
+	(TYPES SIX-NONES)
+	(CODEWORDS <LTABLE CODEWORD-ASPEN>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY196
@@ -8292,23 +8230,16 @@ is off, you return to the city centre.">
 	(VICTORY F)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT257 "The trees are closely packed, leaning together as if in conference, whispering quietly among themselves. Birds twitter in the distance, and slivers of sunlight lance down through the musty gloom.||As you proceed along a forest track, you think you hear a rustling in the bushes. Later, you spot a shadowy figure darting through the trees -- or was it your imagination? An animal snuffling sound right behind you makes you spin around, but there is nothing there.">
+<CONSTANT CHOICES257 <LTABLE TEXT-ROLL-SCOUTING>>
+
 <ROOM STORY257
 	(DESC "257")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT257)
+	(CHOICES CHOICES257)
+	(DESTINATIONS <LTABLE <LTABLE STORY630 STORY036>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY258
@@ -17372,23 +17303,16 @@ is off, you return to the city centre.">
 	(VICTORY F)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT736 "Out of the corner of your eye you see an old man wandering along the beach gathering driftwood. He glances in your direction but doesn't come over. Perhaps he mistakes you for a patch of seaweed -- or perhaps he is simply afraid. Whatever the reason, he soon hobbles off carrying his armload of wood. When he is out of sight, you rise unsteadily to your feet and consider your next move.">
+<CONSTANT CHOICES736 <LTABLE "Explore the coast" "Head into the nearby forest">>
+
 <ROOM STORY736
 	(DESC "736")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT736)
+	(CHOICES CHOICES736)
+	(DESTINATIONS <LTABLE STORY128 STORY257>)
+	(TYPES TWO-NONES)
+	(CODEWORDS <LTABLE CODEWORD-AURIC>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY737
