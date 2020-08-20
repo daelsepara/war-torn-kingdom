@@ -47,6 +47,7 @@
 <CONSTANT R-TITLES 12> ; "check for presence of titles"
 <CONSTANT R-VISITS 13> ; "check if location was visited multiple times"
 <CONSTANT R-RANK 14> ; "check if location was visited multiple times"
+<CONSTANT R-GAIN-CODEWORD 15> ; "gain codeword (s)"
 
 ; "No requirements"
 <CONSTANT TWO-NONES <LTABLE R-NONE R-NONE>>
@@ -459,6 +460,11 @@
                     )(<AND <EQUAL? .TYPE R-RANDOM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
                         <SETG HERE <PROCESS-RANDOM .LIST <GET .DESTINATIONS .CHOICE>>>
                         <CRLF>
+                    )(<AND <EQUAL? .TYPE R-GAIN-CODEWORD> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+                        <CRLF>
+                        <GAIN-CODEWORD .LIST>
+                        <PRESS-A-KEY>
+                        <SETG HERE <GET .DESTINATIONS .CHOICE>>
                     )>
                     <RETURN>
                 )(ELSE
@@ -2423,6 +2429,7 @@
 
 <OBJECT CODEWORD-ABIDE (DESC "Abide")>
 <OBJECT CODEWORD-ACID (DESC "Acid")>
+<OBJECT CODEWORD-AGUE (DESC "Ague")>
 <OBJECT CODEWORD-AKLAR (DESC "Aklar")>
 <OBJECT CODEWORD-AJAR (DESC "Ajar")>
 <OBJECT CODEWORD-ALTITUDE (DESC "Altitude")>
@@ -3364,12 +3371,14 @@
 
 <ROUTINE RESET-STORY ()
 	<PUTP ,STORY038 ,P?REQUIREMENTS ,STORY038-ODDS>
+    <PUTP ,STORY049 ,P?REQUIREMENTS ,STORY049-ODDS>
 	<PUTP ,STORY014 ,P?DOOM T>
 	<PUTP ,STORY034 ,P?DOOM T>
 	<PUTP ,STORY036 ,P?DOOM T>
 	<PUTP ,STORY042 ,P?DOOM T>
 	<PUTP ,STORY043 ,P?DOOM T>
 	<PUTP ,STORY045 ,P?DOOM T>
+    <PUTP ,STORY049 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>
     <RETURN>>
 
@@ -3407,6 +3416,7 @@
 <CONSTANT TEXT-ROLL-SCOUTING "Make a SCOUTING roll">
 
 <CONSTANT STORY038-ODDS <LTABLE <LTABLE 1 3 5 20>>>
+<CONSTANT STORY049-ODDS <LTABLE <LTABLE 1 3 6>>>
 
 <CONSTANT TEXT001 "The first sound is the gentle murmur of waves some way off. The cry of gulls. Then the sensation of a softly stirring sea breeze and the baking sun on your back.||If that was all, you could imagine yourself in paradise, but as your senses return you start to feel the aches in every muscle. And then you remember the shipwreck.||You force open your eyes, caked shut by a crust of salt. You are lying on a beach, a desolate slab of wet sand that glistens in the merciless glare of the sun. Small crabs break away as you stir, scurrying for cover amid the long strands of seaweed.||\"Not... food for you yet...\" you murmur, wincing at the pain of cracked lips. Your mouth is dry and there is a pounding in your head born of fatigue and thirst. You don\"t care about the headache or the bruises, just as long as you\"re alive.||As you lie gathering your strength, you hear somebody coming along the shore.">
 <CONSTANT CHOICES001 <LTABLE "Lie still until he's gone" "Speak to him">>
@@ -4138,61 +4148,53 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT048 "The warden is in charge of security. \"We have had an unfortunate, umm... accident,\" he says worriedly. \"In the crypt below the temple we sometimes experiment with the corpses of the dead -- you know, the occasional zombie, part of the rituals in honor of the particular aspect of Nagil we revere here. It seems a ghoul has escaped from the pits and is terrorizing the city at night. We'd rather someone like you sorted the problem out before the city militia got to hear of it. Destroy it and bring me the ghoul's head.\"||\"Search for it at night,\" says the warden as you leave.">
+<CONSTANT CHOICES048 <LTABLE "Take up the mission" IF-NOT>>
+
 <ROOM STORY048
 	(DESC "048")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT048)
+	(CHOICES CHOICES048)
+	(DESTINATIONS <LTABLE STORY100 STORY100>)
+	(REQUIREMENTS <LTABLE CODEWORD-AGUE NONE>)
+	(TYPES <LTABLE R-GAIN-CODEWORD NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT049 "Not taking any chances, you charge the soldier, yelling a war cry. He starts back in astonishment. Just then, several archers pop up from behind the rocks above, and let loose a volley of arrows. One takes you in the leg.">
+<CONSTANT TEXT049-CONTINUED "You fall to one knee, and the soldier melts away into the rocks. Alone, and wounded in the thigh, you cannot climb upwards. You have to go back down though the descent will be difficult with an injured leg">
+<CONSTANT CHOICES049 <LTABLE "Continue descent">>
 
 <ROOM STORY049
 	(DESC "049")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT049)
+	(EVENTS STORY049-EVENTS)
+	(CHOICES CHOICES049)
+	(DESTINATIONS <LTABLE <LTABLE STORY529 STORY474>>)
+	(REQUIREMENTS <LTABLE <LTABLE 1 3 6>>)
+	(TYPES <LTABLE R-RANDOM>)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY049-EVENTS ("AUX" ODDS PARAMETERS)
+    <LOSE-STAMINA 3 ,DIED-FROM-INJURIES ,STORY049>
+    <COND (<IS-ALIVE>
+        <CRLF>
+        <TELL ,TEXT049-CONTINUED>
+        <TELL ,PERIOD-CR>
+        <COND (<CHECK-ITEM ,CLIMBING-GEAR>
+            <SET ODDS <GETP ,STORY049 ,P?REQUIREMENTS>>
+            <SET PARAMETERS <GET .ODDS 1>>
+            <PUT .PARAMETERS 2 2>
+            <PUT .PARAMETERS 3 5>
+        )>
+    )>>
+
+<CONSTANT TEXT050 "The new provost marshal of Yellowport is Royzer. He used to be Marloes Marlock's second in command. Since the assassination of the old provost, Royzer has ruled the city with an iron hand: patrols are frequent and spies are everywhere. You will have to be careful not to get yourself recognized.">
 
 <ROOM STORY050
 	(DESC "050")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT050)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY051
