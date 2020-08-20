@@ -29,9 +29,7 @@ Published 1997 by Prince Stern Sloan, Inc.,
 A member of The Putnam & Grosset Group, New York, New York.
 
 ISBN 0 8431 7926 0
-
 First Edition
-
 1 3 5 7 9 10 8 6 4 2
 ```
 
