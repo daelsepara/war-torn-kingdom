@@ -59,6 +59,7 @@ First Edition
 ## Additional Notes
 
 - Travel to other islands or regions, i.e. to other books not implemented
+- As a consequence, some story sections may be impossible to reach or will always play out the same way
 
 ## Bugs
 
