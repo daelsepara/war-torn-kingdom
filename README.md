@@ -49,7 +49,7 @@ First Edition
 - Press **i** or **I** to view inventory (items)
 - Press **r** or **R** to restore progress from a save file
 - Press **s** or **S** to save current progress to a file
-- Press **h** or **H** or **?** lists the commands **G**/**C**/**I**/**S**/**R**/**Q** and what each does 
+- Press **h** or **H** or **?** lists the commands **C**/**I**/**S**/**R**/**Q** and what each does 
 
 ## Additional Notes
 
