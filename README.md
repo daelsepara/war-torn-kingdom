@@ -37,7 +37,10 @@ First Edition
 - No in-game illustrations or graphics (also excludes map from the book. Refer to the maps above)
 - Dice rolls handled by the Random Number Generator (but of course!)
 - Character selection and inventory of items and codewords are implemented
-- Also implemented: Combat, Ability Tests, Titles and Honours, Blessings, Diseases/Afflictions and Poisons
+- Also implemented: Combat, Ability Tests
+- Titles and Honours, Blessings
+- Diseases/Afflictions and Poisons
+- Resurrection arrangements
 - Merchants (Buy/Sell Weapons, Armours, Magic Items, other items)
 - Guilds (Investments)
 - Townhouses (Storage)
