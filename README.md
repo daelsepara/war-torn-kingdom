@@ -12,7 +12,7 @@ ZIL Implementation of War-Torn Kingdom (Quest / Fabled Lands Game book) by Dave 
 | |![Map](/images/map-of-sokara.jpg)<br>**From: [The Gallery: Art of Russ Nicholson](https://russnicholson.blogspot.com/)|
 
 ## Full Map (c) 1995 Macmillan Children's books
-![Full Map](/images/world-map.png)
+![Full Map](/images/world-map.jpg)
 
 ## Revised Map (c) 2018 Megara Entertainment
 ![Full Map](/images/fabled-lands-map.png)
