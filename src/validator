@@ -1,6 +1,6 @@
 #!/bin/bash
 
-grep -n '(STORY' wartorn.zil story.zil | grep -v '(STORY TEXT' | grep -v '(STORY NONE)' | grep -v 'STORY-JUMP (STORY)'
-grep -n '(CHOICE' wartorn.zil story.zil | grep -v '(CHOICES CHOICES' | grep -v '(CHOICES NONE)' | grep -v '(CHOICES YELLOWPORT-' | grep -v '(CHOICES "AUX"'
-grep -n '(CONTINUE' wartorn.zil story.zil | grep -v '(CONTINUE STORY' | grep -v '(CONTINUE NONE)' | grep -v '(CONTINUE YELLOWPORT-' | grep -v '(CONTINUE BLOOD-DARK'
-grep -n '(DESTINATION' wartorn.zil story.zil | grep -v '(DESTINATIONS <LTABLE ' | grep -v '(DESTINATIONS NONE)' | grep -v '(DESTINATIONS YELLOWPORT-' | grep -v '(DESTINATION NONE)'
+grep -n '(STORY' wartorn.zil | grep -v '(STORY TEXT' | grep -v '(STORY NONE)' | grep -v 'STORY-JUMP (STORY)' | grep -v '(STORY "'
+grep -n '(CHOICE' wartorn.zil | grep -v '(CHOICES CHOICES' | grep -v '(CHOICES NONE)' | grep -v '(CHOICES YELLOWPORT-' | grep -v '(CHOICES "AUX"'
+grep -n '(CONTINUE' wartorn.zil | grep -v '(CONTINUE STORY' | grep -v '(CONTINUE NONE)' | grep -v '(CONTINUE YELLOWPORT-' | grep -v '(CONTINUE BLOOD-DARK'
+grep -n '(DESTINATION' wartorn.zil | grep -v '(DESTINATIONS <LTABLE ' | grep -v '(DESTINATIONS NONE)' | grep -v '(DESTINATIONS YELLOWPORT-' | grep -v '(DESTINATION NONE)'

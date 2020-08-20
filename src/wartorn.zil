@@ -121,6 +121,9 @@
 ; "container for items given"
 <OBJECT GIVEBAG (DESC "items to give") (FLAGS CONTBIT OPENBIT)>
 
+; "lost stuff"
+<OBJECT LOST-STUFF (DESC "things lost") (FLAGS CONTBIT OPENBIT)>
+
 ; "container for titles and honours acquired"
 <OBJECT TITLES-AND-HONOURS (DESC "Titles and Honours") (FLAGS CONTBIT OPENBIT)>
 
@@ -184,6 +187,7 @@
             <COND (<EQUAL? .KEY !\c !\C> <DESCRIBE-PLAYER> <PRESS-A-KEY> <SET KEY NONE>)>
             <COND (<EQUAL? .KEY !\h !\H !\?> <DISPLAY-HELP> <PRESS-A-KEY> <SET KEY NONE>)>
             <COND (<EQUAL? .KEY !\i !\I> <DESCRIBE-INVENTORY> <PRESS-A-KEY> <SET KEY NONE>)>
+			<COND (<EQUAL? .KEY !\p !\P> <DESCRIBE-PLAYER> <PRESS-A-KEY> <SET KEY NONE>)>
             <COND (<EQUAL? .KEY !\q !\Q> <CRLF> <TELL "Are you sure you want to quit the game?"> <COND(<YES?> <RETURN>)>)>
             <COND (<EQUAL? .KEY !\r !\R> <CRLF> <TELL "Restore from a previous save?"> <COND (<YES?> <COND (<NOT <RESTORE>> <EMPHASIZE "Restore failed."> <PRESS-A-KEY>)>)>)>
             <COND (<EQUAL? .KEY !\s !\S> <CRLF> <TELL "Save current progress?"> <COND (<YES?> <COND (<NOT <SAVE>> <EMPHASIZE "Save failed."> <PRESS-A-KEY>)>)>)>
@@ -294,7 +298,7 @@
         <PUTP .SECTION ,P?VISITS .VISITS>
     )>>
 
-<ROUTINE PREVENT-DEATH ("OPT" STORY)
+<ROUTINE PREVENT-DOOM ("OPT" STORY)
 	<COND (<NOT .STORY> <SET STORY ,HERE>)>
 	<COND (<GETP .STORY ,P?DOOM> <PUTP .STORY ,P?DOOM F>)>>
 
@@ -323,7 +327,7 @@
                     <AND <EQUAL? .KEY !\C !\c> <L? <GET .CHOICES 0> 12>>
                     <AND <EQUAL? .KEY !\H !\h> <L? <GET .CHOICES 0> 17>>
                     <AND <EQUAL? .KEY !\I !\i> <L? <GET .CHOICES 0> 18>>
-                    <EQUAL? .KEY !\? !\Q !\q !\R !\r !\S !\s>
+                    <EQUAL? .KEY !\? !\Q !\q !\P !\p !\R !\r !\S !\s>
                 >
                 <RETURN>
             )>
@@ -453,7 +457,7 @@
             <COND (<AND <G=? .KEY !\A> <L=? .KEY !\Z> <G=? <GET .CHOICES 0> <+ <- .KEY !\A> 10>> <SPECIAL-INTERRUPT-ROUTINE .KEY>> <RETURN>)>
             <COND (<AND <G=? .KEY !\a> <L=? .KEY !\z> <G=? <GET .CHOICES 0> <+ <- .KEY !\a> 10>> <SPECIAL-INTERRUPT-ROUTINE .KEY>> <RETURN>)>
         )>
-        <COND (<EQUAL? .KEY !\? !\q !\Q !\r !\R !\s !\S> <CRLF> <RETURN>)>
+        <COND (<EQUAL? .KEY !\? !\P !\p !\q !\Q !\r !\R !\s !\S> <CRLF> <RETURN>)>
         <COND (<AND <EQUAL? .KEY !\c !\C> <L? <GET .CHOICES 0> 12>> <CRLF> <RETURN>)>
         <COND (<AND <EQUAL? .KEY !\h !\H> <L? <GET .CHOICES 0> 17>> <CRLF> <RETURN>)>
         <COND (<AND <EQUAL? .KEY !\i !\I> <L? <GET .CHOICES 0> 18>> <CRLF> <RETURN>)>
@@ -1537,6 +1541,44 @@
     <TELL ,PERIOD-CR>
     <RETURN>>
 
+<ROUTINE LOSE-STUFF (CONTAINER LOST-CONTAINER ITEM "OPT" MAX ACTION "AUX" (COUNT 0) ITEMS)
+	<COND (<NOT .MAX> <SET MAX 1>)>
+	<RESET-CONTAINER .LOST-CONTAINER>
+	<COND (<G? <COUNT-CONTAINER .CONTAINER> .MAX>
+		<RESET-TEMP-LIST>
+		<SET ITEMS <COUNT-CONTAINER .CONTAINER>>
+		<DO (I 1 .ITEMS)
+			<SET COUNT <+ .COUNT 1>>
+			<COND (<L=? .COUNT .ITEMS>
+				<PUT TEMP-LIST .COUNT <GET-ITEM .I .CONTAINER>>
+			)>
+		>
+		<REPEAT ()
+			<COND (.ACTION <APPLY .ACTION>)>
+			<SELECT-FROM-LIST TEMP-LIST .COUNT .MAX .ITEM .CONTAINER "retain">
+			<COND (<EQUAL? <COUNT-CONTAINER .CONTAINER> .MAX>
+				<CRLF>
+				<TELL "You have selected: ">
+				<PRINT-CONTAINER .CONTAINER>
+				<CRLF>
+				<TELL "Do you agree?">
+				<COND (<YES?> <RETURN>)>
+			)(ELSE
+				<CRLF>
+				<HLIGHT ,H-BOLD>
+				<TELL "You must select " N .MAX " " .ITEM>
+				<COND (<G? .MAX 1> <TELL "s">)>
+				<TELL ,PERIOD-CR>
+				<HLIGHT 0>
+			)>
+		>
+		<DO (I 1 .COUNT)
+			<COND (<NOT <IN? <GET TEMP-LIST .I> .CONTAINER>>
+				<MOVE <GET TEMP-LIST .I> .LOST-CONTAINER>
+			)>
+		>
+	)>>
+
 <ROUTINE LOSE-VEHICLE (VEHICLE)
 	<COND (.VEHICLE
 		<COND (<CHECK-VEHICLE .VEHICLE>
@@ -1612,8 +1654,9 @@
         <DO (I 1 6)
             <SET EFFECT <GET .EFFECTS .I>>
             <COND (<AND <G? .MODIFIERS 0> <G? .EFFECT 0>> <TELL ", ">)>
-            <COND (<G? .EFFECT 0>
-                <TELL "-" N .EFFECT " " <GET ,ABILITIES .I>>
+            <COND (<N=? .EFFECT 0>
+				<COND (<G? .EFFECT 0> <TELL "+">)>
+                <TELL N .EFFECT " " <GET ,ABILITIES .I>>
                 <INC .MODIFIERS>
             )>
         >
@@ -2086,6 +2129,9 @@
 <ROUTINE RESET-BLESSINGS ()
     <RESET-CONTAINER ,BLESSINGS>>
 
+<ROUTINE RESET-CARGO ()
+    <RESET-CONTAINER ,CARGO>>
+
 <ROUTINE RESET-CHOICES ()
     <SETG CONTINUE-TO-CHOICES T>>
 
@@ -2105,6 +2151,7 @@
     <SETG RESURRECTION-ARRANGEMENTS NONE>
     <SETG STAMINA 0>
     <RESET-BLESSINGS>
+	<RESET-CARGO>
     <RESET-CODEWORDS>
     <RESET-GIVEBAG>
     <RESET-POSSESSIONS>
@@ -2460,6 +2507,7 @@
 <OBJECT CODEWORD-ARTERY (DESC "Artery")>
 <OBJECT CODEWORD-ARTIFACT (DESC "Artifact")>
 <OBJECT CODEWORD-ASSASSIN (DESC "Assassin")>
+<OBJECT CODEWORD-ATTAR (DESC "Attar")>
 <OBJECT CODEWORD-AURIC (DESC "Auric")>
 <OBJECT CODEWORD-BARNACLE (DESC "Barnacle")>
 <OBJECT CODEWORD-BRUSH (DESC "Brush")>
@@ -2686,6 +2734,10 @@
     (DESC "map")
     (FLAGS TAKEBIT)>
 
+<OBJECT OFFICERS-PASS
+    (DESC "officers pass")
+    (FLAGS TAKEBIT)>
+
 <OBJECT POTION-OF-HEALING
     (DESC "potion of healing")
     (FLAGS TAKEBIT)>
@@ -2733,8 +2785,9 @@
 ; GODS
 ; ---------------------------------------------------------------------------------------------
 
-<OBJECT GOD-TYRNAI (DESC "Tyrnai, War God")>
+<OBJECT GOD-TYRNAI (DESC "Tyrnai the War God")>
 <OBJECT GOD-LACUNA (DESC "Lacuna")>
+<OBJECT GOD-ALVIR-VALMIR (DESC "Alvir and Valmir the Twin Gods")>
 
 ; Blessings
 ; ---------------------------------------------------------------------------------------------
@@ -2772,7 +2825,7 @@
 
 <OBJECT DISEASE-GHOULBITE
     (DESC "ghoulbite")
-    (EFFECTS <LTABLE 1 1 0 1 0 0>)>
+    (EFFECTS <LTABLE -1 -1 0 -1 0 0>)>
 
 ; "Monsters"
 ; ---------------------------------------------------------------------------------------------
@@ -2817,25 +2870,33 @@
 ; "Titles and Honours for War-Torn Kingdom"
 ; ---------------------------------------------------------------------------------------------
 
-<OBJECT TITLE-PROTECTOR-SOKARA (DESC "Protector of Sokara")>
-<OBJECT TITLE-ILLUMINATE-MOLHERN (DESC "Illuminate of Molhern")>
+<OBJECT TITLE-PROTECTOR-SOKARA
+	(DESC "Protector of Sokara")>
+
+<OBJECT TITLE-ILLUMINATE-MOLHERN
+	(DESC "Illuminate of Molhern")>
+
+<OBJECT TITLE-UNSPEAKABLE-CULTIST
+	(DESC "Unspeakable Cultist")
+	(EFFECTS <LTABLE 0 0 0 -1 0 0>)>
 
 ; "Abilities and Combat"
 ; ---------------------------------------------------------------------------------------------
 
 <CONSTANT LOOKUP-ABILITY <LTABLE P?CHARISMA P?COMBAT P?MAGIC P?SANCTITY P?SCOUTING P?THIEVERY P?DEFENSE P?STAMINA>>
 
-<ROUTINE APPLY-NEGATIVE-EFFECTS (ABILITY "AUX" AILMENT (EFFECTS NONE) (SCORE 0))
+<ROUTINE APPLY-EFFECTS (ABILITY "OPT" CONTAINER "AUX" ITEM (EFFECTS NONE) (SCORE 0))
+	<COND (<NOT .CONTAINER> <SET CONTAINER ,AILMENTS>)>
     <SET SCORE 0>
-    <COND (<G? <COUNT-CONTAINER ,AILMENTS> 0>
-        <SET AILMENT <FIRST? ,AILMENTS>>
+    <COND (<G? <COUNT-CONTAINER .CONTAINER> 0>
+        <SET ITEM <FIRST? .CONTAINER>>
         <REPEAT ()
-            <COND (<NOT .AILMENT> <RETURN>)>
-            <SET EFFECTS <GETP .AILMENT ,P?EFFECTS>>
+            <COND (<NOT .ITEM> <RETURN>)>
+            <SET EFFECTS <GETP .ITEM ,P?EFFECTS>>
             <COND (.EFFECTS
-                <SET SCORE <- .SCORE <GET .EFFECTS .ABILITY>>>
+                <SET SCORE <+ .SCORE <GET .EFFECTS .ABILITY>>>
             )>
-            <SET AILMENT <NEXT? .AILMENT>>
+            <SET ITEM <NEXT? .ITEM>>
         >
     )>
     <RETURN .SCORE>>
@@ -2850,7 +2911,8 @@
     )(<N=? .ABILITY ABILITY-DEFENSE>
         <SET SCORE <+ .SCORE <FIND-BEST .PROPERTY NONE .CONTAINER>>>
     )>
-    <SET SCORE <+ .SCORE <APPLY-NEGATIVE-EFFECTS .ABILITY>>>
+    <SET SCORE <+ .SCORE <APPLY-EFFECTS .ABILITY ,AILMENTS>>>
+	<SET SCORE <+ .SCORE <APPLY-EFFECTS .ABILITY ,TITLES-AND-HONOURS>>>
     <COND (<G? .SCORE 12> <SET SCORE 12>)>
     <COND (<L? .SCORE 1> <SET SCORE 1>)>
     <RETURN .SCORE>>
@@ -2985,7 +3047,7 @@
 <ROUTINE CHECK-COMBAT (MONSTER "OPT" STORY (MODIFIER 0) (LOOT NONE))
     <COND (<NOT .STORY> <SET STORY ,HERE>)>
     <COND (<FIGHT .MONSTER .MODIFIER>
-       <PREVENT-DEATH .STORY>
+       <PREVENT-DOOM .STORY>
        <COND (.LOOT <TAKE-ITEM .LOOT>)>
        <RTRUE>
     )(ELSE
@@ -3358,6 +3420,29 @@
         <EMPHASIZE "You cannot afford this blessing at this time.">
     )>>
 
+<ROUTINE RENOUNCE-WORSHIP (FEE WORSHIP)
+	<COND (,GOD
+		<COND (<EQUAL? ,GOD .WORSHIP>
+			<COND (<G=? ,MONEY .FEE>
+				<CRLF>
+				<TELL "Renounce the worship of " D .WORSHIP "?">
+				<COND (<YES?>
+					<SETG MONEY <- ,MONEY .FEE>>
+					<UPDATE-STATUS-LINE>
+				)>
+			)(ELSE
+				<EMPHASIZE "You cannot afford to pay the compensation of the priesthood!">
+			)>
+		)(ELSE
+			<CRLF>
+			<HLIGHT ,H-BOLD>
+			<TELL "You are not an initiate of " D .WORSHIP ,EXCLAMATION-CR>
+			<HLIGHT 0>
+		)>
+	)(ELSE
+		<EMPHASIZE "You are not an initiate of any god!">
+	)>>
+
 ; "Yellowport routines"
 ; ---------------------------------------------------------------------------------------------
 
@@ -3525,6 +3610,8 @@
 	<PUTP ,STORY045 ,P?DOOM T>
     <PUTP ,STORY049 ,P?DOOM T>
     <PUTP ,STORY055 ,P?DOOM T>
+	<PUTP ,STORY060 ,P?DOOM T>
+	<PUTP ,STORY064 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>
     <RETURN>>
 
@@ -4291,7 +4378,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT048 "The warden is in charge of security. \"We have had an unfortunate, umm... accident,\" he says worriedly. \"In the crypt below the temple we sometimes experiment with the corpses of the dead -- you know, the occasional zombie, part of the rituals in honor of the particular aspect of Nagil we revere here. It seems a ghoul has escaped from the pits and is terrorizing the city at night. We'd rather someone like you sorted the problem out before the city militia got to hear of it. Destroy it and bring me the ghoul's head.\"||\"Search for it at night,\" says the warden as you leave.">
+<CONSTANT TEXT048 "The warden is in charge of security. \"We have had an unfortunate, umm... accident,\" he says worriedly. \"In the crypt below the temple we sometimes experiment with the corpses of the dead -- you know, the occasional zombie, part of the rituals in honour of the particular aspect of Nagil we revere here. It seems a ghoul has escaped from the pits and is terrorizing the city at night. We'd rather someone like you sorted the problem out before the city militia got to hear of it. Destroy it and bring me the ghoul's head.\"||\"Search for it at night,\" says the warden as you leave.">
 <CONSTANT CHOICES048 <LTABLE "Take up the mission" IF-NOT>>
 
 <ROOM STORY048
@@ -4474,7 +4561,7 @@ is off, you return to the city centre.">
 
 <ROOM STORY059
 	(DESC "059")
-	(STORY STORY059)
+	(STORY TEXT059)
 	(CHOICES CHOICES059)
 	(DESTINATIONS <LTABLE STORY010 STORY386 STORY584>)
 	(TYPES THREE-NONES)
@@ -4505,202 +4592,171 @@ is off, you return to the city centre.">
         <LOSE-STAMINA 2 ,DIED-FROM-INJURIES ,STORY060>
     )(<L=? .ROLL 4>
         <EMPHASIZE ,TEXT060-NOTHING>
-        <PREVENT-DEATH ,STORY060>
+        <PREVENT-DOOM ,STORY060>
     )(ELSE
         <COMBAT-MONSTER ,MONSTER-WOLF 3 5 7>
         <CHECK-COMBAT ,MONSTER-WOLF ,STORY060 0 ,WOLF-PELT>
     )>
     <IF-ALIVE ,TEXT060-GO>>
 
+<CONSTANT TEXT061 "\"Wait!\" you cry, \"I have seen the light. I wish to join your cult.\" \"What?\" yells the chef. Then his shoulders sag with obvious disappointment. \"We cannot refuse a new member. And we cannot eat our own people.\"||A short ceremony later -- fortunately, the initiation does not involve any cannibalistic rites -- and you are a full member of the Cult of Badogor. You lose 1 point of SANCTITY for joining such a vile cult.|| You take your leave and they wish you well, all smiles and friendship.||\"Remember, never say his name. And don\"t forget to bring us new recruits,\" says the leader.||\"And bring some people for dinner!\" adds the chef.||Hastily you head for the city centre.">
+
 <ROOM STORY061
 	(DESC "061")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT061)
+	(CONTINUE STORY010)
+	(TITLES <LTABLE TITLE-UNSPEAKABLE-CULTIST>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT062 "The Sokarans surrender. Their captain has been killed in the battle and his marines have had the fight knocked out of them. The war galley isn't carrying any cargo, but you find an officer's pass on the body of the captain, and a chest in his cabin, which contains 150 Shards. You have to hand out 50 Shards to your crew, but you keep the other 100 Shards.||You leave the galley to limp back to Yellowport while you sail on.">
 
 <ROOM STORY062
 	(DESC "062")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT062)
+	(EVENTS STORY062-EVENTS)
+	(CONTINUE STORY439)
+	(ITEMS <LTABLE OFFICERS-PASS>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY062-EVENTS ()
+	<GAIN-MONEY 100>>
 
 <ROOM STORY063
 	(DESC "063")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY063-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY063-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-ATTAR> <RETURN ,STORY578>)>
+	<RETURN ,STORY734>>
+
+<CONSTANT TEXT064 "Your amateurish tinkering sets the trap off, and the chest explodes. You take the full force of the blast.">
+<CONSTANT TEXT064-CONTINUED "You also find that the contents of the chest have been vaporized, except for a sturdy metal scroll case containing a piece of ancient religious text about the gods of Uttaku.||The scroll relates that one of the gods of the Uttakin is called Ebron and that he has fourteen angles. Which seems strange, but you study the text carefully and it definitely says angles, not angels">
 
 <ROOM STORY064
 	(DESC "064")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT064)
+	(EVENTS STORY064-EVENTS)
+	(CONTINUE STORY010)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY064-EVENTS ()
+	<LOSE-STAMINA 5 ,DIED-FROM-INJURIES ,STORY064>
+	<COND (<IS-ALIVE>
+		<CRLF>
+		<TELL ,TEXT064-CONTINUED>
+		<TELL ,PERIOD-CR>
+		<KEEP-ITEM ,SCROLL-OF-EBRON>
+	)>>
+
+<CONSTANT TEXT065 "There are three stone gates engraved with ancient runes. Each gate is marked with a name: Yellowport, Marlock City and Wishport. From here, you can see the coast and the whole of the island, which is heavily forested.">
+<CONSTANT CHOICES065 <LTABLE "Explore the coastline" "Head into the forest" "Step through the Yellowport arch" "Step through the Marlock City arch" "Step through the Wishport arch">>
 
 <ROOM STORY065
 	(DESC "065")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT065)
+	(CHOICES CHOICES065)
+	(DESTINATIONS <LTABLE STORY128 STORY257 STORY008 STORY180 STORY330>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT066 "You stand your ground. The ghostly horses stream past you on either side, neighing wildly at the sky. Nimbly, you leap at one, and manage to wrap your arms around its neck, and swing on to its back. The horse feels quite solid, but appears to be a luminous, pale-green color. You look up through a cloud of sparks emanating from the horse's mane just in time to see a rocky wall of a low hill looming up out of the evening mist. Your horse is galloping full tilt right into it!">
+<CONSTANT CHOICES066 <LTABLE "Hold on" "Leap off">>
 
 <ROOM STORY066
 	(DESC "066")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT066)
+	(CHOICES CHOICES066)
+	(DESTINATIONS <LTABLE STORY017 STORY028>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT067 "Your ship is thrown about like flotsam and jetsam. When the storm subsides, you take stock. Much has been swept overboard.||Also, the ship has been swept way off course and the mate has no idea where you are. \"We're lost at sea, Cap'n,\" he moans.">
 
 <ROOM STORY067
 	(DESC "067")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT067)
+	(EVENTS STORY067-EVENTS)
+	(CONTINUE STORY090)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY067-EVENTS ("AUX" COUNT)
+	<SET COUNT <COUNT-CONTAINER ,CARGO>>
+	<COND (<L=? .COUNT 1>
+		<RESET-CONTAINER ,CARGO>
+	)(ELSE
+		<DEC .COUNT>
+		<LOSE-STUFF ,CARGO ,LOST-STUFF "cargo" .COUNT RESET-CARGO>
+	)>
+	<RETURN>>
+
+<CONSTANT TEXT068 "To renounce the worship of Alvir and Valmir, you must pay 30 Shards in compensation to the priesthood.||The priest simply points to a ship limping into harbor -- its shattered masts, torn sails and battered hull mute testimony to its storm-tossed voyage.||\"The captain did not revere the Twin Gods,\" whispers the coral-jeweled priest darkly.">
 
 <ROOM STORY068
 	(DESC "068")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT068)
+	(EVENTS STORY068-EVENTS)
+	(CONTINUE STORY154)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY068-EVENTS ()
+	<RENOUNCE-WORSHIP 30 ,GOD-ALVIR-VALMIR>>
+
+<CONSTANT TEXT069 "To renounce the worship of Tyrnai, you must pay 50 Shards to the warrior priests, and suffer the Ceremony of the Wrathful Blow. A priest will strike you once, on the doctrinal grounds that it is better to be struck by a priest than by Tyrnai himself.">
+<CONSTANT TEXT069-WRATH "The High Priest smashes you across the jaw, saying, \"I'm doing you a favor, believe me.\"">
 
 <ROOM STORY069
 	(DESC "069")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT069)
+	(EVENTS STORY069-EVENTS)
+	(CONTINUE STORY526)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY069-EVENTS ()
+	<COND (,GOD
+		<COND (<EQUAL? ,GOD ,GOD-TYRNAI>
+			<RENOUNCE-WORSHIP 50 ,GOD-TYRNAI>
+			<COND (,GOD
+				<PREVENT-DOOM ,STORY069>
+			)(ELSE
+				<CRLF>
+				<TELL ,TEXT069-WRATH>
+				<CRLF>
+				<LOSE-STAMINA 1 ,DIED-FROM-INJURIES ,STORY069>
+				<COND (<IS-ALIVE>
+					<COND (<EQUAL? ,RESURRECTION-ARRANGEMENTS ,RESURRECTION-TYRNAI>
+						<SETG ,RESURRECTION-ARRANGEMENTS NONE>
+						<EMPHASIZE "Your resurrection arrangements are forfeit!">
+					)>
+				)>
+			)>
+		)(ELSE
+			<PREVENT-DOOM ,STORY069>
+		)>
+	)(ELSE
+		<PREVENT-DOOM ,STORY069>
+	)>>
+
+<CONSTANT TEXT070 "Your ship is thrown about like flotsam and jetsam. When the storm subsides, you take stock. Much has been swept overboard.||The ship has been blown way off course and the mate has no idea where you are. \"We're lost at sea, Cap'n,\" he moans.">
 
 <ROOM STORY070
 	(DESC "070")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT070)
+	(EVENTS STORY070-EVENTS)
+	(CONTINUE STORY090)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY070-EVENTS ("AUX" COUNT)
+	<SET COUNT <COUNT-CONTAINER ,CARGO>>
+	<COND (<L=? .COUNT 1>
+		<RESET-CONTAINER ,CARGO>
+	)(ELSE
+		<DEC .COUNT>
+		<LOSE-STUFF ,CARGO ,LOST-STUFF "cargo" .COUNT RESET-CARGO>
+	)>
+	<RETURN>>
 
 <ROOM STORY071
 	(DESC "071")
