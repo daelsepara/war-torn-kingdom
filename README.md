@@ -60,6 +60,7 @@ First Edition
 
 - Travel to other islands or regions, i.e. to other books not implemented
 - As a consequence, some story sections may be impossible to reach or will always play out the same way
+- The 2010 version of the text was used, however, characters from the 1995 and 1997 are maintained.
 
 ## Bugs
 
