@@ -1,5 +1,6 @@
 ; "The War Torn Kingdom (ZIL)"
 ; ---------------------------------------------------------------------------------------------
+
 <CONSTANT GAME-TITLE "||The War-Torn Kingdom">
 <CONSTANT GAME-DESCRIPTION "|Dave Morris and Jamie Thomson (1995)||Implemented in ZIL by SD Separa (2020)|">
 <CONSTANT RELEASEID 1>
@@ -22,18 +23,12 @@
 <CONSTANT NONE <>>
 <CONSTANT F <>>
 
-<CONSTANT LIMIT-POSSESSIONS 12>
-
-<GLOBAL CURRENT-LOC NONE>
-
 <GLOBAL PERIOD-CR ".|">
 <GLOBAL EXCLAMATION-CR "!|">
 
 ; "CHOICES"
 ; ---------------------------------------------------------------------------------------------
-<GLOBAL RUN-ONCE F>
 
-<GLOBAL CONTINUE-TO-CHOICES T>
 <CONSTANT SELECT-CHOICES <LTABLE NONE NONE NONE NONE NONE NONE NONE NONE NONE>>
 <CONSTANT TEMP-LIST <LTABLE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE>>
 
@@ -53,7 +48,7 @@
 <CONSTANT R-VISITS 13> ; "check if location was visited multiple times"
 <CONSTANT R-RANK 14> ; "check if location was visited multiple times"
 
-; "for choices that have no requirements"
+; "No requirements"
 <CONSTANT TWO-NONES <LTABLE R-NONE R-NONE>>
 <CONSTANT THREE-NONES <LTABLE R-NONE R-NONE R-NONE>>
 <CONSTANT FOUR-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE>>
@@ -87,8 +82,9 @@
 ; "PLAYER / CHARACTER / NPC"
 ; ---------------------------------------------------------------------------------------------
 
-; "Player Globals"
+; "Globals"
 
+<CONSTANT LIMIT-POSSESSIONS 12>
 <GLOBAL CURRENT-VEHICLE NONE>
 <GLOBAL MONEY 0>
 <GLOBAL MAX-STAMINA 9>
@@ -142,30 +138,35 @@
 ; ---------------------------------------------------------------------------------------------
 
 ; "Properties"
-<PROPDEF QUANTITY NONE>
-<PROPDEF CHARGES NONE>
-<PROPDEF STARS NONE>
-<PROPDEF STATUS NONE>
+<PROPDEF QUANTITY -1>
+<PROPDEF CHARGES -1>
+<PROPDEF STARS -1>
+<PROPDEF STATUS 0>
 <PROPDEF EFFECTS NONE>
 
 ; "STORY"
 ; ---------------------------------------------------------------------------------------------
 
+<GLOBAL CURRENT-LOC NONE>
+<GLOBAL CONTINUE-TO-CHOICES T>
+<GLOBAL RUN-ONCE F>
+<GLOBAL STARTING-POINT STORY001>
+
 ; "Properties"
-<PROPDEF BACKGROUND NONE> ; "routine to handle events that happen before story text is displayed"
+<PROPDEF BACKGROUND NONE> ; "handle events that happen before story text is displayed"
 <PROPDEF STORY NONE> ; "text in the story section"
-<PROPDEF EVENTS NONE> ; "routine to handle events after text is displayed but before CHOICES/CONTINUE"
+<PROPDEF EVENTS NONE> ; "handle events after text is displayed but before CHOICES/CONTINUE"
 <PROPDEF CHOICES NONE> ; "list of available actions"
-<PROPDEF DESTINATIONS NONE> ; "used with CHOICES; list of sections where story is continued based on the selected action"
-<PROPDEF REQUIREMENTS NONE> ; "used with CHOICES; list of requirements for each action"
-<PROPDEF TYPES NONE>  ; "used with CHOICES and REQUIREMENTS; determines the type of each requirement" 
+<PROPDEF DESTINATIONS NONE> ; "list where story possibly continues"
+<PROPDEF REQUIREMENTS NONE> ; "list of requirements for each action"
+<PROPDEF TYPES NONE>  ; "determines the type of each requirement" 
 <PROPDEF CONTINUE NONE> ; "story proceeds to the next section indicated"
 <PROPDEF ITEMS NONE> ; "list of items gained"
 <PROPDEF CODEWORDS NONE> ; "list of codewords gained"
 <PROPDEF GOD NONE> ; "God gained"
 <PROPDEF BLESSINGS NONE> ; "blessings gained"
 <PROPDEF TITLES NONE> ; "titles and honours gained"
-<PROPDEF VISITS NONE>
+<PROPDEF VISITS NONE> ; "number of visits to a location"
 <PROPDEF DOOM F> ; "section ends in doom for the player"
 <PROPDEF VICTORY F> ; "section ends in victory for the player"
 <PROPDEF INVESTMENTS NONE>
@@ -2104,10 +2105,14 @@
 ; "System/Utility/Miscellaneous routines"
 ; ---------------------------------------------------------------------------------------------
 
-<ROUTINE EMPHASIZE (TEXT)
+<ROUTINE EMPHASIZE (TEXT "OPT" SPEAKER)
     <COND (.TEXT
         <CRLF>
         <HLIGHT ,H-BOLD>
+        <COND (<ASSIGNED? SPEAKER>
+            <TELL .SPEAKER ": ">
+            <HLIGHT 0>
+        )>
         <TELL .TEXT>
         <HLIGHT 0>
         <CRLF>
@@ -3113,92 +3118,103 @@
     <SET LEN <GETB ,LEXBUF .INDEX>>
     <RETURN <TO-INTEGER .START .LEN .BASE>>>
 
+<CONSTANT TEXT-GUILD "Guild">
+
 <ROUTINE GUILD-INVESTMENTS ("OPT" STORY "AUX" INVESTMENTS KEY INVESTMENT)
     <COND (<NOT .STORY> <SET STORY ,HERE>)>
-    <COND (<GETP .STORY ,P?INVESTMENTS>
+    <COND (<AND <L? ,MONEY 100> <NOT <GETP .STORY ,P?INVESTMENTS>>> <RETURN>)>
+    <REPEAT ()
+        <SET INVESTMENTS <GETP .STORY ,P?INVESTMENTS>>
+        <CRLF>
+        <TELL "Current investments: " N .INVESTMENTS CR>
+        <CRLF>
+        <HLIGHT ,H-BOLD>
+        <TELL "1">
+        <HLIGHT 0>
+        <TELL " - Invest (in multiples of 100 " D ,CURRENCY ")" CR>
+        <HLIGHT ,H-BOLD>
+        <TELL "2">
+        <HLIGHT 0>
+        <TELL " - Withdraw investments" CR>
+        <HLIGHT ,H-BOLD>
+        <TELL "0">
+        <HLIGHT 0>
+        <TELL " - Bye" CR>
+        <TELL "You are currently carrying: " N ,MONEY " " D ,CURRENCY "." CR>
+        <TELL "Select what to do next: ">
         <REPEAT ()
-            <SET INVESTMENTS <GETP .STORY ,P?INVESTMENTS>>
-            <COND (<AND <L? ,MONEY 100> <L=? .INVESTMENTS 0>> <RETURN>)>
-            <CRLF>
-            <TELL "Current investments: " N .INVESTMENTS CR>
-            <CRLF>
-            <HLIGHT ,H-BOLD>
-            <TELL "1">
-            <HLIGHT 0>
-            <TELL " - Invest (in multiples of 100 " D ,CURRENCY ")" CR>
-            <HLIGHT ,H-BOLD>
-            <TELL "2">
-            <HLIGHT 0>
-            <TELL " - Withdraw investments" CR>
-            <HLIGHT ,H-BOLD>
-            <TELL "0">
-            <HLIGHT 0>
-            <TELL " - Bye" CR>
-            <TELL "You are currently carrying: " N ,MONEY " " D ,CURRENCY "." CR>
-            <TELL "Select what to do next: ">
-            <REPEAT ()
-                <SET KEY <INPUT 1>>
-                <COND (<EQUAL? .KEY !\0 !\1 !\2> <RETURN>)>
-            >
-            <COND (<EQUAL? .KEY !\1>
+            <SET KEY <INPUT 1>>
+            <COND (<EQUAL? .KEY !\0 !\1 !\2> <RETURN>)>
+        >
+        <COND (<EQUAL? .KEY !\1>
+            <COND (<G=? ,MONEY 100>
                 <CRLF>
-                <COND (<G? ,MONEY 100>
-                    <REPEAT ()
-                        <CRLF>
-                        <SET INVESTMENT <GET-NUMBER "How much will you invest" 0 ,MONEY>>
-                        <COND (<G? .INVESTMENT 0>
-                            <COND (<OR <L? .INVESTMENT 100> <G? <MOD .INVESTMENT 100> 0>>
-                                <EMPHASIZE "Only amounts that are multiples of 100 are accepted!">
-                            )(ELSE
-                                <CRLF>
-                                <TELL "Are you sure?">
-                                <COND (<YES?>
-                                    <PUTP .STORY ,P?INVESTMENTS <+ .INVESTMENTS .INVESTMENT>>
-                                    <SETG MONEY <- ,MONEY .INVESTMENT>>
-                                    <EMPHASIZE "Excellent!">
-                                    <UPDATE-STATUS-LINE>
-                                )>
-                                <RETURN>
-                            )>
-                        )>
-                    >
-                )(ELSE
-                    <EMPHASIZE "You do not have enough money!">
-                )>
-            )(<EQUAL? .KEY !\2>
-                <CRLF>
-                <COND (<G? .INVESTMENTS 0>
-                    <REPEAT ()
-                        <CRLF>
-                        <SET INVESTMENT <GET-NUMBER "How much will you withdraw" 0 .INVESTMENTS>>
-                        <COND (<G? .INVESTMENT 0>
+                <REPEAT ()
+                    <SET INVESTMENT <GET-NUMBER "How much will you invest" 0 ,MONEY>>
+                    <COND (<G? .INVESTMENT 0>
+                        <COND (<OR <L? .INVESTMENT 100> <G? <MOD .INVESTMENT 100> 0>>
+                            <EMPHASIZE "Only amounts that are multiples of 100 are accepted!">
+                            <PRESS-A-KEY>
+                        )(ELSE
                             <CRLF>
                             <TELL "Are you sure?">
                             <COND (<YES?>
-                                <PUTP .STORY ,P?INVESTMENTS <- .INVESTMENTS .INVESTMENT>>
-                                <SETG MONEY <+ ,MONEY .INVESTMENT>>
-                                <EMPHASIZE "Please consider investing again in the future!">
+                                <PUTP .STORY ,P?INVESTMENTS <+ .INVESTMENTS .INVESTMENT>>
+                                <SETG MONEY <- ,MONEY .INVESTMENT>>
+                                <EMPHASIZE "Excellent!" ,TEXT-GUILD>
                                 <UPDATE-STATUS-LINE>
+                                <PRESS-A-KEY>
+                                <RETURN>
                             )>
-                            <RETURN>
                         )>
-                    >
-                )(ELSE
-                    <EMPHASIZE "You have not made any investment!">
-                )>
-            )(<EQUAL? .KEY !\0>
+                    )(ELSE
+                        <RETURN>
+                    )>
+                >
+            )(ELSE
                 <CRLF>
-                <CRLF>
-                <TELL "Are you sure?">
-                <COND (<YES?>
-                    <EMPHASIZE "See you next time!">
-                    <RETURN>
-                )(ELSE
-                    <EMPHASIZE "Excellent!">
-                )>
+                <EMPHASIZE "You do not have enough money!">
             )>
-        >
-    )>>
+        )(<EQUAL? .KEY !\2>
+            <COND (<G? .INVESTMENTS 0>
+                <CRLF>
+                <REPEAT ()
+                    <SET INVESTMENT <GET-NUMBER "How much will you withdraw" 0 .INVESTMENTS>>
+                    <COND (<G? .INVESTMENT 0>
+                        <CRLF>
+                        <TELL "Are you sure?">
+                        <COND (<YES?>
+                            <PUTP .STORY ,P?INVESTMENTS <- .INVESTMENTS .INVESTMENT>>
+                            <SETG MONEY <+ ,MONEY .INVESTMENT>>
+                            <EMPHASIZE "Please consider investing again in the future!" ,TEXT-GUILD>
+                            <UPDATE-STATUS-LINE>
+                            <PRESS-A-KEY>
+                        )>
+                        <RETURN>
+                    )(ELSE
+                        <RETURN>
+                    )>
+                >
+            )(ELSE
+                <EMPHASIZE "You have not made any investment!">
+                <PRESS-A-KEY>            
+            )>
+        )(<EQUAL? .KEY !\0>
+            <CRLF>
+            <CRLF>
+            <TELL "Are you sure?">
+            <COND (<YES?>
+                <EMPHASIZE "See you next time!" ,TEXT-GUILD>
+                <RETURN>
+            )(ELSE
+                <EMPHASIZE "Excellent!" ,TEXT-GUILD>
+            )>
+        )>
+        <COND (<L? ,MONEY 100>
+            <EMPHASIZE "Thank you for doing business with us!" ,TEXT-GUILD>
+            <RETURN>
+        )>
+    >>
 
 <CONSTANT CHOICES030-BUY <LTABLE "Buy armour" "Buy weapons" "Buy Magical Equipment" "Buy other items" "Return to the Market">>
 
@@ -3340,8 +3356,6 @@
     <CRLF><CRLF>
     <TELL HELP-TEXT>
     <CRLF>>
-
-<GLOBAL STARTING-POINT STORY001>
 
 ; "reset routines"
 <ROUTINE RESET-OBJECTS ()
@@ -3662,7 +3676,7 @@ won't follow you there if they don't think you're good enough.\"">
 	<LOSE-STAMINA 5 ,DIED-FROM-INJURIES ,STORY014>
 	<COND (<IS-ALIVE>
 		<CRLF>
-		<TELL TEXT014-CONTINUED>
+		<TELL ,TEXT014-CONTINUED>
 		<TELL ,PERIOD-CR>
 		<COMBAT-MONSTER ,MONSTER-THUG 3 6 13>
 		<CHECK-COMBAT ,MONSTER-THUG ,STORY014>
@@ -3968,7 +3982,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 <ROUTINE STORY038-EVENTS ("AUX" (DICE 1) (CONDITION 0) ODDS PARAMETERS)
 	<COND (<CHECK-BLESSING ,BLESSING-ALVIR-VALMIR>
 		<CRLF>
-		<TELL TEXT038-SAFETY>
+		<TELL ,TEXT038-SAFETY>
 		<TELL ,PERIOD-CR>
 		<DELETE-BLESSING ,BLESSING-ALVIR-VALMIR>
 		<STORY-JUMP ,STORY209>
@@ -4093,28 +4107,25 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	<COND (<IS-ALIVE>
 		<AFFLICTED-WITH ,DISEASE-GHOULBITE>
 		<CRLF>
-		<TELL TEXT045-CONTINUED>
+		<TELL ,TEXT045-CONTINUED>
 		<TELL ,PERIOD-CR>
 	)>>
 
+<CONSTANT TEXT046 "You can invest money in multiples of 100 Shards. The guild will buy and sell commodities on your behalf using this money until you return to collect it. \"Don't forget that you can lose money as well,\" mutters a merchant whose investments have not paid off.">
+
 <ROOM STORY046
 	(DESC "046")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT046)
+	(EVENTS STORY046-EVENTS)
+	(CONTINUE STORY405)
+    (INVESTMENTS 0)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY046-EVENTS ()
+    <DELETE-CODEWORD ,CODEWORD-ALMANAC>
+    <DELETE-CODEWORD ,CODEWORD-BRUSH>
+    <DELETE-CODEWORD ,CODEWORD-ELDRITCH>
+    <GUILD-INVESTMENTS>>
 
 <ROOM STORY047
 	(DESC "047")
