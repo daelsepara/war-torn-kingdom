@@ -33,6 +33,8 @@
 <CONSTANT TEXT-SURE "Are you sure?">
 <CONSTANT TEXT-NEXT-TIME "See you next time!">
 <CONSTANT TEXT-RANDOM-EVENT "Random Event">
+<CONSTANT TEXT-BYE "Bye">
+<CONSTANT TEXT-GOODBYE "Goodbye!">
 
 ; "CHOICES"
 ; ---------------------------------------------------------------------------------------------
@@ -148,7 +150,7 @@
 <OBJECT VEHICLES (DESC "vehicles") (FLAGS CONTBIT OPENBIT)>
 
 ; "vehicle description"
-<OBJECT VEHICLE (DESC "ship")>
+<OBJECT VEHICLE (DESC "ships")>
 
 ; "NON-PERSON OBJECTS"
 ; ---------------------------------------------------------------------------------------------
@@ -165,7 +167,7 @@
 <GLOBAL CURRENT-LOCATION NONE>
 <GLOBAL CONTINUE-TO-CHOICES T>
 <GLOBAL RUN-ONCE F>
-<GLOBAL STARTING-POINT STORY001>
+<GLOBAL STARTING-POINT STORY142>
 
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
@@ -179,6 +181,9 @@
 	<CHOOSE-CHARACTER>
 	<SETG HERE ,STARTING-POINT>
 	<SETG RUN-ONCE T>
+	<MOVE ,SHIP-BARQUE ,VEHICLES>
+	<MOVE ,SHIP-BRIGANTINE ,VEHICLES>
+	<MOVE ,SHIP-GALLEON ,VEHICLES>
 	<REPEAT ()
 		<CRLF>
 		<RESET-CHOICES>
@@ -1718,15 +1723,6 @@
 		>
 	)>>
 
-<ROUTINE LOSE-VEHICLE (VEHICLE)
-	<COND (.VEHICLE
-		<COND (<CHECK-VEHICLE .VEHICLE>
-			<REMOVE .VEHICLE>
-			<SETG CURRENT-VEHICLE NONE>
-			<UPDATE-STATUS-LINE>
-		)>
-	)>>
-
 <ROUTINE POISONED-WITH (POISON)
 	<AFFLICTED-WITH .POISON ,TEXT-POISONED>>
 
@@ -1746,7 +1742,7 @@
 		>
 	)>>
 
-<ROUTINE PRINT-ITEM (ITEMS "OPT" (BOLD F) (COUNT 0) "AUX" QUANTITY CHARGES BLESSINGS STARS (WORN F) (EFFECTS NONE))
+<ROUTINE PRINT-ITEM (ITEMS "OPT" (BOLD F) (COUNT 0) "AUX" QUANTITY CHARGES BLESSINGS STARS (WORN F) (EFFECTS NONE) CONDITION)
 	<COND (.ITEMS
 		<COND (<NOT <FSET? .ITEMS ,NDESCBIT>>
 			<SET BLESSINGS <COUNT-BLESSINGS .ITEMS>>
@@ -1755,11 +1751,12 @@
 			<SET STARS <GETP .ITEMS ,P?STARS>>
 			<SET WORN <AND <FSET? .ITEMS ,WEARBIT> <FSET? .ITEMS ,WORNBIT>>>
 			<SET EFFECTS <GETP .ITEMS ,P?EFFECTS>>
+			<SET CONDITION <GETP .ITEMS ,P?CONDITION>>
 			<COND (<G? .COUNT 0> <TELL ", ">)>
 			<COND (.BOLD <HLIGHT ,H-BOLD>)(ELSE <HLIGHT ,H-ITALIC>)>
 			<TELL D .ITEMS>
 			<HLIGHT 0>
-			<COND (<OR <G? .BLESSINGS 0> <G? .QUANTITY 1> <G? .CHARGES 0> <G? .STARS 0> .WORN .EFFECTS> <TELL " (">)>
+			<COND (<OR <G? .BLESSINGS 0> <G? .QUANTITY 1> <G? .CHARGES 0> <G? .STARS 0> .WORN .EFFECTS <G=? .CONDITION 0>> <TELL " (">)>
 			<COND (<G? .BLESSINGS 0> <PRINT-BLESSINGS .ITEMS>)>
 			<COND (<G? .QUANTITY 1>
 				<COND (<G? .BLESSINGS 0>
@@ -1785,7 +1782,11 @@
 				<COND (<OR <G? .BLESSINGS 0> <G? .QUANTITY 1> <G? .CHARGES 0> <G? .STARS 0> .WORN> <TELL ", ">)>
 				<PRINT-MODIFIERS .ITEMS>
 			)>
-			<COND (<OR <G? .BLESSINGS 0> <G? .QUANTITY 1> <G? .CHARGES 0> <G? .STARS 0> .WORN .EFFECTS> <TELL ")">)>
+			<COND (<G=? .CONDITION 0>
+				<COND (<OR <G? .BLESSINGS 0> <G? .QUANTITY 1> <G? .CHARGES 0> <G? .STARS 0> .WORN .EFFECTS> <TELL ", ">)>
+				<TELL "condition: " <GET ,CONDITIONS <+ .CONDITION 1>>>
+			)>
+			<COND (<OR <G? .BLESSINGS 0> <G? .QUANTITY 1> <G? .CHARGES 0> <G? .STARS 0> .WORN .EFFECTS <G=? .CONDITION 0>> <TELL ")">)>
 		)>
 	)>>
 
@@ -2058,14 +2059,6 @@
 		)>
 	)>
 	<RETURN 0>>
-
-<ROUTINE TAKE-VEHICLE (VEHICLE)
-	<COND (.VEHICLE
-		<COND (,CURRENT-VEHICLE <REMOVE ,CURRENT-VEHICLE>)>
-		<MOVE .VEHICLE ,VEHICLES>
-		<SETG CURRENT-VEHICLE .VEHICLE>
-		<UPDATE-STATUS-LINE>
-	)>>
 
 <ROUTINE UPGRADE-ABILITIES (POINTS "AUX" KEY ABILITY CURRENT)
 	<COND (<NOT ,CURRENT-CHARACTER> <RETURN>)>
@@ -3018,21 +3011,29 @@
 ; Ships
 ; ---------------------------------------------------------------------------------------------
 
+<CONSTANT CONDITIONS <LTABLE "poor" "average" "good" "excellent">>
 <CONSTANT CONDITION-POOR 0>
-<CONSTANT CONDITION-GOOD 1>
-<CONSTANT CONDITION-EXCELLENT 2>
+<CONSTANT CONDITION-AVERAGE 1>
+<CONSTANT CONDITION-GOOD 2>
+<CONSTANT CONDITION-EXCELLENT 3>
 
 <OBJECT SHIP-BARQUE
 	(DESC "barque")
-	(CONDITION CONDITION-EXCELLENT)>
+	(CAPACITY 1)
+	(TYPE 1)
+	(CONDITION CONDITION-POOR)>
 
 <OBJECT SHIP-BRIGANTINE
 	(DESC "brigantine")
-	(CONDITION CONDITION-EXCELLENT)>
+	(CAPACITY 2)
+	(TYPE 2)
+	(CONDITION CONDITION-POOR)>
 
 <OBJECT SHIP-GALLEON
 	(DESC "galleon")
-	(CONDITION CONDITION-EXCELLENT)>
+	(CAPACITY 3)
+	(TYPE 3)
+	(CONDITION CONDITION-POOR)>
 
 ; "Disease/Poison EFFECTS (CHARISMA COMBAT MAGIC SANCTITY SCOUTING THIEVERY)"
 ; ---------------------------------------------------------------------------------------------
@@ -3690,6 +3691,342 @@
 		<COND (<L? ,MONEY 100>
 			<EMPHASIZE "Thank you for doing business with us!" ,TEXT-GUILD>
 			<RETURN>
+		)>
+	>>
+
+; "Harbour Master routines"
+; ---------------------------------------------------------------------------------------------
+<CONSTANT SHIPS-LIST <LTABLE SHIP-BARQUE SHIP-BRIGANTINE SHIP-GALLEON>>
+<CONSTANT SHIPS-LABELS <LTABLE "Barque" "Brigantine" "Galleon">>
+
+<OBJECT CARGO-FURS
+	(DESC "Furs")
+	(TYPE 1)>
+
+<OBJECT CARGO-GRAINS
+	(DESC "Grains")
+	(TYPE 2)>
+
+<OBJECT CARGO-METALS
+	(DESC "Metals")
+	(TYPE 3)>
+
+<OBJECT CARGO-MINERALS
+	(DESC "Minerals")
+	(TYPE 4)>
+
+<OBJECT CARGO-SPICES
+	(DESC "Spices")
+	(TYPE 5)>
+
+<OBJECT CARGO-TEXTILES
+	(DESC "Textiles")
+	(TYPE 6)>
+
+<OBJECT CARGO-TIMBER
+	(DESC "Timber")
+	(TYPE 7)>
+
+<CONSTANT CARGO-LIST <LTABLE CARGO-FURS CARGO-GRAINS CARGO-METALS CARGO-MINERALS CARGO-SPICES CARGO-TEXTILES CARGO-TIMBER>>
+
+<CONSTANT MARLOCK-CARGO-BUY <LTABLE 190 190 700 500 820 325 190>>
+<CONSTANT MARLOCK-CARGO-SELL <LTABLE 180 180 635 460 760 285 180>>
+<CONSTANT MARLOCK-SHIP-BUY <LTABLE 250 450 900>>
+<CONSTANT MARLOCK-SHIP-SELL <LTABLE 125 225 450>>
+<CONSTANT MARLOCK-UPGRADE-PRICES <LTABLE 50 100 150>>
+<CONSTANT MARLOCK-PASSAGES <LTABLE "Yellowport" "Wishport" "Sorcerers' Isle" "Copper Island">>
+<CONSTANT MARLOCK-TICKETS <LTABLE 10 15 30 30>>
+<CONSTANT MARLOCK-TRAVEL <LTABLE STORY372 STORY255 STORY234 STORY424>>
+<CONSTANT HARBOUR-MASTER-MENU <LTABLE "Buy/Sell/Upgrade Ship" "Buy one-way passage to destination" "Select/View ship" "Purchase/Sell Cargo" "Set sail">>
+
+<CONSTANT TEXT-HARBOUR-MASTER "Harbour Master">
+
+<ROUTINE HARBOUR-MARLOCK ("AUX" KEY CHOICE ITEMS)
+	<DO (I 1 3)
+		<COND (<NOT <IN? <GET ,SHIPS-LIST .I> ,VEHICLES>>
+			<STORY-RESET-CREW ,CONDITION-POOR>
+		)>
+	>
+	<SET ITEMS <GET ,HARBOUR-MASTER-MENU 0>>
+	<REPEAT ()
+		<EMPHASIZE ,TEXT-HARBOUR-MASTER>
+		<PRINT-MENU ,HARBOUR-MASTER-MENU !\0 "Go to the city centre">
+		<TELL "What do you wish to do next?">
+		<REPEAT ()
+			<SET .KEY <INPUT 1>>
+			<COND (<AND <G=? .KEY !\0> <L=? .KEY <+ .ITEMS !\0>>> <RETURN>)>
+		>
+		<CRLF>
+		<SET .CHOICE <- .KEY !\0>>
+		<COND (<EQUAL? .CHOICE 0>
+			<CRLF>
+			<TELL ,TEXT-SURE>
+			<COND (<YES?>
+				<EMPHASIZE ,TEXT-GOODBYE ,TEXT-HARBOUR-MASTER>
+				<RETURN>
+			)>
+		)(<EQUAL? .CHOICE 1>
+			<BUY-SELL-UPGRADE-SHIP ,MARLOCK-SHIP-BUY ,MARLOCK-SHIP-SELL ,MARLOCK-UPGRADE-PRICES ,MARLOCK-CARGO-SELL>
+		)(<EQUAL? .CHOICE 2>
+
+		)(<EQUAL? .CHOICE 3>
+		)(<EQUAL? .CHOICE 4>
+		)(<EQUAL? .CHOICE 5>
+			<COND (,CURRENT-VEHICLE
+				<STORY-JUMP ,STORY084>
+				<RETURN>
+			)(ELSE
+				<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
+					<EMPHASIZE "You have not designated your primary ship!">
+				)(ELSE
+					<EMPHASIZE "You don't own any ship!">
+				)>
+			)>
+		)>
+	>>
+
+<ROUTINE PRINT-MENU (CHOICES EXIT-KEY EXIT-TEXT "OPT" PRICES "AUX" ITEMS)
+	<COND (<NOT .CHOICES> <RETURN>)>
+	<SET ITEMS <GET .CHOICES 0>>
+	<DO (I 1 .ITEMS)
+		<HLIGHT ,H-BOLD>
+		<COND (<L? .I 10>
+			<TELL N .I>
+		)(ELSE
+			<TELL C <+ !\A <- .I 10>>>
+		)>
+		<HLIGHT 0>
+		<TELL " - " <GET .CHOICES .I>>
+		<COND (.PRICES
+			<COND (<G? <GET .PRICES .I> 0>
+				<TELL " (" N <GET .PRICES .I> " " D ,CURRENCY ")">
+			)>
+		)>
+		<CRLF>
+	>
+	<HLIGHT ,H-BOLD>
+	<TELL C .EXIT-KEY>
+	<HLIGHT 0>
+	<TELL " - " .EXIT-TEXT>
+	<CRLF>>
+
+<CONSTANT BUY-SELL-UPGRADE-MENU <LTABLE "Buy Ship" "Sell Ship" "Upgrade Ship">>
+
+<ROUTINE BUY-SELL-UPGRADE-SHIP (BUY-PRICES SELL-PRICES UPGRADE-PRICES CARGO-PRICES "AUX" KEY ITEMS)
+	<REPEAT ()
+		<EMPHASIZE "You can do the following" "Shipyard">
+		<PRINT-MENU ,BUY-SELL-UPGRADE-MENU !\0 "Go back to the Harbour Master">
+		<TELL "What do you want to do?">
+		<SET ITEMS <GET ,BUY-SELL-UPGRADE-MENU 0>>
+		<REPEAT ()
+			<SET KEY <INPUT 1>>
+			<COND (<EQUAL? .KEY !\0 !\1 !\2 !\3> <RETURN>)>
+		>
+		<COND (<EQUAL? .KEY !\0>
+			<CRLF>
+			<CRLF>
+			<TELL ,TEXT-SURE>
+			<COND (<YES?>
+				<EMPHASIZE ,TEXT-GOODBYE>
+				<RETURN>
+			)>
+		)(<EQUAL? .KEY !\1>
+			<CRLF>
+			<BUY-SHIP .BUY-PRICES>
+		)(<EQUAL? .KEY !\2>
+			<CRLF>
+			<SELL-SHIP .SELL-PRICES .CARGO-PRICES>
+		)(<EQUAL? .KEY !\3>
+			<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
+				<CRLF>
+				<UPGRADE-SHIP .UPGRADE-PRICES>
+			)(ELSE
+				<CRLF>
+				<EMPHASIZE "You don't have any ships">
+			)>
+		)>
+	>>
+
+<ROUTINE BUY-SHIP (BUY-PRICES "AUX" KEY ITEM)
+	<REPEAT ()
+		<EMPHASIZE "You can buy ships at these prices" "Shipyard">
+		<PRINT-MENU ,SHIPS-LABELS !\0 ,TEXT-BYE .BUY-PRICES>
+		<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
+			<DESCRIBE-PLAYER-VEHICLES>
+			<CRLF>
+		)>
+		<TELL "Which ship shall you buy?">
+		<REPEAT ()
+			<SET KEY <INPUT 1>>
+			<COND (<EQUAL? .KEY !\0 !\1 !\2 !\3> <RETURN>)>
+		>
+		<COND (<EQUAL? .KEY !\0>
+			<CRLF>
+			<CRLF>
+			<TELL ,TEXT-SURE>
+			<COND (<YES?>
+				<RETURN>
+			)>
+		)(ELSE
+			<SET ITEM <- .KEY !\0>>
+			<COND (<IN? <GET ,SHIPS-LIST .ITEM> ,VEHICLES>
+				<CRLF>
+				<EMPHASIZE "You already own that ship!">
+			)(<G=? ,MONEY <GET .BUY-PRICES .ITEM>>
+				<CRLF>
+				<CRLF>
+				<TELL "Buy a " D <GET ,SHIPS-LIST .ITEM> "?">
+				<COND (<YES?>
+					<COST-MONEY <GET .BUY-PRICES .ITEM> "paid">
+					<MOVE <GET ,SHIPS-LIST .ITEM> ,VEHICLES>
+					<COND (<NOT ,CURRENT-VEHICLE>
+						<SETG ,CURRENT-VEHICLE <GET ,SHIPS-LIST .ITEM>>
+					)>
+					<CRLF>
+					<TELL "You bought a ">
+					<PRINT-ITEM <GET ,SHIPS-LIST .ITEM> T>
+					<TELL ,PERIOD-CR>
+					<UPDATE-STATUS-LINE>
+				)>
+			)(ELSE
+				<CRLF>
+				<EMPHASIZE "You can't afford that ship!">
+			)>
+		)>
+	>>
+
+<ROUTINE SELL-SHIP (SELL-PRICES CARGO-PRICES "AUX" KEY ITEM)
+	<REPEAT ()
+		<EMPHASIZE "You can sell your ships at these prices" "Shipyard">
+		<PRINT-MENU ,SHIPS-LABELS !\0 ,TEXT-BYE .SELL-PRICES>
+		<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
+			<DESCRIBE-PLAYER-VEHICLES>
+			<CRLF>
+		)>
+		<TELL "Which shill will you sell?">
+		<REPEAT ()
+			<SET KEY <INPUT 1>>
+			<COND (<EQUAL? .KEY !\0 !\1 !\2 !\3> <RETURN>)>
+		>
+		<COND (<EQUAL? .KEY !\0>
+			<CRLF>
+			<CRLF>
+			<TELL ,TEXT-SURE>
+			<COND (<YES?>
+				<RETURN>
+			)>
+		)(ELSE
+			<SET ITEM <- .KEY !\0>>
+			<COND (<NOT <IN? <GET ,SHIPS-LIST .ITEM> ,VEHICLES>>
+				<CRLF>
+				<EMPHASIZE "You don't have that ship!">
+			)(ELSE
+				<CRLF>
+				<CRLF>
+				<TELL "Sell " T <GET ,SHIPS-LIST .ITEM> "?">
+				<COND (<YES?>
+					<REMOVE <GET ,SHIPS-LIST .ITEM>>
+					<COND (<EQUAL? ,CURRENT-VEHICLE <GET ,SHIPS-LIST .ITEM>>
+						<SETG ,CURRENT-VEHICLE NONE>
+					)>
+					<CRLF>
+					<TELL "You sold the ">
+					<PRINT-ITEM <GET ,SHIPS-LIST .ITEM> T>
+					<TELL ,PERIOD-CR>
+					<GAIN-MONEY <GET .SELL-PRICES .ITEM>>
+					<SELL-ALL-CARGO .CARGO-PRICES>
+					<PUTP <GET ,SHIPS-LIST .ITEM> ,P?CONDITION ,CONDITION-POOR>
+					<UPDATE-STATUS-LINE>
+				)>
+			)>
+		)>
+	>>
+
+<ROUTINE SELL-ALL-CARGO (CARGO-PRICES "AUX" ITEM NEXT TYPE PROFIT)
+	<COND (<G? <COUNT-CONTAINER ,CARGO> 0>
+		<SET PROFIT 0>
+		<SET ITEM <FIRST? ,CARGO>>
+		<REPEAT ()
+			<COND (<NOT .ITEM> <RETURN>)>
+			<SET TYPE <GETP .ITEM ,P?TYPE>>
+			<COND (<G? .TYPE 0>
+				<SET PROFIT <+ .PROFIT <GET .CARGO-PRICES .TYPE>>>
+				<SET NEXT <NEXT? .ITEM>>
+				<REMOVE .ITEM>
+				<SET ITEM .NEXT>
+			)(ELSE
+				<SET ITEM <NEXT? .ITEM>>
+			)>
+		>
+		<COND (<G? .PROFIT 0>
+			<EMPHASIZE "You sold your ship's cargo.">
+			<GAIN-MONEY .PROFIT>
+		)>
+	)>>
+
+<ROUTINE UPGRADE-SHIP (UPGRADE-PRICES "AUX" CONDITION KEY UPGRADES ITEM)
+	<SET UPGRADES <LTABLE 0 0 0>>
+	<REPEAT ()
+		<DO (I 1 3)
+			<COND (<IN? <GET ,SHIPS-LIST .I> ,VEHICLES>
+				<SET CONDITION <GETP <GET ,SHIPS-LIST .I> ,P?CONDITION>>
+				<COND (<N=? .CONDITION ,CONDITION-EXCELLENT>
+					<PUT .UPGRADES .I <GET .UPGRADE-PRICES <+ .CONDITION 1>>>
+				)(ELSE
+					<PUT .UPGRADES .I 0>
+				)>
+			)(ELSE
+				<PUT .UPGRADES .I 0>
+			)>
+		>
+		<EMPHASIZE "You can upgrade ships at the following prices" "Shipyard">
+		<PRINT-MENU ,SHIPS-LABELS !\0 ,TEXT-BYE .UPGRADES>
+		<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
+			<DESCRIBE-PLAYER-VEHICLES>
+			<CRLF>
+		)>
+		<TELL "Which ship shall you upgrade?">
+		<REPEAT ()
+			<SET KEY <INPUT 1>>
+			<COND (<EQUAL? .KEY !\0 !\1 !\2 !\3> <RETURN>)>
+		>
+		<COND (<EQUAL? .KEY !\0>
+			<CRLF>
+			<CRLF>
+			<TELL ,TEXT-SURE>
+			<COND (<YES?>
+				<RETURN>
+			)>
+		)(ELSE
+			<CRLF>
+			<SET .ITEM <- .KEY !\0>>
+			<COND (<IN? <GET ,SHIPS-LIST .ITEM> ,VEHICLES>
+				<COND (<EQUAL? <GET .UPGRADES .ITEM> 0>
+					<EMPHASIZE "That ship can no longer be upgraded!">
+				)(<G=? ,MONEY <GET .UPGRADES .ITEM>>
+					<CRLF>
+					<TELL "Upgrade " T <GET ,SHIPS-LIST .ITEM> "?">
+					<COND (<YES?>
+						<CRLF>
+						<SET CONDITION <GETP <GET ,SHIPS-LIST .ITEM> ,P?CONDITION>>
+						<COND (<G=? .CONDITION ,CONDITION-EXCELLENT>
+							<EMPHASIZE "This ship can no longer be upgraded!">
+						)(ELSE
+							<INC .CONDITION>
+							<PUTP <GET ,SHIPS-LIST .ITEM> ,P?CONDITION .CONDITION>
+							<TELL "You upgraded the ">
+							<PRINT-ITEM <GET ,SHIPS-LIST .ITEM> T>
+							<TELL ,PERIOD-CR>
+							<COST-MONEY <GET .UPGRADES .ITEM> "paid">
+							<UPDATE-STATUS-LINE>
+						)>
+					)>
+				)(ELSE
+					<EMPHASIZE "You can't afford to upgrade this ship!">
+				)>
+			)(ELSE
+				<EMPHASIZE "You don't own that ship!">
+			)>
 		)>
 	>>
 
@@ -5575,8 +5912,8 @@ harbourmaster.">
 		R-NONE
 		R-NONE
 		R-NONE
-		R-NONE
 		R-CODEWORD
+		R-NONE
 		R-NONE
 		R-NONE
 		R-NONE
@@ -6105,43 +6442,28 @@ harbourmaster.">
 	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT141 "The Temple of Maka, the terrible goddess of disease and famine, is a large underground chamber accessible via an ornate entrance in the middle of the Plaza of the Gods, where all the temples stand in Yellowport.||Down below, the walls are bare earth; the ceiling is covered in the roots of growing plants, for Maka is also the goddess of the harvest who must be kept happy else disease and famine will strike the people, their crops and their livestock, bringing ruin to all.">
+<CONSTANT CHOICES141 <LTABLE "Become an initiate" "Renounce her worship" "Seek a blessing" "Ask to be cured of disease or poison" "Leave the temple">>
+
 <ROOM STORY141
 	(DESC "141")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT141)
+	(CHOICES CHOICES141)
+	(DESTINATIONS <LTABLE STORY368 STORY261 STORY481 STORY077 STORY010>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT142 "All shipping in and out of Marlock City must come through the offices of the harbormaster. Here you can buy passage to far lands, or even a ship of your own, to fill with cargo and crew.||You can buy a one-way passage on a ship to the following destinations: Yellowport, Wishport, Sorcerers' Isle, Copper Island.||If you buy a ship, you are the captain, and can take it wherever you wish, exploring or trading. You also get to name it. There are three types of ship, and four quality levels of crew. You can also buy cargo for your ship to sell in other ports.||The quality of the ship's crew is average unless you pay to upgrade it. If you already own a ship, you can sell it to the harbourmaster at half the listed prices.||It costs 50 Shards to upgrade a poor crew to average, 100 Shards to upgrade an average crew to good, and 150 Shards to upgrade a good crew to excellent.||Cargo can be bought at Marlock City and sold at other ports for profit. If you own a ship you may buy as many Cargo Units as it has room for. You may also sell cargo, if you have any. Prices quoted are for entire Cargo Units.">
 
 <ROOM STORY142
 	(DESC "142")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT142)
+	(EVENTS STORY142-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY142-EVENTS ()
+	<HARBOUR-MARLOCK>>
 
 <ROOM STORY143
 	(DESC "143")
