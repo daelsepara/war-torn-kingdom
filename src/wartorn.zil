@@ -2132,90 +2132,90 @@
 ; ---------------------------------------------------------------------------------------------
 
 <ROUTINE RESET-CONTAINER (CONTAINER "AUX" ITEM NEXT)
-    <SET ITEM <FIRST? .CONTAINER>>
-    <REPEAT ()
-        <COND (<NOT .ITEM> <RETURN>)>
-        <SET NEXT <NEXT? .ITEM>>
-        <REMOVE .ITEM>
-        <SET ITEM .NEXT>
-    >>
+	<SET ITEM <FIRST? .CONTAINER>>
+	<REPEAT ()
+		<COND (<NOT .ITEM> <RETURN>)>
+		<SET NEXT <NEXT? .ITEM>>
+		<REMOVE .ITEM>
+		<SET ITEM .NEXT>
+	>>
 
 <ROUTINE RESET-BLESSINGS ()
-    <RESET-CONTAINER ,BLESSINGS>>
+	<RESET-CONTAINER ,BLESSINGS>>
 
 <ROUTINE RESET-CARGO ()
-    <RESET-CONTAINER ,CARGO>>
+	<RESET-CONTAINER ,CARGO>>
 
 <ROUTINE RESET-CHOICES ()
-    <SETG CONTINUE-TO-CHOICES T>>
+	<SETG CONTINUE-TO-CHOICES T>>
 
 <ROUTINE RESET-CODEWORDS ()
-    <RESET-CONTAINER ,CODEWORDS>>
+	<RESET-CONTAINER ,CODEWORDS>>
 
 <ROUTINE RESET-GIVEBAG ()
-    <RESET-CONTAINER ,GIVEBAG>>
+	<RESET-CONTAINER ,GIVEBAG>>
 
 <ROUTINE RESET-PLAYER ()
-    <SETG LAST-ROLL 0>
-    <SETG CURRENT-CHARACTER NONE>
-    <SETG CURRENT-VEHICLE NONE>
-    <SETG GOD NONE>
-    <SETG MAX-STAMINA 0>
-    <SETG MONEY 0>
-    <SETG RESURRECTION-ARRANGEMENTS NONE>
-    <SETG STAMINA 0>
-    <RESET-BLESSINGS>
+	<SETG LAST-ROLL 0>
+	<SETG CURRENT-CHARACTER NONE>
+	<SETG CURRENT-VEHICLE NONE>
+	<SETG GOD NONE>
+	<SETG MAX-STAMINA 0>
+	<SETG MONEY 0>
+	<SETG RESURRECTION-ARRANGEMENTS NONE>
+	<SETG STAMINA 0>
+	<RESET-BLESSINGS>
 	<RESET-CARGO>
-    <RESET-CODEWORDS>
-    <RESET-GIVEBAG>
-    <RESET-POSSESSIONS>
-    <RESET-TITLES>
-    <RESET-VEHICLES>>
+	<RESET-CODEWORDS>
+	<RESET-GIVEBAG>
+	<RESET-POSSESSIONS>
+	<RESET-TITLES>
+	<RESET-VEHICLES>>
 
 <ROUTINE RESET-POSSESSIONS ()
-    <RESET-CONTAINER ,PLAYER>>
+	<RESET-CONTAINER ,PLAYER>>
 
 <ROUTINE RESET-SELECTIONS ()
-    <DO (I 1 20) <PUT SELECT-CHOICES .I NONE>>>
+	<DO (I 1 20) <PUT ,SELECT-CHOICES .I NONE>>>
 
 <ROUTINE RESET-TEMP-LIST ("AUX" ITEMS)
-    <SET ITEMS <GET TEMP-LIST 0>>
-    <DO (I 1 .ITEMS)
-        <PUT TEMP-LIST .I NONE>
-    >>
+	<SET ITEMS <GET ,TEMP-LIST 0>>
+	<DO (I 1 .ITEMS)
+		<PUT ,TEMP-LIST .I NONE>
+	>>
 
 <ROUTINE RESET-TITLES ()
-    <RESET-CONTAINER ,TITLES-AND-HONOURS>>
+	<RESET-CONTAINER ,TITLES-AND-HONOURS>>
 
 <ROUTINE RESET-VEHICLES ()
-    <RESET-CONTAINER ,VEHICLES>>
+	<RESET-CONTAINER ,VEHICLES>>
 
 ; "System/Utility/Miscellaneous routines"
 ; ---------------------------------------------------------------------------------------------
 
 <ROUTINE EMPHASIZE (TEXT "OPT" SPEAKER)
-    <COND (.TEXT
-        <CRLF>
-        <HLIGHT ,H-BOLD>
-        <COND (<ASSIGNED? SPEAKER>
-            <TELL .SPEAKER ": ">
-            <HLIGHT 0>
-        )>
-        <TELL .TEXT>
-        <HLIGHT 0>
-        <CRLF>
-    )>>
+	<COND (.TEXT
+		<CRLF>
+		<HLIGHT ,H-BOLD>
+		<COND (<ASSIGNED? SPEAKER>
+			<TELL .SPEAKER ": ">
+			<HLIGHT 0>
+		)>
+		<TELL .TEXT>
+		<HLIGHT 0>
+		<CRLF>
+	)>>
 
 <ROUTINE GET-INDEX (LIST ITEM "AUX" COUNT)
-    <COND (.LIST
-        <SET COUNT <GET .LIST 0>>
-        <DO (I 1 .COUNT)
-            <COND (<EQUAL? .ITEM <GET .LIST .I>>
-                <RETURN .I>
-            )>
-        >
-    )>
-    <RETURN 0>>
+	<COND (.LIST
+		<SET COUNT <GET .LIST 0>>
+		<DO (I 1 .COUNT)
+			<COND (<EQUAL? .ITEM <GET .LIST .I>>
+				<RETURN .I>
+			)>
+		>
+	)>
+	<RETURN 0>>
 
 <ROUTINE GET-NUMBER (MESSAGE "OPT" MINIMUM MAXIMUM "AUX" COUNT)
 	<REPEAT ()
@@ -2237,85 +2237,85 @@
 	<RETURN .COUNT>>
 
 <ROUTINE PRESS-A-KEY ()
-    <TELL CR "[Press a key to continue]" CR>
-    <INPUT 1>
-    <RETURN>>
+	<TELL CR "[Press a key to continue]" CR>
+	<INPUT 1>
+	<RETURN>>
 
 ; "Status Line routines"
 ; ---------------------------------------------------------------------------------------------
 
 <ROUTINE LINE-ERASE (ROW)
-    <CURSET .ROW 1>
-    <DO (I <LOWCORE SCRH> 1 -1) <PRINTC !\ >>
-    <CURSET .ROW 1>>
+	<CURSET .ROW 1>
+	<DO (I <LOWCORE SCRH> 1 -1) <PRINTC !\ >>
+	<CURSET .ROW 1>>
 
 <ROUTINE UPDATE-STATUS-LINE ("AUX" WIDTH)
-    <SPLIT 2>
-    <SCREEN 1>
-    <SET WIDTH <LOWCORE SCRH>>
-    <HLIGHT ,H-INVERSE>
-    <LINE-ERASE 1>
-    <COND (,HERE
-        <CURSET 1 1>
-        <TELL D ,HERE>
-        <COND (<G? <GETP ,HERE ,P?VISITS> 1>
-            <TELL " (Visited " N <GETP ,HERE ,P?VISITS> " times)">
-        )>
-        <COND (,CURRENT-CHARACTER
-            <COND (,CURRENT-VEHICLE <TELL " " D ,CURRENT-VEHICLE>)>
-            <CURSET 1 <- .WIDTH 20>>
-            <TELL "Stamina: " N ,STAMINA "/" N ,MAX-STAMINA>
-            <LINE-ERASE 2>
-            <CURSET 2 1>
-            <PRINT-CAP-OBJ ,CURRENT-CHARACTER>
-            <CURSET 2 <- .WIDTH 20>>
-            <PRINT-CAP-OBJ ,CURRENCY>
-            <COND (<G? ,MONEY 9999>
-                <TELL ": lots">
-            )(ELSE
-                <TELL ": " N ,MONEY>
-            )>
-        )>
-    )>
-    <SCREEN 0>
-    <HLIGHT 0>>
+	<SPLIT 2>
+	<SCREEN 1>
+	<SET WIDTH <LOWCORE SCRH>>
+	<HLIGHT ,H-INVERSE>
+	<LINE-ERASE 1>
+	<COND (,HERE
+		<CURSET 1 1>
+		<TELL D ,HERE>
+		<COND (<G? <GETP ,HERE ,P?VISITS> 1>
+			<TELL " (Visited " N <GETP ,HERE ,P?VISITS> " times)">
+		)>
+		<COND (,CURRENT-CHARACTER
+			<COND (,CURRENT-VEHICLE <TELL " " D ,CURRENT-VEHICLE>)>
+			<CURSET 1 <- .WIDTH 20>>
+			<TELL "Stamina: " N ,STAMINA "/" N ,MAX-STAMINA>
+			<LINE-ERASE 2>
+			<CURSET 2 1>
+			<PRINT-CAP-OBJ ,CURRENT-CHARACTER>
+			<CURSET 2 <- .WIDTH 20>>
+			<PRINT-CAP-OBJ ,CURRENCY>
+			<COND (<G? ,MONEY 9999>
+				<TELL ": lots">
+			)(ELSE
+				<TELL ": " N ,MONEY>
+			)>
+		)>
+	)>
+	<SCREEN 0>
+	<HLIGHT 0>>
 
 ; "Gamebook loop routines"
 ; ---------------------------------------------------------------------------------------------
 
 <ROUTINE GAMES-UP ("OPT" TEXT "AUX" W)
-    <COND (.TEXT <TELL .TEXT CR>)>
-    <CRLF>
-    <PRINT-GAME-OVER>
-    <CRLF>
-    <REPEAT PROMPT ()
-        <PRINTI "Would you like to RESTART or QUIT? > ">
-        <REPEAT ()
-            <READLINE>
-            <SET W <AND <GETB ,LEXBUF 1> <GET ,LEXBUF 1>>>
-            <COND (<EQUAL? .W ,W?RESTART>
-                <RESTART>
-            )(<EQUAL? .W ,W?QUIT>
-                <QUIT-MESSAGE>
-            )(T
-                <TELL CR "(Please type RESTART or QUIT) > ">
-            )>
-        >
-    >>
+	<COND (.TEXT <TELL .TEXT CR>)>
+	<CRLF>
+	<PRINT-GAME-OVER>
+	<CRLF>
+	<REPEAT PROMPT ()
+		<PRINTI "Would you like to RESTART or QUIT? > ">
+		<REPEAT ()
+			<READLINE>
+			<SET W <AND <GETB ,LEXBUF 1> <GET ,LEXBUF 1>>>
+			<COND (<EQUAL? .W ,W?RESTART>
+				<RESTART>
+			)(<EQUAL? .W ,W?QUIT>
+				<QUIT-MESSAGE>
+			)(T
+				<TELL CR "(Please type RESTART or QUIT) > ">
+			)>
+		>
+	>>
 
 <ROUTINE PRINT-ENDING (MESSAGE "OPT" COLOR)
-    <COND (<NOT .COLOR> <SET COLOR 1>)>
-    <CRLF>
-    <HLIGHT ,H-BOLD>
-    <COLOR .COLOR 0>
-    <TELL .MESSAGE>
-    <COLOR 1 0>
-    <HLIGHT 0>
-    <GAMES-UP>>
+	<COND (<NOT .COLOR> <SET COLOR 1>)>
+	<CRLF>
+	<HLIGHT ,H-BOLD>
+	<COLOR .COLOR 0>
+	<TELL .MESSAGE>
+	<COLOR 1 0>
+	<HLIGHT 0>
+	<GAMES-UP>>
 
 <ROUTINE QUIT-MESSAGE ()
-    <TELL CR "Thanks for playing" ,PERIOD-CR>
-    <QUIT>>
+	<TELL CR "Thanks for playing" ,PERIOD-CR>
+	<QUIT>>
 
 ; "Characters for War-Torn Kingdom"
 ; ---------------------------------------------------------------------------------------------
@@ -2324,187 +2324,187 @@
 <CONSTANT PROFESSIONS <LTABLE PROFESSION-PRIEST PROFESSION-MAGE PROFESSION-ROGUE PROFESSION-TROUBADOUR PROFESSION-WARRIOR PROFESSION-WAYFARER>>
 
 <OBJECT CHARACTER-LIANA
-    (DESC "Liana The Swift")
-    (LDESC "Liana prefers to make her home in mountain grottos and woodland groves rather than in the squalid streets of cities. She has the agility of a gazelle, the cunning of a fox and the ferocity of an eagle. She has heard of a City of Trees, deep within the forest of the Isle of Druids.")
-    (RANK 1)
-    (PROFESSION PROFESSION-WAYFARER)
-    (STAMINA 9)
-    (MONEY 16)
-    (CHARISMA 2)
-    (COMBAT 5)
-    (MAGIC 2)
-    (SANCTITY 3)
-    (SCOUTING 6)
-    (THIEVERY 4)
-    (POSSESSIONS <LTABLE SPEAR LEATHER-JERKIN MAP>)
-    (FLAGS PERSONBIT)>
+	(DESC "Liana The Swift")
+	(LDESC "Liana prefers to make her home in mountain grottos and woodland groves rather than in the squalid streets of cities. She has the agility of a gazelle, the cunning of a fox and the ferocity of an eagle. She has heard of a City of Trees, deep within the forest of the Isle of Druids.")
+	(RANK 1)
+	(PROFESSION PROFESSION-WAYFARER)
+	(STAMINA 9)
+	(MONEY 16)
+	(CHARISMA 2)
+	(COMBAT 5)
+	(MAGIC 2)
+	(SANCTITY 3)
+	(SCOUTING 6)
+	(THIEVERY 4)
+	(POSSESSIONS <LTABLE SPEAR LEATHER-JERKIN MAP>)
+	(FLAGS PERSONBIT)>
 
 <OBJECT CHARACTER-CHALOR
-    (DESC "Chalor The Exiled One")
-    (LDESC "Chalor is an outcast by choice, shunning his native land and the family who spurned him, driven by a burning desire for secret knowledge. His goal is to become one of the mightiest wizards of the world, and nothing will stand in his way. For now, he is looking for the Gold Dust tavern in Yellowport, where adventure awaits.")
-    (RANK 1)
-    (PROFESSION PROFESSION-MAGE)
-    (STAMINA 9)
-    (MONEY 16)
-    (CHARISMA 2)
-    (COMBAT 2)
-    (MAGIC 6)
-    (SANCTITY 1)
-    (SCOUTING 5)
-    (THIEVERY 3)
-    (POSSESSIONS <LTABLE STAFF LEATHER-JERKIN MAP>)
-    (FLAGS PERSONBIT)>
+	(DESC "Chalor The Exiled One")
+	(LDESC "Chalor is an outcast by choice, shunning his native land and the family who spurned him, driven by a burning desire for secret knowledge. His goal is to become one of the mightiest wizards of the world, and nothing will stand in his way. For now, he is looking for the Gold Dust tavern in Yellowport, where adventure awaits.")
+	(RANK 1)
+	(PROFESSION PROFESSION-MAGE)
+	(STAMINA 9)
+	(MONEY 16)
+	(CHARISMA 2)
+	(COMBAT 2)
+	(MAGIC 6)
+	(SANCTITY 1)
+	(SCOUTING 5)
+	(THIEVERY 3)
+	(POSSESSIONS <LTABLE STAFF LEATHER-JERKIN MAP>)
+	(FLAGS PERSONBIT)>
 
 <OBJECT CHARACTER-ANDRIEL
-    (DESC "Andriel The Hammer")
-    (LDESC "Andriel seeks frame through adventure and the glory of battle. He left his homeland when an extended outbreak of peace made his skills redundant there. He is blunt and outspoken, but scrupulously follows the warrior's code. He knows that the merchants' guild in Yellowport needs assistance.")
-    (RANK 1)
-    (PROFESSION PROFESSION-WARRIOR)
-    (STAMINA 9)
-    (MONEY 16)
-    (CHARISMA 3)
-    (COMBAT 6)
-    (MAGIC 2)
-    (SANCTITY 4)
-    (SCOUTING 3)
-    (THIEVERY 2)
-    (POSSESSIONS <LTABLE BATTLE-AXE LEATHER-JERKIN MAP>)
-    (FLAGS PERSONBIT)>
+	(DESC "Andriel The Hammer")
+	(LDESC "Andriel seeks frame through adventure and the glory of battle. He left his homeland when an extended outbreak of peace made his skills redundant there. He is blunt and outspoken, but scrupulously follows the warrior's code. He knows that the merchants' guild in Yellowport needs assistance.")
+	(RANK 1)
+	(PROFESSION PROFESSION-WARRIOR)
+	(STAMINA 9)
+	(MONEY 16)
+	(CHARISMA 3)
+	(COMBAT 6)
+	(MAGIC 2)
+	(SANCTITY 4)
+	(SCOUTING 3)
+	(THIEVERY 2)
+	(POSSESSIONS <LTABLE BATTLE-AXE LEATHER-JERKIN MAP>)
+	(FLAGS PERSONBIT)>
 
 <OBJECT CHARACTER-MARANA
-    (DESC "Marana Fireheart")
-    (LDESC "Marana is a fiercely independent woman who grew up in the backstreets of her home town. Forced to flee because she was too active in her chosen profession, she has come to new lands to seek her fortune. Devious and resourceful, she can break in almost anywhere. She has heard that the temple of Sig in Marlock City needs the services of a rogue.")
-    (RANK 1)
-    (PROFESSION PROFESSION-ROGUE)
-    (STAMINA 9)
-    (MONEY 16)
-    (CHARISMA 5)
-    (COMBAT 4)
-    (MAGIC 4)
-    (SANCTITY 1)
-    (SCOUTING 2)
-    (THIEVERY 6)
-    (POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
-    (FLAGS PERSONBIT)>
+	(DESC "Marana Fireheart")
+	(LDESC "Marana is a fiercely independent woman who grew up in the backstreets of her home town. Forced to flee because she was too active in her chosen profession, she has come to new lands to seek her fortune. Devious and resourceful, she can break in almost anywhere. She has heard that the temple of Sig in Marlock City needs the services of a rogue.")
+	(RANK 1)
+	(PROFESSION PROFESSION-ROGUE)
+	(STAMINA 9)
+	(MONEY 16)
+	(CHARISMA 5)
+	(COMBAT 4)
+	(MAGIC 4)
+	(SANCTITY 1)
+	(SCOUTING 2)
+	(THIEVERY 6)
+	(POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
+	(FLAGS PERSONBIT)>
 
 <OBJECT CHARACTER-IGNATIUS
-    (DESC "Ignatius The Devout")
-    (LDESC "Ignatius is a traveller whose desire is to learn all he can about the deities of the Fabled Lands. His strong beliefs give his sermons added zest, and he has enthralled many a crowd with his impassioned speeches. He is looking for the house of priests in Marlock City.")
-    (RANK 1)
-    (PROFESSION PROFESSION-PRIEST)
-    (STAMINA 9)
-    (MONEY 16)
-    (CHARISMA 4)
-    (COMBAT 2)
-    (MAGIC 3)
-    (SANCTITY 6)
-    (SCOUTING 4)
-    (THIEVERY 2)
-    (POSSESSIONS <LTABLE MACE LEATHER-JERKIN MAP>)
-    (FLAGS PERSONBIT)>
+	(DESC "Ignatius The Devout")
+	(LDESC "Ignatius is a traveller whose desire is to learn all he can about the deities of the Fabled Lands. His strong beliefs give his sermons added zest, and he has enthralled many a crowd with his impassioned speeches. He is looking for the house of priests in Marlock City.")
+	(RANK 1)
+	(PROFESSION PROFESSION-PRIEST)
+	(STAMINA 9)
+	(MONEY 16)
+	(CHARISMA 4)
+	(COMBAT 2)
+	(MAGIC 3)
+	(SANCTITY 6)
+	(SCOUTING 4)
+	(THIEVERY 2)
+	(POSSESSIONS <LTABLE MACE LEATHER-JERKIN MAP>)
+	(FLAGS PERSONBIT)>
 
 <OBJECT CHARACTER-ASTARIEL
-    (DESC "Astariel Skysong")
-    (LDESC "Astariel has the wanderlust, and chafes if he has to remain in one place for any length of time. He enjoys the freedom of the open road and the thought that he never knows what adventures each new day will bring. He lives by his wits and is a familiar figure at tavern firesides, where he regales travellers with his tales.")
-    (RANK 1)
-    (PROFESSION PROFESSION-TROUBADOUR)
-    (STAMINA 9)
-    (MONEY 16)
-    (CHARISMA 6)
-    (COMBAT 3)
-    (MAGIC 4)
-    (SANCTITY 3)
-    (SCOUTING 2)
-    (THIEVERY 4)
-    (POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
-    (FLAGS PERSONBIT)>
+	(DESC "Astariel Skysong")
+	(LDESC "Astariel has the wanderlust, and chafes if he has to remain in one place for any length of time. He enjoys the freedom of the open road and the thought that he never knows what adventures each new day will bring. He lives by his wits and is a familiar figure at tavern firesides, where he regales travellers with his tales.")
+	(RANK 1)
+	(PROFESSION PROFESSION-TROUBADOUR)
+	(STAMINA 9)
+	(MONEY 16)
+	(CHARISMA 6)
+	(COMBAT 3)
+	(MAGIC 4)
+	(SANCTITY 3)
+	(SCOUTING 2)
+	(THIEVERY 4)
+	(POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
+	(FLAGS PERSONBIT)>
 
 ; "Professions and default stats"
 ; ---------------------------------------------------------------------------------------------
 
 <OBJECT PROFESSION-PRIEST
-    (DESC "Priest")
-    (RANK 1)
-    (STAMINA 9)
-    (MONEY 16)
-    (CHARISMA 4)
-    (COMBAT 2)
-    (MAGIC 3)
-    (SANCTITY 6)
-    (SCOUTING 4)
-    (THIEVERY 2)
-    (POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
-    (FLAGS PERSONBIT)>
+	(DESC "Priest")
+	(RANK 1)
+	(STAMINA 9)
+	(MONEY 16)
+	(CHARISMA 4)
+	(COMBAT 2)
+	(MAGIC 3)
+	(SANCTITY 6)
+	(SCOUTING 4)
+	(THIEVERY 2)
+	(POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
+	(FLAGS PERSONBIT)>
 
 <OBJECT PROFESSION-MAGE
-    (DESC "Mage")
-    (RANK 1)
-    (STAMINA 9)
-    (MONEY 16)
-    (CHARISMA 2)
-    (COMBAT 2)
-    (MAGIC 6)
-    (SANCTITY 1)
-    (SCOUTING 5)
-    (THIEVERY 3)
-    (POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
-    (FLAGS PERSONBIT)>
+	(DESC "Mage")
+	(RANK 1)
+	(STAMINA 9)
+	(MONEY 16)
+	(CHARISMA 2)
+	(COMBAT 2)
+	(MAGIC 6)
+	(SANCTITY 1)
+	(SCOUTING 5)
+	(THIEVERY 3)
+	(POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
+	(FLAGS PERSONBIT)>
 
 <OBJECT PROFESSION-ROGUE
-    (DESC "Rouge")
-    (RANK 1)
-    (STAMINA 9)
-    (MONEY 16)
-    (CHARISMA 5)
-    (COMBAT 4)
-    (MAGIC 4)
-    (SANCTITY 1)
-    (SCOUTING 2)
-    (THIEVERY 6)
-    (POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
-    (FLAGS PERSONBIT)>
+	(DESC "Rouge")
+	(RANK 1)
+	(STAMINA 9)
+	(MONEY 16)
+	(CHARISMA 5)
+	(COMBAT 4)
+	(MAGIC 4)
+	(SANCTITY 1)
+	(SCOUTING 2)
+	(THIEVERY 6)
+	(POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
+	(FLAGS PERSONBIT)>
 
 <OBJECT PROFESSION-TROUBADOUR
-    (DESC "Troubadour")
-    (RANK 1)
-    (STAMINA 9)
-    (MONEY 16)
-    (CHARISMA 6)
-    (COMBAT 3)
-    (MAGIC 4)
-    (SANCTITY 3)
-    (SCOUTING 2)
-    (THIEVERY 4)
-    (POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
-    (FLAGS PERSONBIT)>
+	(DESC "Troubadour")
+	(RANK 1)
+	(STAMINA 9)
+	(MONEY 16)
+	(CHARISMA 6)
+	(COMBAT 3)
+	(MAGIC 4)
+	(SANCTITY 3)
+	(SCOUTING 2)
+	(THIEVERY 4)
+	(POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
+	(FLAGS PERSONBIT)>
 
 <OBJECT PROFESSION-WARRIOR
-    (DESC "Warrior")
-    (RANK 1)
-    (STAMINA 9)
-    (MONEY 16)
-    (CHARISMA 3)
-    (COMBAT 6)
-    (MAGIC 2)
-    (SANCTITY 4)
-    (SCOUTING 3)
-    (THIEVERY 2)
-    (POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
-    (FLAGS PERSONBIT)>
+	(DESC "Warrior")
+	(RANK 1)
+	(STAMINA 9)
+	(MONEY 16)
+	(CHARISMA 3)
+	(COMBAT 6)
+	(MAGIC 2)
+	(SANCTITY 4)
+	(SCOUTING 3)
+	(THIEVERY 2)
+	(POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
+	(FLAGS PERSONBIT)>
 
 <OBJECT PROFESSION-WAYFARER
-    (DESC "Wayfarer")
-    (RANK 1)
-    (STAMINA 9)
-    (MONEY 16)
-    (CHARISMA 2)
-    (COMBAT 5)
-    (MAGIC 2)
-    (SANCTITY 3)
-    (SCOUTING 6)
-    (THIEVERY 4)
-    (POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
-    (FLAGS PERSONBIT)>
+	(DESC "Wayfarer")
+	(RANK 1)
+	(STAMINA 9)
+	(MONEY 16)
+	(CHARISMA 2)
+	(COMBAT 5)
+	(MAGIC 2)
+	(SANCTITY 3)
+	(SCOUTING 6)
+	(THIEVERY 4)
+	(POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
+	(FLAGS PERSONBIT)>
 
 ; "Codewords for War-Torn-Kingdom"
 ; ---------------------------------------------------------------------------------------------
@@ -2532,277 +2532,275 @@
 <OBJECT CODEWORD-DELIVER (DESC "Deliver")>
 <OBJECT CODEWORD-ELDRITCH (DESC "Eldritch")>
 
-; "Objects for War-Torn Kingdom"
-
 ; "Weapons"
 ; ---------------------------------------------------------------------------------------------
 
 <OBJECT BATTLE-AXE
-    (DESC "battle-axe")
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "battle-axe")
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT BATTLE-AXE1
-    (DESC "battle-axe")
-    (COMBAT 1)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "battle-axe")
+	(COMBAT 1)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT BATTLE-AXE2
-    (DESC "battle-axe")
-    (COMBAT 2)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "battle-axe")
+	(COMBAT 2)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT BATTLE-AXE3
-    (DESC "battle-axe")
-    (COMBAT 3)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "battle-axe")
+	(COMBAT 3)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT MACE
-    (DESC "mace")
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "mace")
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT MACE1
-    (DESC "mace")
-    (COMBAT 1)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "mace")
+	(COMBAT 1)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT MACE2
-    (DESC "mace")
-    (COMBAT 2)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "mace")
+	(COMBAT 2)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT MACE3
-    (DESC "mace")
-    (COMBAT 3)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "mace")
+	(COMBAT 3)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT SPEAR
-    (DESC "spear")
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "spear")
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT SPEAR1
-    (DESC "spear")
-    (COMBAT 1)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "spear")
+	(COMBAT 1)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT SPEAR2
-    (DESC "spear")
-    (COMBAT 2)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "spear")
+	(COMBAT 2)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT SPEAR3
-    (DESC "spear")
-    (COMBAT 3)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "spear")
+	(COMBAT 3)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT STAFF
-    (DESC "staff")
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "staff")
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT STAFF1
-    (DESC "staff")
-    (COMBAT 1)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "staff")
+	(COMBAT 1)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT STAFF2
-    (DESC "staff")
-    (COMBAT 2)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "staff")
+	(COMBAT 2)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT STAFF3
-    (DESC "staff")
-    (COMBAT 3)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "staff")
+	(COMBAT 3)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT SWORD
-    (DESC "sword")
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "sword")
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT SWORD1
-    (DESC "sword")
-    (COMBAT 1)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "sword")
+	(COMBAT 1)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT SWORD2
-    (DESC "sword")
-    (COMBAT 2)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "sword")
+	(COMBAT 2)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT SWORD3
-    (DESC "sword")
-    (COMBAT 3)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "sword")
+	(COMBAT 3)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT TRIDENT
-    (DESC "trident")
-    (COMBAT 1)
-    (FLAGS TAKEBIT WEAPONBIT)>
+	(DESC "trident")
+	(COMBAT 1)
+	(FLAGS TAKEBIT WEAPONBIT)>
 
 ; "Armours"
 ; ---------------------------------------------------------------------------------------------
 
 <OBJECT CHAIN-MAIL
-    (DESC "chain mail")
-    (DEFENSE 3)
-    (FLAGS TAKEBIT WEARBIT)>
+	(DESC "chain mail")
+	(DEFENSE 3)
+	(FLAGS TAKEBIT WEARBIT)>
 
 <OBJECT HEAVY-PLATE
-    (DESC "heavy plate")
-    (DEFENSE 6)
-    (FLAGS TAKEBIT WEARBIT)>
+	(DESC "heavy plate")
+	(DEFENSE 6)
+	(FLAGS TAKEBIT WEARBIT)>
 
 <OBJECT LEATHER-ARMOUR
-    (DESC "leather armour")
-    (DEFENSE 1)
-    (FLAGS TAKEBIT WEARBIT)>
+	(DESC "leather armour")
+	(DEFENSE 1)
+	(FLAGS TAKEBIT WEARBIT)>
 
 <OBJECT LEATHER-JERKIN
-    (DESC "leather jerkin")
-    (DEFENSE 1)
-    (FLAGS TAKEBIT WEARBIT WORNBIT)>
+	(DESC "leather jerkin")
+	(DEFENSE 1)
+	(FLAGS TAKEBIT WEARBIT WORNBIT)>
 
 <OBJECT PLATE-ARMOUR
-    (DESC "plate armour")
-    (DEFENSE 5)
-    (FLAGS TAKEBIT WEARBIT)>
+	(DESC "plate armour")
+	(DEFENSE 5)
+	(FLAGS TAKEBIT WEARBIT)>
 
 <OBJECT RING-MAIL
-    (DESC "ring mail")
-    (DEFENSE 2)
-    (FLAGS TAKEBIT WEARBIT)>
+	(DESC "ring mail")
+	(DEFENSE 2)
+	(FLAGS TAKEBIT WEARBIT)>
 
 <OBJECT SPLINT-ARMOUR
-    (DESC "splint armour")
-    (DEFENSE 4)
-    (FLAGS TAKEBIT WEARBIT)>
+	(DESC "splint armour")
+	(DEFENSE 4)
+	(FLAGS TAKEBIT WEARBIT)>
 
 ; Wands
 ; ---------------------------------------------------------------------------------------------
 
 <OBJECT AMBER-WAND
-    (DESC "amber wand")
-    (MAGIC 1)
-    (FLAGS TAKEBIT)>
+	(DESC "amber wand")
+	(MAGIC 1)
+	(FLAGS TAKEBIT)>
 
 <OBJECT COBALT-WAND
-    (DESC "cobalt wand")
-    (MAGIC 3)
-    (FLAGS TAKEBIT)>
+	(DESC "cobalt wand")
+	(MAGIC 3)
+	(FLAGS TAKEBIT)>
 
 <OBJECT EBONY-WAND
-    (DESC "ebony wand")
-    (MAGIC 2)
-    (FLAGS TAKEBIT)>
+	(DESC "ebony wand")
+	(MAGIC 2)
+	(FLAGS TAKEBIT)>
 
 ; "other objects"
 ; ---------------------------------------------------------------------------------------------
 
 <OBJECT BAG-OF-PEARLS
-    (DESC "bag of pearls")
-    (FLAGS TAKEBIT)>
+	(DESC "bag of pearls")
+	(FLAGS TAKEBIT)>
 
 <OBJECT BOOK-OF-THE-SEVEN-SAGES
-    (DESC "Book of the Seven Sages")
-    (FLAGS TAKEBIT)>
+	(DESC "Book of the Seven Sages")
+	(FLAGS TAKEBIT)>
 
 <OBJECT CLIMBING-GEAR
-    (DESC "climbing gear")
-    (FLAGS TAKEBIT)>
+	(DESC "climbing gear")
+	(FLAGS TAKEBIT)>
 
 <OBJECT CODED-MISSIVE
-    (DESC "coded missive")
-    (FLAGS TAKEBIT)>
+	(DESC "coded missive")
+	(FLAGS TAKEBIT)>
 
 <OBJECT COMPASS
-    (DESC "compass")
-    (SCOUTING 1)
-    (FLAGS TAKEBIT)>
+	(DESC "compass")
+	(SCOUTING 1)
+	(FLAGS TAKEBIT)>
 
 <OBJECT FLAME-OPAL-EYE
-    (DESC "flame opal eye")
-    (FLAGS TAKEBIT)>
+	(DESC "flame opal eye")
+	(FLAGS TAKEBIT)>
 
 <OBJECT GOLDEN-NET
-    (DESC "golden net")
-    (FLAGS TAKEBIT)>
+	(DESC "golden net")
+	(FLAGS TAKEBIT)>
 
 <OBJECT HOLY-SYMBOL
-    (DESC "holy symbol")
-    (SANCTITY 1)
-    (FLAGS TAKEBIT)>
+	(DESC "holy symbol")
+	(SANCTITY 1)
+	(FLAGS TAKEBIT)>
 
 <OBJECT INK-SAC
-    (DESC "ink sac")
-    (FLAGS TAKEBIT)>
+	(DESC "ink sac")
+	(FLAGS TAKEBIT)>
 
 <OBJECT LANTERN
-    (DESC "lantern")
-    (FLAGS TAKEBIT)>
+	(DESC "lantern")
+	(FLAGS TAKEBIT)>
 
 <OBJECT LOCKPICKS
-    (DESC "lockpicks")
-    (THIEVERY 1)
-    (FLAGS TAKEBIT)>
+	(DESC "lockpicks")
+	(THIEVERY 1)
+	(FLAGS TAKEBIT)>
 
 <OBJECT MANDOLIN
-    (DESC "mandolin")
-    (CHARISMA 1)
-    (FLAGS TAKEBIT)>
+	(DESC "mandolin")
+	(CHARISMA 1)
+	(FLAGS TAKEBIT)>
 
 <OBJECT MAP
-    (DESC "map")
-    (FLAGS TAKEBIT)>
+	(DESC "map")
+	(FLAGS TAKEBIT)>
 
 <OBJECT OFFICERS-PASS
-    (DESC "officer's pass")
-    (FLAGS TAKEBIT)>
+	(DESC "officer's pass")
+	(FLAGS TAKEBIT)>
 
 <OBJECT POTION-OF-HEALING
-    (DESC "potion of healing")
-    (FLAGS TAKEBIT)>
+	(DESC "potion of healing")
+	(FLAGS TAKEBIT)>
 
 <OBJECT ROPE
-    (DESC "rope")
-    (FLAGS TAKEBIT)>
+	(DESC "rope")
+	(FLAGS TAKEBIT)>
 
 <OBJECT RAT-POISON
-    (DESC "rat poison")
-    (FLAGS TAKEBIT)>
+	(DESC "rat poison")
+	(FLAGS TAKEBIT)>
 
 <OBJECT SALT-AND-IRON-FILINGS
-    (DESC "salt and iron filings")
-    (FLAGS TAKEBIT)>
+	(DESC "salt and iron filings")
+	(FLAGS TAKEBIT)>
 
 <OBJECT SCROLL-OF-EBRON
-    (DESC "scroll of Ebron")
-    (FLAGS TAKEBIT)>
+	(DESC "scroll of Ebron")
+	(FLAGS TAKEBIT)>
 
 <OBJECT SILVER-NUGGET
-    (DESC "silver nugget")
-    (FLAGS TAKEBIT)>
+	(DESC "silver nugget")
+	(FLAGS TAKEBIT)>
 
 <OBJECT SMOLDER-FISH
-    (DESC "smolder fish")
-    (FLAGS TAKEBIT)>
+	(DESC "smolder fish")
+	(FLAGS TAKEBIT)>
 
 <OBJECT TREASURE-MAP
-    (DESC "treasure map")
-    (FLAGS TAKEBIT)>
+	(DESC "treasure map")
+	(FLAGS TAKEBIT)>
 
 <OBJECT VERDIGRIS-KEY
-    (DESC "verdigris key")
-    (FLAGS TAKEBIT)>
+	(DESC "verdigris key")
+	(FLAGS TAKEBIT)>
 
 <OBJECT WOLF-PELT
-    (DESC "wolf pelt")
-    (FLAGS TAKEBIT)>
+	(DESC "wolf pelt")
+	(FLAGS TAKEBIT)>
 
 ; "Resurrections"
 ; ---------------------------------------------------------------------------------------------
 
 <OBJECT RESURRECTION-TYRNAI
-    (DESC "Temple of Tyrnai, The War-Torn Kingdom")
-    (CONTINUE STORY640)
-    (FLAGS TAKEBIT)>
+	(DESC "Temple of Tyrnai, The War-Torn Kingdom")
+	(CONTINUE STORY640)
+	(FLAGS TAKEBIT)>
 
 ; GODS
 ; ---------------------------------------------------------------------------------------------
@@ -2835,97 +2833,94 @@
 <CONSTANT CONDITION-EXCELLENT 2>
 
 <OBJECT SHIP-BARQUE
-    (DESC "barque")
-    (CONDITION CONDITION-EXCELLENT)>
+	(DESC "barque")
+	(CONDITION CONDITION-EXCELLENT)>
 
 <OBJECT SHIP-BRIGANTINE
-    (DESC "brigantine")
-    (CONDITION CONDITION-EXCELLENT)>
+	(DESC "brigantine")
+	(CONDITION CONDITION-EXCELLENT)>
 
 <OBJECT SHIP-GALLEON
-    (DESC "galleon")
-    (CONDITION CONDITION-EXCELLENT)>
+	(DESC "galleon")
+	(CONDITION CONDITION-EXCELLENT)>
 
 ; "Disease/Poison EFFECTS (CHARISMA COMBAT MAGIC SANCTITY SCOUTING THIEVERY)"
 ; ---------------------------------------------------------------------------------------------
 
 <OBJECT DISEASE-GHOULBITE
-    (DESC "ghoulbite")
-    (EFFECTS <LTABLE -1 -1 0 -1 0 0>)>
+	(DESC "ghoulbite")
+	(EFFECTS <LTABLE -1 -1 0 -1 0 0>)>
 
 <OBJECT POISON-COMBAT
-	(DESC "COMBAT")
+	(DESC "poison")
 	(EFFECTS <LTABLE 0 -1 0 0 0 0>)>
 
 ; "Monsters"
 ; ---------------------------------------------------------------------------------------------
 
 <OBJECT MONSTER-CULTIST
-    (DESC "Cultist")
-    (COMBAT 3)
-    (DEFENSE 5)
-    (STAMINA 7)>
+	(DESC "Cultist")
+	(COMBAT 3)
+	(DEFENSE 5)
+	(STAMINA 7)>
 
 <OBJECT MONSTER-GHOUL
-    (DESC "Ghoul")
-    (COMBAT 3)
-    (DEFENSE 7)
-    (STAMINA 15)>
+	(DESC "Ghoul")
+	(COMBAT 3)
+	(DEFENSE 7)
+	(STAMINA 15)>
 
 <OBJECT MONSTER-GOLEM
-    (DESC "Golem")
-    (COMBAT 5)
-    (DEFENSE 10)
-    (STAMINA 10)>
+	(DESC "Golem")
+	(COMBAT 5)
+	(DEFENSE 10)
+	(STAMINA 10)>
 
 <OBJECT MONSTER-MAD-PILGRIM
-    (DESC "Mad pilgrim")
-    (COMBAT 3)
-    (DEFENSE 5)
-    (STAMINA 6)>
+	(DESC "Mad pilgrim")
+	(COMBAT 3)
+	(DEFENSE 5)
+	(STAMINA 6)>
 
 <OBJECT MONSTER-MILITIAMAN
-    (DESC "Militiaman")
-    (COMBAT 4)
-    (DEFENSE 7)
-    (STAMINA 5)>
+	(DESC "Militiaman")
+	(COMBAT 4)
+	(DEFENSE 7)
+	(STAMINA 5)>
 
 <OBJECT MONSTER-THUG
-    (DESC "Thug")
-    (COMBAT 3)
-    (DEFENSE 6)
-    (STAMINA 13)>
+	(DESC "Thug")
+	(COMBAT 3)
+	(DEFENSE 6)
+	(STAMINA 13)>
 
 <OBJECT MONSTER-TOMB-GUARDIAN
-    (DESC "Tomb Guardian")
-    (COMBAT 6)
-    (DEFENSE 8)
-    (STAMINA 12)>
+	(DESC "Tomb Guardian")
+	(COMBAT 6)
+	(DEFENSE 8)
+	(STAMINA 12)>
 
 <OBJECT MONSTER-TWO-RATMEN
-    (DESC "Two Ratmen")
-    (COMBAT 6)
-    (DEFENSE 9)
-    (STAMINA 9)
-    (FLAGS PLURALBIT)>
+	(DESC "Two Ratmen")
+	(COMBAT 6)
+	(DEFENSE 9)
+	(STAMINA 9)
+	(FLAGS PLURALBIT)>
 
 <OBJECT MONSTER-WOLF
-    (DESC "Wolf")
-    (COMBAT 3)
-    (DEFENSE 5)
-    (STAMINA 7)>
+	(DESC "Wolf")
+	(COMBAT 3)
+	(DEFENSE 5)
+	(STAMINA 7)>
 
 ; "Titles and Honours for War-Torn Kingdom"
 ; ---------------------------------------------------------------------------------------------
 
-<OBJECT TITLE-PROTECTOR-SOKARA
-	(DESC "Protector of Sokara")>
+<OBJECT TITLE-PROTECTOR-SOKARA (DESC "Protector of Sokara")>
 
-<OBJECT TITLE-ILLUMINATE-MOLHERN
-	(DESC "Illuminate of Molhern")>
+<OBJECT TITLE-ILLUMINATE-MOLHERN (DESC "Illuminate of Molhern")>
 
-<OBJECT TITLE-UNSPEAKABLE-CULTIST
-	(DESC "Unspeakable Cultist")
+<OBJECT TITLE-UNSPEAKABLE-CULTIST (DESC "Unspeakable Cultist")
 	(EFFECTS <LTABLE 0 0 0 -1 0 0>)>
 
 ; "Abilities and Combat"
@@ -2935,359 +2930,350 @@
 
 <ROUTINE APPLY-EFFECTS (ABILITY "OPT" CONTAINER "AUX" ITEM (EFFECTS NONE) (SCORE 0))
 	<COND (<NOT .CONTAINER> <SET CONTAINER ,AILMENTS>)>
-    <SET SCORE 0>
-    <COND (<G? <COUNT-CONTAINER .CONTAINER> 0>
-        <SET ITEM <FIRST? .CONTAINER>>
-        <REPEAT ()
-            <COND (<NOT .ITEM> <RETURN>)>
-            <SET EFFECTS <GETP .ITEM ,P?EFFECTS>>
-            <COND (.EFFECTS
-                <SET SCORE <+ .SCORE <GET .EFFECTS .ABILITY>>>
-            )>
-            <SET ITEM <NEXT? .ITEM>>
-        >
-    )>
-    <RETURN .SCORE>>
+	<SET SCORE 0>
+	<COND (<G? <COUNT-CONTAINER .CONTAINER> 0>
+		<SET ITEM <FIRST? .CONTAINER>>
+		<REPEAT ()
+			<COND (<NOT .ITEM> <RETURN>)>
+			<SET EFFECTS <GETP .ITEM ,P?EFFECTS>>
+			<COND (.EFFECTS <SET SCORE <+ .SCORE <GET .EFFECTS .ABILITY>>>)>
+			<SET ITEM <NEXT? .ITEM>>
+		>
+	)>
+	<RETURN .SCORE>>
 
 ; "Calculates ability scores"
+
 <ROUTINE CALCULATE-ABILITY (CHARACTER ABILITY "OPT" CONTAINER "AUX" SCORE PROPERTY)
-    <COND (<NOT .CONTAINER> <SET .CONTAINER ,PLAYER>)>
-    <SET PROPERTY <GET-ABILITY-PROPERTY .ABILITY>>
-    <SET SCORE <GETP .CHARACTER .PROPERTY>>
-    <COND (<EQUAL? .ABILITY ABILITY-COMBAT>
-        <SET SCORE <+ .SCORE <FIND-BEST .PROPERTY ,WEAPONBIT .CONTAINER>>>
-    )(<N=? .ABILITY ABILITY-DEFENSE>
-        <SET SCORE <+ .SCORE <FIND-BEST .PROPERTY NONE .CONTAINER>>>
-    )>
-    <SET SCORE <+ .SCORE <APPLY-EFFECTS .ABILITY ,AILMENTS>>>
+	<COND (<NOT .CONTAINER> <SET .CONTAINER ,PLAYER>)>
+	<SET PROPERTY <GET-ABILITY-PROPERTY .ABILITY>>
+	<SET SCORE <GETP .CHARACTER .PROPERTY>>
+	<COND (<EQUAL? .ABILITY ABILITY-COMBAT>
+		<SET SCORE <+ .SCORE <FIND-BEST .PROPERTY ,WEAPONBIT .CONTAINER>>>
+	)(<N=? .ABILITY ABILITY-DEFENSE>
+		<SET SCORE <+ .SCORE <FIND-BEST .PROPERTY NONE .CONTAINER>>>
+	)>
+	<SET SCORE <+ .SCORE <APPLY-EFFECTS .ABILITY ,AILMENTS>>>
 	<SET SCORE <+ .SCORE <APPLY-EFFECTS .ABILITY ,TITLES-AND-HONOURS>>>
-    <COND (<G? .SCORE 12> <SET SCORE 12>)>
-    <COND (<L? .SCORE 1> <SET SCORE 1>)>
-    <RETURN .SCORE>>
+	<COND (<G? .SCORE 12> <SET SCORE 12>)>
+	<COND (<L? .SCORE 1> <SET SCORE 1>)>
+	<RETURN .SCORE>>
 
 ; "Get object property that is associated to ability"
 <ROUTINE GET-ABILITY-PROPERTY (ABILITY "AUX" (PROPERTY NONE))
-    <SET PROPERTY <GET ,LOOKUP-ABILITY .ABILITY>>
-    <RETURN .PROPERTY>>
+	<SET PROPERTY <GET ,LOOKUP-ABILITY .ABILITY>>
+	<RETURN .PROPERTY>>
 
 ; "Get ability score"
 <ROUTINE GET-ABILITY-SCORE (CHARACTER ABILITY "AUX" PROPERTY RESULT)
-    <SET PROPERTY <GET-ABILITY-PROPERTY .ABILITY>>
-    <COND (.PROPERTY
-        <SET RESULT <GETP .CHARACTER .PROPERTY>>
-        <RETURN .RESULT>
-    )>
-    <RETURN 1>>
+	<SET PROPERTY <GET-ABILITY-PROPERTY .ABILITY>>
+	<COND (.PROPERTY
+		<SET RESULT <GETP .CHARACTER .PROPERTY>>
+		<RETURN .RESULT>
+	)>
+	<RETURN 1>>
 
 ; "Finds the item with the best PROPERTY score"
 <ROUTINE FIND-BEST (PROPERTY "OPT" (FLAG NONE) CONTAINER (MATCH 0) "AUX" (SCORE 0) (ITEM NONE) (RESULT 0))
-    <SET RESULT 0>
-    <SET SCORE 0>
-    <COND (<NOT .CONTAINER> <SET .CONTAINER ,PLAYER>)>
-    <SET ITEM <FIRST? .CONTAINER>>
-    <REPEAT ()
-        <COND (<NOT .ITEM> <RETURN>)>
-        <SET SCORE <GETP .ITEM .PROPERTY>>
-        <COND (<G? .MATCH 0>
-            <COND (.FLAG
-                <COND (<AND <FSET? .ITEM .FLAG> <FSET? .ITEM ,NDESCBIT>>
-                    <COND (<EQUAL? .SCORE .MATCH>
-                        <SET .RESULT .SCORE>
-                        <RETURN>
-                    )>
-                )>
-            )(<AND <NOT <FSET? .ITEM ,NDESCBIT>> <EQUAL? .SCORE .MATCH>>
-                <SET .RESULT .SCORE>
-                <RETURN>
-            )>
-        )(.FLAG
-            <COND (<AND <NOT <FSET? .ITEM ,NDESCBIT>> <FSET? .ITEM .FLAG>>
-                <COND (<G? .SCORE .RESULT>
-                    <SET .RESULT .SCORE>
-                )>
-            )> 
-        )(<AND <NOT <FSET? .ITEM ,NDESCBIT>> <G? .SCORE .RESULT>>
-            <SET .RESULT .SCORE>
-        )>
-        <SET ITEM <NEXT? .ITEM>>
-    >
-    <RETURN .RESULT>>
+	<SET RESULT 0>
+	<SET SCORE 0>
+	<COND (<NOT .CONTAINER> <SET .CONTAINER ,PLAYER>)>
+	<SET ITEM <FIRST? .CONTAINER>>
+	<REPEAT ()
+		<COND (<NOT .ITEM> <RETURN>)>
+		<SET SCORE <GETP .ITEM .PROPERTY>>
+		<COND (<G? .MATCH 0>
+			<COND (.FLAG
+				<COND (<AND <FSET? .ITEM .FLAG> <FSET? .ITEM ,NDESCBIT>>
+					<COND (<EQUAL? .SCORE .MATCH>
+						<SET .RESULT .SCORE>
+						<RETURN>
+					)>
+				)>
+			)(<AND <NOT <FSET? .ITEM ,NDESCBIT>> <EQUAL? .SCORE .MATCH>>
+				<SET .RESULT .SCORE>
+				<RETURN>
+			)>
+		)(.FLAG
+			<COND (<AND <NOT <FSET? .ITEM ,NDESCBIT>> <FSET? .ITEM .FLAG>>
+				<COND (<G? .SCORE .RESULT> <SET .RESULT .SCORE>)>
+			)>
+		)(<AND <NOT <FSET? .ITEM ,NDESCBIT>> <G? .SCORE .RESULT>>
+			<SET .RESULT .SCORE>
+		)>
+		<SET ITEM <NEXT? .ITEM>>
+	>
+	<RETURN .RESULT>>
 
 ; "as above but find in list"
 <ROUTINE FIND-BEST-LIST (PROPERTY "OPT" (FLAG NONE) LIST "AUX" COUNT SCORE ITEM RESULT)
-    <COND (<NOT .LIST> <RETURN 0>)>
-    <SET SCORE 0>
-    <SET RESULT 0>
-    <SET COUNT <GET .LIST 0>>
-    <DO (I 1 .COUNT)
-        <SET ITEM <GET .LIST .I>>
-        <SET SCORE <GETP .ITEM .PROPERTY>>
-        <COND (<AND .FLAG <NOT <FSET? .ITEM ,NDESCBIT>>>
-            <COND (<FSET? .ITEM .FLAG>
-                <COND (<G? .SCORE .RESULT> <SET .RESULT .SCORE>)>
-            )>
-        )(<AND <G? .SCORE .RESULT> <NOT <FSET? .ITEM ,NDESCBIT>>>
-            <SET .RESULT .SCORE>
-        )>
-    >
-    <RETURN .RESULT>>
+	<COND (<NOT .LIST> <RETURN 0>)>
+	<SET SCORE 0>
+	<SET RESULT 0>
+	<SET COUNT <GET .LIST 0>>
+	<DO (I 1 .COUNT)
+		<SET ITEM <GET .LIST .I>>
+		<SET SCORE <GETP .ITEM .PROPERTY>>
+		<COND (<AND .FLAG <NOT <FSET? .ITEM ,NDESCBIT>>>
+			<COND (<FSET? .ITEM .FLAG>
+				<COND (<G? .SCORE .RESULT> <SET .RESULT .SCORE>)>
+			)>
+		)(<AND <G? .SCORE .RESULT> <NOT <FSET? .ITEM ,NDESCBIT>>>
+			<SET .RESULT .SCORE>
+		)>
+	>
+	<RETURN .RESULT>>
 
 ; "Fighting routines"
 ; ---------------------------------------------------------------------------------------------
 
 ; "messages during rounds of combat"
-
 <ROUTINE ATTACK-INEFFECTIVE (ATTACKER)
-    <CRLF>
-    <HLIGHT ,H-BOLD>
-    <COND (<EQUAL? .ATTACKER ,CURRENT-CHARACTER>
-        <TELL D .ATTACKER>
-    )(ELSE
-        <TELL CT .ATTACKER>
-    )>
-    <TELL "'s attack was ineffective" ,EXCLAMATION-CR>
-    <HLIGHT 0>>
+	<CRLF>
+	<HLIGHT ,H-BOLD>
+	<COND (<EQUAL? .ATTACKER ,CURRENT-CHARACTER>
+		<TELL D .ATTACKER>
+	)(ELSE
+		<TELL CT .ATTACKER>
+	)>
+	<TELL "'s attack was ineffective" ,EXCLAMATION-CR>
+	<HLIGHT 0>>
 
-; "messages during rounds of combat"
 <ROUTINE ATTACK-MESSAGE (ATTACKER DEFENDER ATTACK DAMAGE)
-    <CRLF>
-    <HLIGHT ,H-BOLD>
-    <COND (<EQUAL? .ATTACKER ,CURRENT-CHARACTER>
-        <TELL D .ATTACKER "'s">
-    )(ELSE
-        <TELL CT .ATTACKER "'s">
-    )>
-    <HLIGHT 0>
-    <TELL " attack (" N .ATTACK ") hits ">
-    <HLIGHT ,H-BOLD>
-    <COND (<EQUAL? .DEFENDER ,CURRENT-CHARACTER>
-        <TELL D .DEFENDER>
-    )(ELSE
-        <TELL T .DEFENDER>
-    )>
-    <HLIGHT 0>
-    <TELL " for ">
-    <HLIGHT ,H-BOLD>
-    <TELL N .DAMAGE " damage">
-    <HLIGHT 0>
-    <TELL ,PERIOD-CR>>
+	<CRLF>
+	<HLIGHT ,H-BOLD>
+	<COND (<EQUAL? .ATTACKER ,CURRENT-CHARACTER>
+		<TELL D .ATTACKER "'s">
+	)(ELSE
+		<TELL CT .ATTACKER "'s">
+	)>
+	<HLIGHT 0>
+	<TELL " attack (" N .ATTACK ") hits ">
+	<HLIGHT ,H-BOLD>
+	<COND (<EQUAL? .DEFENDER ,CURRENT-CHARACTER>
+		<TELL D .DEFENDER>
+	)(ELSE
+		<TELL T .DEFENDER>
+	)>
+	<HLIGHT 0>
+	<TELL " for ">
+	<HLIGHT ,H-BOLD>
+	<TELL N .DAMAGE " damage">
+	<HLIGHT 0>
+	<TELL ,PERIOD-CR>>
 
 ; "Calculate combat score"
 <ROUTINE CALCULATE-COMBAT (CHARACTER "OPT" CONTAINER)
-    <COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
-    <RETURN <CALCULATE-ABILITY .CHARACTER ABILITY-COMBAT .CONTAINER>>>
+	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
+	<RETURN <CALCULATE-ABILITY .CHARACTER ABILITY-COMBAT .CONTAINER>>>
 
 ; "Calculate defense score"
 <ROUTINE CALCULATE-DEFENSE (CHARACTER "OPT" CONTAINER "AUX" RESULT)
-    <COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
-    <SET RESULT <GETP .CHARACTER ,P?RANK>>
-    <SET RESULT <+ .RESULT <CALCULATE-ABILITY .CHARACTER ABILITY-COMBAT .CONTAINER>>>
-    <COND (<AND <N=? .CONTAINER ,PLAYER> <N=? .CHARACTER ,CURRENT-CHARACTER>>
-        <SET RESULT <+ .RESULT <FIND-BEST-LIST P?DEFENSE ,WEARBIT <GETP .CHARACTER ,P?POSSESSIONS>>>>
-    )(ELSE
-        <SET RESULT <+ .RESULT <FIND-BEST ,P?DEFENSE ,WEARBIT .CONTAINER>>>
-    )>
-    <COND (<G? .RESULT 12> <SET RESULT 12>)>
-    <COND (<L? .RESULT 1> <SET RESULT 1>)>
-    <RETURN .RESULT>>
+	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
+	<SET RESULT <GETP .CHARACTER ,P?RANK>>
+	<SET RESULT <+ .RESULT <CALCULATE-ABILITY .CHARACTER ABILITY-COMBAT .CONTAINER>>>
+	<COND (<AND <N=? .CONTAINER ,PLAYER> <N=? .CHARACTER ,CURRENT-CHARACTER>>
+		<SET RESULT <+ .RESULT <FIND-BEST-LIST P?DEFENSE ,WEARBIT <GETP .CHARACTER ,P?POSSESSIONS>>>>
+	)(ELSE
+		<SET RESULT <+ .RESULT <FIND-BEST ,P?DEFENSE ,WEARBIT .CONTAINER>>>
+	)>
+	<COND (<G? .RESULT 12> <SET RESULT 12>)>
+	<COND (<L? .RESULT 1> <SET RESULT 1>)>
+	<RETURN .RESULT>>
 
 ; "Wrapper for combat. Sets DOOM on result"
 <ROUTINE CHECK-COMBAT (MONSTER "OPT" STORY (MODIFIER 0) (LOOT NONE))
-    <COND (<NOT .STORY> <SET STORY ,HERE>)>
-    <COND (<FIGHT .MONSTER .MODIFIER>
-       <PREVENT-DOOM .STORY>
-       <COND (.LOOT <TAKE-ITEM .LOOT>)>
-       <RTRUE>
-    )(ELSE
-        <PUTP .STORY ,P?DOOM T>
-        <RFALSE>
-    )>>
+	<COND (<NOT .STORY> <SET STORY ,HERE>)>
+	<COND (<FIGHT .MONSTER .MODIFIER>
+		<PREVENT-DOOM .STORY>
+		<COND (.LOOT <TAKE-ITEM .LOOT>)>
+		<RTRUE>
+	)(ELSE
+		<PUTP .STORY ,P?DOOM T>
+		<RFALSE>
+	)>>
 
 ; "Initialize Monster Stats"
 <ROUTINE COMBAT-MONSTER (MONSTER COMBAT DEFENSE STAMINA)
-    <PUT .MONSTER ,P?COMBAT .COMBAT>
-    <PUT .MONSTER ,P?DEFENSE .DEFENSE>
-    <PUT .MONSTER ,P?DEFENSE .STAMINA>>
+	<PUT .MONSTER ,P?COMBAT .COMBAT>
+	<PUT .MONSTER ,P?DEFENSE .DEFENSE>
+	<PUT .MONSTER ,P?DEFENSE .STAMINA>>
 
 ; "Display combatants' status"
 <ROUTINE COMBAT-STATUS (ROUND MONSTER STAMINA-PLAYER STAMINA-MONSTER)
-    <CRLF>
-    <HLIGHT ,H-BOLD>
-    <TELL "Round " N .ROUND ": ">
-    <HLIGHT 0>
-    <HLIGHT ,H-ITALIC>
-    <TELL D ,CURRENT-CHARACTER> 
-    <HLIGHT 0>
-    <TELL " (STAMINA: " N .STAMINA-PLAYER "), ">
-    <HLIGHT ,H-ITALIC>
-    <TELL CT .MONSTER>
-    <HLIGHT 0>
-    <TELL " (STAMINA: " N .STAMINA-MONSTER ")">
-    <TELL ,PERIOD-CR>
-    <UPDATE-STATUS-LINE>>
+	<CRLF>
+	<HLIGHT ,H-BOLD>
+	<TELL "Round " N .ROUND ": ">
+	<HLIGHT 0>
+	<HLIGHT ,H-ITALIC>
+	<TELL D ,CURRENT-CHARACTER> 
+	<HLIGHT 0>
+	<TELL " (STAMINA: " N .STAMINA-PLAYER "), ">
+	<HLIGHT ,H-ITALIC>
+	<TELL CT .MONSTER>
+	<HLIGHT 0>
+	<TELL " (STAMINA: " N .STAMINA-MONSTER ")">
+	<TELL ,PERIOD-CR>
+	<UPDATE-STATUS-LINE>>
 
 <ROUTINE FIGHT (MONSTER "OPT" (MODIFIER 0) "AUX" RESULT ATTACK STAMINA-PLAYER COMBAT-PLAYER DEFENSE-PLAYER STAMINA-MONSTER COMBAT-MONSTER DEFENSE-MONSTER (ROUND 0))
-    <SET STAMINA-PLAYER ,STAMINA>
+	<SET STAMINA-PLAYER ,STAMINA>
 	<COND (<L=? .STAMINA-PLAYER 0> <HAS-PREVAILED .MONSTER> <RETURN>)>
-    <SET DEFENSE-PLAYER <CALCULATE-DEFENSE ,CURRENT-CHARACTER>>
-    <SET COMBAT-PLAYER <CALCULATE-COMBAT ,CURRENT-CHARACTER>>
-    <COND (<G? .COMBAT-PLAYER 12> <SET .COMBAT-PLAYER 12>)>
-    <SET STAMINA-MONSTER <GETP .MONSTER ,P?STAMINA>>
-    <SET DEFENSE-MONSTER <GETP .MONSTER ,P?DEFENSE>>
-    <SET COMBAT-MONSTER <GETP .MONSTER ,P?COMBAT>>
-    <COND (<G? .COMBAT-MONSTER 12> <SET .COMBAT-MONSTER 12>)>
-    <CRLF>
-    <TELL "Resolving combat between ">
-    <HLIGHT ,H-BOLD>
-    <TELL D ,CURRENT-CHARACTER>
-    <HLIGHT 0>
-    <TELL " (COMBAT: " N .COMBAT-PLAYER " DEFENSE: " N .DEFENSE-PLAYER>
-    <COND (<G? .MODIFIER 0> <TELL ", +" N .MODIFIER " to rolls">)>
-    <TELL ") and ">
-    <HLIGHT ,H-BOLD>
-    <TELL T .MONSTER>
-    <HLIGHT 0>
-    <TELL " (COMBAT: " N .COMBAT-MONSTER " DEFENSE: " N .DEFENSE-MONSTER ")">
-    <TELL ,PERIOD-CR>
-    <REPEAT ()
-        <INC .ROUND>
-        <COMBAT-STATUS .ROUND .MONSTER .STAMINA-PLAYER .STAMINA-MONSTER>
-        <PRESS-A-KEY>
-        <SET ATTACK <+ <ROLL-DICE 2> .COMBAT-PLAYER .MODIFIER>>
-        <SET RESULT <- .ATTACK .DEFENSE-MONSTER>>
-        <COND (<G? .RESULT 0>
-            <ATTACK-MESSAGE ,CURRENT-CHARACTER .MONSTER .ATTACK .RESULT>
-            <SET STAMINA-MONSTER <- .STAMINA-MONSTER .RESULT>>
-            <COND (<L? .STAMINA-MONSTER 1> <RETURN>)>
-        )(ELSE
-            <ATTACK-INEFFECTIVE ,CURRENT-CHARACTER>
-        )>
-        <PRESS-A-KEY>
-        <SET ATTACK <+ <ROLL-DICE 2> .COMBAT-MONSTER>>
-        <SET RESULT <- .ATTACK .DEFENSE-PLAYER>>
-        <COND (<G? .RESULT 0>
-            <ATTACK-MESSAGE .MONSTER ,CURRENT-CHARACTER .ATTACK .RESULT>
-            <SET STAMINA-PLAYER <- .STAMINA-PLAYER .RESULT>>
-            <COND (<L? .STAMINA-PLAYER 1> <RETURN>)>
-        )(ELSE
-            <ATTACK-INEFFECTIVE .MONSTER>
-        )>
-        <PRESS-A-KEY>
-        <UPDATE-STATUS-LINE>
-    >
-    <COND (<L? .STAMINA-PLAYER 0> <SET .STAMINA-PLAYER 0>)>
-    <SETG STAMINA .STAMINA-PLAYER>
-    <UPDATE-STATUS-LINE>    
-    <COND (<L=? .STAMINA-MONSTER 0>
-        <HAS-PREVAILED ,CURRENT-CHARACTER>
-        <RTRUE>
-    )>
-    <HAS-PREVAILED .MONSTER>
-    <RFALSE>>
+	<SET DEFENSE-PLAYER <CALCULATE-DEFENSE ,CURRENT-CHARACTER>>
+	<SET COMBAT-PLAYER <CALCULATE-COMBAT ,CURRENT-CHARACTER>>
+	<COND (<G? .COMBAT-PLAYER 12> <SET .COMBAT-PLAYER 12>)>
+	<SET STAMINA-MONSTER <GETP .MONSTER ,P?STAMINA>>
+	<SET DEFENSE-MONSTER <GETP .MONSTER ,P?DEFENSE>>
+	<SET COMBAT-MONSTER <GETP .MONSTER ,P?COMBAT>>
+	<COND (<G? .COMBAT-MONSTER 12> <SET .COMBAT-MONSTER 12>)>
+	<CRLF>
+	<TELL "Resolving combat between ">
+	<HLIGHT ,H-BOLD>
+	<TELL D ,CURRENT-CHARACTER>
+	<HLIGHT 0>
+	<TELL " (COMBAT: " N .COMBAT-PLAYER " DEFENSE: " N .DEFENSE-PLAYER>
+	<COND (<G? .MODIFIER 0> <TELL ", +" N .MODIFIER " to rolls">)>
+	<TELL ") and ">
+	<HLIGHT ,H-BOLD>
+	<TELL T .MONSTER>
+	<HLIGHT 0>
+	<TELL " (COMBAT: " N .COMBAT-MONSTER " DEFENSE: " N .DEFENSE-MONSTER ")">
+	<TELL ,PERIOD-CR>
+	<REPEAT ()
+		<INC .ROUND>
+		<COMBAT-STATUS .ROUND .MONSTER .STAMINA-PLAYER .STAMINA-MONSTER>
+		<PRESS-A-KEY>
+		<SET ATTACK <+ <ROLL-DICE 2> .COMBAT-PLAYER .MODIFIER>>
+		<SET RESULT <- .ATTACK .DEFENSE-MONSTER>>
+		<COND (<G? .RESULT 0>
+			<ATTACK-MESSAGE ,CURRENT-CHARACTER .MONSTER .ATTACK .RESULT>
+			<SET STAMINA-MONSTER <- .STAMINA-MONSTER .RESULT>>
+			<COND (<L? .STAMINA-MONSTER 1> <RETURN>)>
+		)(ELSE
+			<ATTACK-INEFFECTIVE ,CURRENT-CHARACTER>
+		)>
+		<PRESS-A-KEY>
+		<SET ATTACK <+ <ROLL-DICE 2> .COMBAT-MONSTER>>
+		<SET RESULT <- .ATTACK .DEFENSE-PLAYER>>
+		<COND (<G? .RESULT 0>
+			<ATTACK-MESSAGE .MONSTER ,CURRENT-CHARACTER .ATTACK .RESULT>
+			<SET STAMINA-PLAYER <- .STAMINA-PLAYER .RESULT>>
+			<COND (<L? .STAMINA-PLAYER 1> <RETURN>)>
+		)(ELSE
+			<ATTACK-INEFFECTIVE .MONSTER>
+		)>
+		<PRESS-A-KEY>
+		<UPDATE-STATUS-LINE>
+	>
+	<COND (<L? .STAMINA-PLAYER 0> <SET .STAMINA-PLAYER 0>)>
+	<SETG STAMINA .STAMINA-PLAYER>
+	<UPDATE-STATUS-LINE>
+	<COND (<L=? .STAMINA-MONSTER 0>
+		<HAS-PREVAILED ,CURRENT-CHARACTER>
+		<RTRUE>
+	)>
+	<HAS-PREVAILED .MONSTER>
+	<RFALSE>>
 
 <ROUTINE HAS-PREVAILED (CHARACTER)
-    <CRLF>
-    <HLIGHT ,H-BOLD>
-    <COND (<EQUAL? .CHARACTER ,CURRENT-CHARACTER>
-        <TELL D .CHARACTER " ">
-    )(ELSE
-        <TELL CT .CHARACTER " ">
-    )>
-    <COND (<FSET? .CHARACTER ,PLURALBIT> <TELL "have">)(ELSE <TELL "has">)>
-    <TELL " prevailed">
-    <HLIGHT 0>
-    <TELL ,PERIOD-CR>>
+	<CRLF>
+	<HLIGHT ,H-BOLD>
+	<COND (<EQUAL? .CHARACTER ,CURRENT-CHARACTER>
+		<TELL D .CHARACTER>
+	)(ELSE
+		<TELL CT .CHARACTER>
+	)>
+	<TELL " ">
+	<COND (<FSET? .CHARACTER ,PLURALBIT> <TELL "have">)(ELSE <TELL "has">)>
+	<TELL " prevailed">
+	<HLIGHT 0>
+	<TELL ,PERIOD-CR>>
 
 <ROUTINE TEST-ABILITY (CHARACTER ABILITY DIFFICULTY "OPT" (MODIFIERS T) "AUX" SCORE (ROLL 0) (RESULT F) (TOTAL 0))
-    <REPEAT ()
-        <SET SCORE <CALCULATE-ABILITY .CHARACTER .ABILITY>>
-        <TELL "Making a ">
-        <HLIGHT ,H-BOLD>
-        <TELL <GET ,ABILITIES .ABILITY>>
-        <HLIGHT 0>
-        <TELL " (" >
-        <HLIGHT ,H-BOLD>
-        <TELL N .SCORE>
-        <HLIGHT 0>
-        <TELL ") roll at ">
-        <HLIGHT ,H-BOLD>
-        <TELL N .DIFFICULTY>
-        <HLIGHT 0>
-        <TELL " difficulty.." ,PERIOD-CR>
-        <PRESS-A-KEY>
-        <SET ROLL <ROLL-DICE 2>>
-        <SET TOTAL <+ .SCORE .ROLL>>
-        <CRLF>
-        <TELL "Rolled (">
-        <HLIGHT ,H-BOLD>
-        <TELL <GET ,ABILITIES .ABILITY> " " N .SCORE>
-        <HLIGHT 0>
-        <TELL ") + ">
-        <HLIGHT ,H-BOLD>
-        <TELL N .ROLL>
-        <HLIGHT 0>
-        <TELL " = ">
-        <HLIGHT ,H-BOLD>
-        <TELL N .TOTAL>
-        <HLIGHT 0>
-        <TELL " ... ">
-        <COND (<G? .TOTAL .DIFFICULTY>
-            <HLIGHT ,H-BOLD>
-            <TELL "Success!">
-            <SET RESULT T>
-            <HLIGHT 0>
-            <CRLF>
-            <RETURN>
-        )(ELSE
-            <HLIGHT ,H-BOLD>
-            <TELL "Failed!">
-            <HLIGHT 0>
-            <SET RESULT F>
-            <COND (<NOT <TEST-ABILITY-BLESSING .ABILITY>>
-                <RETURN>
-            )>
-            <CRLF>
-        )>
-    >
-    <RETURN .RESULT>>
+	<REPEAT ()
+		<SET SCORE <CALCULATE-ABILITY .CHARACTER .ABILITY>>
+		<TELL "Making a ">
+		<HLIGHT ,H-BOLD>
+		<TELL <GET ,ABILITIES .ABILITY>>
+		<HLIGHT 0>
+		<TELL " (" >
+		<HLIGHT ,H-BOLD>
+		<TELL N .SCORE>
+		<HLIGHT 0>
+		<TELL ") roll at ">
+		<HLIGHT ,H-BOLD>
+		<TELL N .DIFFICULTY>
+		<HLIGHT 0>
+		<TELL " difficulty.." ,PERIOD-CR>
+		<PRESS-A-KEY>
+		<SET ROLL <ROLL-DICE 2>>
+		<SET TOTAL <+ .SCORE .ROLL>>
+		<CRLF>
+		<TELL "Rolled (">
+		<HLIGHT ,H-BOLD>
+		<TELL <GET ,ABILITIES .ABILITY> " " N .SCORE>
+		<HLIGHT 0>
+		<TELL ") + ">
+		<HLIGHT ,H-BOLD>
+		<TELL N .ROLL>
+		<HLIGHT 0>
+		<TELL " = ">
+		<HLIGHT ,H-BOLD>
+		<TELL N .TOTAL>
+		<HLIGHT 0>
+		<TELL " ... ">
+		<COND (<G? .TOTAL .DIFFICULTY>
+			<HLIGHT ,H-BOLD>
+			<TELL "Success!">
+			<SET RESULT T>
+			<HLIGHT 0>
+			<CRLF>
+			<RETURN>
+		)(ELSE
+			<HLIGHT ,H-BOLD>
+			<TELL "Failed!">
+			<HLIGHT 0>
+			<SET RESULT F>
+			<COND (<NOT <TEST-ABILITY-BLESSING .ABILITY>>
+				<RETURN>
+			)>
+			<CRLF>
+		)>
+	>
+	<RETURN .RESULT>>
 
 <ROUTINE TEST-ABILITY-BLESSING (ABILITY "AUX" HAS-BLESSING BLESSING RESULT)
-    <SET RESULT F>
-    <SET HAS-BLESSING F>
-    <COND (<AND <EQUAL? .ABILITY ,ABILITY-CHARISMA> <CHECK-BLESSING ,BLESSING-CHARISMA>>
-        <SET HAS-BLESSING T>
-        <SET BLESSING ,BLESSING-CHARISMA>
-    )(<AND <EQUAL? .ABILITY ,ABILITY-COMBAT> <CHECK-BLESSING ,BLESSING-COMBAT>>
-        <SET HAS-BLESSING T>
-        <SET BLESSING ,BLESSING-COMBAT>
-    )(<AND <EQUAL? .ABILITY ,ABILITY-MAGIC> <CHECK-BLESSING ,BLESSING-MAGIC>>
-        <SET HAS-BLESSING T>
-        <SET BLESSING ,BLESSING-MAGIC>
-    )(<AND <EQUAL? .ABILITY ,ABILITY-SANCTITY> <CHECK-BLESSING ,BLESSING-SANCTITY>>
-        <SET HAS-BLESSING T>
-        <SET BLESSING ,BLESSING-SANCTITY>
-    )(<AND <EQUAL? .ABILITY ,ABILITY-SCOUTING> <CHECK-BLESSING ,BLESSING-SCOUTING>>
-        <SET HAS-BLESSING T>
-        <SET BLESSING ,BLESSING-SCOUTING>
-    )(<AND <EQUAL? .ABILITY ,ABILITY-THIEVERY> <CHECK-BLESSING ,BLESSING-THIEVERY>>
-        <SET HAS-BLESSING T>
-        <SET BLESSING ,BLESSING-THIEVERY>
-    )(<CHECK-BLESSING ,BLESSING-LUCK>
-        <SET HAS-BLESSING T>
-        <SET BLESSING ,BLESSING-LUCK>
-    )>
-    <COND (.HAS-BLESSING
-        <CRLF>
-        <CRLF>
-        <TELL "Use " T .BLESSING " blessing to reroll?">
-        <COND (<YES?>
-            <DELETE-BLESSING .BLESSING>
-            <SET .RESULT T>
-        )>
+	<SET RESULT F>
+	<SET HAS-BLESSING T>
+	<COND (<AND <EQUAL? .ABILITY ,ABILITY-CHARISMA> <CHECK-BLESSING ,BLESSING-CHARISMA>>
+		<SET BLESSING ,BLESSING-CHARISMA>
+	)(<AND <EQUAL? .ABILITY ,ABILITY-COMBAT> <CHECK-BLESSING ,BLESSING-COMBAT>>
+		<SET BLESSING ,BLESSING-COMBAT>
+	)(<AND <EQUAL? .ABILITY ,ABILITY-MAGIC> <CHECK-BLESSING ,BLESSING-MAGIC>>
+		<SET BLESSING ,BLESSING-MAGIC>
+	)(<AND <EQUAL? .ABILITY ,ABILITY-SANCTITY> <CHECK-BLESSING ,BLESSING-SANCTITY>>
+		<SET BLESSING ,BLESSING-SANCTITY>
+	)(<AND <EQUAL? .ABILITY ,ABILITY-SCOUTING> <CHECK-BLESSING ,BLESSING-SCOUTING>>
+		<SET BLESSING ,BLESSING-SCOUTING>
+	)(<AND <EQUAL? .ABILITY ,ABILITY-THIEVERY> <CHECK-BLESSING ,BLESSING-THIEVERY>>
+		<SET BLESSING ,BLESSING-THIEVERY>
+	)(<CHECK-BLESSING ,BLESSING-LUCK>
+		<SET BLESSING ,BLESSING-LUCK>
     )(ELSE
-        <CRLF>
-    )>
-    <RETURN .RESULT>>
+		<SET HAS-BLESSING F>
+	)>
+	<COND (.HAS-BLESSING
+		<CRLF>
+		<CRLF>
+		<TELL "Use " T .BLESSING " blessing to reroll?">
+		<COND (<YES?>
+			<DELETE-BLESSING .BLESSING>
+			<SET .RESULT T>
+		)>
+	)(ELSE
+		<CRLF>
+	)>
+	<RETURN .RESULT>>
 
 ; "Number conversion routines"
 ; ---------------------------------------------------------------------------------------------
