@@ -377,6 +377,7 @@
 						)(ELSE
 							<SETG HERE <GET <GET .DESTINATIONS .CHOICE> 2>>
 						)>
+						<PRESS-A-KEY>
 					)(<AND <EQUAL? .TYPE R-CODEWORD> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<COND (<CHECK-CODEWORD .LIST>
 							<SETG HERE <GET .DESTINATIONS .CHOICE>>
@@ -1230,15 +1231,6 @@
 		<REMOVE .OBJECT>
 	)>>
 
-<ROUTINE DISCHARGE-ITEM (ITEM "OPT" AMOUNT "AUX" (CHARGES 0))
-	<SET CHARGES <GETP .ITEM ,P?CHARGES>>
-	<COND (<G? .CHARGES 0>
-		<COND (<NOT .AMOUNT> <SET AMOUNT 1>)>
-		<SET CHARGES <- .CHARGES .AMOUNT>>
-		<COND (<L? .CHARGES 1> <SET CHARGES 0>)>
-		<PUTP .ITEM ,P?CHARGES .CHARGES>
-	)>>
-
 <ROUTINE DESCRIBE-INVENTORY ("AUX" COUNT)
 	<COND (,CURRENT-CHARACTER
 		<SET COUNT <COUNT-POSSESSIONS>>
@@ -1271,13 +1263,15 @@
 <ROUTINE DESCRIBE-PLAYER-AILMENTS ()
 	<COND (<G? <COUNT-CONTAINER ,AILMENTS> 0>
 		<HLIGHT ,H-BOLD>
-		<TELL D ,AILMENTS ": ">
+		<PRINT-CAP-OBJ ,AILMENTS>
+		<TELL  ": ">
 		<HLIGHT 0>
 		<PRINT-CONTAINER ,AILMENTS>
 	)>
 	<COND (<G? <COUNT-CONTAINER ,CURSES> 0>
 		<HLIGHT ,H-BOLD>
-		<TELL D ,CURSES ": ">
+		<PRINT-CAP-OBJ ,CURSES>
+		<TELL ": ">
 		<HLIGHT 0>
 		<PRINT-CONTAINER ,CURSES>
 	)>>
@@ -1294,26 +1288,30 @@
 
 <ROUTINE DESCRIBE-PLAYER-BLESSINGS ()
 	<HLIGHT ,H-BOLD>
-	<TELL D ,BLESSINGS ": ">
+	<PRINT-CAP-OBJ ,BLESSINGS>
+	<TELL  ": ">
 	<HLIGHT 0>
 	<PRINT-CONTAINER ,BLESSINGS>>
 
 <ROUTINE DESCRIBE-PLAYER-CODEWORDS ()
 	<HLIGHT ,H-BOLD>
-	<TELL D ,CODEWORDS ": ">
+	<PRINT-CAP-OBJ ,CODEWORDS>
+	<TELL  ": ">
 	<HLIGHT 0>
 	<PRINT-CONTAINER ,CODEWORDS>>
 
 <ROUTINE DESCRIBE-PLAYER-CURRENCY ()
 	<HLIGHT ,H-BOLD>
 	<PRINT-CAP-OBJ ,CURRENCY>
+	<TELL  ": ">
 	<HLIGHT 0>
-	<TELL ": " N ,MONEY CR>>
+	<TELL N ,MONEY CR>>
 
 <ROUTINE DESCRIBE-PLAYER-MISSIONS ()
 	<COND (<G? <COUNT-CONTAINER ,MISSIONS> 0>
 		<HLIGHT ,H-BOLD>
-		<TELL "Missions: ">
+		<PRINT-CAP-OBJ ,MISSIONS>
+		<TELL  ": ">
 		<HLIGHT 0>
 		<PRINT-CONTAINER ,MISSIONS>
 	)>>
@@ -1340,7 +1338,11 @@
 	<COND (<GETP .CHARACTER ,P?PROFESSION>
 		<TELL "PROFESSION: " D <GETP .CHARACTER ,P?PROFESSION> CR>
 	)>
-	<TELL "STAMINA: " N <GETP .CHARACTER ,P?STAMINA> CR>
+	<COND (<NOT ,CURRENT-CHARACTER>
+		<TELL "STAMINA: " N <GETP .CHARACTER ,P?STAMINA> CR>
+	)(ELSE
+		<TELL "STAMINA: " N ,STAMINA CR>
+	)>
 	<TELL "DEFENSE: " N <CALCULATE-DEFENSE .CHARACTER .CONTAINER> CR>
 	<TELL "CHARISMA: " N <CALCULATE-ABILITY .CHARACTER ABILITY-CHARISMA .CONTAINER> CR>
 	<TELL "COMBAT: " N <CALCULATE-ABILITY .CHARACTER ABILITY-COMBAT .CONTAINER> CR>
@@ -1351,7 +1353,8 @@
 
 <ROUTINE DESCRIBE-PLAYER-TITLES ()
 	<HLIGHT ,H-BOLD>
-	<TELL D ,TITLES-AND-HONOURS ": ">
+	<PRINT-CAP-OBJ ,TITLES-AND-HONOURS>
+	<TELL  ": ">
 	<HLIGHT 0>
 	<PRINT-CONTAINER ,TITLES-AND-HONOURS>>
 
@@ -1375,6 +1378,15 @@
 	<HLIGHT 0>
 	<COND (,GOD <TELL D ,GOD>)(ELSE <TELL "None">)>
 	<CRLF>>
+
+<ROUTINE DISCHARGE-ITEM (ITEM "OPT" AMOUNT "AUX" (CHARGES 0))
+	<SET CHARGES <GETP .ITEM ,P?CHARGES>>
+	<COND (<G? .CHARGES 0>
+		<COND (<NOT .AMOUNT> <SET AMOUNT 1>)>
+		<SET CHARGES <- .CHARGES .AMOUNT>>
+		<COND (<L? .CHARGES 1> <SET CHARGES 0>)>
+		<PUTP .ITEM ,P?CHARGES .CHARGES>
+	)>>
 
 <ROUTINE DROP-REPLACE-ITEM (OBJ "AUX" KEY COUNT ITEM CHOICE QUANTITY)
 	<COND (<AND .OBJ <G=? <COUNT-POSSESSIONS> ,LIMIT-POSSESSIONS>>
@@ -1782,7 +1794,7 @@
 	<PRINT-ITEM .ITEM T>
 	<TELL ,PERIOD-CR>
 	<COND (<NOT .SILENT> <PRESS-A-KEY>)>
-	<RETURN>>
+	<WEAR-BEST>>
 
 <ROUTINE RETURN-ITEM (ITEM "OPT" (SILENT F))
 	<REMOVE-ITEM .ITEM "returned" T .SILENT>>
@@ -1913,6 +1925,41 @@
 				<PUTP .ITEM ,P?QUANTITY 1>
 				<REMOVE .ITEM>
 			)>
+		)>
+	)>>
+
+<ROUTINE STORM-AT-SEA (STORY JUMP "AUX" (DICE 1) (ODDS NONE) (PARAMETERS NONE) (CONDITION 0))
+	<COND (<NOT .STORY> <SET STORY ,HERE>)>
+	<COND (<OR <CHECK-BLESSING ,BLESSING-ALVIR-VALMIR> <CHECK-BLESSING ,BLESSING-SAFETY-FROM-STORMS>>
+		<CRLF>
+		<COND (<CHECK-BLESSING ,BLESSING-SAFETY-FROM-STORMS>
+			<TELL ,TEXT-BLESSING-STORM-SAFETY>
+			<DELETE-BLESSING ,BLESSING-SAFETY-FROM-STORMS>
+		)(ELSE
+			<TELL ,TEXT-ALMIR-VALMIR-BLESSING>
+			<DELETE-BLESSING ,BLESSING-ALVIR-VALMIR>
+		)>
+		<TELL ,PERIOD-CR>
+		<STORY-JUMP .JUMP>
+	)(ELSE
+        <RESET-ODDS 1 0 .STORY>
+		<SET ODDS <GETP .STORY ,P?REQUIREMENTS>>
+		<SET PARAMETERS <GET .ODDS 1>>
+		<COND (<EQUAL? ,CURRENT-VEHICLE ,SHIP-BRIGANTINE>
+			<SET DICE 2>
+		)(<EQUAL? ,CURRENT-VEHICLE ,SHIP-GALLEON>
+			<SET DICE 3>
+		)>
+		<PUT .PARAMETERS 1 .DICE>
+		<COND (,CURRENT-VEHICLE
+			<SET CONDITION <GETP ,CURRENT-VEHICLE ,P?CONDITION>>
+            <COND (.CONDITION
+                <COND (<EQUAL? .CONDITION ,CONDITION-EXCELLENT>
+                    <PUT .PARAMETERS 2 2>
+                )(<EQUAL? .CONDITION ,CONDITION-GOOD>
+                    <PUT .PARAMETERS 2 1>
+                )>
+            )>
 		)>
 	)>>
 
@@ -2432,7 +2479,7 @@
 	(SCOUTING 6)
 	(THIEVERY 4)
 	(POSSESSIONS <LTABLE SPEAR LEATHER-JERKIN MAP>)
-	(FLAGS PERSONBIT)>
+	(FLAGS PERSONBIT NARTICLEBIT)>
 
 <OBJECT CHARACTER-CHALOR
 	(DESC "Chalor The Exiled One")
@@ -2448,7 +2495,7 @@
 	(SCOUTING 5)
 	(THIEVERY 3)
 	(POSSESSIONS <LTABLE STAFF LEATHER-JERKIN MAP>)
-	(FLAGS PERSONBIT)>
+	(FLAGS PERSONBIT NARTICLEBIT)>
 
 <OBJECT CHARACTER-ANDRIEL
 	(DESC "Andriel The Hammer")
@@ -2464,11 +2511,11 @@
 	(SCOUTING 3)
 	(THIEVERY 2)
 	(POSSESSIONS <LTABLE BATTLE-AXE LEATHER-JERKIN MAP>)
-	(FLAGS PERSONBIT)>
+	(FLAGS PERSONBIT NARTICLEBIT)>
 
 <OBJECT CHARACTER-MARANA
 	(DESC "Marana Fireheart")
-	(LDESC "Marana is a fiercely independent woman who grew up in the backstreets of her home town. Forced to flee because she was too active in her chosen profession, she has come to new lands to seek her fortune. Devious and resourceful, she can break in almost anywhere. She has heard that the temple of Sig in Marlock City needs the services of a rogue.")
+	(LDESC "Marana is a fiercely independent woman who grew up in the backstreets of her home town. Forced to flee because she was too active in her chosen profession, she has come to new lands to seek her fortune. Devious and resourceful, she can break in almost anywhere. She has heard that the Temple of Sig in Marlock City needs the services of a rogue.")
 	(RANK 1)
 	(PROFESSION PROFESSION-ROGUE)
 	(STAMINA 9)
@@ -2480,7 +2527,7 @@
 	(SCOUTING 2)
 	(THIEVERY 6)
 	(POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
-	(FLAGS PERSONBIT)>
+	(FLAGS PERSONBIT NARTICLEBIT)>
 
 <OBJECT CHARACTER-IGNATIUS
 	(DESC "Ignatius The Devout")
@@ -2496,7 +2543,7 @@
 	(SCOUTING 4)
 	(THIEVERY 2)
 	(POSSESSIONS <LTABLE MACE LEATHER-JERKIN MAP>)
-	(FLAGS PERSONBIT)>
+	(FLAGS PERSONBIT NARTICLEBIT)>
 
 <OBJECT CHARACTER-ASTARIEL
 	(DESC "Astariel Skysong")
@@ -2512,7 +2559,7 @@
 	(SCOUTING 2)
 	(THIEVERY 4)
 	(POSSESSIONS <LTABLE SWORD LEATHER-JERKIN MAP>)
-	(FLAGS PERSONBIT)>
+	(FLAGS PERSONBIT NARTICLEBIT)>
 
 ; "Professions and default stats"
 ; ---------------------------------------------------------------------------------------------
@@ -2612,6 +2659,7 @@
 <OBJECT CODEWORD-AJAR (DESC "Ajar")>
 <OBJECT CODEWORD-ALTITUDE (DESC "Altitude")>
 <OBJECT CODEWORD-ALMANAC (DESC "Almanac")>
+<OBJECT CODEWORD-ALOFT (DESC "Aloft")>
 <OBJECT CODEWORD-ANCHOR (DESC "Anchor")>
 <OBJECT CODEWORD-ANVIL (DESC "Anvil")>
 <OBJECT CODEWORD-ARMOUR (DESC "Armour")>
@@ -2622,6 +2670,7 @@
 <OBJECT CODEWORD-ASSASSIN (DESC "Assassin")>
 <OBJECT CODEWORD-ATTAR (DESC "Attar")>
 <OBJECT CODEWORD-AURIC (DESC "Auric")>
+<OBJECT CODEWORD-AXE (DESC "Axe")>
 <OBJECT CODEWORD-AZURE (DESC "Azure")>
 <OBJECT CODEWORD-BARNACLE (DESC "Barnacle")>
 <OBJECT CODEWORD-BRUSH (DESC "Brush")>
@@ -2797,7 +2846,7 @@
 
 <OBJECT BOOK-OF-THE-SEVEN-SAGES
 	(DESC "Book of the Seven Sages")
-	(FLAGS TAKEBIT)>
+	(FLAGS TAKEBIT NARTICLEBIT)>
 
 <OBJECT CLIMBING-GEAR
 	(DESC "climbing gear")
@@ -2810,6 +2859,10 @@
 <OBJECT COMPASS
 	(DESC "compass")
 	(SCOUTING 1)
+	(FLAGS TAKEBIT)>
+
+<OBJECT COPPER-AMULET
+	(DESC "copper-amulet")
 	(FLAGS TAKEBIT)>
 
 <OBJECT FLAME-OPAL-EYE
@@ -2827,7 +2880,7 @@
 
 <OBJECT INK-SAC
 	(DESC "ink sac")
-	(FLAGS TAKEBIT)>
+	(FLAGS TAKEBIT VOWELBIT)>
 
 <OBJECT LANTERN
 	(DESC "lantern")
@@ -2849,7 +2902,7 @@
 
 <OBJECT OFFICERS-PASS
 	(DESC "officer's pass")
-	(FLAGS TAKEBIT)>
+	(FLAGS TAKEBIT VOWELBIT)>
 
 <OBJECT POTION-OF-HEALING
 	(DESC "potion of healing")
@@ -2952,6 +3005,10 @@
 	(DESC "poison")
 	(EFFECTS <LTABLE 0 -1 0 0 0 0>)>
 
+<OBJECT DISADVANTAGE-COMBAT
+	(DESC "COMBAT disadvantage")
+	(EFFECTS <LTABLE 0 -1 0 0 0 0>)>
+
 ; "Monsters"
 ; ---------------------------------------------------------------------------------------------
 
@@ -2984,6 +3041,12 @@
 	(COMBAT 4)
 	(DEFENSE 7)
 	(STAMINA 5)>
+
+<OBJECT MONSTER-REPULSIVE-ONE
+	(DESC "Repulsive One")
+	(COMBAT 4)
+	(DEFENSE 6)
+	(STAMINA 10)>
 
 <OBJECT MONSTER-SCORPION-SHAMAN
 	(DESC "Scorpion Shaman")
@@ -3032,11 +3095,8 @@
 ; ---------------------------------------------------------------------------------------------
 
 <OBJECT TITLE-PROTECTOR-SOKARA (DESC "Protector of Sokara")>
-
 <OBJECT TITLE-ILLUMINATE-MOLHERN (DESC "Illuminate of Molhern")>
-
-<OBJECT TITLE-UNSPEAKABLE-CULTIST (DESC "Unspeakable Cultist")
-	(EFFECTS <LTABLE 0 0 0 -1 0 0>)>
+<OBJECT TITLE-UNSPEAKABLE-CULTIST (DESC "Unspeakable Cultist") (EFFECTS <LTABLE 0 0 0 -1 0 0>)>
 
 ; "Abilities and Combat"
 ; ---------------------------------------------------------------------------------------------
@@ -3062,7 +3122,7 @@
 <ROUTINE CALCULATE-ABILITY (CHARACTER ABILITY "OPT" CONTAINER "AUX" SCORE PROPERTY)
 	<COND (<NOT .CONTAINER> <SET .CONTAINER ,PLAYER>)>
 	<SET PROPERTY <GET-ABILITY-PROPERTY .ABILITY>>
-	<SET SCORE <GETP .CHARACTER .PROPERTY>>
+	<SET SCORE <GET-ABILITY-SCORE .CHARACTER .ABILITY>>
 	<COND (<EQUAL? .ABILITY ABILITY-COMBAT>
 		<SET SCORE <+ .SCORE <FIND-BEST .PROPERTY ,WEAPONBIT .CONTAINER>>>
 	)(<N=? .ABILITY ABILITY-DEFENSE>
@@ -3863,6 +3923,7 @@
 	<RESET-ODDS 1 0 ,STORY038>
 	<RESET-ODDS 1 0 ,STORY049>
 	<RESET-ODDS 2 0 ,STORY051>
+	<RESET-ODDS 1 0 ,STORY124>
 	<PUTP ,STORY014 ,P?DOOM T>
 	<PUTP ,STORY034 ,P?DOOM T>
 	<PUTP ,STORY036 ,P?DOOM T>
@@ -3880,14 +3941,15 @@
 	<PUTP ,STORY096 ,P?DOOM T>
 	<PUTP ,STORY101-SUCCEED ,P?DOOM T>
 	<PUTP ,STORY105 ,P?DOOM T>
+	<PUTP ,STORY121 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>
 	<RETURN>>
 
 ; "endings"
 <CONSTANT BAD-ENDING "Your adventure ends here.|">
 <CONSTANT GOOD-ENDING "Further adventure awaits.|">
-<CONSTANT ENDING-BLOOD-DARK-SEA "Further adventure awaits at Fabled Lands 3: Over the Blood-Dark Sea.|">
-<CONSTANT ENDING-CITIES-OF-GOLD "Further adventure awaits at Fabled Lands 2: Cities of Gold and Glory.|">
+<CONSTANT ENDING-BLOOD-DARK-SEA "Further adventures await at Fabled Lands 3: Over the Blood-Dark Sea.|">
+<CONSTANT ENDING-CITIES-OF-GOLD "Further adventures await at Fabled Lands 2: Cities of Gold and Glory.|">
 
 <ROUTINE SPECIAL-INTERRUPT-ROUTINE (KEY)
 	<RFALSE>>
@@ -3901,6 +3963,8 @@
 
 <CONSTANT TEXT-STORM-SUBSIDES "Your ship is thrown about like flotsam and jetsam. When the storm subsides, you take stock. Much has been swept overboard.||Also, the ship has been swept way off course and the mate has no idea where you are. \"We're lost at sea, Cap'n,\" he moans.">
 <CONSTANT TEXT-GUILD-INVESTMENTS "You can invest money in multiples of 100 Shards. The guild will buy and sell commodities on your behalf using this money until you return to collect it. \"Don't forget that you can lose money as well,\" mutters a merchant whose investments have not paid off.">
+<CONSTANT TEXT-ALMIR-VALMIR-BLESSING "The blessing of Alvir and Valmir confers safety from storms">
+<CONSTANT TEXT-BLESSING-STORM-SAFETY "Your 'Safety from Storms' blessing protected you">
 
 <CONSTANT TEXT-YOU-CAN-GO "You can go:">
 
@@ -3918,6 +3982,8 @@
 <CONSTANT TEXT-ROLL-SANCTITY "Make a SANCTITY roll">
 <CONSTANT TEXT-ROLL-SCOUTING "Make a SCOUTING roll">
 <CONSTANT TEXT-ROLL-THIEVERY "Make a THIEVERY roll">
+
+<CONSTANT STORY-STORM-REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 3 5 20> <LTABLE "The ship sinks!" "The mast splits!" "You weather the storm!">>>>
 
 <ROUTINE STORY-LOSE-CARGO ("OPT" MAX "AUX" COUNT)
 	<COND (<NOT .MAX> <SET MAX 1>)>
@@ -4043,7 +4109,7 @@
 		"Visit your townhouse"
 		"Visit the Gold Dust Tavern"
 		"Visit the temple of Maka"
-		"Visit the temple of Elnir"
+		"Visit the Temple of Elnir"
 		"Visit the temple of Alvir and Valmir"
 		"Visit the temple of Tyrnai"
 		"Travel north-east toward Venefax"
@@ -4490,10 +4556,8 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	<KEEP-ITEM ,BAG-OF-PEARLS>>
 
 <CONSTANT TEXT038 "Heavy black clouds race towards you across the sky, whipping the waves into a frenzy. The crew mutter among themselves fearfully.">
-<CONSTANT TEXT038-ALMIR-VALMIR "The blessing of Alvir and Valmir confers safety from storms">
-<CONSTANT TEXT038-SAFETY "Your 'Safety from Storms' blessing protected you">
+
 <CONSTANT CHOICES038 <LTABLE "The storm hits with full fury">>
-<CONSTANT STORY038-REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 3 5 20> <LTABLE "The ship sinks!" "The mast splits!" "You weather the storm!">>>>
 
 <ROOM STORY038
 	(DESC "038")
@@ -4501,44 +4565,12 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(EVENTS STORY038-EVENTS)
 	(CHOICES CHOICES038)
 	(DESTINATIONS <LTABLE <LTABLE STORY325 STORY397 STORY209>>)
-	(REQUIREMENTS STORY038-REQUIREMENTS)
+	(REQUIREMENTS STORY-STORM-REQUIREMENTS)
 	(TYPES <LTABLE R-RANDOM>)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY038-EVENTS ("AUX" (DICE 1) (CONDITION 0) ODDS PARAMETERS)
-	<COND (<OR <CHECK-BLESSING ,BLESSING-ALVIR-VALMIR> <CHECK-BLESSING ,BLESSING-SAFETY-FROM-STORMS>>
-		<CRLF>
-		<COND (<CHECK-BLESSING ,BLESSING-SAFETY-FROM-STORMS>
-			<TELL ,TEXT038-SAFETY>
-			<DELETE-BLESSING ,BLESSING-SAFETY-FROM-STORMS>
-		)(ELSE
-			<TELL ,TEXT038-ALMIR-VALMIR>
-			<DELETE-BLESSING ,BLESSING-ALVIR-VALMIR>
-		)>
-		<TELL ,PERIOD-CR>
-		<STORY-JUMP ,STORY209>
-	)(ELSE
-        <RESET-ODDS 1 0 ,STORY038>
-		<SET ODDS <GETP ,STORY038 ,P?REQUIREMENTS>>
-		<SET PARAMETERS <GET .ODDS 1>>
-		<COND (<EQUAL? ,CURRENT-VEHICLE ,SHIP-BRIGANTINE>
-			<SET DICE 2>
-		)(<EQUAL? ,CURRENT-VEHICLE ,SHIP-GALLEON>
-			<SET DICE 3>
-		)>
-		<PUT .PARAMETERS 1 .DICE>
-		<COND (,CURRENT-VEHICLE
-			<SET CONDITION <GETP ,CURRENT-VEHICLE ,P?CONDITION>>
-            <COND (.CONDITION
-                <COND (<EQUAL? .CONDITION ,CONDITION-EXCELLENT>
-                    <PUT .PARAMETERS 2 2>
-                )(<EQUAL? .CONDITION ,CONDITION-GOOD>
-                    <PUT .PARAMETERS 2 1>
-                )>
-            )>
-		)>
-	)>
-	<RETURN>>
+<ROUTINE STORY038-EVENTS ()
+	<STORM-AT-SEA ,STORY038 ,STORY209>>
 
 <CONSTANT TEXT039 "You and some of your crew clamber aboard the wreck. You find some dead sailors amid the wreckage. Their bodies are curiously bloated.">
 <CONSTANT CHOICES039 <LTABLE TEXT-ROLL-SCOUTING>>
@@ -5060,7 +5092,7 @@ is off, you return to the city centre.">
 	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT073 "If you are an initiate it costs only 10 Shards to purchase Elnir's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again when you make a failed CHARISMA roll. It is only good for one reroll. You can have only one CHARISMA blessing at any one time. Once it is used up, you can return to any branch of the temple of Elnir to buy a new one.">
+<CONSTANT TEXT073 "If you are an initiate it costs only 10 Shards to purchase Elnir's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again when you make a failed CHARISMA roll. It is only good for one reroll. You can have only one CHARISMA blessing at any one time. Once it is used up, you can return to any branch of the Temple of Elnir to buy a new one.">
 
 <ROOM STORY073
 	(DESC "073")
@@ -5085,7 +5117,7 @@ is off, you return to the city centre.">
 	<COST-MONEY 15 "paid">>
 
 <CONSTANT TEXT075 "The high priest takes you to a private chamber. \"You may be just what the temple needs,\" he says, \"a good, old-fashioned thief. There is a suit of armour made entirely from gold -- ceremonial only, of course. Nevertheless, we would like to, er, have it donated to us.\"||\"I see,\" you reply, \"and where is the armour?\"||\"Well, that's the tricky part -- it's in the Temple of Tyrnai, in Caran Baru. In fact, it's worn by the idol of Tyrnai himself in the temple. Can you bring us the gold chain mail of Tyrnai? In return, we will instruct you in the roguish arts.\"">
-<CONSTANT CHOICES075 <LTABLE "Take up the mission for the temple of Sig" IF-NOT>>
+<CONSTANT CHOICES075 <LTABLE "Take up the mission for the Temple of Sig" IF-NOT>>
 
 <ROOM STORY075
 	(DESC "075")
@@ -5171,7 +5203,6 @@ is off, you return to the city centre.">
 stink, laden with sulphur as it is.">
 <CONSTANT TEXT082-STUNG "You are stung by a large golden insect.">
 <CONSTANT TEXT082-CAUGHT "You caught a smolder fish.">
-
 <CONSTANT CHOICES082 <LTABLE "Follow the river north" "Follow the river south to Yellowport" "Go west to the road" "Go east into the countryside">>
 
 <ROOM STORY082
@@ -5434,9 +5465,9 @@ harbourmaster.">
 	<LTABLE
 		"Visit the Three Rings Tavern"
 		"Visit the temple of Alvir and Valmir"
-		"Visit the temple of Nagil"
-		"Visit the temple of Sig"
-		"Visit the temple of Elnir"
+		"Visit the Temple of Nagil"
+		"Visit the Temple of Sig"
+		"Visit the Temple of Elnir"
 		"Visit the market"
 		"Visit the harbourmaster"
 		"Go to the merchants' guild"
@@ -5779,7 +5810,7 @@ harbourmaster.">
 	(TYPES <LTABLE R-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT119 "You hear shouts from outside, muffled by the swirling sulfurous fog. A stab of icy panic pulses at your heart, and an instant later the door bursts open. Three militiamen armed with maces burst through the doorway. Behind them, a tall cadaverous gentleman wrapped in a cape is stamping in fury.||\"A thief in my house!\" he rages. \"Do your duty, men.\"||You realize the truth: Lauria has used you as a decoy to cover her escape. You'll get even with her later -- if you survive.">
+<CONSTANT TEXT119 "You hear shouts from outside, muffled by the swirling sulphurous fog. A stab of icy panic pulses at your heart, and an instant later the door bursts open. Three militiamen armed with maces burst through the doorway. Behind them, a tall cadaverous gentleman wrapped in a cape is stamping in fury.||\"A thief in my house!\" he rages. \"Do your duty, men.\"||You realize the truth: Lauria has used you as a decoy to cover her escape. You'll get even with her later -- if you survive.">
 <CONSTANT CHOICES119 <LTABLE TEXT-ROLL-COMBAT>>
 
 <ROOM STORY119
@@ -5805,137 +5836,103 @@ harbourmaster.">
 	(TYPES <LTABLE R-RANDOM>)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT121 "You wait outside, hoping to take the repulsive ones singly as they emerge. You will have to fight three of them, but you can do so one at a time. However, you will fight with -1 COMBAT during this battle because you are unused to fighting underwater.">
+
 <ROOM STORY121
 	(DESC "121")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT121)
+	(EVENTS STORY121-EVENTS)
+	(CONTINUE STORY213)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY121-EVENTS ("AUX" REPULSIVE-COMBAT REPULSIVE-DEFENSE)
+	<SET REPULSIVE-COMBAT <LTABLE 4 3 4>>
+	<SET REPULSIVE-DEFENSE <LTABLE 6 5 6>>
+	<AFFLICTED-WITH ,DISADVANTAGE-COMBAT>
+	<DO (I 1 3)
+		<PUTP ,STORY121 ,P?DOOM T>
+		<COMBAT-MONSTER ,MONSTER-REPULSIVE-ONE <GET .REPULSIVE-COMBAT .I> <GET .REPULSIVE-DEFENSE .I> 10>
+		<CHECK-COMBAT ,MONSTER-REPULSIVE-ONE ,STORY121>
+		<COND (<IS-ALIVE>
+			<PREVENT-DOOM ,STORY121>
+		)(ELSE
+			<RETURN>
+		)>
+	>
+	<COND (<IS-ALIVE> <REMOVE ,DISADVANTAGE-COMBAT>)>>
+
+<CONSTANT CHOICES122 <LTABLE HAVE-CODEWORD HAVE-A OTHERWISE>>
 
 <ROOM STORY122
 	(DESC "122")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES122)
+	(DESTINATIONS <LTABLE STORY543 STORY384 STORY731>)
+	(REQUIREMENTS <LTABLE CODEWORD-ACID COPPER-AMULET NONE>)
+	(TYPES <LTABLE R-CODEWORD R-ITEM R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT123 "This is the east bank of the River Grimm, near its source in the Spine of Harkun, far to the north.||You reach a ford where you can travel to the west bank for 1 Shard. Alternatively you could try swimming across instead, but the current is strong.">
+<CONSTANT CHOICES123 <LTABLE "Swim (Cities of Gold and Glory)" "Pay to cross (Cities of Gold and Glory)" "East to the wilderness North to the mountains" "Follow the riverbank south">>
 
 <ROOM STORY123
 	(DESC "123")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT123)
+	(CHOICES CHOICES123)
+	(DESTINATIONS <LTABLE <LTABLE STORY-CITIES-OF-GOLD STORY-CITIES-OF-GOLD> STORY-CITIES-OF-GOLD STORY276 STORY003 STORY333>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10> 1 NONE NONE NONE>)
+	(TYPES <LTABLE R-TEST-ABILITY R-MONEY R-NONE R-NONE R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT124 "Heavy black clouds race towards you across the sky, whipping the waves into a frenzy. The crew mutter among themselves fearfully.">
+<CONSTANT CHOICES124 <LTABLE "The storm hits with full fury">>
 
 <ROOM STORY124
 	(DESC "124")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT124)
+	(EVENTS STORY124-EVENTS)
+	(CHOICES CHOICES124)
+	(DESTINATIONS <LTABLE <LTABLE STORY346 STORY583 STORY420>>)
+	(REQUIREMENTS STORY-STORM-REQUIREMENTS)
+	(TYPES <LTABLE R-RANDOM>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY124-EVENTS ()
+	<STORM-AT-SEA ,STORY124 ,STORY420>>
+
+<CONSTANT TEXT125 "You mumble a prayer to the gods, but you're not sure if you got the ritual right.||The beggar thanks you and babbles, \"Yes, yes, a new doublet for an old beggar. I shall wear it with pride.\"||He wanders off, stopping passersby to show off what he thinks are his new clothes. Poor old fool.||You return to the city centre.">
 
 <ROOM STORY125
 	(DESC "125")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT125)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT126 "You come across a strange sight. A man lies staked out on the ground asleep. Blue energy crackles up and down his body, and a hefty-looking hammer, glowing red, is still attached to his belt. He is Sul Veneris, the one you have come to free.||As you are about to lift out the stakes, a keening blast of ferocious wind engulfs you. You are surrounded by whirling storm demons -- vaguely man-shaped creatures of thunderous energy which try to sweep you into the air and off the edge of the peak.||You try to recite the rituals of dismissal associated with such demons.">
+<CONSTANT CHOICES126 <LTABLE TEXT-ROLL-SANCTITY>>
 
 <ROOM STORY126
 	(DESC "126")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY126-BACKGROUND)
+	(STORY TEXT126)
+	(CHOICES CHOICES126)
+	(DESTINATIONS <LTABLE <LTABLE STORY421 STORY210>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SANCTITY 12>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY126-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-ALOFT> <RETURN ,STORY199>)>
+	<RETURN ,STORY126>>
+
+<CONSTANT CHOICES127 <LTABLE TEXT-ROLL-THIEVERY>>
 
 <ROOM STORY127
 	(DESC "127")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES127)
+	(DESTINATIONS <LTABLE <LTABLE STORY269 STORY183>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 9>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT128 "You make your way around the coast. The interior of the island appears to be heavily forested. After a while, however, you come to a bay in which a couple of ships are anchored. A small settlement nestles on the beach, and you make your way towards it.">
@@ -5946,42 +5943,27 @@ harbourmaster.">
 	(CONTINUE STORY195)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT129 "\"Pssst, come here, friend,\" someone whispers from the shadows.">
+<CONSTANT CHOICES129 <LTABLE "Go over to him" "Ignore him and leave">>
+
 <ROOM STORY129
 	(DESC "129")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT129)
+	(CHOICES CHOICES129)
+	(DESTINATIONS <LTABLE STORY641 STORY100>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT130 "You are greeted by several of the knights.||\"We'll not fight you anymore,\" says the Blue Dragon Knight.||\"We keep losing,\" says the Green Dragon Knight.||\"And it's costing us a fortune in armour, not to say a lot of bruises,\" says the Red Dragon Knight.">
+<CONSTANT CHOICES130 <LTABLE HAVE-CODEWORD "Otherwise you are turned away">>
 
 <ROOM STORY130
 	(DESC "130")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT130)
+	(CHOICES CHOICES130)
+	(DESTINATIONS <LTABLE STORY521 STORY276>)
+	(REQUIREMENTS <LTABLE CODEWORD-AXE NONE>)
+	(TYPES <LTABLE R-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY131
