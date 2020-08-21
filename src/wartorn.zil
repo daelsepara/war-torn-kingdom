@@ -553,7 +553,7 @@
 	)>
 	<RETURN !\x>>
 
-<ROUTINE RANDOM-EVENT ("OPT" DICE "AUX" ROLL)
+<ROUTINE RANDOM-EVENT ("OPT" DICE (MODIFIER 0) (SILENT F) "AUX" ROLL)
 	<COND (<NOT .DICE> <SET DICE 1>)>
 	<EMPHASIZE ,TEXT-RANDOM-EVENT>
 	<PRESS-A-KEY>
@@ -562,9 +562,27 @@
 		<CRLF>
 		<TELL "You rolled ">
 		<HLIGHT ,H-BOLD>
-		<TELL N .ROLL CR>
+		<TELL N .ROLL>
 		<HLIGHT 0>
-		<PRESS-A-KEY>
+		<COND (<N=? .MODIFIER 0>
+			<TELL " (">
+			<HLIGHT ,H-BOLD>
+			<COND (<G? .MODIFIER 0>
+				<TELL "+">
+			)>
+			<TELL N .MODIFIER>
+			<HLIGHT 0>
+			<TELL ") = ">
+			<SET .ROLL <+ .ROLL .MODIFIER>>
+			<HLIGHT ,H-BOLD>
+			<COND (<L? .ROLL 0> <SET .ROLL 0>)>
+			<TELL N .ROLL>
+			<HLIGHT 0>
+		)>
+		<CRLF>
+		<COND (<NOT .SILENT>
+			<PRESS-A-KEY>
+		)>
 		<COND (<NOT <PROCESS-RANDOM-BLESSING>> <RETURN>)>
 	>
 	<SETG ,LAST-ROLL .ROLL>
@@ -5988,194 +6006,103 @@ harbourmaster.">
 	(TYPES <LTABLE R-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT131 "On the island is a community of sea gypsies. They hail you, but then they seem to recognize you. Rapid activity takes place, and within seconds a huge sail has been raised, and the island scuds away. It seems they would rather not meet you a second time.">
+
 <ROOM STORY131
 	(DESC "131")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT131)
+	(CONTINUE STORY085)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT132 "You play the flute like never before. The king and queen are entranced by the haunting melodies you are able to coax from the enchanted flute. Unfortunately, you have played too well. The king puts you under a spell, so that you find you cannot stop.">
+<CONSTANT CHOICES132 <LTABLE TEXT-ROLL-SANCTITY>>
 
 <ROOM STORY132
 	(DESC "132")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT132)
+	(CHOICES CHOICES132)
+	(DESTINATIONS <LTABLE <LTABLE STORY413 STORY307>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SANCTITY 11>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT133 "You are forced back by the flames. Some townsfolk, covered in wet blankets, manage to get the woman out. They are treated like heroes -- you are forgotten. Such is life.">
 
 <ROOM STORY133
 	(DESC "133")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT133)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT134 "\"The high priest is out of town,\" a clerk tells you.||\"Yeah, until the heat dies down,\" quips a passing member of the temple. The clerk glares at her angrily.">
 
 <ROOM STORY134
 	(DESC "134")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT134)
+	(CONTINUE STORY235)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT135 "The shores of the Lake of the Sea Dragon are swept by ochre waves, and the air smells foul. A sickly, pale green seaweed is the only vegetation that can survive in the sulphurous waters of the lake. A small fishing village, Cadmium, has grown up on the shores of the lake.">
+<CONSTANT CHOICES135 <LTABLE "Talk to a fisherman" "Visit the local market" "Hire a boat and go fishing" "Go north to the Coldbleak Mountains" "North east into the farmlands" "South east into open countryside" "South, following the Stinking River" "West along the road">>
 
 <ROOM STORY135
 	(DESC "135")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT135)
+	(CHOICES CHOICES135)
+	(DESTINATIONS <LTABLE STORY382 STORY292 STORY203 STORY474 STORY548 STORY278 STORY576 STORY387>)
+	(TYPES EIGHT-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT136 "The Sea of Whispers. Under a grey-blue sky, the sea is uncannily quiet and flat as a pane of glass. At night, however, the waters seem to come alive with an eerie whispering. One of your crew tells you that the sounds you heard at night are the sea centaurs speaking to one another across the waves.">
+<CONSTANT CHOICES136 <LTABLE TEXT-RANDOM-EVENT>>
+<CONSTANT STORY136-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 7 10 12> <LTABLE "Storm" "An uneventful voyage" "An unusual catch" "A strange dream">>>>
 
 <ROOM STORY136
 	(DESC "136")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT136)
+	(CHOICES CHOICES136)
+	(DESTINATIONS <LTABLE <LTABLE STORY639 STORY507 STORY337 STORY108>>)
+	(REQUIREMENTS STORY136-REQUIREMENTS)
+	(TYPES <LTABLE R-RANDOM>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT137 "The merchantman appears to be from Golnir. It keeps well away from you, no doubt fearing piracy.">
 
 <ROOM STORY137
 	(DESC "137")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT137)
+	(CONTINUE STORY559)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY138
 	(DESC "138")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY138-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY138-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-AGUE> <RETURN ,STORY115>)>
+	<RETURN ,STORY730>>
+
+<CONSTANT TEXT139 "You are spotted by a spear-armed guard. It gives an ululating cry of alarm, and many others swarm out of the mound.||You have little choice but to run -- with a pack of deadly killers close behind. Desperately, you try to lose them in the night.">
 
 <ROOM STORY139
 	(DESC "139")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT139)
+	(EVENTS STORY139-EVENTS)
+	(CONTINUE STORY663)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY139-EVENTS ("AUX" ROLL (RANK 1))
+	<SET ROLL <RANDOM-EVENT 1 -1 T>>
+	<COND (,CURRENT-CHARACTER <SET RANK <GETP ,CURRENT-CHARACTER ,P?RANK>>)>
+	<COND (<L=? .ROLL .RANK> <STORY-JUMP ,STORY295>)>>
+
+<CONSTANT TEXT140 "The ship drops you at Yellowport docks. You make your way to the city centre.">
 
 <ROOM STORY140
 	(DESC "140")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT140)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY141
