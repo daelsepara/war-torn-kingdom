@@ -25,9 +25,14 @@
 
 <GLOBAL PERIOD-CR ".|">
 <GLOBAL EXCLAMATION-CR "!|">
-<CONSTANT TEXT-SURE "Are you sure?">
+
+<CONSTANT TEXT-AFFLICTED "afflicted">
 <CONSTANT TEXT-EXCELLENT "Excellent!">
+<CONSTANT TEXT-INFECTED "infected">
+<CONSTANT TEXT-POISONED "poisoned">
+<CONSTANT TEXT-SURE "Are you sure?">
 <CONSTANT TEXT-NEXT-TIME "See you next time!">
+<CONSTANT TEXT-RANDOM-EVENT "Random Event">
 
 ; "CHOICES"
 ; ---------------------------------------------------------------------------------------------
@@ -51,6 +56,8 @@
 <CONSTANT R-VISITS 13> ; "check if location was visited multiple times"
 <CONSTANT R-RANK 14> ; "check if location was visited multiple times"
 <CONSTANT R-GAIN-CODEWORD 15> ; "gain codeword (s)"
+<CONSTANT R-PROFESSION 16> ; "check profession"
+<CONSTANT R-TAKE-MISSION 17> ; "take mission"
 
 ; "No requirements"
 <CONSTANT TWO-NONES <LTABLE R-NONE R-NONE>>
@@ -122,11 +129,17 @@
 ; "currency description"
 <OBJECT CURRENCY (DESC "shards")>
 
+; "curses"
+<OBJECT CURSES (DESC "Curses") (FLAGS CONTBIT OPENBIT)>
+
 ; "container for items given"
 <OBJECT GIVEBAG (DESC "items to give") (FLAGS CONTBIT OPENBIT)>
 
 ; "lost stuff"
 <OBJECT LOST-STUFF (DESC "things lost") (FLAGS CONTBIT OPENBIT)>
+
+; "missions"
+<OBJECT MISSIONS (DESC "missions") (FLAGS CONTBIT OPENBIT)>
 
 ; "container for titles and honours acquired"
 <OBJECT TITLES-AND-HONOURS (DESC "Titles and Honours") (FLAGS CONTBIT OPENBIT)>
@@ -244,6 +257,11 @@
 <ROUTINE CHECK-EVENTS ("AUX" EVENTS)
 	<SET EVENTS <GETP ,HERE ,P?EVENTS>>
 	<COND (.EVENTS <APPLY .EVENTS>)>>
+
+<ROUTINE CHECK-PROFESSION (IS-PROFESSION "AUX" PROFESSION)
+	<SET PROFESSION <GETP ,CURRENT-CHARACTER ,P?PROFESSION>>
+	<COND (.PROFESSION <RETURN <EQUAL? .IS-PROFESSION .PROFESSION>>)>
+	<RETURN <EQUAL? ,CURRENT-CHARACTER .IS-PROFESSION>>>
 
 <ROUTINE CHECK-VICTORY ("AUX" VICTORY)
 	<SET VICTORY <GETP ,HERE ,P?VICTORY>>
@@ -447,6 +465,22 @@
 						<GAIN-CODEWORD .LIST>
 						<PRESS-A-KEY>
 						<SETG HERE <GET .DESTINATIONS .CHOICE>>
+					)(<AND <EQUAL? .TYPE R-PROFESSION> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+						<COND (<CHECK-PROFESSION .LIST>
+							<SETG HERE <GET .DESTINATIONS .CHOICE>>
+							<CRLF>
+						)(ELSE
+							<CRLF>
+							<CRLF>
+							<HLIGHT ,H-BOLD>
+							<TELL "You are not a " D .LIST ,EXCLAMATION-CR>
+							<HLIGHT 0>
+						)>
+					)(<AND <EQUAL? .TYPE R-TAKE-MISSION> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+						<CRLF>
+						<TAKE-MISSION .LIST>
+						<PRESS-A-KEY>
+						<SETG HERE <GET .DESTINATIONS .CHOICE>>
 					)>
 					<RETURN>
 				)(ELSE
@@ -492,13 +526,14 @@
 				<HLIGHT 0>
 				<TELL <GET .CHOICES .I>>
 				<COND (<AND <EQUAL? .CHOICE-TYPE R-TEST-ABILITY> .REQUIREMENTS> <TELL " (Difficulty: "> <HLIGHT ,H-BOLD> <TELL N <GET .LIST 2>> <HLIGHT 0> <TELL")">)>
-				<COND (<AND <EQUAL? .CHOICE-TYPE R-ITEM R-CODEWORD R-DISCHARGE> .REQUIREMENTS> <TELL " ("> <COND (<EQUAL? .CHOICE-TYPE R-ITEM R-DISCHARGE> <HLIGHT ,H-BOLD>)(ELSE <HLIGHT ,H-ITALIC>)> <TELL D .LIST> <HLIGHT 0> <TELL ")">)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE R-ITEM R-CODEWORD R-DISCHARGE R-TAKE-MISSION> .REQUIREMENTS> <TELL " ("> <COND (<EQUAL? .CHOICE-TYPE R-ITEM R-DISCHARGE> <HLIGHT ,H-BOLD>)(ELSE <HLIGHT ,H-ITALIC>)> <TELL D .LIST> <HLIGHT 0> <TELL ")">)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE R-CODEWORD-ITEM> .REQUIREMENTS> <TELL " ("> <HLIGHT ,H-ITALIC> <TELL D <GET .LIST 1>> <HLIGHT 0> <TELL " and "> <HLIGHT ,H-BOLD> <TELL D <GET .LIST 2>> <HLIGHT 0> <TELL ")">)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE R-MONEY> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (" N .LIST " " D ,CURRENCY ")">)>)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE R-RANK> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (Rank "> <HLIGHT ,H-BOLD> <TELL N .LIST> <HLIGHT 0> <TELL ")">)>)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE R-ANY> .REQUIREMENTS> <PRINT-ANY .LIST>)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE R-ALL> .REQUIREMENTS> <PRINT-ALL .LIST>)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE R-VISITS> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (visited > " N .LIST " times)">)>)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE R-PROFESSION> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (" D .LIST ")">)>)>
 				<CRLF>
 			>
 			<SET CHOICE <PROCESS-CHOICES .CHOICES>>
@@ -519,7 +554,7 @@
 
 <ROUTINE RANDOM-EVENT ("OPT" DICE "AUX" ROLL)
 	<COND (<NOT .DICE> <SET DICE 1>)>
-	<EMPHASIZE "[Random Event]">
+	<EMPHASIZE ,TEXT-RANDOM-EVENT>
 	<PRESS-A-KEY>
 	<REPEAT ()
 		<SET ROLL <ROLL-DICE .DICE>>
@@ -617,6 +652,10 @@
 	)>
 	<RTRUE>>
 
+<ROUTINE CHECK-MISSION (MISSION)
+	<COND (<NOT .MISSION> <RTRUE>)>
+	<RETURN <IN? .MISSION ,MISSIONS>>>
+
 <ROUTINE CHECK-RANK (LEVEL "OPT" CHARACTER "AUX" RANK)
 	<COND (<NOT .CHARACTER> <SET CHARACTER ,CURRENT-CHARACTER>)>
 	<SET RANK <GETP .CHARACTER ,P?RANK>>
@@ -673,6 +712,12 @@
 	<COND (<NOT .COUNTER> <SET .COUNTER 1>)>
 	<SET VISITS <GETP .LOCATION ,P?VISITS>>
 	<COND (.VISITS <RETURN <G? .VISITS .COUNTER>>)>
+	<RFALSE>>
+
+<ROUTINE MISSION-COMPLETED (MISSION "AUX" COMPLETED)
+	<COND (<NOT .MISSION> <RTRUE>)>
+	<SET COMPLETED <GETP .MISSION ,P?COMPLETED>>
+	<COND (.COMPLETED <RTRUE>)>
 	<RFALSE>>
 
 <ROUTINE NOT-ALL-ANY (TYPE LIST "OPT" CONTAINER "AUX" COUNT)
@@ -1083,10 +1128,11 @@
 ; "Player or Item routines"
 ; ---------------------------------------------------------------------------------------------
 
-<ROUTINE AFFLICTED-WITH (DISEASE)
+<ROUTINE AFFLICTED-WITH (DISEASE "OPT" EFFECT)
+	<COND (<NOT .EFFECT> <SET EFFECT ,TEXT-AFFLICTED>)>
 	<COND (<NOT <CHECK-AILMENTS .DISEASE>>
 		<CRLF>
-		<TELL "You are infected with the ">
+		<TELL "You are " .EFFECT " with the ">
 		<PRINT-ITEM .DISEASE T>
 		<TELL ,PERIOD-CR>
 		<MOVE .DISEASE ,AILMENTS>
@@ -1218,14 +1264,23 @@
 		<DESCRIBE-PLAYER-WORSHIP>
 		<DESCRIBE-PLAYER-RESURRECTIONS>
 		<DESCRIBE-PLAYER-AILMENTS>
+		<DESCRIBE-PLAYER-MISSIONS>
 		<DESCRIBE-PLAYER-CURRENCY>
 	)>>
 
 <ROUTINE DESCRIBE-PLAYER-AILMENTS ()
-	<HLIGHT ,H-BOLD>
-	<TELL D ,AILMENTS ": ">
-	<HLIGHT 0>
-	<PRINT-CONTAINER ,AILMENTS>>
+	<COND (<G? <COUNT-CONTAINER ,AILMENTS> 0>
+		<HLIGHT ,H-BOLD>
+		<TELL D ,AILMENTS ": ">
+		<HLIGHT 0>
+		<PRINT-CONTAINER ,AILMENTS>
+	)>
+	<COND (<G? <COUNT-CONTAINER ,CURSES> 0>
+		<HLIGHT ,H-BOLD>
+		<TELL D ,CURSES ": ">
+		<HLIGHT 0>
+		<PRINT-CONTAINER ,CURSES>
+	)>>
 
 <ROUTINE DESCRIBE-PLAYER-BACKGROUND ()
 	<CRLF>
@@ -1254,6 +1309,14 @@
 	<PRINT-CAP-OBJ ,CURRENCY>
 	<HLIGHT 0>
 	<TELL ": " N ,MONEY CR>>
+
+<ROUTINE DESCRIBE-PLAYER-MISSIONS ()
+	<COND (<G? <COUNT-CONTAINER ,MISSIONS> 0>
+		<HLIGHT ,H-BOLD>
+		<TELL "Missions: ">
+		<HLIGHT 0>
+		<PRINT-CONTAINER ,MISSIONS>
+	)>>
 
 <ROUTINE DESCRIBE-PLAYER-POSSESSIONS ()
 	<CRLF>
@@ -1612,6 +1675,9 @@
 		)>
 	)>>
 
+<ROUTINE POISONED-WITH (POISON)
+	<AFFLICTED-WITH .POISON ,TEXT-POISONED>>
+
 <ROUTINE PRINT-BLESSINGS (ITEM "OPT"  "AUX" (COUNT 0) (ITEMS 0) (SCORE 0) (PROPERTY NONE))
 	<COND (<G? <COUNT-BLESSINGS .ITEM> 0>
 		<SET ITEMS <GET ,ABILITIES 0>>
@@ -1878,6 +1944,11 @@
 	)>
 	<WEAR-BEST>>
 
+<ROUTINE TAKE-MISSION (MISSION "OPT" CODEWORD)
+	<GAIN-OBJECT .MISSION ,MISSIONS "mission" CHECK-MISSION>
+	<SET CODEWORD <GETP .MISSION ,P?CODEWORD>>
+	<COND (.CODEWORD <GAIN-CODEWORD .CODEWORD>)>>
+
 <ROUTINE TAKE-QUANTITIES (OBJECT PLURAL MESSAGE "OPT" AMOUNT)
 	<CRLF>
 	<TELL "Take the " .PLURAL "?">
@@ -2142,14 +2213,8 @@
 ; "Reset routines"
 ; ---------------------------------------------------------------------------------------------
 
-<ROUTINE RESET-CONTAINER (CONTAINER "AUX" ITEM NEXT)
-	<SET ITEM <FIRST? .CONTAINER>>
-	<REPEAT ()
-		<COND (<NOT .ITEM> <RETURN>)>
-		<SET NEXT <NEXT? .ITEM>>
-		<REMOVE .ITEM>
-		<SET ITEM .NEXT>
-	>>
+<ROUTINE RESET-AILMENTS ()
+	<RESET-CONTAINER ,AILMENTS>>
 
 <ROUTINE RESET-BLESSINGS ()
 	<RESET-CONTAINER ,BLESSINGS>>
@@ -2163,8 +2228,24 @@
 <ROUTINE RESET-CODEWORDS ()
 	<RESET-CONTAINER ,CODEWORDS>>
 
+<ROUTINE RESET-CONTAINER (CONTAINER "AUX" ITEM NEXT)
+	<SET ITEM <FIRST? .CONTAINER>>
+	<REPEAT ()
+		<COND (<NOT .ITEM> <RETURN>)>
+		<SET NEXT <NEXT? .ITEM>>
+		<REMOVE .ITEM>
+		<SET ITEM .NEXT>
+	>>
+
+<ROUTINE RESET-CURSES ()
+	<RESET-CONTAINER ,CURSES>>
+
 <ROUTINE RESET-GIVEBAG ()
 	<RESET-CONTAINER ,GIVEBAG>>
+
+<ROUTINE RESET-MISSIONS ()
+	<PUTP ,MISSION-GHOUL-HEAD ,P?COMPLETED F>
+	<RESET-CONTAINER ,MISSIONS>>
 
 <ROUTINE RESET-PLAYER ()
 	<SETG LAST-ROLL 0>
@@ -2175,10 +2256,13 @@
 	<SETG MONEY 0>
 	<SETG RESURRECTION-ARRANGEMENTS NONE>
 	<SETG STAMINA 0>
+	<RESET-AILMENTS>
 	<RESET-BLESSINGS>
 	<RESET-CARGO>
 	<RESET-CODEWORDS>
+	<RESET-CURSES>
 	<RESET-GIVEBAG>
+	<RESET-MISSIONS>
 	<RESET-POSSESSIONS>
 	<RESET-TITLES>
 	<RESET-VEHICLES>>
@@ -2533,6 +2617,7 @@
 <OBJECT CODEWORD-ARMOUR (DESC "Armour")>
 <OBJECT CODEWORD-ARTERY (DESC "Artery")>
 <OBJECT CODEWORD-ARTIFACT (DESC "Artifact")>
+<OBJECT CODEWORD-ASHEN (DESC "Ashen")>
 <OBJECT CODEWORD-ASPEN (DESC "Aspen")>
 <OBJECT CODEWORD-ASSASSIN (DESC "Assassin")>
 <OBJECT CODEWORD-ATTAR (DESC "Attar")>
@@ -2930,6 +3015,18 @@
 	(COMBAT 3)
 	(DEFENSE 5)
 	(STAMINA 7)>
+
+; "Missions"
+; ---------------------------------------------------------------------------------------------
+
+<OBJECT MISSION-GHOUL-HEAD
+	(DESC "Warden: ghoul's head")
+	(CODEWORD CODEWORD-AGUE)
+	(COMPLETED F)>
+
+<OBJECT GHOULS-HEAD
+	(DESC "ghoul's head")
+	(FLAGS TAKEBIT)>
 
 ; "Titles and Honours for War-Torn Kingdom"
 ; ---------------------------------------------------------------------------------------------
@@ -3558,7 +3655,7 @@
 			<CRLF>
 			<TELL "You are cured of: ">
 			<PRINT-CONTAINER ,AILMENTS>
-			<RESET-CONTAINER ,AILMENTS>
+			<RESET-AILMENTS>
 		)>
 	)(ELSE
 		<EMPHASIZE "You cannot afford a cure at this time.">
@@ -3813,6 +3910,7 @@
 <CONSTANT HAVE-NEITHER "You have neither">
 <CONSTANT IF-NOT "If not">
 <CONSTANT OTHERWISE "Otherwise">
+<CONSTANT YOU-ARE-A "You are a">
 
 <CONSTANT TEXT-ROLL-COMBAT "Make a COMBAT roll">
 <CONSTANT TEXT-ROLL-CHARISMA "Make a CHARISMA roll">
@@ -4267,15 +4365,15 @@ won't follow you there if they don't think you're good enough.\"">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT029 "Your ship is sailing in the coastal waters beside Yellowport. There are a number of other ships, mostly merchantmen, but there are also a few warships of the Sokaran Imperial Navy. \"At least we won't be plagued by pirates with the navy around,\" says the first mate.">
-<CONSTANT CHOICES029 <LTABLE "Random Event">>
-<CONSTANT STORY029-ODDS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE "Storm!" "An uneventful voyage!" "Sokaran war galley!">>>>
+<CONSTANT CHOICES029 <LTABLE TEXT-RANDOM-EVENT>>
+<CONSTANT STORY029-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE "Storm!" "An uneventful voyage!" "Sokaran war galley!">>>>
 
 <ROOM STORY029
 	(DESC "029")
 	(STORY TEXT029)
 	(CHOICES CHOICES029)
 	(DESTINATIONS <LTABLE <LTABLE STORY613 STORY439 STORY165>>)
-	(REQUIREMENTS STORY029-ODDS)
+	(REQUIREMENTS STORY029-REQUIREMENTS)
 	(TYPES <LTABLE R-RANDOM>)
 	(FLAGS LIGHTBIT)>
 
@@ -4395,7 +4493,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 <CONSTANT TEXT038-ALMIR-VALMIR "The blessing of Alvir and Valmir confers safety from storms">
 <CONSTANT TEXT038-SAFETY "Your 'Safety from Storms' blessing protected you">
 <CONSTANT CHOICES038 <LTABLE "The storm hits with full fury">>
-<CONSTANT STORY038-ODDS <LTABLE <LTABLE 1 0 <LTABLE 3 5 20> <LTABLE "The ship sinks!" "The mast splits!" "You weather the storm!">>>>
+<CONSTANT STORY038-REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 3 5 20> <LTABLE "The ship sinks!" "The mast splits!" "You weather the storm!">>>>
 
 <ROOM STORY038
 	(DESC "038")
@@ -4403,7 +4501,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(EVENTS STORY038-EVENTS)
 	(CHOICES CHOICES038)
 	(DESTINATIONS <LTABLE <LTABLE STORY325 STORY397 STORY209>>)
-	(REQUIREMENTS STORY038-ODDS)
+	(REQUIREMENTS STORY038-REQUIREMENTS)
 	(TYPES <LTABLE R-RANDOM>)
 	(FLAGS LIGHTBIT)>
 
@@ -4577,14 +4675,14 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(STORY TEXT048)
 	(CHOICES CHOICES048)
 	(DESTINATIONS <LTABLE STORY100 STORY100>)
-	(REQUIREMENTS <LTABLE CODEWORD-AGUE NONE>)
-	(TYPES <LTABLE R-GAIN-CODEWORD NONE>)
+	(REQUIREMENTS <LTABLE MISSION-GHOUL-HEAD NONE>)
+	(TYPES <LTABLE R-TAKE-MISSION R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT049 "Not taking any chances, you charge the soldier, yelling a war cry. He starts back in astonishment. Just then, several archers pop up from behind the rocks above, and let loose a volley of arrows. One takes you in the leg.">
 <CONSTANT TEXT049-CONTINUED "You fall to one knee, and the soldier melts away into the rocks. Alone, and wounded in the thigh, you cannot climb upwards. You have to go back down though the descent will be difficult with an injured leg">
 <CONSTANT CHOICES049 <LTABLE "Continue descent">>
-<CONSTANT STORY049-ODDS <LTABLE <LTABLE 1 0 <LTABLE 3 6> <LTABLE "You lose footing and fell!" "You finally managed to descend!">>>>
+<CONSTANT STORY049-REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 3 6> <LTABLE "You lose footing and fell!" "You finally managed to descend!">>>>
 
 <ROOM STORY049
 	(DESC "049")
@@ -4592,7 +4690,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(EVENTS STORY049-EVENTS)
 	(CHOICES CHOICES049)
 	(DESTINATIONS <LTABLE <LTABLE STORY529 STORY474>>)
-	(REQUIREMENTS STORY049-ODDS)
+	(REQUIREMENTS STORY049-REQUIREMENTS)
 	(TYPES <LTABLE R-RANDOM>)
 	(DOOM T)
 	(FLAGS LIGHTBIT)>
@@ -4621,7 +4719,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 
 <CONSTANT TEXT051 "The war galley pulls alongside, and grappling hooks fly through the air, fastening your ships together. The captain leaps across and his men swarm on to your ship. A battle ensues.">
 <CONSTANT CHOICES051 <LTABLE "Do Battle">>
-<CONSTANT STORY051-ODDS <LTABLE <LTABLE 2 0 <LTABLE 4 9 13 100> <LTABLE "Calamity!" "Crushing Defeat!" "Draw!" "Outright victory!">>>>
+<CONSTANT STORY051-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 13 100> <LTABLE "Calamity!" "Crushing Defeat!" "Draw!" "Outright victory!">>>>
 
 <ROOM STORY051
 	(DESC "051")
@@ -4629,7 +4727,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
     (EVENTS STORY051-EVENTS)
 	(CHOICES CHOICES051)
 	(DESTINATIONS <LTABLE <LTABLE STORY-KILLED STORY051-CRUSHING-DEFEAT STORY242 STORY062>>)
-	(REQUIREMENTS STORY051-ODDS)
+	(REQUIREMENTS STORY051-REQUIREMENTS)
 	(TYPES <LTABLE R-RANDOM>)
 	(FLAGS LIGHTBIT)>
 
@@ -4639,7 +4737,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
     <SET PROFESSION <GETP ,CURRENT-CHARACTER ,P?PROFESSION>>
     <SET ODDS <GETP ,STORY051 ,P?REQUIREMENTS>>
     <SET PARAMETERS <GET .ODDS 1>>
-    <COND (<OR <AND .PROFESSION <EQUAL? .PROFESSION ,PROFESSION-WARRIOR>> <EQUAL? ,CURRENT-CHARACTER ,PROFESSION-WARRIOR>>
+    <COND (<CHECK-PROFESSION ,PROFESSION-WARRIOR>
         <PUT .PARAMETERS 1 3>
     )(ELSE
         <PUT .PARAMETERS 1 2>
@@ -5089,7 +5187,7 @@ stink, laden with sulphur as it is.">
 	<SET ROLL <RANDOM-EVENT 1>>
 	<COND (<L=? .ROLL 2>
 		<EMPHASIZE ,TEXT082-STUNG>
-		<AFFLICTED-WITH ,POISON-COMBAT>
+		<POISONED-WITH ,POISON-COMBAT>
 	)(<L=? .ROLL 4>
 		<EMPHASIZE ,NOTHING-HAPPENS>
 	)(ELSE
@@ -5562,194 +5660,149 @@ harbourmaster.">
 	(TYPES <LTABLE R-MONEY R-NONE R-NONE R-NONE R-NONE>)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT111 "Your knowledge of the arcane arts is too limited to help you here.">
+<CONSTANT CHOICES111 <LTABLE "Fight your way to the golden net" "Swim back to Shadar Tor">>
+
 <ROOM STORY111
 	(DESC "111")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT111)
+	(CHOICES CHOICES111)
+	(DESTINATIONS <LTABLE STORY111 STORY035>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT112 "The merchants' guild is comparatively small here. Most of its work involves financial services for the army. Here you can bank your money for safe-keeping, but there are no facilities for investment.">
+<CONSTANT CHOICES112 <LTABLE "To deposit or withdraw money in Caran Baru" "Return to the town centre">>
 
 <ROOM STORY112
 	(DESC "112")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT112)
+	(CHOICES CHOICES112)
+	(DESTINATIONS <LTABLE STORY605 STORY400>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT CHOICES113 <LTABLE HAVE-CODEWORD YOU-ARE-A "Otherwise, the high priest has little to say; your is cut short.">>
 
 <ROOM STORY113
 	(DESC "113")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES113)
+	(DESTINATIONS <LTABLE STORY550 STORY075 STORY235>)
+	(REQUIREMENTS <LTABLE CODEWORD-ARMOUR PROFESSION-ROGUE NONE>)
+	(TYPES <LTABLE R-CODEWORD R-PROFESSION R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT114 "You are known as the priest who outwitted the storm demons to save Sul Veneris. You are shown in to see the chief administrator, who welcomes you freely. He can heal you of all lost Stamina points, and cure you of a disease or of poison free of charge. He cannot, however, lift a curse. \"Whenever you need help, come to me!\" he says. When you are ready.">
 
 <ROOM STORY114
 	(DESC "114")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT114)
+	(EVENTS STORY114-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY114-EVENTS ()
+	<COND (<OR <L? ,STAMINA ,MAX-STAMINA> <G? <COUNT-CONTAINER ,AILMENTS> 0>>
+		<SETG ,STAMINA ,MAX-STAMINA>
+		<COND (<G? <COUNT-CONTAINER ,AILMENTS> 0>
+			<CRLF>
+			<TELL "The priest cures you of: ">
+			<PRINT-CONTAINER ,AILMENTS>
+			<RESET-AILMENTS>
+		)>
+	)>>
+
+<CONSTANT TEXT115 "You are exploring Marlock City.">
 
 <ROOM STORY115
 	(DESC "115")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY115-BACKGROUND)
+	(STORY TEXT115)
+	(EVENTS STORY115-EVENTS)
+	(CONTINUE STORY226)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY115-BACKGROUND ()
+	<COND (<MISSION-COMPLETED ,MISSION-GHOUL-HEAD> <RETURN ,STORY226>)>
+	<RETURN ,STORY115>>
+
+<ROUTINE STORY115-EVENTS ()
+	<COND (<AND <CHECK-MISSION ,MISSION-GHOUL-HEAD> <NOT <MISSION-COMPLETED ,MISSION-GHOUL-HEAD>>>
+		<CRLF>
+		<TELL "Do you want to pursue the quest for the Temple of Nagil and bring it the head of the escaped ghoul?">
+		<COND (<YES?> <STORY-JUMP STORY446>)>
+	)(<MISSION-COMPLETED ,MISSION-GHOUL-HEAD>
+		<CRLF>
+		<COND (<CHECK-ITEM ,GHOULS-HEAD>
+			<TELL "Perhaps you should go back to the Temple of Nagil to claim your reward">
+		)(ELSE
+			<TELL "The escaped ghoul has already been dealt with">
+		)>
+		<TELL ,PERIOD-CR>
+	)>>
+
+<CONSTANT TEXT116 "You realize the creature is one of the legendary repulsive ones. It is swimming past you, intent on its own business, so you follow it, in the hope it will lead you to the sunken city of Ziusudra.">
 
 <ROOM STORY116
 	(DESC "116")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY116-BACKGROUND)
+	(STORY TEXT116)
+	(CONTINUE STORY547)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY116-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY116 1> <RETURN ,STORY226>)>
+	<RETURN ,STORY116>>
+
+<CONSTANT TEXT117 "There are several people with eyepatches but none with a velvet one. You ask around among the taverns and bars of the rougher areas in Caran Baru.">
+<CONSTANT CHOICES117 <LTABLE TEXT-ROLL-CHARISMA>>
 
 <ROOM STORY117
 	(DESC "117")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT117)
+	(CHOICES CHOICES117)
+	(DESTINATIONS <LTABLE <LTABLE STORY149 STORY468>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 11>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT118 "The overseer of the mines is a fat, cruel-looking man. He welcomes you with a promise, \"In one month, you'll be dead, slave.\"||You spend the next few weeks in chains, working sixteen hours a day, deep underground, digging at a rock face in the tunnels of the mines in the Bronze Hills. You are fed on gruel and black bread. You realize you will not live long down here and that you must escape if you are to survive.">
+<CONSTANT CHOICES118 <LTABLE HAVE-CODEWORD OTHERWISE>>
 
 <ROOM STORY118
 	(DESC "118")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT118)
+	(CHOICES CHOICES118)
+	(DESTINATIONS <LTABLE STORY351 STORY565>)
+	(REQUIREMENTS <LTABLE CODEWORD-ASHEN NONE>)
+	(TYPES <LTABLE R-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT119 "You hear shouts from outside, muffled by the swirling sulfurous fog. A stab of icy panic pulses at your heart, and an instant later the door bursts open. Three militiamen armed with maces burst through the doorway. Behind them, a tall cadaverous gentleman wrapped in a cape is stamping in fury.||\"A thief in my house!\" he rages. \"Do your duty, men.\"||You realize the truth: Lauria has used you as a decoy to cover her escape. You'll get even with her later -- if you survive.">
+<CONSTANT CHOICES119 <LTABLE TEXT-ROLL-COMBAT>>
 
 <ROOM STORY119
 	(DESC "119")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT119)
+	(CHOICES CHOICES119)
+	(DESTINATIONS <LTABLE <LTABLE STORY588 STORY096>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-COMBAT 12>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
+	(CODEWORDS <LTABLE CODEWORD-ASHEN>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT120 "Your ship is sailing in the coastal waters off the Shadar Tor. You can just see the tor, a jumbled mass of rocks, sitting on the clifftops as it has done for a thousand years.">
+<CONSTANT CHOICES120 <LTABLE TEXT-RANDOM-EVENT>>
+<CONSTANT STORY120-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE "Storm" "An uneventful voyage" "A merchant ship">>>>
 
 <ROOM STORY120
 	(DESC "120")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT120)
+	(CHOICES CHOICES120)
+	(DESTINATIONS <LTABLE <LTABLE STORY324 STORY559 STORY207>>)
+	(REQUIREMENTS STORY120-REQUIREMENTS)
+	(TYPES <LTABLE R-RANDOM>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY121
