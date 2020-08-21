@@ -517,11 +517,22 @@
 	)>
 	<RETURN !\x>>
 
-<ROUTINE RANDOM-EVENT ("OPT" ROLL)
-	<COND (<NOT .ROLL> <SET ROLL 1>)>
+<ROUTINE RANDOM-EVENT ("OPT" DICE "AUX" ROLL)
+	<COND (<NOT .DICE> <SET DICE 1>)>
 	<EMPHASIZE "[Random Event]">
 	<PRESS-A-KEY>
-	<RETURN <ROLL-DICE .ROLL>>>
+	<REPEAT ()
+		<SET ROLL <ROLL-DICE .DICE>>
+		<CRLF>
+		<TELL "You rolled ">
+		<HLIGHT ,H-BOLD>
+		<TELL N .ROLL CR>
+		<HLIGHT 0>
+		<PRESS-A-KEY>
+		<COND (<NOT <PROCESS-RANDOM-BLESSING>> <RETURN>)>
+	>
+	<SETG ,LAST-ROLL .ROLL>
+	<RETURN .ROLL>>
 
 <ROUTINE STORY-JUMP (STORY)
 	<COND (.STORY
@@ -1473,7 +1484,7 @@
 		<RESET-GIVEBAG>
 		<REPEAT ()
 			<TRANSFER-CONTAINER ,GIVEBAG .CONTAINER>
-			<SELECT-FROM-LIST ,TEMPLIST .COUNT .MAX "item" ,GIVEBAG "give">
+			<SELECT-FROM-LIST ,TEMP-LIST .COUNT .MAX "item" ,GIVEBAG "give">
 			<COND (<NOT <EQUAL? <COUNT-CONTAINER ,GIVEBAG> .MAX>>
 				<COND (<AND <EQUAL? .MAX <+ <COUNT-CONTAINER ,GIVEBAG> 1>> <IN? ,ALL-MONEY ,GIVEBAG> <INTBL? ,ALL-MONEY .LIST <+ <GET .LIST 0> 1>>>
 					<COND (<G? ,MONEY 0>
@@ -1563,12 +1574,12 @@
 		<DO (I 1 .ITEMS)
 			<SET COUNT <+ .COUNT 1>>
 			<COND (<L=? .COUNT .ITEMS>
-				<PUT ,TEMPLIST .COUNT <GET-ITEM .I .CONTAINER>>
+				<PUT ,TEMP-LIST .COUNT <GET-ITEM .I .CONTAINER>>
 			)>
 		>
 		<REPEAT ()
 			<COND (.ACTION <APPLY .ACTION>)>
-			<SELECT-FROM-LIST ,TEMPLIST .COUNT .MAX .ITEM .CONTAINER "retain">
+			<SELECT-FROM-LIST ,TEMP-LIST .COUNT .MAX .ITEM .CONTAINER "retain">
 			<COND (<EQUAL? <COUNT-CONTAINER .CONTAINER> .MAX>
 				<CRLF>
 				<TELL "You have selected: ">
@@ -1586,8 +1597,8 @@
 			)>
 		>
 		<DO (I 1 .COUNT)
-			<COND (<NOT <IN? <GET ,TEMPLIST .I> .CONTAINER>>
-				<MOVE <GET ,TEMPLIST .I> .LOST-CONTAINER>
+			<COND (<NOT <IN? <GET ,TEMP-LIST .I> .CONTAINER>>
+				<MOVE <GET ,TEMP-LIST .I> .LOST-CONTAINER>
 			)>
 		>
 	)>>
@@ -2529,6 +2540,7 @@
 <OBJECT CODEWORD-AZURE (DESC "Azure")>
 <OBJECT CODEWORD-BARNACLE (DESC "Barnacle")>
 <OBJECT CODEWORD-BRUSH (DESC "Brush")>
+<OBJECT CODEWORD-DEFEND (DESC "Defend")>
 <OBJECT CODEWORD-DELIVER (DESC "Deliver")>
 <OBJECT CODEWORD-ELDRITCH (DESC "Eldritch")>
 
@@ -2887,6 +2899,12 @@
 	(COMBAT 4)
 	(DEFENSE 7)
 	(STAMINA 5)>
+
+<OBJECT MONSTER-SCORPION-SHAMAN
+	(DESC "Scorpion Shaman")
+	(COMBAT 5)
+	(DEFENSE 8)
+	(STAMINA 9)>
 
 <OBJECT MONSTER-THUG
 	(DESC "Thug")
@@ -3382,6 +3400,9 @@
 	)>>
 
 <ROUTINE GUILD-INVESTMENTS ("OPT" STORY "AUX" INVESTMENTS KEY INVESTMENT)
+	<DELETE-CODEWORD ,CODEWORD-ALMANAC>
+	<DELETE-CODEWORD ,CODEWORD-BRUSH>
+	<DELETE-CODEWORD ,CODEWORD-ELDRITCH>
 	<COND (<NOT .STORY> <SET STORY ,HERE>)>
 	<COND (<AND <L? ,MONEY 100> <NOT <GETP .STORY ,P?INVESTMENTS>>> <RETURN>)>
 	<REPEAT ()
@@ -3752,6 +3773,7 @@
 	<PUTP ,STORY043 ,P?DOOM T>
 	<PUTP ,STORY045 ,P?DOOM T>
 	<PUTP ,STORY049 ,P?DOOM T>
+	<PUTP ,STORY051-CRUSHING-DEFEAT ,P?DOOM T>
 	<PUTP ,STORY055 ,P?DOOM T>
 	<PUTP ,STORY060 ,P?DOOM T>
 	<PUTP ,STORY064 ,P?DOOM T>
@@ -3759,6 +3781,8 @@
 	<PUTP ,STORY081 ,P?DOOM T>
 	<PUTP ,STORY087 ,P?DOOM T>
 	<PUTP ,STORY096 ,P?DOOM T>
+	<PUTP ,STORY101-SUCCEED ,P?DOOM T>
+	<PUTP ,STORY105 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>
 	<RETURN>>
 
@@ -4134,7 +4158,7 @@ won't follow you there if they don't think you're good enough.\"">
 
 <ROOM STORY019
 	(DESC "019")
-	(VISITS 2)
+	(VISITS 0)
 	(STORY TEXT019)
 	(EVENTS STORY019-EVENTS)
 	(CONTINUE STORY276)
@@ -4277,8 +4301,7 @@ harbourmaster.">
 	(CODEWORDS <LTABLE CODEWORD-AKLAR>)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT032 "You head across the hot, dusty and sparsely vegetated land. Vultures circle overhead -- presumably they think you're going to die. You wander on, until you come to a ridge. Down below, in a shallow valley, is a great mound of earth. Scorpion men crawl in and out of the many burrows that riddle the earth.
-The number of scorpion men in the valley makes your heart quail; the place is too deadly to enter.">
+<CONSTANT TEXT032 "You head across the hot, dusty and sparsely vegetated land. Vultures circle overhead -- presumably they think you're going to die. You wander on, until you come to a ridge. Down below, in a shallow valley, is a great mound of earth. Scorpion men crawl in and out of the many burrows that riddle the earth.||The number of scorpion men in the valley makes your heart quail; the place is too deadly to enter.">
 
 <ROOM STORY032
 	(DESC "032")
@@ -4533,10 +4556,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY046-EVENTS ()
-    <DELETE-CODEWORD ,CODEWORD-ALMANAC>
-    <DELETE-CODEWORD ,CODEWORD-BRUSH>
-    <DELETE-CODEWORD ,CODEWORD-ELDRITCH>
-    <GUILD-INVESTMENTS>>
+    <GUILD-INVESTMENTS ,STORY046>>
 
 <CONSTANT TEXT047 "The Forest of Larun is a mighty swathe of densely packed trees, a slice of primordial nature in the middle of busy, industrious Sokara.">
 <CONSTANT CHOICES047 <LTABLE "Venture deeper into the forest" "Venture deeper into the forest" "North to the Bronze Hills" "West to the River Grimm" "South into the countryside" "East to the road">>
@@ -4651,7 +4671,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 <ROUTINE STORY051-DEFEAT ()
 	<LOSE-STAMINA <ROLL-DICE 1> ,DIED-IN-COMBAT ,STORY051-CRUSHING-DEFEAT>>
 
-<CONSTANT TEXT052 "If you are an initiate it costs only 10 Shards to purchase Lacuna's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again when you fail a SCOUTING roll. It is good for only one reroll. You can have only one SCOUTING
+<CONSTANT TEXT052 "If you are an initiate it costs only 10 Shards to purchase Lacuna's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again on a failed SCOUTING roll. It is good for only one reroll. You can have only one SCOUTING
 blessing at any one time. Once it is used up, you can return to any branch of the temple of Lacuna to buy a new one.">
 
 <ROOM STORY052
@@ -5066,16 +5086,16 @@ stink, laden with sulphur as it is.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY082-EVENTS ("AUX" ROLL)
-    <SET ROLL <RANDOM-EVENT 1>>
-    <COND (<L=? .ROLL 2>
-        <EMPHASIZE ,TEXT082-STUNG>
-        <AFFLICTED-WITH ,POISON-COMBAT>
-    )(<L=? .ROLL 4>
-        <EMPHASIZE ,NOTHING-HAPPENS>
-    )(ELSE
-        <EMPHASIZE ,TEXT082-CAUGHT>
+	<SET ROLL <RANDOM-EVENT 1>>
+	<COND (<L=? .ROLL 2>
+		<EMPHASIZE ,TEXT082-STUNG>
+		<AFFLICTED-WITH ,POISON-COMBAT>
+	)(<L=? .ROLL 4>
+		<EMPHASIZE ,NOTHING-HAPPENS>
+	)(ELSE
+		<EMPHASIZE ,TEXT082-CAUGHT>
 		<TAKE-ITEM ,SMOLDER-FISH>
-    )>>
+	)>>
 
 <ROOM STORY083
 	(DESC "083")
@@ -5196,6 +5216,7 @@ stink, laden with sulphur as it is.">
 
 <ROOM STORY091
 	(DESC "091")
+	(VISITS 0)
 	(STORY TEXT091)
 	(EVENTS STORY091-EVENTS)
 	(CONTINUE STORY109)
@@ -5203,7 +5224,7 @@ stink, laden with sulphur as it is.">
 
 <ROUTINE STORY091-EVENTS ()
 	<GAMBLING-DEN 20>
-	<COND (<CHECK-VISITS-MORE 1> <STORY-JUMP ,STORY100>)>>
+	<COND (<CHECK-VISITS-MORE ,STORY091 1> <STORY-JUMP ,STORY100>)>>
 
 <CONSTANT TEXT092 "He falls dead at your feet. Searching him, you find 25 Shards. Then you flip up his eyepatch. Nestling in the eye-socket is a sparkling gem, a flame opal. You pluck it free. You hurry off before a patrol arrives.">
 
@@ -5416,194 +5437,129 @@ harbourmaster.">
 		)>
 	)>>
 
+<CONSTANT TEXT101 "You yell the name of their god again and again. The cultists clap their hands over their ears, hopping about in horror.||\"Argh!\" howls the leader. \"Stop your blaspheming, you heathen devil.\"||In their confusion, you make it to your equipment. Now you can fight your way out.">
+<CONSTANT TEXT101-CONTINUED "You manage to fight your way to freedom.">
+
+<CONSTANT CHOICES101 <LTABLE TEXT-ROLL-COMBAT>>
+
 <ROOM STORY101
 	(DESC "101")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT101)
+	(CHOICES CHOICES101)
+	(DESTINATIONS <LTABLE <LTABLE STORY101-SUCCEED STORY204>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-COMBAT 13>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<ROOM STORY101-SUCCEED
+	(DESC "101")
+	(EVENTS STORY101-EVENTS)
+	(CONTINUE STORY010)
+	(DOOM T)>
+
+<ROUTINE STORY101-EVENTS ()
+	<LOSE-STAMINA 4 ,DIED-IN-COMBAT ,STORY101-SUCCEED>
+	<IF-ALIVE ,TEXT101-CONTINUED>>
 
 <ROOM STORY102
 	(DESC "102")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY102-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY102-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-DEFEND> <RETURN ,STORY655>)>
+	<RETURN ,STORY732>>
+
+<CONSTANT TEXT103 "You set sail for Copper Island. The uneventful journey takes only a few days. The captain cannot believe how smooth the voyage has been. You disembark at the harbour of Copper Island.">
 
 <ROOM STORY103
 	(DESC "103")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT103)
+	(CONTINUE STORY-BLOOD-DARK-SEA)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY104
 	(DESC "104")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-GUILD-INVESTMENTS)
+	(EVENTS STORY104-EVENTS)
+	(CONTINUE STORY571)
+	(INVESTMENTS 0)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY104-EVENTS ()
+	<GUILD-INVESTMENTS ,STORY104>>
+
+<CONSTANT TEXT105 "You will have to fight it.">
 
 <ROOM STORY105
 	(DESC "105")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT105)
+	(EVENTS STORY105-EVENTS)
+	(CONTINUE STORY532)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY105-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-SCORPION-SHAMAN 5 8 9>
+	<CHECK-COMBAT ,MONSTER-SCORPION-SHAMAN ,STORY105>>
+
+<CONSTANT TEXT106 "The young man smiles ingratiatingly, and hands you the pearls.">
+<CONSTANT CHOICES106 <LTABLE TEXT-ROLL-MAGIC>>
 
 <ROOM STORY106
 	(DESC "106")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT106)
+	(CHOICES CHOICES106)
+	(DESTINATIONS <LTABLE <LTABLE STORY306 STORY489>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-MAGIC 10>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT107 "If you are an initiate it costs only 10 Shards to purchase Tyrnai's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again on a failed COMBAT roll. It is good for only one reroll. You can only have one COMBAT blessing at any one time. Once it is used up, you can return to any branch of the temple of Tyrnai to buy a new one.">
 
 <ROOM STORY107
 	(DESC "107")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT107)
+	(EVENTS STORY107-EVENTS)
+	(CONTINUE STORY282)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY107-EVENTS ()
+	<PURCHASE-BLESSING 25 10 ,GOD-TYRNAI ,BLESSING-COMBAT>>
+
+<CONSTANT TEXT108 "That night, your sleep is restless. You dream a most vivid dream. You are attacked by a gigantic sea monster, a mighty octopoid thing that encircles the ship with tree-like tentacles and pulls it under the waves. You sink into the bottle-green depths until you are caught in a glowing golden net.||You wake in an undersea palace of multi-coloured coral with mermaids to attend you. They lead you past trident-armed merman guards into a great hall. Seated upon two giant shells, like thrones, are the king and queen of the deep, with green hair, sea-grey eyes, and crowns of pale gold. Shoals of iridescent angel fish dart about in an intricate flashing dance of colour, dancing for the rulers of the land beneath the waves. In awe, you bow before them.||\"We are bored,\" says the queen. \"Entertain us.\"||A silver flute appears in your hands.">
+<CONSTANT CHOICES108 <LTABLE TEXT-ROLL-CHARISMA>>
 
 <ROOM STORY108
 	(DESC "108")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT108)
+	(CHOICES CHOICES108)
+	(DESTINATIONS <LTABLE <LTABLE STORY132 STORY457>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 11>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT109 "You are about to leave when you see a crowd gathered around a skinny, pasty-faced scholar at a card table.||\"By the Three Fortunes, but I'm hot tonight!\" he cries. It seems he is on a winning streak. You notice a couple of dodgy-looking ruffians watching the scholar carefully.">
+<CONSTANT CHOICES109 <LTABLE "Wait and follow the scholar" "Return to the city centre">>
 
 <ROOM STORY109
 	(DESC "109")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT109)
+	(CHOICES CHOICES109)
+	(DESTINATIONS <LTABLE STORY540 STORY100>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT110 "You are walking through the Bronze Hills. Virtually the whole area has been given over to mining. Everywhere, quarries and mine shafts abound. It is a horrible expanse of torn-up earth -- hardly any areas of green are left. Great heaps of excavated rock, leeched of their useful minerals, mar the landscape. You find a quarry that is open to the public. That is to say, if you pay 50 Shards, you can dig for an hour in a silver mine.">
+<CONSTANT CHOICES110 <LTABLE "Pay 50 Shards and mine for silver" "Go to Caran Baru" "South into the Forest of Larun" "West to the River Grimm" "North west into the Western Wilderness">>
 
 <ROOM STORY110
 	(DESC "110")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT110)
+	(CHOICES CHOICES110)
+	(DESTINATIONS <LTABLE STORY668 STORY400 STORY047 STORY333 STORY276>)
+	(REQUIREMENTS <LTABLE 50 NONE NONE NONE NONE>)
+	(TYPES <LTABLE R-MONEY R-NONE R-NONE R-NONE R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY111
@@ -15228,12 +15184,12 @@ harbourmaster.">
 
 <ROOM STORY619
 	(DESC "619")
+	(VISITS 0)
 	(BACKGROUND STORY619-BACKGROUND)
 	(STORY TEXT619)
 	(CHOICES CHOICES619)
 	(DESTINATIONS <LTABLE STORY262 STORY100>)
 	(TYPES TWO-NONES)
-    (VISITS 0)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY619-BACKGROUND ()
