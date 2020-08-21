@@ -3279,57 +3279,57 @@
 ; ---------------------------------------------------------------------------------------------
 
 <ROUTINE CONVERT-TO-NUMBER (N "OPT" BASE "AUX" INDEX START LEN)
-    <COND (<NOT .BASE> <SET BASE 10>)>
-    <COND (<0? <GETB ,LEXBUF 1>> <RETURN 0>)>
-    <SET INDEX <* .N 4>>
-    <SET START <- <GETB ,LEXBUF <+ .INDEX 1>> 1>>
-    <SET LEN <GETB ,LEXBUF .INDEX>>
-    <RETURN <TO-INTEGER .START .LEN .BASE>>>
+	<COND (<NOT .BASE> <SET BASE 10>)>
+	<COND (<0? <GETB ,LEXBUF 1>> <RETURN 0>)>
+	<SET INDEX <* .N 4>>
+	<SET START <- <GETB ,LEXBUF <+ .INDEX 1>> 1>>
+	<SET LEN <GETB ,LEXBUF .INDEX>>
+	<RETURN <TO-INTEGER .START .LEN .BASE>>>
 
 <ROUTINE GET-DIGIT (CHARACTER "OPT" BASE "AUX" DIGIT)
-    <COND (<NOT .BASE> <SET BASE 10>)>
-    <SET DIGIT 0>
-    <COND (<AND <G? .BASE 10> <G=? .CHARACTER !\A> <L=? .CHARACTER !\Z>>
-        <SET DIGIT <+ <- .CHARACTER !\A> 10>>
-    )(<AND <G? .BASE 10> <G=? .CHARACTER !\a> <L=? .CHARACTER !\z>>
-        <SET DIGIT <+ <- .CHARACTER !\a> 10>>
-    )(<AND <G=? .CHARACTER !\0> <L=? .CHARACTER !\9>>
-        <SET DIGIT <- .CHARACTER !\0>>
-    )>
-    <COND (<OR <G? .DIGIT <- .BASE 1>> <L? .DIGIT 0>> <RETURN 0>)>
-    <RETURN .DIGIT>>
+	<COND (<NOT .BASE> <SET BASE 10>)>
+	<SET DIGIT 0>
+	<COND (<AND <G? .BASE 10> <G=? .CHARACTER !\A> <L=? .CHARACTER !\Z>>
+		<SET DIGIT <+ <- .CHARACTER !\A> 10>>
+	)(<AND <G? .BASE 10> <G=? .CHARACTER !\a> <L=? .CHARACTER !\z>>
+		<SET DIGIT <+ <- .CHARACTER !\a> 10>>
+	)(<AND <G=? .CHARACTER !\0> <L=? .CHARACTER !\9>>
+		<SET DIGIT <- .CHARACTER !\0>>
+	)>
+	<COND (<OR <G? .DIGIT <- .BASE 1>> <L? .DIGIT 0>> <RETURN 0>)>
+	<RETURN .DIGIT>>
 
 <ROUTINE POWER (BASE EXPONENT)
-    <COND (<G? .EXPONENT 0>
-        <RETURN <* .BASE <POWER .BASE <- .EXPONENT 1>>>>
-    )(ELSE
-        <RETURN 1>
-    )>>
+	<COND (<G? .EXPONENT 0>
+		<RETURN <* .BASE <POWER .BASE <- .EXPONENT 1>>>>
+	)(ELSE
+		<RETURN 1>
+	)>>
 
 <ROUTINE TO-INTEGER (START LENGTH "OPT" BASE "AUX" NUMBER CHARACTER SIGN)
-    <COND (<NOT .BASE> <SET BASE 10>)>
-    <SET SIGN 1>
-    <SET NUMBER 0>
-    <DO (I 1 .LENGTH)
-        <SET CHARACTER <GETB ,READBUF <+ .START .I>>>
-        <COND (<OR
-            <AND <G=? .CHARACTER !\0> <L=? .CHARACTER !\9>>
-            <AND <G? .BASE 10> <L=? .BASE 36> 
-                <OR 
-                    <AND <G=? .CHARACTER !\A> <L=? .CHARACTER !\Z>> 
-                    <AND <G=? .CHARACTER !\a> <L=? .CHARACTER !\z>>
-                >
-            >>
-            <SET NUMBER <+ .NUMBER <* <GET-DIGIT .CHARACTER .BASE> <POWER .BASE <- .LENGTH .I>>>>>
-        )(<AND <EQUAL? .I 1> <EQUAL? .CHARACTER !\- !\+>>
-            <COND (<EQUAL? .CHARACTER !\->
-                <SET SIGN -1>
-            )>
-        )(ELSE
-            <RETURN 0>
-        )>
-    >
-    <RETURN <* .SIGN .NUMBER>>>
+	<COND (<NOT .BASE> <SET BASE 10>)>
+	<SET SIGN 1>
+	<SET NUMBER 0>
+	<DO (I 1 .LENGTH)
+		<SET CHARACTER <GETB ,READBUF <+ .START .I>>>
+		<COND (<OR
+			<AND <G=? .CHARACTER !\0> <L=? .CHARACTER !\9>>
+			<AND <G? .BASE 10> <L=? .BASE 36>
+				<OR 
+					<AND <G=? .CHARACTER !\A> <L=? .CHARACTER !\Z>>
+					<AND <G=? .CHARACTER !\a> <L=? .CHARACTER !\z>>
+				>
+			>>
+			<SET NUMBER <+ .NUMBER <* <GET-DIGIT .CHARACTER .BASE> <POWER .BASE <- .LENGTH .I>>>>>
+		)(<AND <EQUAL? .I 1> <EQUAL? .CHARACTER !\- !\+>>
+			<COND (<EQUAL? .CHARACTER !\->
+				<SET SIGN -1>
+			)>
+		)(ELSE
+			<RETURN 0>
+		)>
+	>
+	<RETURN <* .SIGN .NUMBER>>>
 
 ; "Guild routines"
 ; ---------------------------------------------------------------------------------------------
@@ -3382,100 +3382,98 @@
 	)>>
 
 <ROUTINE GUILD-INVESTMENTS ("OPT" STORY "AUX" INVESTMENTS KEY INVESTMENT)
-    <COND (<NOT .STORY> <SET STORY ,HERE>)>
-    <COND (<AND <L? ,MONEY 100> <NOT <GETP .STORY ,P?INVESTMENTS>>> <RETURN>)>
-    <REPEAT ()
-        <SET INVESTMENTS <GETP .STORY ,P?INVESTMENTS>>
-        <CRLF>
-        <TELL "Current investments: " N .INVESTMENTS CR>
-        <CRLF>
-        <HLIGHT ,H-BOLD>
-        <TELL "1">
-        <HLIGHT 0>
-        <TELL " - Invest (in multiples of 100 " D ,CURRENCY ")" CR>
-        <HLIGHT ,H-BOLD>
-        <TELL "2">
-        <HLIGHT 0>
-        <TELL " - Withdraw investments" CR>
-        <HLIGHT ,H-BOLD>
-        <TELL "0">
-        <HLIGHT 0>
-        <TELL " - Bye" CR>
-        <TELL "You are currently carrying: " N ,MONEY " " D ,CURRENCY "." CR>
-        <TELL "Select what to do next: ">
-        <REPEAT ()
-            <SET KEY <INPUT 1>>
-            <COND (<EQUAL? .KEY !\0 !\1 !\2> <RETURN>)>
-        >
-        <COND (<EQUAL? .KEY !\1>
-            <COND (<G=? ,MONEY 100>
-                <CRLF>
-                <REPEAT ()
-                    <SET INVESTMENT <GET-NUMBER "How much will you invest" 0 ,MONEY>>
-                    <COND (<G? .INVESTMENT 0>
-                        <COND (<OR <L? .INVESTMENT 100> <G? <MOD .INVESTMENT 100> 0>>
-                            <EMPHASIZE "Only amounts that are multiples of 100 are accepted!">
-                            <PRESS-A-KEY>
-                        )(ELSE
-                            <CRLF>
-                            <TELL ,TEXT-SURE>
-                            <COND (<YES?>
-                                <PUTP .STORY ,P?INVESTMENTS <+ .INVESTMENTS .INVESTMENT>>
-                                <SETG MONEY <- ,MONEY .INVESTMENT>>
-                                <EMPHASIZE ,TEXT-EXCELLENT ,TEXT-GUILD>
-                                <UPDATE-STATUS-LINE>
-                                <PRESS-A-KEY>
-                                <RETURN>
-                            )>
-                        )>
-                    )(ELSE
-                        <RETURN>
-                    )>
-                >
-            )(ELSE
-                <CRLF>
-                <EMPHASIZE ,TEXT-GUILD-BROKE ,TEXT-GUILD>
-            )>
-        )(<EQUAL? .KEY !\2>
-            <COND (<G? .INVESTMENTS 0>
-                <CRLF>
-                <REPEAT ()
-                    <SET INVESTMENT <GET-NUMBER "How much will you withdraw" 0 .INVESTMENTS>>
-                    <COND (<G? .INVESTMENT 0>
-                        <CRLF>
-                        <TELL ,TEXT-SURE>
-                        <COND (<YES?>
-                            <PUTP .STORY ,P?INVESTMENTS <- .INVESTMENTS .INVESTMENT>>
-                            <SETG MONEY <+ ,MONEY .INVESTMENT>>
-                            <EMPHASIZE "Please consider investing again in the future!" ,TEXT-GUILD>
-                            <UPDATE-STATUS-LINE>
-                            <PRESS-A-KEY>
-                        )>
-                        <RETURN>
-                    )(ELSE
-                        <RETURN>
-                    )>
-                >
-            )(ELSE
-                <EMPHASIZE ,TEXT-GUILD-NONE ,TEXT-GUILD>
-                <PRESS-A-KEY>            
-            )>
-        )(<EQUAL? .KEY !\0>
-            <CRLF>
-            <CRLF>
-            <TELL ,TEXT-SURE>
-            <COND (<YES?>
-                <EMPHASIZE ,TEXT-NEXT-TIME ,TEXT-GUILD>
-                <RETURN>
-            )(ELSE
-                <EMPHASIZE ,TEXT-EXCELLENT ,TEXT-GUILD>
-            )>
-        )>
-        <COND (<L? ,MONEY 100>
-            <EMPHASIZE "Thank you for doing business with us!" ,TEXT-GUILD>
-            <RETURN>
-        )>
-    >>
+	<COND (<NOT .STORY> <SET STORY ,HERE>)>
+	<COND (<AND <L? ,MONEY 100> <NOT <GETP .STORY ,P?INVESTMENTS>>> <RETURN>)>
+	<REPEAT ()
+		<SET INVESTMENTS <GETP .STORY ,P?INVESTMENTS>>
+		<CRLF>
+		<TELL "Current investments: " N .INVESTMENTS CR>
+		<CRLF>
+		<HLIGHT ,H-BOLD>
+		<TELL "1">
+		<HLIGHT 0>
+		<TELL " - Invest (in multiples of 100 " D ,CURRENCY ")" CR>
+		<HLIGHT ,H-BOLD>
+		<TELL "2">
+		<HLIGHT 0>
+		<TELL " - Withdraw investments" CR>
+		<HLIGHT ,H-BOLD>
+		<TELL "0">
+		<HLIGHT 0>
+		<TELL " - Bye" CR>
+		<TELL "You are currently carrying: " N ,MONEY " " D ,CURRENCY "." CR>
+		<TELL "Select what to do next: ">
+		<REPEAT ()
+			<SET KEY <INPUT 1>>
+			<COND (<EQUAL? .KEY !\0 !\1 !\2> <RETURN>)>
+		>
+		<COND (<EQUAL? .KEY !\1>
+			<COND (<G=? ,MONEY 100>
+				<CRLF>
+				<REPEAT ()
+					<SET INVESTMENT <GET-NUMBER "How much will you invest" 0 ,MONEY>>
+					<COND (<G? .INVESTMENT 0>
+						<COND (<OR <L? .INVESTMENT 100> <G? <MOD .INVESTMENT 100> 0>>
+							<EMPHASIZE "Only amounts that are multiples of 100 are accepted!">
+							<PRESS-A-KEY>
+						)(ELSE
+							<CRLF>
+							<TELL ,TEXT-SURE>
+							<COND (<YES?>
+								<PUTP .STORY ,P?INVESTMENTS <+ .INVESTMENTS .INVESTMENT>>
+								<SETG MONEY <- ,MONEY .INVESTMENT>>
+								<EMPHASIZE ,TEXT-EXCELLENT ,TEXT-GUILD>
+								<UPDATE-STATUS-LINE>
+								<PRESS-A-KEY>
+								<RETURN>
+							)>
+						)>
+					)(ELSE
+						<RETURN>
+					)>
+				>
+			)(ELSE
+				<CRLF>
+				<EMPHASIZE ,TEXT-GUILD-BROKE ,TEXT-GUILD>
+			)>
+		)(<EQUAL? .KEY !\2>
+			<COND (<G? .INVESTMENTS 0>
+				<CRLF>
+				<REPEAT ()
+					<SET INVESTMENT <GET-NUMBER "How much will you withdraw" 0 .INVESTMENTS>>
+					<COND (<G? .INVESTMENT 0>
+						<CRLF>
+						<TELL ,TEXT-SURE>
+						<COND (<YES?>
+							<PUTP .STORY ,P?INVESTMENTS <- .INVESTMENTS .INVESTMENT>>
+							<SETG MONEY <+ ,MONEY .INVESTMENT>>
+							<EMPHASIZE "Please consider investing again in the future!" ,TEXT-GUILD>
+							<UPDATE-STATUS-LINE>
+							<PRESS-A-KEY>
+						)>
+					)>
+					<RETURN>
+				>
+			)(ELSE
+				<EMPHASIZE ,TEXT-GUILD-NONE ,TEXT-GUILD>
+				<PRESS-A-KEY>
+			)>
+		)(<EQUAL? .KEY !\0>
+			<CRLF>
+			<CRLF>
+			<TELL ,TEXT-SURE>
+			<COND (<YES?>
+				<EMPHASIZE ,TEXT-NEXT-TIME ,TEXT-GUILD>
+				<RETURN>
+			)(ELSE
+				<EMPHASIZE ,TEXT-EXCELLENT ,TEXT-GUILD>
+			)>
+		)>
+		<COND (<L? ,MONEY 100>
+			<EMPHASIZE "Thank you for doing business with us!" ,TEXT-GUILD>
+			<RETURN>
+		)>
+	>>
 
 ; "Gambling Den routines"
 ; ---------------------------------------------------------------------------------------------
