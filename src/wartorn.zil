@@ -3525,43 +3525,43 @@
 ; ---------------------------------------------------------------------------------------------
 
 <ROUTINE CURE-DISEASES (FEE DISCOUNT INITIATE)
-    <COND (<NOT .INITIATE> <RETURN>)>
-    <COND (<EQUAL? ,GOD .INITIATE> <SET FEE .DISCOUNT>)>
-    <COND (<L=? <COUNT-CONTAINER ,AILMENTS> 0>
-        <EMPHASIZE "You are not afflicted with poisons or diseases of any kind!">
-    )(<G=? ,MONEY .FEE>
-        <CRLF>
-        <TELL "Pay " N .FEE " " D ,CURRENCY " for a cure?">
-        <COND (<YES?>
-            <COST-MONEY .FEE "paid">
-            <CRLF>
+	<COND (<NOT .INITIATE> <RETURN>)>
+	<COND (<EQUAL? ,GOD .INITIATE> <SET FEE .DISCOUNT>)>
+	<COND (<L=? <COUNT-CONTAINER ,AILMENTS> 0>
+		<EMPHASIZE "You are not afflicted with poisons or diseases of any kind!">
+	)(<G=? ,MONEY .FEE>
+		<CRLF>
+		<TELL "Pay " N .FEE " " D ,CURRENCY " for a cure?">
+		<COND (<YES?>
+			<COST-MONEY .FEE "paid">
+			<CRLF>
 			<TELL "You are cured of: ">
 			<PRINT-CONTAINER ,AILMENTS>
 			<RESET-CONTAINER ,AILMENTS>
-        )>
-    )(ELSE
-        <EMPHASIZE "You cannot afford a cure at this time.">
-    )>>
+		)>
+	)(ELSE
+		<EMPHASIZE "You cannot afford a cure at this time.">
+	)>>
 
 <ROUTINE PURCHASE-BLESSING (FEE DISCOUNT INITIATE BLESSING)
-    <COND (<NOT .BLESSING> <RETURN>)>
-    <COND (<NOT .INITIATE> <RETURN>)>
-    <COND (<EQUAL? ,GOD .INITIATE> <SET FEE .DISCOUNT>)>
-    <COND (<CHECK-BLESSING .BLESSING>
-        <CRLF>
-        <TELL "You already have the">
-        <PRINT-ITEM .BLESSING T>
-        <TELL ,EXCLAMATION-CR>
-    )(<G=? ,MONEY .FEE>
-        <CRLF>
-        <TELL "Purchase this blessing for " N .FEE " " D ,CURRENCY "?">
-        <COND (<YES?>
-            <COST-MONEY .FEE "paid">
-            <GAIN-BLESSING .BLESSING>
-        )>
-    )(ELSE
-        <EMPHASIZE "You cannot afford this blessing at this time.">
-    )>>
+	<COND (<NOT .BLESSING> <RETURN>)>
+	<COND (<NOT .INITIATE> <RETURN>)>
+	<COND (<EQUAL? ,GOD .INITIATE> <SET FEE .DISCOUNT>)>
+	<COND (<CHECK-BLESSING .BLESSING>
+		<CRLF>
+		<TELL "You already have the">
+		<PRINT-ITEM .BLESSING T>
+		<TELL ,EXCLAMATION-CR>
+	)(<G=? ,MONEY .FEE>
+		<CRLF>
+		<TELL "Purchase this blessing for " N .FEE " " D ,CURRENCY "?">
+		<COND (<YES?>
+			<COST-MONEY .FEE "paid">
+			<GAIN-BLESSING .BLESSING>
+		)>
+	)(ELSE
+		<EMPHASIZE "You cannot afford this blessing at this time.">
+	)>>
 
 <ROUTINE RENOUNCE-WORSHIP (FEE WORSHIP)
 	<COND (,GOD
@@ -3595,44 +3595,44 @@
 	(DESC "030 Merchant - Selling")
 	(CHOICES YELLOWPORT-BUY-MENU)
 	(DESTINATIONS <LTABLE YELLOWPORT-BUY-ARMOUR YELLOWPORT-BUY-WEAPONS YELLOWPORT-BUY-MAGIC YELLOWPORT-BUY-OTHER STORY030>)
-    (TYPES FIVE-NONES)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM YELLOWPORT-BUY-ARMOUR
 	(DESC "030 Merchant - Selling armours")
-    (EVENTS YELLOWPORT-SELLING-ARMOUR)
-    (CONTINUE YELLOWPORT-BUY)
+	(EVENTS YELLOWPORT-SELLING-ARMOUR)
+	(CONTINUE YELLOWPORT-BUY)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE YELLOWPORT-SELLING-ARMOUR ()
-    <MERCHANT <LTABLE LEATHER-ARMOUR RING-MAIL CHAIN-MAIL> <LTABLE 50 100 200>>>
+	<MERCHANT <LTABLE LEATHER-ARMOUR RING-MAIL CHAIN-MAIL> <LTABLE 50 100 200>>>
 
 <ROOM YELLOWPORT-BUY-WEAPONS
 	(DESC "030 Merchant - Selling weapons")
-    (EVENTS YELLOWPORT-SELLING-WEAPONS)
-    (CONTINUE YELLOWPORT-BUY)
+	(EVENTS YELLOWPORT-SELLING-WEAPONS)
+	(CONTINUE YELLOWPORT-BUY)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE YELLOWPORT-SELLING-WEAPONS ()
-    <MERCHANT <LTABLE BATTLE-AXE MACE SPEAR STAFF SWORD BATTLE-AXE1 MACE1 SPEAR1 STAFF1 SWORD1> <LTABLE 50 50 50 50 50 250 250 250 250 250>>>
+	<MERCHANT <LTABLE BATTLE-AXE MACE SPEAR STAFF SWORD BATTLE-AXE1 MACE1 SPEAR1 STAFF1 SWORD1> <LTABLE 50 50 50 50 50 250 250 250 250 250>>>
 
 <ROOM YELLOWPORT-BUY-MAGIC
 	(DESC "030 Merchant - Selling magic items")
-    (EVENTS YELLOWPORT-SELLING-MAGIC)
-    (CONTINUE YELLOWPORT-BUY)
+	(EVENTS YELLOWPORT-SELLING-MAGIC)
+	(CONTINUE YELLOWPORT-BUY)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE YELLOWPORT-SELLING-MAGIC ()
-    <MERCHANT <LTABLE AMBER-WAND> <LTABLE 500>>>
+	<MERCHANT <LTABLE AMBER-WAND> <LTABLE 500>>>
 
 <ROOM YELLOWPORT-BUY-OTHER
 	(DESC "030 Merchant - Selling other items")
-    (EVENTS YELLOWPORT-SELLING-OTHER)
-    (CONTINUE YELLOWPORT-BUY)
+	(EVENTS YELLOWPORT-SELLING-OTHER)
+	(CONTINUE YELLOWPORT-BUY)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE YELLOWPORT-SELLING-OTHER ()
-    <MERCHANT <LTABLE MANDOLIN HOLY-SYMBOL COMPASS ROPE LANTERN CLIMBING-GEAR RAT-POISON> <LTABLE 300 200 500 50 100 100 60>>>
+	<MERCHANT <LTABLE MANDOLIN HOLY-SYMBOL COMPASS ROPE LANTERN CLIMBING-GEAR RAT-POISON> <LTABLE 300 200 500 50 100 100 60>>>
 
 <CONSTANT YELLOWPORT-SELL-MENU <LTABLE "Sell armour" "Sell weapons (no COMBAT bonuses)" "Sell weapons (Tier I)" "Sell weapons (Tier II)" "Sell weapons (Tier III)" "Sell Magical Equipment" "Sell other items" "Return to the Market">>
 
@@ -3640,97 +3640,97 @@
 	(DESC "030 Merchant - Buying")
 	(CHOICES YELLOWPORT-SELL-MENU)
 	(DESTINATIONS <LTABLE YELLOWPORT-SELL-ARMOUR YELLOWPORT-SELL-WEAPONS YELLOWPORT-SELL-WEAPONS1 YELLOWPORT-SELL-WEAPONS2 YELLOWPORT-SELL-WEAPONS3 YELLOWPORT-SELL-MAGIC YELLOWPORT-SELL-OTHER STORY030>)
-    (TYPES EIGHT-NONES)
+	(TYPES EIGHT-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM YELLOWPORT-SELL-ARMOUR
 	(DESC "030 Merchant - Buying armours")
-    (EVENTS YELLOWPORT-BUYING-ARMOUR)
-    (CONTINUE YELLOWPORT-SELL)
+	(EVENTS YELLOWPORT-BUYING-ARMOUR)
+	(CONTINUE YELLOWPORT-SELL)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE YELLOWPORT-BUYING-ARMOUR ()
-    <MERCHANT <LTABLE LEATHER-ARMOUR RING-MAIL CHAIN-MAIL SPLINT-ARMOUR PLATE-ARMOUR HEAVY-PLATE> <LTABLE 45 90 180 360 720 1440> ,PLAYER T>>
+	<MERCHANT <LTABLE LEATHER-ARMOUR RING-MAIL CHAIN-MAIL SPLINT-ARMOUR PLATE-ARMOUR HEAVY-PLATE> <LTABLE 45 90 180 360 720 1440> ,PLAYER T>>
 
 <ROOM YELLOWPORT-SELL-WEAPONS
 	(DESC "030 Merchant - Buying weapons (no COMBAT bonuses)")
-    (EVENTS YELLOWPORT-BUYING-WEAPONS)
-    (CONTINUE YELLOWPORT-SELL)
+	(EVENTS YELLOWPORT-BUYING-WEAPONS)
+	(CONTINUE YELLOWPORT-SELL)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE YELLOWPORT-BUYING-WEAPONS ()
-    <MERCHANT <LTABLE BATTLE-AXE MACE SPEAR STAFF SWORD> <LTABLE 40 40 40 40 40> ,PLAYER T>>
+	<MERCHANT <LTABLE BATTLE-AXE MACE SPEAR STAFF SWORD> <LTABLE 40 40 40 40 40> ,PLAYER T>>
 
 <ROOM YELLOWPORT-SELL-WEAPONS1
 	(DESC "030 Merchant - Buying weapons (COMBAT +1)")
-    (EVENTS YELLOWPORT-BUYING-WEAPONS1)
-    (CONTINUE YELLOWPORT-SELL)
+	(EVENTS YELLOWPORT-BUYING-WEAPONS1)
+	(CONTINUE YELLOWPORT-SELL)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE YELLOWPORT-BUYING-WEAPONS1 ()
-    <MERCHANT <LTABLE BATTLE-AXE1 MACE1 SPEAR1 STAFF1 SWORD1> <LTABLE 200 200 200 200 200> ,PLAYER T>>
+	<MERCHANT <LTABLE BATTLE-AXE1 MACE1 SPEAR1 STAFF1 SWORD1> <LTABLE 200 200 200 200 200> ,PLAYER T>>
 
 <ROOM YELLOWPORT-SELL-WEAPONS2
 	(DESC "030 Merchant - Buying weapons (COMBAT +2)")
-    (EVENTS YELLOWPORT-BUYING-WEAPONS2)
-    (CONTINUE YELLOWPORT-SELL)
+	(EVENTS YELLOWPORT-BUYING-WEAPONS2)
+	(CONTINUE YELLOWPORT-SELL)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE YELLOWPORT-BUYING-WEAPONS2 ()
-    <MERCHANT <LTABLE BATTLE-AXE2 MACE2 SPEAR2 STAFF2 SWORD2> <LTABLE 400 400 400 400 400> ,PLAYER T>>
+	<MERCHANT <LTABLE BATTLE-AXE2 MACE2 SPEAR2 STAFF2 SWORD2> <LTABLE 400 400 400 400 400> ,PLAYER T>>
 
 <ROOM YELLOWPORT-SELL-WEAPONS3
 	(DESC "030 Merchant - Buying weapons (COMBAT +3)")
-    (EVENTS YELLOWPORT-BUYING-WEAPONS3)
-    (CONTINUE YELLOWPORT-SELL)
+	(EVENTS YELLOWPORT-BUYING-WEAPONS3)
+	(CONTINUE YELLOWPORT-SELL)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE YELLOWPORT-BUYING-WEAPONS3 ()
-    <MERCHANT <LTABLE BATTLE-AXE3 MACE3 SPEAR3 STAFF3 SWORD3> <LTABLE 800 800 800 800 800> ,PLAYER T>>
+	<MERCHANT <LTABLE BATTLE-AXE3 MACE3 SPEAR3 STAFF3 SWORD3> <LTABLE 800 800 800 800 800> ,PLAYER T>>
 
 <ROOM YELLOWPORT-SELL-MAGIC
 	(DESC "030 Merchant - Buying magic items")
-    (EVENTS YELLOWPORT-BUYING-MAGIC)
-    (CONTINUE YELLOWPORT-SELL)
+	(EVENTS YELLOWPORT-BUYING-MAGIC)
+	(CONTINUE YELLOWPORT-SELL)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE YELLOWPORT-BUYING-MAGIC ()
-    <MERCHANT <LTABLE AMBER-WAND EBONY-WAND COBALT-WAND> <LTABLE 400 800 600> ,PLAYER T>>
+	<MERCHANT <LTABLE AMBER-WAND EBONY-WAND COBALT-WAND> <LTABLE 400 800 600> ,PLAYER T>>
 
 <ROOM YELLOWPORT-SELL-OTHER
 	(DESC "030 Merchant - Buying other items")
-    (EVENTS YELLOWPORT-BUYING-OTHER)
-    (CONTINUE YELLOWPORT-SELL)
+	(EVENTS YELLOWPORT-BUYING-OTHER)
+	(CONTINUE YELLOWPORT-SELL)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE YELLOWPORT-BUYING-OTHER ()
-    <MERCHANT <LTABLE MANDOLIN LOCKPICKS HOLY-SYMBOL COMPASS ROPE LANTERN CLIMBING-GEAR BAG-OF-PEARLS RAT-POISON SILVER-NUGGET TREASURE-MAP> <LTABLE 270 270 100 450 45 90 90 100 50 200 150> ,PLAYER T>>
+	<MERCHANT <LTABLE MANDOLIN LOCKPICKS HOLY-SYMBOL COMPASS ROPE LANTERN CLIMBING-GEAR BAG-OF-PEARLS RAT-POISON SILVER-NUGGET TREASURE-MAP> <LTABLE 270 270 100 450 45 90 90 100 50 200 150> ,PLAYER T>>
 
 ; "Instructions"
 ; ---------------------------------------------------------------------------------------------
 
 <CONSTANT INSTRUCTIONS-HEADER "|HOW TO USE THIS E-ADVENTURE|">
 <CONSTANT INSTRUCTIONS-TEXT "Fabled Lands: War-Torn Kingdom is a digital gamebook -- an interactive game where the choices that you make correspond to numbered sections in the game. In moving through these sections you are creating a unique story for your adventuring persona.||You will begin your adventure by choosing a profession (see below) and filling out the Adventure Sheet with the ability scores and Stamina that correspond to that profession at 1st Rank.||ABILITIES|---------||You have six abilities. Your initial score in each ability is decided by your choice of profession. Ability scores range from 1 (low ability) to 6 (a high level of ability). Ability scores will change during your adventure but can never be lower than 1 or higher than 12.||CHARISMA the knack of befriending people|COMBAT the skill of fighting|MAGIC the art of casting spells|SANCTITY the gift of divine power and wisdom|SCOUTING the techniques of tracking and wilderness lore|THIEVERY the talent for stealth and lock picking||STAMINA|-------||Stamina is lost when you get hurt. Keep track of your Stamina score throughout your travels and adventures. You must guard against your Stamina score dropping to zero, because if it does you are dead.||Lost Stamina can be recovered by various means, but your Stamina cannot go above its initial score until you advance in Rank.||You start with 9 Stamina points.||RANK|----||You start at 1st Rank. By completing quests and overcoming enemies, you will have the chance to go up in Rank.||You will be told during the course of your adventures when you are entitled to advance in Rank. Characters of higher Rank are tougher, luckier and generally better able to deal with trouble.||POSSESSIONS|-----------||You can carry up to twelve possessions on your person. All characters begin with 16 Shards in cash and the following possessions:||* sword|* leather jerkin (Defence +1)||Remember that you are limited to carrying a total of 12 items, so if you get more than this you'll have to cross something off your inventory or find somewhere to store extra items. There is no limit to how much money you can carry.||DEFENCE|-------||Your Defence score is equal to:||* you COMBAT score|* plus plus your RANK|* plus the bonus for the armour you're wearing (if any)||Every suit of armour you find will have a Defence bonus listed for it. The higher the bonus, the better the armour. You can carry several suits of armour if you wish -- but because you can wear only one at a time, you only get the Defence bonus of the best armour you are carrying.||To start with it is just your COMBAT score plus 2 (because you are 1st Rank and have +1 armour).||It will be updated it if you get better armour or increase in Rank or COMBAT ability.||ADDITIONAL HELP|---------------||During action selection and in other parts of the game, pressing 'H' or '?' brings up a list of additional command keys.">
-
 <CONSTANT INSTRUCTIONS-PROFESSIONS "PROFESSIONS||Every adventurer has some strengths and some weaknesses. Your choice of profession determines your initial scores in the six abilities.">
 
 <ROUTINE INSTRUCTIONS ()
-    <HLIGHT ,H-BOLD>
-    <TELL INSTRUCTIONS-HEADER>
-    <HLIGHT 0>
-    <CRLF>
-    <TELL INSTRUCTIONS-TEXT>
-    <CRLF>>
+	<HLIGHT ,H-BOLD>
+	<TELL ,INSTRUCTIONS-HEADER>
+	<HLIGHT 0>
+	<CRLF>
+	<TELL ,INSTRUCTIONS-TEXT>
+	<CRLF>>
 
 <CONSTANT HELP-TEXT "C - Display player information (abilities, items, codewords)|I - Display inventory (items)|R - Restore progress from a saved file|S - Save current progress to a file|Q - quit the game">
 
 <ROUTINE DISPLAY-HELP ()
+	<CRLF>
+	<HLIGHT ,H-BOLD>
+	<TELL "Additional Command Keys:">
+	<HLIGHT 0>
     <CRLF>
-    <HLIGHT ,H-BOLD>
-    <TELL "Additional Command Keys:">
-    <HLIGHT 0>
-    <CRLF><CRLF>
-    <TELL HELP-TEXT>
+	<CRLF>
+    <TELL ,HELP-TEXT>
     <CRLF>>
 
 ; "Story"
@@ -3743,16 +3743,16 @@
 
 <ROUTINE RESET-STORY ()
 	<RESET-ODDS 1 0 ,STORY038>
-    <RESET-ODDS 1 0 ,STORY049>
-    <RESET-ODDS 2 0 ,STORY051>
+	<RESET-ODDS 1 0 ,STORY049>
+	<RESET-ODDS 2 0 ,STORY051>
 	<PUTP ,STORY014 ,P?DOOM T>
 	<PUTP ,STORY034 ,P?DOOM T>
 	<PUTP ,STORY036 ,P?DOOM T>
 	<PUTP ,STORY042 ,P?DOOM T>
 	<PUTP ,STORY043 ,P?DOOM T>
 	<PUTP ,STORY045 ,P?DOOM T>
-    <PUTP ,STORY049 ,P?DOOM T>
-    <PUTP ,STORY055 ,P?DOOM T>
+	<PUTP ,STORY049 ,P?DOOM T>
+	<PUTP ,STORY055 ,P?DOOM T>
 	<PUTP ,STORY060 ,P?DOOM T>
 	<PUTP ,STORY064 ,P?DOOM T>
 	<PUTP ,STORY069 ,P?DOOM T>
@@ -3760,7 +3760,7 @@
 	<PUTP ,STORY087 ,P?DOOM T>
 	<PUTP ,STORY096 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>
-    <RETURN>>
+	<RETURN>>
 
 ; "endings"
 <CONSTANT BAD-ENDING "Your adventure ends here.|">
@@ -3808,9 +3808,7 @@
 
 <ROUTINE STORY-RESET-CREW ("OPT" CONDITION)
 	<COND (<NOT .CONDITION> <SET .CONDITION ,CONDITION-EXCELLENT>)>
-	<COND (,CURRENT-VEHICLE
-		<PUTP ,CURRENT-VEHICLE ,P?CONDITION .CONDITION>
-	)>>
+	<COND (,CURRENT-VEHICLE <PUTP ,CURRENT-VEHICLE ,P?CONDITION .CONDITION>)>>
 
 <CONSTANT TEXT001 "The first sound is the gentle murmur of waves some way off. The cry of gulls. Then the sensation of a softly stirring sea breeze and the baking sun on your back.||If that was all, you could imagine yourself in paradise, but as your senses return you start to feel the aches in every muscle. And then you remember the shipwreck.||You force open your eyes, caked shut by a crust of salt. You are lying on a beach, a desolate slab of wet sand that glistens in the merciless glare of the sun. Small crabs break away as you stir, scurrying for cover amid the long strands of seaweed.||\"Not... food for you yet...\" you murmur, wincing at the pain of cracked lips. Your mouth is dry and there is a pounding in your head born of fatigue and thirst. You don\"t care about the headache or the bruises, just as long as you\"re alive.||As you lie gathering your strength, you hear somebody coming along the shore.">
 <CONSTANT CHOICES001 <LTABLE "Lie still until he's gone" "Speak to him">>
