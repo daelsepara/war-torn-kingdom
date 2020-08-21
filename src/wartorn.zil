@@ -58,6 +58,7 @@
 <CONSTANT FOUR-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE>>
 <CONSTANT FIVE-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE>>
 <CONSTANT SIX-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE>>
+<CONSTANT SEVEN-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE>>
 <CONSTANT EIGHT-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE>>
 
 ; "ABILITIES"
@@ -2507,6 +2508,7 @@
 
 <OBJECT CODEWORD-ABIDE (DESC "Abide")>
 <OBJECT CODEWORD-ACID (DESC "Acid")>
+<OBJECT CODEWORD-AEGIS (DESC "Aegis")>
 <OBJECT CODEWORD-AGUE (DESC "Ague")>
 <OBJECT CODEWORD-AKLAR (DESC "Aklar")>
 <OBJECT CODEWORD-AJAR (DESC "Ajar")>
@@ -2521,6 +2523,7 @@
 <OBJECT CODEWORD-ASSASSIN (DESC "Assassin")>
 <OBJECT CODEWORD-ATTAR (DESC "Attar")>
 <OBJECT CODEWORD-AURIC (DESC "Auric")>
+<OBJECT CODEWORD-AZURE (DESC "Azure")>
 <OBJECT CODEWORD-BARNACLE (DESC "Barnacle")>
 <OBJECT CODEWORD-BRUSH (DESC "Brush")>
 <OBJECT CODEWORD-DELIVER (DESC "Deliver")>
@@ -2878,6 +2881,12 @@
     (DEFENSE 5)
     (STAMINA 6)>
 
+<OBJECT MONSTER-MILITIAMAN
+    (DESC "Militiaman")
+    (COMBAT 4)
+    (DEFENSE 7)
+    (STAMINA 5)>
+
 <OBJECT MONSTER-THUG
     (DESC "Thug")
     (COMBAT 3)
@@ -3116,6 +3125,7 @@
 
 <ROUTINE FIGHT (MONSTER "OPT" (MODIFIER 0) "AUX" RESULT ATTACK STAMINA-PLAYER COMBAT-PLAYER DEFENSE-PLAYER STAMINA-MONSTER COMBAT-MONSTER DEFENSE-MONSTER (ROUND 0))
     <SET STAMINA-PLAYER ,STAMINA>
+	<COND (<L=? .STAMINA-PLAYER 0> <HAS-PREVAILED .MONSTER> <RETURN>)>
     <SET DEFENSE-PLAYER <CALCULATE-DEFENSE ,CURRENT-CHARACTER>>
     <SET COMBAT-PLAYER <CALCULATE-COMBAT ,CURRENT-CHARACTER>>
     <COND (<G? .COMBAT-PLAYER 12> <SET .COMBAT-PLAYER 12>)>
@@ -3761,6 +3771,7 @@
 	<PUTP ,STORY069 ,P?DOOM T>
 	<PUTP ,STORY081 ,P?DOOM T>
 	<PUTP ,STORY087 ,P?DOOM T>
+	<PUTP ,STORY096 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>
     <RETURN>>
 
@@ -3768,6 +3779,7 @@
 <CONSTANT BAD-ENDING "Your adventure ends here.|">
 <CONSTANT GOOD-ENDING "Further adventure awaits.|">
 <CONSTANT ENDING-BLOOD-DARK-SEA "Further adventure awaits at Fabled Lands 3: Over the Blood-Dark Sea.|">
+<CONSTANT ENDING-CITIES-OF-GOLD "Further adventure awaits at Fabled Lands 2: Cities of Gold and Glory.|">
 
 <ROUTINE SPECIAL-INTERRUPT-ROUTINE (KEY)
 	<RFALSE>>
@@ -3796,6 +3808,7 @@
 <CONSTANT TEXT-ROLL-MAGIC "Make a MAGIC roll">
 <CONSTANT TEXT-ROLL-SANCTITY "Make a SANCTITY roll">
 <CONSTANT TEXT-ROLL-SCOUTING "Make a SCOUTING roll">
+<CONSTANT TEXT-ROLL-THIEVERY "Make a THIEVERY roll">
 
 <ROUTINE STORY-LOSE-CARGO ("OPT" MAX "AUX" COUNT)
 	<COND (<NOT .MAX> <SET MAX 1>)>
@@ -3909,9 +3922,9 @@
 	<COND (<CHECK-CODEWORD ,CODEWORD-ALTITUDE> <RETURN ,STORY272>)>
 	<RETURN ,STORY685>>
 
-<CONSTANT TEXT010 "Yellowport is the second largest city in Sokara. It is mainly a trading town, and is known for its exotic goods from distant Ankon-Konu.||The Stinking River brings rich deposits of sulphur from the Lake of the Sea Dragon down to the town, where it is extracted and stored in the large waterfront warehouses run by the merchants' guild. From here, the mineral is exported all over Harkuna. But all that sulphur has its drawbacks. The stink is abominable, and much of the city has a yellowish hue. The river is so full of sulphur that it is virtually useless as drinking water. However, the demand for sulphur, especially from the sorcerous guilds, is great.||Politically much has changed in the past few years. The old and corrupt king of Sokara, Corin VII, has been deposed and executed in a military coup. General Grieve Marlock and the army now control Sokara. The old Council of Yellowport has been indefinitely dissolved and a provost marshal, Marloes Marlock, the general's brother, appointed as military governor of the town.||You can buy a townhouse in Yellowport for 200 Shards. Owning a townhouse gives you a place to rest and to store equipment. To leave Yellowport by sea, buy or sell ships and cargo, go to the harbourmaster.">
+<CONSTANT TEXT010 "Yellowport is the second largest city in Sokara. It is mainly a trading town, and is known for its exotic goods from distant Ankon-Konu.||The Stinking River brings rich deposits of sulphur from the Lake of the Sea Dragon down to the town, where it is extracted and stored in the large waterfront warehouses run by the merchants' guild. From here, the mineral is exported all over Harkuna. But all that sulphur has its drawbacks. The stink is abominable, and much of the city has a yellowish hue. The river is so full of sulphur that it is virtually useless as drinking water. However, the demand for sulphur, especially from the sorcerous guilds, is great.||Politically much has changed in the past few years. The old and corrupt king of Sokara, Corin VII, has been deposed and executed in a military coup. General Grieve Marlock and the army now control Sokara. The old Council of Yellowport has been indefinitely dissolved and a provost marshal, Marloes Marlock, the general's brother, appointed as military governor of the town.||You can buy a townhouse in Yellowport for 200 Shards. Owning a townhouse gives you a place to rest and to store equipment.||To leave Yellowport by sea, buy or sell ships and cargo, go to the harbourmaster.">
 
-<CONSTANT YELLOWPORT-CHOICES 
+<CONSTANT YELLOWPORT-CHOICES
 	<LTABLE
 		"Call on Pyletes the Sage"
 		"Seek an audience with the provost marshal"
@@ -4028,7 +4041,7 @@
 		<TELL "Would you like to buy a townhouse in Yellowport (200 " D ,CURRENCY ")?">
 		<COND (<YES?>
 			<COST-MONEY 200>
-			<GAIN-CODEWORDS <LTABLE CODEWORD-ABIDE>>
+			<GAIN-CODEWORD ,CODEWORD-ABIDE>
 		)>
 	)>>
 
@@ -4060,7 +4073,7 @@ won't follow you there if they don't think you're good enough.\"">
 	(DESC "013")
 	(STORY TEXT013)
 	(CHOICES CHOICES013)
-	(DESTINATIONS <LTABLE BLOOD-DARK-SEA <LTABLE BLOOD-DARK-SEA STORY507> STORY507>)
+	(DESTINATIONS <LTABLE STORY-BLOOD-DARK-SEA <LTABLE STORY-BLOOD-DARK-SEA STORY507> STORY507>)
 	(REQUIREMENTS <LTABLE 4 <LTABLE ABILITY-CHARISMA 12> NONE>)
 	(TYPES <LTABLE R-RANK R-TEST-ABILITY R-NONE>)
 	(FLAGS LIGHTBIT)>
@@ -4222,7 +4235,7 @@ won't follow you there if they don't think you're good enough.\"">
 <ROOM STORY026
 	(DESC "026")
 	(STORY TEXT026)
-	(CONTINUE BLOOD-DARK-SEA)
+	(CONTINUE STORY-BLOOD-DARK-SEA)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT027 "Either you are recklessly brave or very foolish to visit the palace where you assassinated the governor. Provost Marshal Royzer has established new security procedures, and it is impossible for you to see him.">
@@ -4993,8 +5006,7 @@ is off, you return to the city centre.">
 <ROUTINE STORY076-EVENTS ()
 	<GAIN-MONEY 25>>
 
-<CONSTANT TEXT077 "\"It is fortunate that we have a Chosen One of Maka at this temple,\" says the
-high priestess. \"Only the Chosen Ones have the goddess-given powers to cure the afflicted.\"||It costs 75 Shards (only 30 if you are an initiate of Maka) to be cured of a poison or a disease.">
+<CONSTANT TEXT077 "\"It is fortunate that we have a Chosen One of Maka at this temple,\" says the high priestess. \"Only the Chosen Ones have the goddess-given powers to cure the afflicted.\"||It costs 75 Shards (only 30 if you are an initiate of Maka) to be cured of a poison or a disease.">
 
 <ROOM STORY077
 	(DESC "077")
@@ -5208,176 +5220,216 @@ stink, laden with sulphur as it is.">
 	<GAMBLING-DEN 20>
 	<COND (<CHECK-VISITS-MORE 1> <STORY-JUMP ,STORY100>)>>
 
+<CONSTANT TEXT092 "He falls dead at your feet. Searching him, you find 25 Shards. Then you flip up his eyepatch. Nestling in the eye-socket is a sparkling gem, a flame opal. You pluck it free. You hurry off before a patrol arrives.">
+
 <ROOM STORY092
 	(DESC "092")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT092)
+	(EVENTS STORY092-EVENTS)
+	(CONTINUE STORY400)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY092-EVENTS ()
+	<GAIN-MONEY 25>
+	<DELETE-CODEWORD ,CODEWORD-BARNACLE>
+	<KEEP-ITEM ,FLAME-OPAL-EYE>>
 
 <ROOM STORY093
 	(DESC "093")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY093-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY093-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-AZURE> <RETURN ,STORY359>)>
+	<RETURN ,STORY733>>
+
+<CONSTANT TEXT094 "At last, the golem is defeated. You manage to get into the temple without being noticed by anyone else. Inside, it is cool and dark, filled with an unearthly stillness. You reach forward to strip the armour off the idol of Tyrnai.">
+<CONSTANT CHOICES094 <LTABLE TEXT-ROLL-THIEVERY>>
 
 <ROOM STORY094
 	(DESC "094")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT094)
+	(CHOICES CHOICES094)
+	(DESTINATIONS <LTABLE <LTABLE STORY509 STORY228>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 12>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT095 "You are greeted warmly and politely by the provost marshal who treats you as one of his own. However, there are no more missions, and after thanking you once again, he politely sends you on your way.">
 
 <ROOM STORY095
 	(DESC "095")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT095)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT096 "One of the militiamen kicks over a table, blocking your escape. You set your back to a corner of the room and grimly prepare to fight for your life.">
 
 <ROOM STORY096
 	(DESC "096")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT096)
+	(EVENTS STORY096-EVENTS)
+	(CONTINUE STORY432)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY096-EVENTS ("AUX" MILITIA-STAMINA)
+	<SET MILITIA-STAMINA <LTABLE 5 4 5>>
+	<DO (I 1 3)
+		<PUTP ,STORY096 ,P?DOOM T>
+		<COMBAT-MONSTER ,MONSTER-MILITIAMAN 4 7 <GET .MILITIA-STAMINA .I>>
+		<CHECK-COMBAT ,MONSTER-MILITIAMAN ,STORY096>
+		<COND (<IS-ALIVE>
+			<COND (<EQUAL? .I 3> <RETURN>)>
+			<CRLF>
+			<TELL "Do you wish to surrender?">
+			<COND (<YES?>
+				<STORY-JUMP ,STORY218>
+				<RETURN>
+			)>
+		)(ELSE
+			<RETURN>
+		)>
+	>>
+
+<CONSTANT TEXT097 "You climb down a narrow track to the beach. The sea pounds the rocky shore, and the spray lashes your face. A mournful, yet utterly captivating singing suddenly fills your ears. You look out to sea, and spot several mermaids and mermen, cavorting in the surf.||A lilting voice calls across the waves that fills you with a yearning desire to plunge into the sea and swim out to them. \"Come, come to us...\"">
+<CONSTANT CHOICES097 <LTABLE TEXT-ROLL-SANCTITY>>
 
 <ROOM STORY097
 	(DESC "097")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT097)
+	(CHOICES CHOICES097)
+	(DESTINATIONS <LTABLE <LTABLE STORY584 STORY159>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SANCTITY 10>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT098 "The soldier recognizes you and bows. \"We are a small group now, left here to act as raiders behind enemy lines. Thanks to your heroic actions, the Citadel of Velis Corin is now ours. The king has moved his court there. Go to the citadel if you would speak with the king.\"||There is nothing else of interest in the mountains, so you return to the foothills.">
 
 <ROOM STORY098
 	(DESC "098")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT098)
+	(CONTINUE STORY474)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT099 "You are on the east bank of the River Grimm, a great, powerful river, which rushes past towards the sea. You can travel to Golnir from here.">
+<CONSTANT CHOICES099 <LTABLE "Cross the bridge to Conflass (Cities of Gold and Glory)" "Ford the river to the south (Cities of Gold and Glory)" "Follow the river north" "Head for the Curstmoor" "Head towards Devil's Peak" "Go south to the mouth of the river" "Go to Marlock City">>
 
 <ROOM STORY099
 	(DESC "099")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT099)
+	(CHOICES CHOICES099)
+	(DESTINATIONS <LTABLE STORY-CITIES-OF-GOLD STORY-CITIES-OF-GOLD STORY333 STORY175 STORY560 STORY579 STORY100>)
+	(TYPES SEVEN-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT100 "Marlock City is a huge sprawling metropolis, enclosed in a fortified wall said to have been built one thousand years ago by the ancient Shadar empire. It is the capital city of Sokara. Marlock City was once known as Sokar, until General Grieve Marlock led the army in bloody revolt against the old king, Corin VII, and had him executed. The general renamed the city after himself. It is now a crime to call it Sokar.||The general lives in the old king's palace, and calls himself the Protector-General of all Sokara. Whereas the old king was corrupt, the general rules with a fist of iron. Some people like the new regime; others are royalists, still loyal to Nergan, the heir to the throne, who has gone into hiding somewhere.||Outside the city gates hang the bodies of many dead people. Labels around their necks read: \"Rebels, executed by the state for the good of the people.\"||\"You'd best behave yourself if you don't want to end up like one of them,\" grates a guardsman, nodding toward the swinging corpses, as you pass through the great eagle-headed gates of Marlock City.||You can buy a townhouse in Marlock City for 200 Shards. Owning a townhouse gives you a place to rest, and to store equipment.||To leave Marlock City by sea, or to buy or sell ships and cargo, go to the
+harbourmaster.">
+
+<CONSTANT MARLOCK-CHOICES
+	<LTABLE
+		"Visit the Three Rings Tavern"
+		"Visit the temple of Alvir and Valmir"
+		"Visit the temple of Nagil"
+		"Visit the temple of Sig"
+		"Visit the temple of Elnir"
+		"Visit the market"
+		"Visit the harbourmaster"
+		"Go to the merchants' guild"
+		"Explore the city"
+		"Visit your town house"
+		"Visit the House of Priests"
+		"Visit the general's palace"
+		"Travel east towards Trefoille"
+		"Head south-east towards the Shadar Tor"
+		"Follow the River Grimm north"
+		"Journey north into the Curstmoor"
+		"Head west to the River Grimm delta"
+	>>
+
+<CONSTANT MARLOCK-DESTINATIONS
+	<LTABLE
+		STORY158
+		STORY154
+		STORY071
+		STORY235
+		STORY568
+		STORY396
+		STORY142
+		STORY571
+		STORY138
+		STORY434
+		STORY535
+		STORY601
+		STORY377
+		STORY166
+		STORY099
+		STORY175
+		STORY579
+	>>
+
+<CONSTANT MARLOCK-REQUIREMENTS
+	<LTABLE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		CODEWORD-AEGIS
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+	>>
+
+<CONSTANT MARLOCK-TYPES
+	<LTABLE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-CODEWORD
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+	>>
 
 <ROOM STORY100
 	(DESC "100")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY STORY100)
+	(EVENTS STORY100-EVENTS)
+	(CHOICES MARLOCK-CHOICES)
+	(DESTINATIONS MARLOCK-DESTINATIONS)
+	(REQUIREMENTS MARLOCK-REQUIREMENTS)
+	(TYPES MARLOCK-TYPES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY100-EVENTS ()
+	<COND (<AND <NOT <CHECK-CODEWORD ,CODEWORD-AEGIS>> <G=? ,MONEY 200>>
+		<CRLF>
+		<TELL "Would you like to buy a townhouse in Marlock City (200 " D ,CURRENCY ")?">
+		<COND (<YES?>
+			<COST-MONEY 200>
+			<GAIN-CODEWORD ,CODEWORD-AEGIS>
+		)>
+	)>>
 
 <ROOM STORY101
 	(DESC "101")
@@ -17543,9 +17595,14 @@ stink, laden with sulphur as it is.">
 	(VICTORY F)
 	(FLAGS LIGHTBIT)>
 
-<ROOM BLOOD-DARK-SEA
-	(DESC "Blood Dark Sea")
+<ROOM STORY-BLOOD-DARK-SEA
+	(DESC "Over the Blood-Dark Sea")
 	(VICTORY ENDING-BLOOD-DARK-SEA)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY-CITIES-OF-GOLD
+	(DESC "Cities of Gold and Glory")
+	(VICTORY ENDING-CITIES-OF-GOLD)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY-KILLED
