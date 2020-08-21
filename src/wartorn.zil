@@ -25,6 +25,9 @@
 
 <GLOBAL PERIOD-CR ".|">
 <GLOBAL EXCLAMATION-CR "!|">
+<CONSTANT TEXT-SURE "Are you sure?">
+<CONSTANT TEXT-EXCELLENT "Excellent!">
+<CONSTANT TEXT-NEXT-TIME "See you next time!">
 
 ; "CHOICES"
 ; ---------------------------------------------------------------------------------------------
@@ -512,6 +515,12 @@
         <RETURN>
     )>
     <RETURN !\x>>
+
+<ROUTINE RANDOM-EVENT ("OPT" ROLL)
+	<COND (<NOT .ROLL> <SET ROLL 1>)>
+	<EMPHASIZE "[Random Event]">
+	<PRESS-A-KEY>
+	<RETURN <ROLL-DICE .ROLL>>>
 
 <ROUTINE STORY-JUMP (STORY)
     <COND (.STORY
@@ -1465,7 +1474,7 @@
                 <COND (<AND <EQUAL? .MAX <+ <COUNT-CONTAINER ,GIVEBAG> 1>> <IN? ,ALL-MONEY ,GIVEBAG> <INTBL? ,ALL-MONEY .LIST <+ <GET .LIST 0> 1>>>
                     <COND (<G? ,MONEY 0>
                         <CRLF>
-                        <TELL "Are you sure?">
+                        <TELL ,TEXT-SURE>
                         <COND (<YES?>
                             <YOU-GAVE ,ALL-MONEY>
                             <COND (.JUMP
@@ -1488,7 +1497,7 @@
                 <RETURN>
             )(ELSE
                 <CRLF>
-                <TELL "Are you sure?">
+                <TELL ,TEXT-SURE>
                 <COND (<YES?>
                     <YOU-GAVE>
                     <COND (.JUMP <STORY-JUMP .JUMP>)>
@@ -1753,7 +1762,8 @@
         >
         <COND (<EQUAL? .KEY !\0>
             <COND (<L? .COUNT .MAX>
-                <TELL CR "Are you sure?">
+				<CRLF>
+                <TELL ,TEXT-SURE>
                 <COND(<YES?> <RETURN>)>
             )(ELSE
                 <RETURN>
@@ -2109,7 +2119,7 @@
         <UPDATE-STATUS-LINE>
         <COND (<EQUAL? .KEY !\0>
             <CRLF>
-            <TELL "Are you sure?">
+            <TELL ,TEXT-SURE>
             <COND (<YES?> <RTRUE>)>
         )>
     >>
@@ -2764,6 +2774,10 @@
     (DESC "silver nugget")
     (FLAGS TAKEBIT)>
 
+<OBJECT SMOLDER-FISH
+    (DESC "smolder fish")
+    (FLAGS TAKEBIT)>
+
 <OBJECT TREASURE-MAP
     (DESC "treasure map")
     (FLAGS TAKEBIT)>
@@ -2791,6 +2805,7 @@
 <OBJECT GOD-ELNIR (DESC "Elnir")>
 <OBJECT GOD-LACUNA (DESC "Lacuna")>
 <OBJECT GOD-MAKA (DESC "Maka")>
+<OBJECT GOD-THREE-FORTUNES (DESC "Three Fortunes")>
 <OBJECT GOD-TYRNAI (DESC "Tyrnai the War God")>
 
 ; Blessings
@@ -2804,6 +2819,7 @@
 <OBJECT BLESSING-SCOUTING (DESC "SCOUTING")>
 <OBJECT BLESSING-THIEVERY (DESC "THIEVERY")>
 <OBJECT BLESSING-LUCK (DESC "LUCK")>
+<OBJECT BLESSING-SAFETY-FROM-STORMS (DESC "Safety from Storms")>
 
 ; Ships
 ; ---------------------------------------------------------------------------------------------
@@ -2824,12 +2840,16 @@
     (DESC "galleon")
     (CONDITION CONDITION-EXCELLENT)>
 
-; "Disease EFFECTS (CHARISMA COMBAT MAGIC SANCTITY SCOUTING THIEVERY)"
+; "Disease/Poison EFFECTS (CHARISMA COMBAT MAGIC SANCTITY SCOUTING THIEVERY)"
 ; ---------------------------------------------------------------------------------------------
 
 <OBJECT DISEASE-GHOULBITE
     (DESC "ghoulbite")
     (EFFECTS <LTABLE -1 -1 0 -1 0 0>)>
+
+<OBJECT POISON-COMBAT
+	(DESC "COMBAT")
+	(EFFECTS <LTABLE 0 -1 0 0 0 0>)>
 
 ; "Monsters"
 ; ---------------------------------------------------------------------------------------------
@@ -2846,11 +2866,29 @@
     (DEFENSE 7)
     (STAMINA 15)>
 
+<OBJECT MONSTER-GOLEM
+    (DESC "Golem")
+    (COMBAT 5)
+    (DEFENSE 10)
+    (STAMINA 10)>
+
+<OBJECT MONSTER-MAD-PILGRIM
+    (DESC "Mad pilgrim")
+    (COMBAT 3)
+    (DEFENSE 5)
+    (STAMINA 6)>
+
 <OBJECT MONSTER-THUG
     (DESC "Thug")
     (COMBAT 3)
     (DEFENSE 6)
     (STAMINA 13)>
+
+<OBJECT MONSTER-TOMB-GUARDIAN
+    (DESC "Tomb Guardian")
+    (COMBAT 6)
+    (DEFENSE 8)
+    (STAMINA 12)>
 
 <OBJECT MONSTER-TWO-RATMEN
     (DESC "Two Ratmen")
@@ -2858,12 +2896,6 @@
     (DEFENSE 9)
     (STAMINA 9)
     (FLAGS PLURALBIT)>
-
-<OBJECT MONSTER-TOMB-GUARDIAN
-    (DESC "Tomb Guardian")
-    (COMBAT 6)
-    (DEFENSE 8)
-    (STAMINA 12)>
 
 <OBJECT MONSTER-WOLF
     (DESC "Wolf")
@@ -3304,6 +3336,51 @@
 ; ---------------------------------------------------------------------------------------------
 
 <CONSTANT TEXT-GUILD "Guild">
+<CONSTANT TEXT-GUILD-NONE "You have not made any investments!">
+<CONSTANT TEXT-GUILD-BROKE "You do not have enough money!">
+
+<CONSTANT TEXT-INVESTMENT-LOST "You lost the entire sum!">
+<CONSTANT TEXT-INVESTMENT-LOSE50 "You lost 50%">
+<CONSTANT TEXT-INVESTMENT-LOSE10 "You lost 10%">
+<CONSTANT TEXT-INVESTMENT-UNCHANGED "Your investments remain unchanged.">
+<CONSTANT TEXT-INVESTMENT-PROFIT10 "You gain a 10% profit!">
+<CONSTANT TEXT-INVESTMENT-PROFIT50 "You gain a 50% profit!">
+<CONSTANT TEXT-INVESTMENT-DOUBLED "Your investments are doubled!">
+
+<ROUTINE CHECK-INVESTMENTS (STORY "AUX" INVESTMENTS ROLL)
+	<SET INVESTMENTS <GETP .STORY ,P?INVESTMENTS>>
+	<COND (.INVESTMENTS
+		<SET ROLL <ROLL-DICE 2>>
+		<COND (<EQUAL? ,GOD ,GOD-THREE-FORTUNES> <INC .ROLL>)>
+		<COND (<CHECK-CODEWORD ,CODEWORD-ALMANAC> <INC .ROLL>)>
+		<COND (<CHECK-CODEWORD ,CODEWORD-BRUSH> <SET ROLL <+ .ROLL 2>>)>
+		<COND (<CHECK-CODEWORD ,CODEWORD-ELDRITCH> <SET ROLL <+ .ROLL 3>>)>
+		<COND (<L=? .ROLL 4>
+			<EMPHASIZE ,TEXT-INVESTMENT-LOST ,TEXT-GUILD>
+			<SET .INVESTMENTS 0>
+		)(<L=? .ROLL 6>
+			<EMPHASIZE ,TEXT-INVESTMENT-LOSE50 ,TEXT-GUILD>
+			<SET .INVESTMENTS </ .INVESTMENTS 2>>
+		)(<L=? .ROLL 8>
+			<EMPHASIZE ,TEXT-INVESTMENT-LOSE10 ,TEXT-GUILD>
+			<SET .INVESTMENTS <- </ .INVESTMENTS 10>>>
+		)(<L=? .ROLL 10>
+			<EMPHASIZE ,TEXT-INVESTMENT-UNCHANGED ,TEXT-GUILD>
+		)(<L=? .ROLL 12>
+			<EMPHASIZE ,TEXT-INVESTMENT-PROFIT10 ,TEXT-GUILD>
+			<SET .INVESTMENTS <+ </ .INVESTMENTS 10>>>
+		)(<L=? .ROLL 14>
+			<EMPHASIZE ,TEXT-INVESTMENT-PROFIT50 ,TEXT-GUILD>
+			<SET .INVESTMENTS <+ </ .INVESTMENTS 2>>>
+		)(ELSE
+			<EMPHASIZE ,TEXT-INVESTMENT-DOUBLED ,TEXT-GUILD>
+			<SET .INVESTMENTS <* .INVESTMENTS 2>>
+		)>
+		<COND (<L? .INVESTMENTS 0> <SET .INVESTMENTS 0>)>
+		<PUTP .STORY ,P?INVESTMENTS .INVESTMENTS>
+	)(ELSE
+		<EMPHASIZE "You have no investments here!" ,TEXT-GUILD>
+	)>>
 
 <ROUTINE GUILD-INVESTMENTS ("OPT" STORY "AUX" INVESTMENTS KEY INVESTMENT)
     <COND (<NOT .STORY> <SET STORY ,HERE>)>
@@ -3342,11 +3419,11 @@
                             <PRESS-A-KEY>
                         )(ELSE
                             <CRLF>
-                            <TELL "Are you sure?">
+                            <TELL ,TEXT-SURE>
                             <COND (<YES?>
                                 <PUTP .STORY ,P?INVESTMENTS <+ .INVESTMENTS .INVESTMENT>>
                                 <SETG MONEY <- ,MONEY .INVESTMENT>>
-                                <EMPHASIZE "Excellent!" ,TEXT-GUILD>
+                                <EMPHASIZE ,TEXT-EXCELLENT ,TEXT-GUILD>
                                 <UPDATE-STATUS-LINE>
                                 <PRESS-A-KEY>
                                 <RETURN>
@@ -3358,7 +3435,7 @@
                 >
             )(ELSE
                 <CRLF>
-                <EMPHASIZE "You do not have enough money!">
+                <EMPHASIZE ,TEXT-GUILD-BROKE ,TEXT-GUILD>
             )>
         )(<EQUAL? .KEY !\2>
             <COND (<G? .INVESTMENTS 0>
@@ -3367,7 +3444,7 @@
                     <SET INVESTMENT <GET-NUMBER "How much will you withdraw" 0 .INVESTMENTS>>
                     <COND (<G? .INVESTMENT 0>
                         <CRLF>
-                        <TELL "Are you sure?">
+                        <TELL ,TEXT-SURE>
                         <COND (<YES?>
                             <PUTP .STORY ,P?INVESTMENTS <- .INVESTMENTS .INVESTMENT>>
                             <SETG MONEY <+ ,MONEY .INVESTMENT>>
@@ -3381,18 +3458,18 @@
                     )>
                 >
             )(ELSE
-                <EMPHASIZE "You have not made any investment!">
+                <EMPHASIZE ,TEXT-GUILD-NONE ,TEXT-GUILD>
                 <PRESS-A-KEY>            
             )>
         )(<EQUAL? .KEY !\0>
             <CRLF>
             <CRLF>
-            <TELL "Are you sure?">
+            <TELL ,TEXT-SURE>
             <COND (<YES?>
-                <EMPHASIZE "See you next time!" ,TEXT-GUILD>
+                <EMPHASIZE ,TEXT-NEXT-TIME ,TEXT-GUILD>
                 <RETURN>
             )(ELSE
-                <EMPHASIZE "Excellent!" ,TEXT-GUILD>
+                <EMPHASIZE ,TEXT-EXCELLENT ,TEXT-GUILD>
             )>
         )>
         <COND (<L? ,MONEY 100>
@@ -3636,6 +3713,8 @@
 	<PUTP ,STORY060 ,P?DOOM T>
 	<PUTP ,STORY064 ,P?DOOM T>
 	<PUTP ,STORY069 ,P?DOOM T>
+	<PUTP ,STORY081 ,P?DOOM T>
+	<PUTP ,STORY087 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>
     <RETURN>>
 
@@ -3652,7 +3731,12 @@
 <CONSTANT DIED-GREW-WEAKER "You grew weaker and eventually died">
 <CONSTANT DIED-FROM-INJURIES "You died from your injuries">
 <CONSTANT DIED-FROM-COLD "You eventually freeze to death">
-<CONSTANT NATURAL-HARDINESS "Your natural hardiness made you cope better with the situation">
+<CONSTANT NOTHING-HAPPENS "Nothing happens.">
+
+<CONSTANT TEXT-STORM-SUBSIDES "Your ship is thrown about like flotsam and jetsam. When the storm subsides, you take stock. Much has been swept overboard.||Also, the ship has been swept way off course and the mate has no idea where you are. \"We're lost at sea, Cap'n,\" he moans.">
+<CONSTANT TEXT-GUILD-INVESTMENTS "You can invest money in multiples of 100 Shards. The guild will buy and sell commodities on your behalf using this money until you return to collect it. \"Don't forget that you can lose money as well,\" mutters a merchant whose investments have not paid off.">
+
+<CONSTANT TEXT-YOU-CAN-GO "You can go:">
 
 <CONSTANT HAVE-A "You have a">
 <CONSTANT HAVE-THE "You have the">
@@ -3666,6 +3750,21 @@
 <CONSTANT TEXT-ROLL-MAGIC "Make a MAGIC roll">
 <CONSTANT TEXT-ROLL-SANCTITY "Make a SANCTITY roll">
 <CONSTANT TEXT-ROLL-SCOUTING "Make a SCOUTING roll">
+
+<ROUTINE STORY-LOSE-CARGO ("OPT" MAX "AUX" COUNT)
+	<COND (<NOT .MAX> <SET MAX 1>)>
+	<SET COUNT <COUNT-CONTAINER ,CARGO>>
+	<COND (<L=? .COUNT .MAX>
+		<RESET-CONTAINER ,CARGO>
+	)(ELSE
+		<LOSE-STUFF ,CARGO ,LOST-STUFF "cargo" <- .COUNT .MAX> RESET-CARGO>
+	)>>
+
+<ROUTINE STORY-RESET-CREW ("OPT" CONDITION)
+	<COND (<NOT .CONDITION> <SET .CONDITION ,CONDITION-EXCELLENT>)>
+	<COND (,CURRENT-VEHICLE
+		<PUTP ,CURRENT-VEHICLE ,P?CONDITION .CONDITION>
+	)>>
 
 <CONSTANT TEXT001 "The first sound is the gentle murmur of waves some way off. The cry of gulls. Then the sensation of a softly stirring sea breeze and the baking sun on your back.||If that was all, you could imagine yourself in paradise, but as your senses return you start to feel the aches in every muscle. And then you remember the shipwreck.||You force open your eyes, caked shut by a crust of salt. You are lying on a beach, a desolate slab of wet sand that glistens in the merciless glare of the sun. Small crabs break away as you stir, scurrying for cover amid the long strands of seaweed.||\"Not... food for you yet...\" you murmur, wincing at the pain of cracked lips. Your mouth is dry and there is a pounding in your head born of fatigue and thirst. You don\"t care about the headache or the bruises, just as long as you\"re alive.||As you lie gathering your strength, you hear somebody coming along the shore.">
 <CONSTANT CHOICES001 <LTABLE "Lie still until he's gone" "Speak to him">>
@@ -4226,7 +4325,8 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	<KEEP-ITEM ,BAG-OF-PEARLS>>
 
 <CONSTANT TEXT038 "Heavy black clouds race towards you across the sky, whipping the waves into a frenzy. The crew mutter among themselves fearfully.">
-<CONSTANT TEXT038-SAFETY "The blessing of Alvir and Valmir confers safety from storms">
+<CONSTANT TEXT038-ALMIR-VALMIR "The blessing of Alvir and Valmir confers safety from storms">
+<CONSTANT TEXT038-SAFETY "Your 'Safety from Storms' blessing protected you">
 <CONSTANT CHOICES038 <LTABLE "The storm hits with full fury">>
 <CONSTANT STORY038-ODDS <LTABLE <LTABLE 1 0 <LTABLE 3 5 20> <LTABLE "The ship sinks!" "The mast splits!" "You weather the storm!">>>>
 
@@ -4241,11 +4341,16 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY038-EVENTS ("AUX" (DICE 1) (CONDITION 0) ODDS PARAMETERS)
-	<COND (<CHECK-BLESSING ,BLESSING-ALVIR-VALMIR>
+	<COND (<OR <CHECK-BLESSING ,BLESSING-ALVIR-VALMIR> <CHECK-BLESSING ,BLESSING-SAFETY-FROM-STORMS>>
 		<CRLF>
-		<TELL ,TEXT038-SAFETY>
+		<COND (<CHECK-BLESSING ,BLESSING-SAFETY-FROM-STORMS>
+			<TELL ,TEXT038-SAFETY>
+			<DELETE-BLESSING ,BLESSING-SAFETY-FROM-STORMS>
+		)(ELSE
+			<TELL ,TEXT038-ALMIR-VALMIR>
+			<DELETE-BLESSING ,BLESSING-ALVIR-VALMIR>
+		)>
 		<TELL ,PERIOD-CR>
-		<DELETE-BLESSING ,BLESSING-ALVIR-VALMIR>
 		<STORY-JUMP ,STORY209>
 	)(ELSE
         <RESET-ODDS 1 0 ,STORY038>
@@ -4375,11 +4480,9 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 		<TELL ,PERIOD-CR>
 	)>>
 
-<CONSTANT TEXT046 "You can invest money in multiples of 100 Shards. The guild will buy and sell commodities on your behalf using this money until you return to collect it. \"Don't forget that you can lose money as well,\" mutters a merchant whose investments have not paid off.">
-
 <ROOM STORY046
 	(DESC "046")
-	(STORY TEXT046)
+	(STORY TEXT-GUILD-INVESTMENTS)
 	(EVENTS STORY046-EVENTS)
 	(CONTINUE STORY405)
     (INVESTMENTS 0)
@@ -4461,7 +4564,7 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	(STORY TEXT051)
     (EVENTS STORY051-EVENTS)
 	(CHOICES CHOICES051)
-	(DESTINATIONS <LTABLE <LTABLE STORY-KILLED STORY153 STORY242 STORY062>>)
+	(DESTINATIONS <LTABLE <LTABLE STORY-KILLED STORY051-CRUSHING-DEFEAT STORY242 STORY062>>)
 	(REQUIREMENTS STORY051-ODDS)
 	(TYPES <LTABLE R-RANDOM>)
 	(FLAGS LIGHTBIT)>
@@ -4495,6 +4598,15 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
     )>
     <PUT .PARAMETERS 2 .MODIFIER>>
 
+<ROOM STORY051-CRUSHING-DEFEAT
+	(DESC "051")
+	(EVENTS STORY051-DEFEAT)
+	(CONTINUE STORY153)
+	(DOOM T)>
+
+<ROUTINE STORY051-DEFEAT ()
+	<LOSE-STAMINA <ROLL-DICE 1> ,DIED-IN-COMBAT ,STORY051-CRUSHING-DEFEAT>>
+
 <CONSTANT TEXT052 "If you are an initiate it costs only 10 Shards to purchase Lacuna's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again when you fail a SCOUTING roll. It is good for only one reroll. You can have only one SCOUTING
 blessing at any one time. Once it is used up, you can return to any branch of the temple of Lacuna to buy a new one.">
 
@@ -4508,7 +4620,7 @@ blessing at any one time. Once it is used up, you can return to any branch of th
 <ROUTINE STORY052-EVENTS ()
     <PURCHASE-BLESSING 25 10 ,GOD-LACUNA ,BLESSING-SCOUTING>>
 
-<CONSTANT TEXT053 "The creature bursts open in death, spilling a black inky cloud into the water. The sac in which this ink is kept falls free from its body. You can take the ink sac if you wish. You also find coral jewelry worth about 15 Shards.||Nothing else occurs during your foray into the depths, so you return to land. You climb back up the path that leads to the clifftop tor without incident.">
+<CONSTANT TEXT053 "The creature bursts open in death, spilling a black inky cloud into the water. The sac in which this ink is kept falls free from its body. You can take the ink sac if you wish. You also find coral jewellery worth about 15 Shards.||Nothing else occurs during your foray into the depths, so you return to land. You climb back up the path that leads to the clifftop tor without incident.">
 <CONSTANT CHOICES053 <LTABLE "Take the road to Trefoille" "Take the road to Marlock City">>
 
 <ROOM STORY053
@@ -4594,9 +4706,7 @@ is off, you return to the city centre.">
 
 <CONSTANT TEXT060 "You are crossing the wild country of north-east Sokara.">
 <CONSTANT TEXT060-TRAP "You are caught in an animal trap!">
-<CONSTANT TEXT060-NOTHING "Nothing happens.">
 <CONSTANT TEXT060-ATTACK "You are attacked by a wolf, and must fight.">
-<CONSTANT TEXT060-GO "You can go:">
 <CONSTANT CHOICES060 <LTABLE "North" "South" "West">>
 
 <ROOM STORY060
@@ -4610,18 +4720,21 @@ is off, you return to the city centre.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY060-EVENTS ("AUX" ROLL)
-    <SET ROLL <ROLL-DICE 1>>
-    <COND (<L=? .ROLL 2>
-        <EMPHASIZE ,TEXT060-TRAP>
-        <LOSE-STAMINA 2 ,DIED-FROM-INJURIES ,STORY060>
-    )(<L=? .ROLL 4>
-        <EMPHASIZE ,TEXT060-NOTHING>
-        <PREVENT-DOOM ,STORY060>
-    )(ELSE
-        <COMBAT-MONSTER ,MONSTER-WOLF 3 5 7>
-        <CHECK-COMBAT ,MONSTER-WOLF ,STORY060 0 ,WOLF-PELT>
-    )>
-    <IF-ALIVE ,TEXT060-GO>>
+	<COND (,RUN-ONCE
+		<SET ROLL <RANDOM-EVENT 1>>
+		<COND (<L=? .ROLL 2>
+			<EMPHASIZE ,TEXT060-TRAP>
+			<LOSE-STAMINA 2 ,DIED-FROM-INJURIES ,STORY060>
+		)(<L=? .ROLL 4>
+			<EMPHASIZE ,NOTHING-HAPPENS>
+			<PREVENT-DOOM ,STORY060>
+		)(ELSE
+			<EMPHASIZE ,TEXT060-ATTACK>
+			<COMBAT-MONSTER ,MONSTER-WOLF 3 5 7>
+			<CHECK-COMBAT ,MONSTER-WOLF ,STORY060 0 ,WOLF-PELT>
+		)>
+	)>
+    <IF-ALIVE ,TEXT-YOU-CAN-GO>>
 
 <CONSTANT TEXT061 "\"Wait!\" you cry, \"I have seen the light. I wish to join your cult.\" \"What?\" yells the chef. Then his shoulders sag with obvious disappointment. \"We cannot refuse a new member. And we cannot eat our own people.\"||A short ceremony later -- fortunately, the initiation does not involve any cannibalistic rites -- and you are a full member of the Cult of Badogor. You lose 1 point of SANCTITY for joining such a vile cult.|| You take your leave and they wish you well, all smiles and friendship.||\"Remember, never say his name. And don\"t forget to bring us new recruits,\" says the leader.||\"And bring some people for dinner!\" adds the chef.||Hastily you head for the city centre.">
 
@@ -4685,7 +4798,7 @@ is off, you return to the city centre.">
 	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT066 "You stand your ground. The ghostly horses stream past you on either side, neighing wildly at the sky. Nimbly, you leap at one, and manage to wrap your arms around its neck, and swing on to its back. The horse feels quite solid, but appears to be a luminous, pale-green color. You look up through a cloud of sparks emanating from the horse's mane just in time to see a rocky wall of a low hill looming up out of the evening mist. Your horse is galloping full tilt right into it!">
+<CONSTANT TEXT066 "You stand your ground. The ghostly horses stream past you on either side, neighing wildly at the sky. Nimbly, you leap at one, and manage to wrap your arms around its neck, and swing on to its back. The horse feels quite solid, but appears to be a luminous, pale-green colour. You look up through a cloud of sparks emanating from the horse's mane just in time to see a rocky wall of a low hill looming up out of the evening mist. Your horse is galloping full tilt right into it!">
 <CONSTANT CHOICES066 <LTABLE "Hold on" "Leap off">>
 
 <ROOM STORY066
@@ -4696,26 +4809,14 @@ is off, you return to the city centre.">
 	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT067 "Your ship is thrown about like flotsam and jetsam. When the storm subsides, you take stock. Much has been swept overboard.||Also, the ship has been swept way off course and the mate has no idea where you are. \"We're lost at sea, Cap'n,\" he moans.">
-
 <ROOM STORY067
 	(DESC "067")
-	(STORY TEXT067)
-	(EVENTS STORY067-EVENTS)
+	(STORY TEXT-STORM-SUBSIDES)
+	(EVENTS STORY-LOSE-CARGO)
 	(CONTINUE STORY090)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY067-EVENTS ("AUX" COUNT)
-	<SET COUNT <COUNT-CONTAINER ,CARGO>>
-	<COND (<L=? .COUNT 1>
-		<RESET-CONTAINER ,CARGO>
-	)(ELSE
-		<DEC .COUNT>
-		<LOSE-STUFF ,CARGO ,LOST-STUFF "cargo" .COUNT RESET-CARGO>
-	)>
-	<RETURN>>
-
-<CONSTANT TEXT068 "To renounce the worship of Alvir and Valmir, you must pay 30 Shards in compensation to the priesthood.||The priest simply points to a ship limping into harbor -- its shattered masts, torn sails and battered hull mute testimony to its storm-tossed voyage.||\"The captain did not revere the Twin Gods,\" whispers the coral-jeweled priest darkly.">
+<CONSTANT TEXT068 "To renounce the worship of Alvir and Valmir, you must pay 30 Shards in compensation to the priesthood.||The priest simply points to a ship limping into harbour -- its shattered masts, torn sails and battered hull mute testimony to its storm-tossed voyage.||\"The captain did not revere the Twin Gods,\" whispers the coral-jewelled priest darkly.">
 
 <ROOM STORY068
 	(DESC "068")
@@ -4728,7 +4829,7 @@ is off, you return to the city centre.">
 	<RENOUNCE-WORSHIP 30 ,GOD-ALVIR-VALMIR>>
 
 <CONSTANT TEXT069 "To renounce the worship of Tyrnai, you must pay 50 Shards to the warrior priests, and suffer the Ceremony of the Wrathful Blow. A priest will strike you once, on the doctrinal grounds that it is better to be struck by a priest than by Tyrnai himself.">
-<CONSTANT TEXT069-WRATH "The High Priest smashes you across the jaw, saying, \"I'm doing you a favor, believe me.\"">
+<CONSTANT TEXT069-WRATH "The High Priest smashes you across the jaw, saying, \"I'm doing you a favour, believe me.\"">
 
 <ROOM STORY069
 	(DESC "069")
@@ -4763,24 +4864,12 @@ is off, you return to the city centre.">
 		<PREVENT-DOOM ,STORY069>
 	)>>
 
-<CONSTANT TEXT070 "Your ship is thrown about like flotsam and jetsam. When the storm subsides, you take stock. Much has been swept overboard.||The ship has been blown way off course and the mate has no idea where you are. \"We're lost at sea, Cap'n,\" he moans.">
-
 <ROOM STORY070
 	(DESC "070")
-	(STORY TEXT070)
-	(EVENTS STORY070-EVENTS)
+	(STORY TEXT-STORM-SUBSIDES)
+	(EVENTS STORY-LOSE-CARGO)
 	(CONTINUE STORY090)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY070-EVENTS ("AUX" COUNT)
-	<SET COUNT <COUNT-CONTAINER ,CARGO>>
-	<COND (<L=? .COUNT 1>
-		<RESET-CONTAINER ,CARGO>
-	)(ELSE
-		<DEC .COUNT>
-		<LOSE-STUFF ,CARGO ,LOST-STUFF "cargo" .COUNT RESET-CARGO>
-	)>
-	<RETURN>>
 
 <CONSTANT TEXT071 "Nagil is the Lord of the Lands of the Dead, and his temple in Marlock City is covered in friezes and gargoyles of ornate design, depicting the souls of the dead on their journey to the underworld.Inside, it is cool and dark, hung with black velvet drapes.||A poster on the wall reads: \"Wanted: person of unusual resourcefulness. See temple warden.\"">
 <CONSTANT CHOICES071 <LTABLE "Become an initiate" "Renounce worship" "Make resurrection arrangements" "Visit the warden" "Leave the temple">>
@@ -4838,7 +4927,7 @@ is off, you return to the city centre.">
 
 <ROOM STORY075
 	(DESC "075")
-	(STORY STORY075)
+	(STORY TEXT075)
 	(CHOICES CHOICES075)
 	(DESTINATIONS <LTABLE STORY235 STORY235>)
 	(REQUIREMENTS <LTABLE CODEWORD-ARMOUR NONE>)
@@ -4904,194 +4993,160 @@ high priestess. \"Only the Chosen Ones have the goddess-given powers to cure the
 	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT081 "This could be a tough fight.">
+
 <ROOM STORY081
 	(DESC "081")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT081)
+	(EVENTS STORY081-EVENTS)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY081-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-GOLEM 5 10 10>
+	<CHECK-COMBAT ,MONSTER-GOLEM ,STORY081>>
+
+<CONSTANT TEXT082 "You are following the course of the Stinking River -- and it certainly does
+stink, laden with sulphur as it is.">
+<CONSTANT TEXT082-STUNG "You are stung by a large golden insect.">
+<CONSTANT TEXT082-CAUGHT "You caught a smolder fish.">
+
+<CONSTANT CHOICES082 <LTABLE "Follow the river north" "Follow the river south to Yellowport" "Go west to the road" "Go east into the countryside">>
 
 <ROOM STORY082
 	(DESC "082")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT082)
+	(EVENTS STORY082-EVENTS)
+	(CHOICES CHOICES082)
+	(DESTINATIONS <LTABLE STORY310 STORY010 STORY558 STORY278>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY082-EVENTS ("AUX" ROLL)
+    <SET ROLL <RANDOM-EVENT 1>>
+    <COND (<L=? .ROLL 2>
+        <EMPHASIZE ,TEXT082-STUNG>
+        <AFFLICTED-WITH ,POISON-COMBAT>
+    )(<L=? .ROLL 4>
+        <EMPHASIZE ,NOTHING-HAPPENS>
+    )(ELSE
+        <EMPHASIZE ,TEXT082-CAUGHT>
+		<TAKE-ITEM ,SMOLDER-FISH>
+    )>>
 
 <ROOM STORY083
 	(DESC "083")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-STORM-SUBSIDES)
+	(EVENTS STORY-LOSE-CARGO)
+	(CONTINUE STORY090)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT084 "Your ship awaits you in the harbour. The crew are in good spirits, as ever when a new voyage is about to begin.">
+<CONSTANT CHOICES084 <LTABLE "Go ashore" "Set sail">>
 
 <ROOM STORY084
 	(DESC "084")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT084)
+	(EVENTS STORY-RESET-CREW)
+	(CHOICES CHOICES084)
+	(DESTINATIONS <LTABLE STORY142 STORY222>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT085 "You are sailing around Scorpion Bight.">
+<CONSTANT CHOICES085 <LTABLE "Sail north along the coast" "Sail west towards Yellowport" "Sail east into the Sea of Whispers" "Sail south into the Violet Ocean" "Go ashore at Scorpion Bight">>
 
 <ROOM STORY085
 	(DESC "085")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT085)
+	(CHOICES CHOICES085)
+	(DESTINATIONS <LTABLE STORY190 STORY029 STORY136 STORY416 STORY176>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT086 "The temple of the Three Fortunes is a squat, square building. A frieze above the door depicts three women weaving a tapestry. \"That's the Tapestry of Fate, wherein our destiny is woven,\" comments a priest.">
+<CONSTANT CHOICES086 <LTABLE "Become an initiate" "Renounce worship" "Seek a blessing" "Leave the temple">>
 
 <ROOM STORY086
 	(DESC "086")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT086)
+	(CHOICES CHOICES086)
+	(DESTINATIONS <LTABLE STORY258 STORY573 STORY603 STORY400>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT087 "You are on the road between Blessed Springs and Venefax. Pilgrims, the sick and the injured travel this route to the holy waters of Blessed Springs to find salvation.">
+<CONSTANT TEXT087-ATTACK "You are attacked by a mad pilgrim. You must fight.">
+<CONSTANT TEXT087-BLESSED "Blessed by a priest.">
+<CONSTANT CHOICES087 <LTABLE "Go to Blessed Springs" "Go to Venefax" "Go north into the countryside">>
 
 <ROOM STORY087
 	(DESC "087")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT087)
+	(EVENTS STORY087-EVENTS)
+	(CHOICES CHOICES087)
+	(DESTINATIONS <LTABLE STORY510 STORY427 STORY548>)
+	(TYPES THREE-NONES)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY087-EVENTS ("AUX" ROLL)
+	<COND (,RUN-ONCE
+		<SET ROLL <RANDOM-EVENT 1>>
+		<COND (<L=? .ROLL 2>
+			<COMBAT-MONSTER ,MONSTER-MAD-PILGRIM 3 5 6>
+			<CHECK-COMBAT ,MONSTER-MAD-PILGRIM ,STORY087 0 ,STAFF>
+		)(<L=? .ROLL 4>
+			<EMPHASIZE ,NOTHING-HAPPENS>
+			<PREVENT-DOOM ,STORY087>
+		)(ELSE
+			<EMPHASIZE ,TEXT087-BLESSED>
+			<GAIN-BLESSING ,BLESSING-SAFETY-FROM-STORMS>
+			<PREVENT-DOOM ,STORY087>
+		)>
+	)>
+    <IF-ALIVE ,TEXT-YOU-CAN-GO>>
+
+<CONSTANT TEXT088 "You find out how well your investments have done:">
 
 <ROOM STORY088
 	(DESC "088")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY088-BACKGROUND)
+	(STORY TEXT088)
+	(EVENTS STORY088-EVENTS)
+	(CONTINUE STORY104)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY088-BACKGROUND ("AUX" INVESTMENTS)
+	<SET INVESTMENTS <GETP ,STORY104 ,P?INVESTMENTS>>
+	<COND (.INVESTMENTS <RETURN ,STORY088>)>
+	<RETURN ,STORY104>>
+
+<ROUTINE STORY088-EVENTS ()
+	<CHECK-INVESTMENTS ,STORY104>>
+
+<CONSTANT TEXT089 "The undead pirate reaches for you, but it is too slow. Then it speaks, its voice seeming to sound inside your head.||\"Damn you, and your kind, thieving sea centaur. I curse you forever. May you never swim again in the seas you love. You will walk for the rest of your life as a human, doomed to wander the surface world, unable to find the peace of coral caves.\"||Quickly you swim away, unable to believe your luck. What a convenient curse. Already you are changing back to human form. You just make it to your ship, coughing and spluttering, and your crew haul you aboard.||The gems are worth 300 Shards. You sail on, lucky to be still human.">
 
 <ROOM STORY089
 	(DESC "089")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT089)
+	(EVENTS STORY089-EVENTS)
+	(CONTINUE STORY507)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY089-EVENTS ()
+	<GAIN-MONEY 300>>
+
+<CONSTANT TEXT090 "Your ship is limping through unknown waters. The sun beats down, and the wind drops to a whisper.||\"What direction, Cap'n?\" asks the bo'sun.">
+<CONSTANT CHOICES090 <LTABLE TEXT-ROLL-SCOUTING>>
 
 <ROOM STORY090
 	(DESC "090")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT090)
+	(CHOICES CHOICES090)
+	(DESTINATIONS <LTABLE <LTABLE STORY633 STORY484>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY091
