@@ -3478,6 +3478,52 @@
         )>
     >>
 
+; "Gambling Den routines"
+; ---------------------------------------------------------------------------------------------
+
+<ROUTINE GAMBLING-DEN (MAX "AUX" BET ROLL)
+	<COND (<G=? ,MONEY .MAX>
+		<CRLF>
+		<TELL "Do you wish to gamble (" N .MAX " " D ,CURRENCY " maximum)?">
+		<COND (<YES?>
+			<REPEAT ()
+				<SET BET <GET-NUMBER "How much will you bet" 1 .MAX>>
+				<REPEAT ()
+					<SET ROLL <ROLL-DICE 2>>
+					<CRLF>
+					<TELL "You rolled " N .ROLL CR>
+					<PRESS-A-KEY>
+					<COND (<NOT <PROCESS-RANDOM-BLESSING>> <RETURN>)>
+				>
+				<COND (<L=? .ROLL 2>
+					<EMPHASIZE "You win five times your bet!">
+					<SETG ,MONEY <+ ,MONEY <* .BET 5>>>
+				)(<L=? .ROLL 4>
+					<EMPHASIZE "You win twice your bet!">
+					<SETG ,MONEY <+ ,MONEY <* .BET 2>>>
+				)(<L=? .ROLL 9>
+					<EMPHASIZE "You lost your bet!">
+					<SETG ,MONEY <- ,MONEY .BET>>
+				)(<L=? .ROLL 11>
+					<EMPHASIZE "You win twice your bet!">
+					<SETG ,MONEY <+ ,MONEY <* .BET 2>>>
+				)(ELSE
+					<EMPHASIZE "You win five times your bet!">
+					<SETG ,MONEY <+ ,MONEY <* .BET 5>>>
+				)>
+				<COND (<L? ,MONEY 0> <SETG ,MONEY 0>)>
+				<UPDATE-STATUS-LINE>
+				<COND (<L? ,MONEY .MAX>
+					<EMPHASIZE "You are thrown out of the Gambling Den!">
+					<RETURN>
+				)>
+				<CRLF>
+				<TELL "Are you ready to leave?">
+				<COND (<YES?> <RETURN>)>
+			>
+		)>
+	)>>
+
 ; "Temple Routines"
 ; ---------------------------------------------------------------------------------------------
 
@@ -5149,24 +5195,18 @@ stink, laden with sulphur as it is.">
 	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT091 "He smiles and takes you into the Gambler's Den. It is a smoke-filled casino, full of all kinds of dubious-looking characters, playing cards and dice. If you want to gamble, decide how much you want to bet, to a maximum of 20 Shards.">
+
 <ROOM STORY091
 	(DESC "091")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT091)
+	(EVENTS STORY091-EVENTS)
+	(CONTINUE STORY109)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY091-EVENTS ()
+	<GAMBLING-DEN 20>
+	<COND (<CHECK-VISITS-MORE 1> <STORY-JUMP ,STORY100>)>>
 
 <ROOM STORY092
 	(DESC "092")
