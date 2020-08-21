@@ -4067,7 +4067,7 @@
 
 <CONSTANT TEXT013 "\"The Violet Ocean's a dangerous place, Cap'n,\" says the first mate. \"The crew
 won't follow you there if they don't think you're good enough.\"">
-<CONSTANT CHOICES013 <LTABLE "Demand that the crew follow your orders" TEXT-ROLL-CHARISMA "Turn back">>
+<CONSTANT CHOICES013 <LTABLE "Demand that the crew follow your orders (Over the Blood-Dark Sea)" TEXT-ROLL-CHARISMA "Turn back">>
 
 <ROOM STORY013
 	(DESC "013")
