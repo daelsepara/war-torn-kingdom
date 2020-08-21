@@ -10,12 +10,12 @@
 <INSERT-FILE "minilib">
 
 <ROUTINE GO ()
-    <V-VERSION>
-    <TELL CR "IFID: ">
-    <TELL IFID>
-    <CRLF>
-    <GAME-BOOK>
-    <QUIT-MESSAGE>>
+	<V-VERSION>
+	<TELL CR "IFID: ">
+	<TELL IFID>
+	<CRLF>
+	<GAME-BOOK>
+	<QUIT-MESSAGE>>
 
 ; "GLOBALS"
 ; ---------------------------------------------------------------------------------------------
