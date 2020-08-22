@@ -261,6 +261,9 @@
 	<SET EVENTS <GETP ,HERE ,P?EVENTS>>
 	<COND (.EVENTS <APPLY .EVENTS>)>>
 
+<ROUTINE CHECK-GOD (GOD)
+	<RETURN <AND ,GOD <EQUAL? ,GOD .GOD>>>>
+
 <ROUTINE CHECK-PROFESSION (IS-PROFESSION "AUX" PROFESSION)
 	<SET PROFESSION <GETP ,CURRENT-CHARACTER ,P?PROFESSION>>
 	<COND (.PROFESSION <RETURN <EQUAL? .IS-PROFESSION .PROFESSION>>)>
@@ -2679,6 +2682,7 @@
 <OBJECT CODEWORD-ALOFT (DESC "Aloft")>
 <OBJECT CODEWORD-ANCHOR (DESC "Anchor")>
 <OBJECT CODEWORD-ANVIL (DESC "Anvil")>
+<OBJECT CODEWORD-APPLE (DESC "Apple")>
 <OBJECT CODEWORD-ARMOUR (DESC "Armour")>
 <OBJECT CODEWORD-ARTERY (DESC "Artery")>
 <OBJECT CODEWORD-ARTIFACT (DESC "Artifact")>
@@ -2973,7 +2977,7 @@
 ; ---------------------------------------------------------------------------------------------
 
 <OBJECT GOD-ALVIR-VALMIR (DESC "Alvir and Valmir the Twin Gods")>
-<OBJECT GOD-ELNIR (DESC "Elnir")>
+<OBJECT GOD-ELNIR (DESC "Elnir the Sky God")>
 <OBJECT GOD-LACUNA (DESC "Lacuna")>
 <OBJECT GOD-MAKA (DESC "Maka")>
 <OBJECT GOD-THREE-FORTUNES (DESC "Three Fortunes")>
@@ -3050,6 +3054,12 @@
 	(DESC "Golem")
 	(COMBAT 5)
 	(DEFENSE 10)
+	(STAMINA 10)>
+
+<OBJECT MONSTER-KING-SCABB
+	(DESC "King Scab")
+	(COMBAT 5)
+	(DEFENSE 7)
 	(STAMINA 10)>
 
 <OBJECT MONSTER-MAD-PILGRIM
@@ -3546,7 +3556,7 @@
 	<SET INVESTMENTS <GETP .STORY ,P?INVESTMENTS>>
 	<COND (.INVESTMENTS
 		<SET ROLL <ROLL-DICE 2>>
-		<COND (<EQUAL? ,GOD ,GOD-THREE-FORTUNES> <INC .ROLL>)>
+		<COND (<CHECK-GOD ,GOD-THREE-FORTUNES> <INC .ROLL>)>
 		<COND (<CHECK-CODEWORD ,CODEWORD-ALMANAC> <INC .ROLL>)>
 		<COND (<CHECK-CODEWORD ,CODEWORD-BRUSH> <SET ROLL <+ .ROLL 2>>)>
 		<COND (<CHECK-CODEWORD ,CODEWORD-ELDRITCH> <SET ROLL <+ .ROLL 3>>)>
@@ -4216,7 +4226,7 @@
 
 <ROUTINE CURE-DISEASES (FEE DISCOUNT INITIATE)
 	<COND (<NOT .INITIATE> <RETURN>)>
-	<COND (<EQUAL? ,GOD .INITIATE> <SET FEE .DISCOUNT>)>
+	<COND (<CHECK-GOD .INITIATE> <SET FEE .DISCOUNT>)>
 	<COND (<L=? <COUNT-CONTAINER ,AILMENTS> 0>
 		<EMPHASIZE "You are not afflicted with poisons or diseases of any kind!">
 	)(<G=? ,MONEY .FEE>
@@ -4236,7 +4246,7 @@
 <ROUTINE PURCHASE-BLESSING (FEE DISCOUNT INITIATE BLESSING)
 	<COND (<NOT .BLESSING> <RETURN>)>
 	<COND (<NOT .INITIATE> <RETURN>)>
-	<COND (<EQUAL? ,GOD .INITIATE> <SET FEE .DISCOUNT>)>
+	<COND (<CHECK-GOD .INITIATE> <SET FEE .DISCOUNT>)>
 	<COND (<CHECK-BLESSING .BLESSING>
 		<CRLF>
 		<TELL "You already have the">
@@ -4255,7 +4265,7 @@
 
 <ROUTINE RENOUNCE-WORSHIP (FEE WORSHIP)
 	<COND (,GOD
-		<COND (<EQUAL? ,GOD .WORSHIP>
+		<COND (<CHECK-GOD .WORSHIP>
 			<COND (<G=? ,MONEY .FEE>
 				<CRLF>
 				<TELL "Renounce the worship of " D .WORSHIP "?">
@@ -4453,6 +4463,7 @@
 	<PUTP ,STORY101-SUCCEED ,P?DOOM T>
 	<PUTP ,STORY105 ,P?DOOM T>
 	<PUTP ,STORY121 ,P?DOOM T>
+	<PUTP ,STORY145 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>
 	<RETURN>>
 
@@ -4998,7 +5009,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY033-EVENTS ("AUX" (FEE 800))
-	<COND (<EQUAL? ,GOD ,GOD-TYRNAI> <SET FEE 200>)>
+	<COND (<CHECK-GOD ,GOD-TYRNAI> <SET FEE 200>)>
 	<COND (<EQUAL? ,RESURRECTION-ARRANGEMENTS ,RESURRECTION-TYRNAI>
 		<EMPHASIZE "You already made resurrection arrangements at this temple!">
 	)(<G=? ,MONEY .FEE>
@@ -5546,7 +5557,7 @@ is off, you return to the city centre.">
 
 <ROUTINE STORY069-EVENTS ()
 	<COND (,GOD
-		<COND (<EQUAL? ,GOD ,GOD-TYRNAI>
+		<COND (<CHECK-GOD ,GOD-TYRNAI>
 			<RENOUNCE-WORSHIP 50 ,GOD-TYRNAI>
 			<COND (,GOD
 				<PREVENT-DOOM ,STORY069>
@@ -6599,156 +6610,100 @@ harbourmaster.">
 <ROUTINE STORY142-EVENTS ()
 	<HARBOUR-MARLOCK>>
 
+<CONSTANT TEXT143 "To renounce the worship of Elnir, you must pay 40 Shards to the priesthood by way of compensation. A passing noble says disdainfully, \"Ha! Only those born to rule have the fiber to worship the Sky Lord. Those who renounce Elnir never reach the top.\"">
+
 <ROOM STORY143
 	(DESC "143")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT143)
+	(EVENTS STORY143-EVENTS)
+	(CONTINUE STORY316)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY143-EVENTS ()
+	<RENOUNCE-WORSHIP 40 ,GOD-ELNIR>>
+
+<CONSTANT TEXT144 "You call on the divine powers of the gods, to banish this foul, blasphemous travesty of life. The ghoul shrinks back for a moment, snarling.">
+<CONSTANT CHOICES144 <LTABLE TEXT-ROLL-SANCTITY>>
 
 <ROOM STORY144
 	(DESC "144")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT144)
+	(CHOICES CHOICES144)
+	(DESTINATIONS <LTABLE <LTABLE STORY223 STORY289>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SANCTITY 10>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT145 "King Skabb gives a cry of anger, and leaps at you in desperation, swinging a spiked mace in his hand. You must fight him,">
 
 <ROOM STORY145
 	(DESC "145")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT145)
+	(EVENTS STORY145-EVENTS)
+	(CONTINUE STORY554)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY145-EVENTS ("AUX" (MODIFIER 0))
+	<COND (<CHECK-ITEM ,RAT-POISON>
+		<CRLF>
+		<TELL "Use " T ,RAT-POISON "?">
+		<COND (<YES?>
+			<SET MODIFIER 3>
+			<REMOVE-ITEM ,RAT-POISON "used" T T>
+		)>
+	)>
+	<COMBAT-MONSTER ,MONSTER-KING-SCABB 5 7 10>
+	<CHECK-COMBAT ,MONSTER-KING-SCABB ,STORY145 .MODIFIER>>
+
+<CONSTANT TEXT146 "He seems to see something he approves of because he says, \"Perhaps. But first you must prove yourself. There is a knight, a man of great evil. He is known as the Black Dragon Knight. Defeat him in battle and I will teach you. Bring me his black dragon shield as proof of your valor.\" With that, he turns and walks away.||\"But how will I find him? And then how will I find you?\"||\"Would you have me kill him for you as well?\" he asks over his shoulder. \"As for the second, ask for me in the Blue Griffon Tavern in Caran Baru. My name is Yanryt the Son.\"">
 
 <ROOM STORY146
 	(DESC "146")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT146)
+	(CONTINUE STORY412)
+	(CODEWORDS <LTABLE CODEWORD-AXE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT147 "An old troubadour tells an epic tale of adventure and romance involving three heroes, a princess and a dragon. Afterwards, you find yourself talking to him at the bar. He tells you about the time he was captured by the Manbeasts of Nerech, and that by soothing their savage ferocity with music, he was able to escape.">
+<CONSTANT CHOICES147 <LTABLE YOU-ARE-A OTHERWISE>>
 
 <ROOM STORY147
 	(DESC "147")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT147)
+	(CHOICES CHOICES147)
+	(DESTINATIONS <LTABLE STORY469 STORY100>)
+	(REQUIREMENTS <LTABLE PROFESSION-TROUBADOUR NONE>)
+	(TYPES <LTABLE R-PROFESSION R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT148 "\"Stop, stop, I surrender!\" yells the tree.||You cease your attack. \"So I can pass?\"||\"In view of recent events, I guess so,\" the tree says grudgingly. It uproots itself with a great tearing sound and shuffles out of the way.||You walk through the thorn bush gate. Beyond, you find several huge oaks trees whose branches are so big that they are able to support the homes of many people.">
 
 <ROOM STORY148
 	(DESC "148")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT148)
+	(CONTINUE STORY358)
+	(CODEWORDS <LTABLE CODEWORD-APPLE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT149 "A man accosts you as you are leaving a tavern. He presses his face close to yours. His breath reeks of rotting teeth and his ear has been cut off -- the mark of a man punished for piracy. \"Give me 10 Shards and I will tell you what you want to know.\"">
+<CONSTANT CHOICES149 <LTABLE "Pay the money" "Refuse to pay">>
 
 <ROOM STORY149
 	(DESC "149")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT149)
+	(CHOICES CHOICES149)
+	(DESTINATIONS <LTABLE STORY533 STORY468>)
+	(REQUIREMENTS <LTABLE 10 NONE>)
+	(TYPES <LTABLE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT150 "You get a berth on a merchantmen headed for Marlock City. It is a trouble-free journey.||\"I pay everyone off -- the Sokarans, the pirates,\" says the captain. \"That way I get left alone.\"||You disembark in Marlock City.">
 
 <ROOM STORY150
 	(DESC "150")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT150)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY151
