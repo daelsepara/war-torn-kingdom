@@ -61,6 +61,7 @@
 <CONSTANT R-GAIN-CODEWORD 15> ; "gain codeword (s)"
 <CONSTANT R-PROFESSION 16> ; "check profession"
 <CONSTANT R-TAKE-MISSION 17> ; "take mission"
+<CONSTANT R-DOCK 18> ; "dock at port"
 
 ; "No requirements"
 <CONSTANT TWO-NONES <LTABLE R-NONE R-NONE>>
@@ -153,10 +154,17 @@
 ; "vehicle description"
 <OBJECT VEHICLE (DESC "ships")>
 
-; "NON-PERSON OBJECTS"
+; "Townhouses"
 ; ---------------------------------------------------------------------------------------------
 
-; "Properties"
+<OBJECT TOWNHOUSE-CARAN-BARU
+	(DESC "Townhouse at Caran Baru")
+	(INVESTMENTS 0)
+	(FLAGS CONTBIT OPENBIT)>
+
+; "NON-PERSON OBJECTS Properties"
+; ---------------------------------------------------------------------------------------------
+
 <PROPDEF QUANTITY -1>
 <PROPDEF CHARGES -1>
 <PROPDEF STARS -1>
@@ -489,6 +497,22 @@
 						<TAKE-MISSION .LIST>
 						<PRESS-A-KEY>
 						<SETG HERE <GET .DESTINATIONS .CHOICE>>
+					)(<AND <EQUAL? .TYPE R-DOCK> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+						<CRLF>
+						<COND (,CURRENT-VEHICLE
+							<CRLF>
+							<TELL "Your " D ,CURRENT-VEHICLE " docks at " <GET ,DOCKS .LIST> ,PERIOD-CR>
+							<PUTP ,CURRENT-VEHICLE ,P?DOCKED .LIST>
+							<PRESS-A-KEY>
+							<SETG HERE <GET .DESTINATIONS .CHOICE>>
+							<SETG CURRENT-VEHICLE NONE>
+						)(ELSE
+							<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
+								<EMPHASIZE "Your ships are docked elsewehre!">
+							)(ELSE
+								<EMPHASIZE "You have no ship!">
+							)>
+						)>
 					)>
 					<RETURN>
 				)(ELSE
@@ -542,6 +566,7 @@
 				<COND (<AND <EQUAL? .CHOICE-TYPE R-ALL> .REQUIREMENTS> <PRINT-ALL .LIST>)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE R-VISITS> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (visited > " N .LIST " times)">)>)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE R-PROFESSION> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (" D .LIST ")">)>)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE R-DOCK> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (ship docks at " <GET ,DOCKS .LIST> ")">)>)>
 				<CRLF>
 			>
 			<SET CHOICE <PROCESS-CHOICES .CHOICES>>
@@ -1220,17 +1245,20 @@
 		<REMOVE .OBJECT>
 	)>>
 
-<ROUTINE DESCRIBE-INVENTORY ("AUX" COUNT)
+<ROUTINE DESCRIBE-INVENTORY-MAIN ("AUX" COUNT)
+	<SET COUNT <COUNT-POSSESSIONS>>
+	<TELL "You are carrying " N .COUNT " items">
+	<COND (<G? .COUNT 0>
+		<TELL ": ">
+		<PRINT-CONTAINER ,PLAYER>
+	)(ELSE
+		<TELL ,PERIOD-CR>
+	)>>
+
+<ROUTINE DESCRIBE-INVENTORY ()
 	<COND (,CURRENT-CHARACTER
-		<SET COUNT <COUNT-POSSESSIONS>>
 		<CRLF>
-		<TELL "You are carrying " N .COUNT " items">
-		<COND (<G? .COUNT 0>
-			<TELL ": ">
-			<PRINT-CONTAINER ,PLAYER>
-		)(ELSE
-			<TELL ,PERIOD-CR>
-		)>
+		<DESCRIBE-INVENTORY-MAIN>
 	)>>
 
 <ROUTINE DESCRIBE-PLAYER ()
@@ -1728,6 +1756,7 @@
 			<COND (<G=? .CONDITION 0>
 				<COND (<OR <G? .BLESSINGS 0> <G? .QUANTITY 1> <G? .CHARGES 0> <G? .STARS 0> .WORN .EFFECTS> <TELL ", ">)>
 				<TELL "condition: " <GET ,CONDITIONS <+ .CONDITION 1>>>
+				<COND (<GETP .ITEMS ,P?DOCKED> <TELL ", docked at: " <GET ,DOCKS <GETP .ITEMS ,P?DOCKED>>>)>
 			)>
 			<COND (<OR <G? .BLESSINGS 0> <G? .QUANTITY 1> <G? .CHARGES 0> <G? .STARS 0> .WORN .EFFECTS <G=? .CONDITION 0>> <TELL ")">)>
 		)>
@@ -2398,6 +2427,36 @@
 		<CRLF>
 	)>>
 
+<ROUTINE PRINT-CONTAINER-MENU ("OPT" CONTAINER EXIT-KEY EXIT-TEXT "AUX" ITEMS COUNT)
+	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
+	<COND (<L=? <COUNT-CONTAINER .CONTAINER> 0> <RETURN>)>
+	<SET ITEMS <FIRST? .CONTAINER>>
+	<SET COUNT 0>
+	<REPEAT ()
+		<COND (<NOT .ITEMS> <RETURN>)>
+		<COND (<NOT <FSET? .ITEMS ,NDESCBIT>>
+			<INC .COUNT>
+			<HLIGHT ,H-BOLD>
+			<COND (<L? .COUNT 10>
+				<TELL N .COUNT>
+			)(ELSE
+				<TELL C <+ !\A <- .COUNT 10>>>
+			)>
+			<HLIGHT 0>
+			<TELL " - ">
+			<PRINT-ITEM .ITEMS>
+			<CRLF>
+		)>
+		<SET .ITEMS <NEXT? .ITEMS>>
+	>
+	<COND (<AND .EXIT-KEY .EXIT-TEXT>
+		<HLIGHT ,H-BOLD>
+		<TELL C .EXIT-KEY>
+		<HLIGHT 0>
+		<TELL " - " .EXIT-TEXT>
+		<CRLF>
+	)>>
+
 ; "Status Line routines"
 ; ---------------------------------------------------------------------------------------------
 
@@ -2960,6 +3019,10 @@
 	(DESC "verdigris key")
 	(FLAGS TAKEBIT)>
 
+<OBJECT VIAL-YELLOW-DUST
+	(DESC "vial of yellow dust")
+	(FLAGS TAKEBIT)>
+
 <OBJECT WOLF-PELT
 	(DESC "wolf pelt")
 	(FLAGS TAKEBIT)>
@@ -3004,19 +3067,25 @@
 <CONSTANT CONDITION-GOOD 2>
 <CONSTANT CONDITION-EXCELLENT 3>
 
+<CONSTANT DOCK-YELLOWPORT 1>
+<CONSTANT DOCKS <LTABLE "Yellowport">>
+
 <OBJECT SHIP-BARQUE
 	(DESC "barque")
 	(CAPACITY 1)
+	(DOCKED NONE)
 	(CONDITION CONDITION-POOR)>
 
 <OBJECT SHIP-BRIGANTINE
 	(DESC "brigantine")
 	(CAPACITY 2)
+	(DOCKED NONE)
 	(CONDITION CONDITION-POOR)>
 
 <OBJECT SHIP-GALLEON
 	(DESC "galleon")
 	(CAPACITY 3)
+	(DOCKED NONE)
 	(CONDITION CONDITION-POOR)>
 
 ; "Disease/Poison EFFECTS (CHARISMA COMBAT MAGIC SANCTITY SCOUTING THIEVERY)"
@@ -3054,6 +3123,12 @@
 	(COMBAT 5)
 	(DEFENSE 10)
 	(STAMINA 10)>
+
+<OBJECT MONSTER-GORLOCK
+	(DESC "Gorlock")
+	(COMBAT 4)
+	(DEFENSE 6)
+	(STAMINA 7)>
 
 <OBJECT MONSTER-KING-SCABB
 	(DESC "King Scab")
@@ -4174,6 +4249,243 @@
 		<UPDATE-STATUS-LINE>
 	>>
 
+; "Townhouse routines"
+; ---------------------------------------------------------------------------------------------
+
+<CONSTANT TOWNHOUSE-MENU <LTABLE "Leave/Take your posessions." "Leave/Withdraw money.">>
+<CONSTANT TOWNHOUSE-MENU-MONEY <LTABLE "Leave some your money here." "Take the money that was kept here.">>
+<CONSTANT TOWNHOUSE-MENU-POSSESSIONS <LTABLE "Leave some of your possessions here." "Take the  items that are kept here.">>
+
+<ROUTINE TOWNHOUSE-MONEY (STORY TOWNHOUSE "AUX" KEY MONEY INVESTMENTS)
+	<REPEAT ()
+		<CRLF>
+		<HLIGHT ,H-BOLD>
+		<TELL D .TOWNHOUSE>
+		<HLIGHT 0>
+		<CRLF>
+		<PRINT-MENU ,TOWNHOUSE-MENU-MONEY F F !\0 "Back">
+		<SET .INVESTMENTS <GETP .TOWNHOUSE ,P?INVESTMENTS>>
+		<COND (<G? .INVESTMENTS 0>
+			<TELL "There are ">
+			<HLIGHT ,H-BOLD>
+			<TELL N .INVESTMENTS>
+			<HLIGHT 0>
+			<TELL " " D ,CURRENCY " kept here at ">
+			<HLIGHT ,H-BOLD>
+			<TELL T .TOWNHOUSE ,PERIOD-CR>
+			<HLIGHT 0>
+		)>
+		<TELL "You are carrying " N ,MONEY " " D ,CURRENCY ": ">
+		<REPEAT ()
+			<SET KEY <INPUT 1>>
+			<COND (<EQUAL? .KEY !\0 !\1 !\2> <RETURN>)>
+		>
+		<CRLF>
+		<COND (<EQUAL? .KEY !\0>
+			<RETURN>
+		)(<EQUAL? .KEY !\1>
+			<COND (<G? ,MONEY 0>
+				<SET MONEY <GET-NUMBER "How much will you leave here" 0 ,MONEY>>
+				<COND (<G? .MONEY 0>
+					<PUTP .TOWNHOUSE ,P?INVESTMENTS <+ .INVESTMENTS .MONEY>>
+					<COST-MONEY .MONEY "left">
+				)>
+			)(ELSE
+				<CRLF>
+				<HLIGHT ,H-BOLD>
+				<TELL "You are not carrying any " D, CURRENCY ,EXCLAMATION-CR>
+				<HLIGHT 0>
+				<PRESS-A-KEY>
+			)>
+		)(<EQUAL? .KEY !\2>
+			<COND (<G? .INVESTMENTS 0>
+				<SET MONEY <GET-NUMBER "How much will you withdraw" 0 .INVESTMENTS>>
+				<COND (<G? .MONEY 0>
+					<PUTP .TOWNHOUSE ,P?INVESTMENTS <- .INVESTMENTS .MONEY>>
+					<GAIN-MONEY .MONEY>
+				)>
+			)(ELSE
+				<EMPHASIZE "There is nothing to withdraw here!">
+				<PRESS-A-KEY>
+			)>
+		)>
+	>>
+
+<ROUTINE TOWNHOUSE-POSSESSIONS (STORY TOWNHOUSE "AUX" KEY)
+	<REPEAT ()
+		<CRLF>
+		<HLIGHT ,H-BOLD>
+		<TELL D .TOWNHOUSE>
+		<HLIGHT 0>
+		<CRLF>
+		<PRINT-MENU ,TOWNHOUSE-MENU-POSSESSIONS F F !\0 "Back">
+		<DESCRIBE-INVENTORY-MAIN>
+		<TELL "What will you do next?">
+		<REPEAT ()
+			<SET KEY <INPUT 1>>
+			<COND (<EQUAL? .KEY !\0 !\1 !\2> <RETURN>)>
+		>
+		<CRLF>
+		<COND (<EQUAL? .KEY !\0>
+			<RETURN>
+		)(<EQUAL? .KEY !\1>
+			<COND (<G? <COUNT-CONTAINER ,PLAYER> 0>
+				<TOWNHOUSE-STORAGE ,PLAYER .TOWNHOUSE "leave" T>
+			)(ELSE
+				<EMPHASIZE "You are not carrying anyting!">
+				<PRESS-A-KEY>
+			)>
+		)(<EQUAL? .KEY !\2>
+			<COND (<G? <COUNT-CONTAINER .TOWNHOUSE> 0>
+				<TOWNHOUSE-STORAGE .TOWNHOUSE ,PLAYER  "take">
+			)(ELSE
+				<EMPHASIZE "Nothing is being kept here!">
+				<PRESS-A-KEY>
+			)>
+		)>
+	>>
+
+<ROUTINE TOWNHOUSE-STORAGE (FROM TO MESSAGE "OPT" (LEAVE F) "AUX" ITEMS KEY CHOICE)
+	<REPEAT ()
+		<SET ITEMS <COUNT-CONTAINER .FROM>>
+		<COND (<L=? .ITEMS 0> <RETURN>)>
+		<CRLF>
+		<HLIGHT ,H-BOLD>
+		<COND (.LEAVE
+			<TELL "You are carrying:">
+		)(ELSE
+			<TELL D .FROM>
+		)>
+		<HLIGHT 0>
+		<CRLF>
+		<PRINT-CONTAINER-MENU .FROM !\0 "Back">
+		<TELL "Choose what items to " .MESSAGE>
+		<COND (.LEAVE
+			<TELL " at ">
+			<HLIGHT ,H-BOLD>
+			<TELL D .TO>
+			<HLIGHT 0>
+			<TELL ": ">
+		)(ELSE
+			<TELL " from ">
+			<HLIGHT ,H-BOLD>
+			<TELL T .FROM>
+			<HLIGHT 0>
+			<TELL ": ">
+		)>
+		<REPEAT ()
+			<SET .KEY <INPUT 1>>
+			<COND (
+				<OR
+					<EQUAL? .KEY !\0>
+					<AND <G=? .KEY !\1> <L=? .KEY !\9> <L=? <- .KEY !\0> .ITEMS>>
+					<AND <G=? .KEY !\A> <L=? .KEY !\J> <L=? <+ <- .KEY !\A> 10> .ITEMS>>
+					<AND <G=? .KEY !\a> <L=? .KEY !\j> <L=? <+ <- .KEY !\a> 10> .ITEMS>>
+				>
+				<RETURN>
+			)>
+		>
+		<CRLF>
+		<COND (<EQUAL? .KEY !\0>
+			<RETURN>
+		)(<OR <AND <G=? .KEY !\1> <L=? .KEY !\9> <L=? <- .KEY !\0> .ITEMS>> <AND <G=? .KEY !\A> <L=? .KEY !\J> <L=? <+ <- .KEY !\A> 10> .ITEMS>> <AND <G=? .KEY !\a> <L=? .KEY !\j> <L=? <+ <- .KEY !\a> 10> .ITEMS>>>
+			<COND (<AND <G=? .KEY !\1> <L=? .KEY !\9> <L=? <- .KEY !\0> .ITEMS>>
+				<SET CHOICE <- .KEY !\0>>
+			)(<AND <G=? .KEY !\A> <L=? .KEY !\J> <L=? <+ <- .KEY !\A> 10> .ITEMS>>
+				<SET CHOICE <+ <- .KEY !\A> 10>>
+			)(<AND <G=? .KEY !\a> <L=? .KEY !\j> <L=? <+ <- .KEY !\a> 10> .ITEMS>>
+				<SET CHOICE <+ <- .KEY !\a> 10>>
+			)>
+			<CRLF>
+			<PRINT-CAP-STR .MESSAGE>
+			<TELL " ">
+			<HLIGHT ,H-BOLD>
+			<PRINT-ITEM <GET-ITEM .CHOICE .FROM> T>
+			<HLIGHT 0>
+			<COND (.LEAVE
+				<TELL " at ">
+				<HLIGHT ,H-BOLD>
+				<TELL T .TO "?">
+			)(ELSE
+				<TELL " from ">
+				<HLIGHT ,H-BOLD>
+				<TELL T .FROM "?">
+			)>
+			<HLIGHT 0>
+			<COND (<YES?>
+				<COND (.LEAVE
+					<MOVE <GET-ITEM .CHOICE .FROM> .TO>	
+				)(ELSE
+					<COND (<EQUAL? .TO ,PLAYER>
+						<COND (<G=? <COUNT-CONTAINER .TO> ,LIMIT-POSSESSIONS>
+							<EMPHASIZE "You are already carrying too many items!">
+						)(ELSE
+							<MOVE <GET-ITEM .CHOICE .FROM> .TO>	
+						)>
+					)>
+				)>
+			)>
+		)>
+	>>
+
+<ROUTINE VISIT-TOWNHOUSE (STORY TOWNHOUSE "AUX" ROLL KEY)
+	<COND (<L? ,STAMINA ,MAX-STAMINA> <GAIN-STAMINA <- ,MAX-STAMINA ,STAMINA>>)>
+	<UPDATE-STATUS-LINE>
+	<SET ROLL <RANDOM-EVENT 2 0 T>>
+	<COND (<L=? .ROLL 9>
+		<COND (<G? <COUNT-CONTAINER .TOWNHOUSE> 0>
+			<EMPHASIZE "Your possessions are safe.">
+		)(ELSE
+			<EMPHASIZE ,NOTHING-HAPPENS>
+		)>
+	)(<L=? .ROLL 11>
+		<COND (<G? <GETP .TOWNHOUSE ,P?INVESTMENTS> 0>
+			<EMPHASIZE "A break-in! All the money left here is gone!">
+			<PUTP .TOWNHOUSE ,P?INVESTMENTS 0>
+		)(ELSE
+			<EMPHASIZE "Robbers did not find any money here!">
+		)>
+	)(<L=? .ROLL 12>
+		<COND (<G? <COUNT-CONTAINER .TOWNHOUSE> 0>
+			<EMPHASIZE "Raiding nomads take all your possessions!">
+			<RESET-CONTAINER .TOWNHOUSE>
+		)(ELSE
+			<EMPHASIZE "Raiding nomads did not find anything of value here!">
+		)>
+	)>
+	<PRESS-A-KEY>
+	<REPEAT ()
+		<CRLF>
+		<HLIGHT ,H-BOLD>
+		<TELL D .TOWNHOUSE>
+		<HLIGHT 0>
+		<CRLF>
+		<PRINT-MENU ,TOWNHOUSE-MENU F F !\0 "You're done here">
+		<TELL "What do you want to do?">
+		<REPEAT ()
+			<SET KEY <INPUT 1>>
+			<COND (<EQUAL? .KEY !\0 !\1 !\2> <RETURN>)>
+		>
+		<CRLF>
+		<COND (<EQUAL? .KEY !\0>
+			<CRLF>
+			<TELL ,TEXT-SURE>
+			<COND(<YES?>
+				<CRLF>
+				<TELL "You leave your ">
+				<HLIGHT ,H-BOLD>
+				<TELL D .TOWNHOUSE>
+				<HLIGHT 0>
+				<TELL ,PERIOD-CR>
+				<RETURN>
+			)>
+		)(<EQUAL? .KEY !\1>
+			<TOWNHOUSE-POSSESSIONS .STORY .TOWNHOUSE>
+		)(<EQUAL? .KEY !\2>
+			<TOWNHOUSE-MONEY .STORY .TOWNHOUSE>
+		)>
+	>>
+
 ; "Gambling Den routines"
 ; ---------------------------------------------------------------------------------------------
 
@@ -4540,6 +4852,7 @@
 	<PUTP ,STORY105 ,P?DOOM T>
 	<PUTP ,STORY121 ,P?DOOM T>
 	<PUTP ,STORY145 ,P?DOOM T>
+	<PUTP ,STORY174 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -4579,6 +4892,16 @@
 <CONSTANT TEXT-ROLL-SANCTITY "Make a SANCTITY roll">
 <CONSTANT TEXT-ROLL-SCOUTING "Make a SCOUTING roll">
 <CONSTANT TEXT-ROLL-THIEVERY "Make a THIEVERY roll">
+
+<CONSTANT CHOICES-COMBAT <LTABLE TEXT-ROLL-COMBAT>>
+<CONSTANT CHOICES-CHARISMA <LTABLE TEXT-ROLL-CHARISMA>>
+<CONSTANT CHOICES-MAGIC <LTABLE TEXT-ROLL-MAGIC>>
+<CONSTANT CHOICES-SANCTITY <LTABLE TEXT-ROLL-SANCTITY>>
+<CONSTANT CHOICES-SCOUTING <LTABLE TEXT-ROLL-SCOUTING>>
+<CONSTANT CHOICES-THIEVERY <LTABLE TEXT-ROLL-THIEVERY>>
+
+<CONSTANT ONE-ABILITY <LTABLE R-TEST-ABILITY>>
+<CONSTANT TWO-ABILITY <LTABLE R-TEST-ABILITY R-TEST-ABILITY>>
 
 <CONSTANT STORY-STORM-REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 3 5 20> <LTABLE "The ship sinks!" "The mast splits!" "You weather the storm!">>>>
 
@@ -4892,15 +5215,14 @@ won't follow you there if they don't think you're good enough.\"">
 	<RETURN ,STORY688>>
 
 <CONSTANT TEXT017 "The horse and you hit the wall. There is a bright flash, and you find that you have passed straight through into the hill. It must be a faerie mound -- and that's not good. The horse you are riding abruptly changes shape in a puff of smoke. You find yourself on the back of a little knobbly-limbed, white-faced goblin, who promptly collapses under your weight.||You are in a cavern lit by mouse-sized faerie folk, who flit about in the air blazing like fireflies. The other horses have also turned into goblins, elves and faeries of all shapes and sizes.||\"What have we here?\" whispers a pale, dark-eyed elfin woman, dressed in silvery cobwebs and wearing a platinum crown.||\"An overweight mortal sitting on poor old Gobrash, your majesty,\" groans the goblin you are sitting on.||You realize you are in great danger here. There's no telling what the faerie folk will do to you. The queen signals to her people and they close in around you ominously.">
-<CONSTANT CHOICES017 <LTABLE TEXT-ROLL-SANCTITY>>
 
 <ROOM STORY017
 	(DESC "017")
 	(STORY TEXT017)
-	(CHOICES CHOICES017)
+	(CHOICES CHOICES-SANCTITY)
 	(DESTINATIONS <LTABLE <LTABLE STORY626 STORY268>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SANCTITY 9>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT018 "You spin them a tale about how your poor brother, a mercenary in Grieve Marlock's personal guard, lost his legs in the fight to overthrow the old king, and that you have spent all your money on looking after him.||Several of the militia are brought to tears by your eloquent speech. They end up having a whip-round among themselves for your brother, and they give you 15 Shards. Chuckling to yourself, you return to the city centre.">
@@ -4953,15 +5275,14 @@ won't follow you there if they don't think you're good enough.\"">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT022 "You reach down and deftly pull out the ceramic plug. A gush of foul-smelling emerald green liquid spills on to the floor, and the golem twitches once before collapsing. The other golem is coming to life, however. You'll have to be quick to get it in time.">
-<CONSTANT CHOICES022 <LTABLE TEXT-ROLL-COMBAT>>
 
 <ROOM STORY022
 	(DESC "022")
 	(STORY TEXT022)
-	(CHOICES CHOICES022)
+	(CHOICES CHOICES-COMBAT)
 	(DESTINATIONS <LTABLE <LTABLE STORY539 STORY647>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-COMBAT 9>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT023 "As you stride forward, they look up with expressions of luminous rage.||\"Get you back, mortal,\" warns one, \"or I'll touch you with my grave-cold hands and then it'll be your dying day.\"">
@@ -4976,15 +5297,14 @@ won't follow you there if they don't think you're good enough.\"">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT024 "You will need to subdue the king and his henchmen with a spell.">
-<CONSTANT CHOICES024 <LTABLE TEXT-ROLL-MAGIC>>
 
 <ROOM STORY024
 	(DESC "024")
 	(STORY TEXT024)
-	(CHOICES CHOICES024)
+	(CHOICES CHOICES-MAGIC)
 	(DESTINATIONS <LTABLE <LTABLE STORY644 STORY208>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-MAGIC 12>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT025 "Captain Vorkung is impressed with your claims of loyalty to the rightful king. He decides you might be useful to their cause, and you are led, blindfolded, through a secret pass to a mountain stockade.||King Nergan gives you an audience in a makeshift throne room. He is a young, and handsome man, who seems committed to his country. He leads you aside, into a private chamber.||\"I have need of one such as you,\" he says. \"Yellowport groans under the yoke of Governor Marloes Marlock, the brother of General Grieve Marlock. If you can get into the palace at Yellowport and assassinate Marloes, I will be eternally grateful.\"">
@@ -5170,15 +5490,14 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 	<STORM-AT-SEA ,STORY038 ,STORY209>>
 
 <CONSTANT TEXT039 "You and some of your crew clamber aboard the wreck. You find some dead sailors amid the wreckage. Their bodies are curiously bloated.">
-<CONSTANT CHOICES039 <LTABLE TEXT-ROLL-SCOUTING>>
 
 <ROOM STORY039
 	(DESC "039")
 	(STORY TEXT039)
-	(CHOICES CHOICES039)
+	(CHOICES CHOICES-SCOUTING)
 	(DESTINATIONS <LTABLE <LTABLE STORY194 STORY465>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 9>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT040 "You take the Book of the Seven Sages to Pyletes the Sage at the Gold Dust tavern. He thanks you effusively for bringing it to him. Your reward is secret learning from the temple of Molhern, god of knowledge.">
@@ -5750,26 +6069,23 @@ is off, you return to the city centre.">
 <ROUTINE STORY077-EVENTS ()
 	<CURE-DISEASES 75 30 ,GOD-MAKA>>
 
-<CONSTANT CHOICES078 <LTABLE TEXT-ROLL-SCOUTING>>
-
 <ROOM STORY078
 	(DESC "078")
-	(CHOICES CHOICES078)
+	(CHOICES CHOICES-SCOUTING)
 	(DESTINATIONS <LTABLE <LTABLE STORY524 STORY415>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT079 "You try to lose them in the tunnels. It is hard because they know the layout better than you do.">
-<CONSTANT CHOICES079 <LTABLE TEXT-ROLL-SCOUTING>>
 
 <ROOM STORY079
 	(DESC "079")
 	(STORY TEXT079)
-	(CHOICES CHOICES079)
+	(CHOICES CHOICES-SCOUTING)
 	(DESTINATIONS <LTABLE <LTABLE STORY224 STORY381>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 14>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT080 "You grab the woman's wrist a split-second before she can cut the strings of your money pouch. You drag her around to face you, but she meets your outraged scowl with a swashbuckling grin.||\"You've got good reflexes,\" she says. \"Most of the street scum around here are too drink-sodden or dimwitted to notice the loss of a few Shards. Want to earn some real money?\"">
@@ -5927,15 +6243,14 @@ stink, laden with sulphur as it is.">
 	<GAIN-MONEY 300>>
 
 <CONSTANT TEXT090 "Your ship is limping through unknown waters. The sun beats down, and the wind drops to a whisper.||\"What direction, Cap'n?\" asks the bo'sun.">
-<CONSTANT CHOICES090 <LTABLE TEXT-ROLL-SCOUTING>>
 
 <ROOM STORY090
 	(DESC "090")
 	(STORY TEXT090)
-	(CHOICES CHOICES090)
+	(CHOICES CHOICES-SCOUTING)
 	(DESTINATIONS <LTABLE <LTABLE STORY633 STORY484>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT091 "He smiles and takes you into the Gambler's Den. It is a smoke-filled casino, full of all kinds of dubious-looking characters, playing cards and dice. If you want to gamble, decide how much you want to bet, to a maximum of 20 Shards.">
@@ -5976,15 +6291,14 @@ stink, laden with sulphur as it is.">
 	<RETURN ,STORY733>>
 
 <CONSTANT TEXT094 "At last, the golem is defeated. You manage to get into the temple without being noticed by anyone else. Inside, it is cool and dark, filled with an unearthly stillness. You reach forward to strip the armour off the idol of Tyrnai.">
-<CONSTANT CHOICES094 <LTABLE TEXT-ROLL-THIEVERY>>
 
 <ROOM STORY094
 	(DESC "094")
 	(STORY TEXT094)
-	(CHOICES CHOICES094)
+	(CHOICES CHOICES-THIEVERY)
 	(DESTINATIONS <LTABLE <LTABLE STORY509 STORY228>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 12>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT095 "You are greeted warmly and politely by the provost marshal who treats you as one of his own. However, there are no more missions, and after thanking you once again, he politely sends you on your way.">
@@ -6025,15 +6339,14 @@ stink, laden with sulphur as it is.">
 	>>
 
 <CONSTANT TEXT097 "You climb down a narrow track to the beach. The sea pounds the rocky shore, and the spray lashes your face. A mournful, yet utterly captivating singing suddenly fills your ears. You look out to sea, and spot several mermaids and mermen, cavorting in the surf.||A lilting voice calls across the waves that fills you with a yearning desire to plunge into the sea and swim out to them. \"Come, come to us...\"">
-<CONSTANT CHOICES097 <LTABLE TEXT-ROLL-SANCTITY>>
 
 <ROOM STORY097
 	(DESC "097")
 	(STORY TEXT097)
-	(CHOICES CHOICES097)
+	(CHOICES CHOICES-SANCTITY)
 	(DESTINATIONS <LTABLE <LTABLE STORY584 STORY159>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SANCTITY 10>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT098 "The soldier recognizes you and bows. \"We are a small group now, left here to act as raiders behind enemy lines. Thanks to your heroic actions, the Citadel of Velis Corin is now ours. The king has moved his court there. Go to the citadel if you would speak with the king.\"||There is nothing else of interest in the mountains, so you return to the foothills.">
@@ -6166,15 +6479,13 @@ harbourmaster.">
 <CONSTANT TEXT101 "You yell the name of their god again and again. The cultists clap their hands over their ears, hopping about in horror.||\"Argh!\" howls the leader. \"Stop your blaspheming, you heathen devil.\"||In their confusion, you make it to your equipment. Now you can fight your way out.">
 <CONSTANT TEXT101-CONTINUED "You manage to fight your way to freedom.">
 
-<CONSTANT CHOICES101 <LTABLE TEXT-ROLL-COMBAT>>
-
 <ROOM STORY101
 	(DESC "101")
 	(STORY TEXT101)
-	(CHOICES CHOICES101)
+	(CHOICES CHOICES-COMBAT)
 	(DESTINATIONS <LTABLE <LTABLE STORY101-SUCCEED STORY204>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-COMBAT 13>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY101-SUCCEED
@@ -6230,15 +6541,14 @@ harbourmaster.">
 	<CHECK-COMBAT ,MONSTER-SCORPION-SHAMAN ,STORY105>>
 
 <CONSTANT TEXT106 "The young man smiles ingratiatingly, and hands you the pearls.">
-<CONSTANT CHOICES106 <LTABLE TEXT-ROLL-MAGIC>>
 
 <ROOM STORY106
 	(DESC "106")
 	(STORY TEXT106)
-	(CHOICES CHOICES106)
+	(CHOICES CHOICES-MAGIC)
 	(DESTINATIONS <LTABLE <LTABLE STORY306 STORY489>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-MAGIC 10>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT107 "If you are an initiate it costs only 10 Shards to purchase Tyrnai's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again on a failed COMBAT roll. It is good for only one reroll. You can only have one COMBAT blessing at any one time. Once it is used up, you can return to any branch of the temple of Tyrnai to buy a new one.">
@@ -6254,15 +6564,14 @@ harbourmaster.">
 	<PURCHASE-BLESSING 25 10 ,GOD-TYRNAI ,BLESSING-COMBAT>>
 
 <CONSTANT TEXT108 "That night, your sleep is restless. You dream a most vivid dream. You are attacked by a gigantic sea monster, a mighty octopoid thing that encircles the ship with tree-like tentacles and pulls it under the waves. You sink into the bottle-green depths until you are caught in a glowing golden net.||You wake in an undersea palace of multi-coloured coral with mermaids to attend you. They lead you past trident-armed merman guards into a great hall. Seated upon two giant shells, like thrones, are the king and queen of the deep, with green hair, sea-grey eyes, and crowns of pale gold. Shoals of iridescent angel fish dart about in an intricate flashing dance of colour, dancing for the rulers of the land beneath the waves. In awe, you bow before them.||\"We are bored,\" says the queen. \"Entertain us.\"||A silver flute appears in your hands.">
-<CONSTANT CHOICES108 <LTABLE TEXT-ROLL-CHARISMA>>
 
 <ROOM STORY108
 	(DESC "108")
 	(STORY TEXT108)
-	(CHOICES CHOICES108)
+	(CHOICES CHOICES-CHARISMA)
 	(DESTINATIONS <LTABLE <LTABLE STORY132 STORY457>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 11>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT109 "You are about to leave when you see a crowd gathered around a skinny, pasty-faced scholar at a card table.||\"By the Three Fortunes, but I'm hot tonight!\" he cries. It seems he is on a winning streak. You notice a couple of dodgy-looking ruffians watching the scholar carefully.">
@@ -6384,15 +6693,14 @@ harbourmaster.">
 	<RETURN ,STORY116>>
 
 <CONSTANT TEXT117 "There are several people with eyepatches but none with a velvet one. You ask around among the taverns and bars of the rougher areas in Caran Baru.">
-<CONSTANT CHOICES117 <LTABLE TEXT-ROLL-CHARISMA>>
 
 <ROOM STORY117
 	(DESC "117")
 	(STORY TEXT117)
-	(CHOICES CHOICES117)
+	(CHOICES CHOICES-CHARISMA)
 	(DESTINATIONS <LTABLE <LTABLE STORY149 STORY468>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 11>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT118 "The overseer of the mines is a fat, cruel-looking man. He welcomes you with a promise, \"In one month, you'll be dead, slave.\"||You spend the next few weeks in chains, working sixteen hours a day, deep underground, digging at a rock face in the tunnels of the mines in the Bronze Hills. You are fed on gruel and black bread. You realize you will not live long down here and that you must escape if you are to survive.">
@@ -6408,15 +6716,14 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT119 "You hear shouts from outside, muffled by the swirling sulphurous fog. A stab of icy panic pulses at your heart, and an instant later the door bursts open. Three militiamen armed with maces burst through the doorway. Behind them, a tall cadaverous gentleman wrapped in a cape is stamping in fury.||\"A thief in my house!\" he rages. \"Do your duty, men.\"||You realize the truth: Lauria has used you as a decoy to cover her escape. You'll get even with her later -- if you survive.">
-<CONSTANT CHOICES119 <LTABLE TEXT-ROLL-COMBAT>>
 
 <ROOM STORY119
 	(DESC "119")
 	(STORY TEXT119)
-	(CHOICES CHOICES119)
+	(CHOICES CHOICES-COMBAT)
 	(DESTINATIONS <LTABLE <LTABLE STORY588 STORY096>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-COMBAT 12>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(CODEWORDS <LTABLE CODEWORD-ASHEN>)
 	(FLAGS LIGHTBIT)>
 
@@ -6506,30 +6813,27 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT126 "You come across a strange sight. A man lies staked out on the ground asleep. Blue energy crackles up and down his body, and a hefty-looking hammer, glowing red, is still attached to his belt. He is Sul Veneris, the one you have come to free.||As you are about to lift out the stakes, a keening blast of ferocious wind engulfs you. You are surrounded by whirling storm demons -- vaguely man-shaped creatures of thunderous energy which try to sweep you into the air and off the edge of the peak.||You try to recite the rituals of dismissal associated with such demons.">
-<CONSTANT CHOICES126 <LTABLE TEXT-ROLL-SANCTITY>>
 
 <ROOM STORY126
 	(DESC "126")
 	(BACKGROUND STORY126-BACKGROUND)
 	(STORY TEXT126)
-	(CHOICES CHOICES126)
+	(CHOICES CHOICES-SANCTITY)
 	(DESTINATIONS <LTABLE <LTABLE STORY421 STORY210>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SANCTITY 12>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY126-BACKGROUND ()
 	<COND (<CHECK-CODEWORD ,CODEWORD-ALOFT> <RETURN ,STORY199>)>
 	<RETURN ,STORY126>>
 
-<CONSTANT CHOICES127 <LTABLE TEXT-ROLL-THIEVERY>>
-
 <ROOM STORY127
 	(DESC "127")
-	(CHOICES CHOICES127)
+	(CHOICES CHOICES-THIEVERY)
 	(DESTINATIONS <LTABLE <LTABLE STORY269 STORY183>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 9>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT128 "You make your way around the coast. The interior of the island appears to be heavily forested. After a while, however, you come to a bay in which a couple of ships are anchored. A small settlement nestles on the beach, and you make your way towards it.">
@@ -6572,15 +6876,14 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT132 "You play the flute like never before. The king and queen are entranced by the haunting melodies you are able to coax from the enchanted flute. Unfortunately, you have played too well. The king puts you under a spell, so that you find you cannot stop.">
-<CONSTANT CHOICES132 <LTABLE TEXT-ROLL-SANCTITY>>
 
 <ROOM STORY132
 	(DESC "132")
 	(STORY TEXT132)
-	(CHOICES CHOICES132)
+	(CHOICES CHOICES-SANCTITY)
 	(DESTINATIONS <LTABLE <LTABLE STORY413 STORY307>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SANCTITY 11>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT133 "You are forced back by the flames. Some townsfolk, covered in wet blankets, manage to get the woman out. They are treated like heroes -- you are forgotten. Such is life.">
@@ -6698,15 +7001,14 @@ harbourmaster.">
 	<RENOUNCE-WORSHIP 40 ,GOD-ELNIR>>
 
 <CONSTANT TEXT144 "You call on the divine powers of the gods, to banish this foul, blasphemous travesty of life. The ghoul shrinks back for a moment, snarling.">
-<CONSTANT CHOICES144 <LTABLE TEXT-ROLL-SANCTITY>>
 
 <ROOM STORY144
 	(DESC "144")
 	(STORY TEXT144)
-	(CHOICES CHOICES144)
+	(CHOICES CHOICES-SANCTITY)
 	(DESTINATIONS <LTABLE <LTABLE STORY223 STORY289>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SANCTITY 10>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT145 "King Skabb gives a cry of anger, and leaps at you in desperation, swinging a spiked mace in his hand. You must fight him,">
@@ -6901,17 +7203,16 @@ harbourmaster.">
 	<RESET-POSSESSIONS>>
 
 <CONSTANT TEXT160 "You learned the password 'Rebirth' in the library of Dweomer.||\"My, aren't we the wise one,\" carps the door sarcastically. \"Still, a job's a job, eh?\"||The door lifts straight up, and you step into the shadows of the Tomb of the Wizard King. It is lit by still-burning torches that give off an eerie eldritch glow. In the middle of the large round chamber, a sarcophagus lies, surrounded by a pentacle drawn in blood. You notice the blood still seems fresh.">
-<CONSTANT CHOICES160 <LTABLE TEXT-ROLL-MAGIC>>
 
 <ROOM STORY160
 	(DESC "160")
 	(VISITS 0)
 	(BACKGROUND STORY160-BACKGROUND)
 	(STORY TEXT160)
-	(CHOICES CHOICES160)
+	(CHOICES CHOICES-MAGIC)
 	(DESTINATIONS <LTABLE <LTABLE STORY674 STORY309>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-MAGIC 10>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY160-BACKGROUND ()
@@ -6933,15 +7234,14 @@ harbourmaster.">
 	<UPDATE-STATUS-LINE>>
 
 <CONSTANT TEXT162 "With the golems out of the way, you can get on with business. You reach forward to strip the armour off the idol of Tyrnai.">
-<CONSTANT CHOICES162 <LTABLE TEXT-ROLL-THIEVERY>>
 
 <ROOM STORY162
 	(DESC "162")
 	(STORY TEXT162)
-	(CHOICES CHOICES162)
+	(CHOICES CHOICES-THIEVERY)
 	(DESTINATIONS <LTABLE <LTABLE STORY509 STORY228>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 12>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT163 "You hold up the pirate captain's head. The guildmaster looks up expectantly, but his face quickly darkens.||\"This is not Amcha! Everyone knows Amcha has only one eye. This poor fellow is probably some beggar you killed in an alley somewhere. You think you can swindle the guild with this pathetic ruse. Get out -- and don't come back until you bring me the head of Amcha One-eye.\"||The guildmaster has you removed by his guards, and you are dumped into the street.">
@@ -6961,7 +7261,7 @@ harbourmaster.">
 	(CHOICES CHOICES164)
 	(DESTINATIONS <LTABLE <LTABLE STORY247 STORY042> <LTABLE STORY247 STORY042>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 11> <LTABLE ABILITY-THIEVERY 11>>)
-	(TYPES <LTABLE R-TEST-ABILITY R-TEST-ABILITY>)
+	(TYPES TWO-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT165 "A Sokaran war galley hails you and draws up alongside. \"We're coming aboard for an inspection!\" yells the captain of the galley. His men attempt to grapple your ship.">
@@ -7054,194 +7354,113 @@ harbourmaster.">
 <ROUTINE STORY170-EVENTS ()
 	<BECOME-INITIATE 60 ,GOD-LACUNA>>
 
+<CONSTANT TEXT171 "You have soon laid the figures out like three logs on the village green. They are badly hurt but still alive. Now that you can get a better look at them, you see that they are dusted all over with flour, giving them a spectral appearance.||You summon the other villagers. At first they are loath to venture out and inspect the three strangers, but the fact that you survived convinces them there are no ghosts to worry about.||\"Why, it's Old Megan!\" cries a man as he claps eyes on one of the three. \"And here's Bradok the miller, and lame Pootmar. Why are they all covered in flour? Where're the ghosts?\"||You shake your head and sigh at the stupidity of yokels. \"There weren't any ghosts. It was these three all along.\"">
+
 <ROOM STORY171
 	(DESC "171")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT171)
+	(CONTINUE STORY671)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT172 "\"Thank you,\" says the scholar. He gives you a vial of yellow dust as a reward. \"I found this at an ancient archaeological site I have been studying. I believe it needs to be thrown into the holy waters at the village of Blessed Springs -- although quite what happens then, I have no idea.\"||He thanks you again and takes his leave.">
 
 <ROOM STORY172
 	(DESC "172")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT172)
+	(CONTINUE STORY100)
+	(ITEMS <LTABLE VIAL-YELLOW-DUST>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT173 "You find yourself washed up on a rocky shore, battered and cold, but lucky to be alive. You haul yourself up the beach on to land. Fortunately for you, you find the village of Blessed Springs.">
 
 <ROOM STORY173
 	(DESC "173")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT173)
+	(CONTINUE STORY510)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT174 "You advance, weapon at the ready. As you draw closer, something rushes out of the cave with a shrieking cry. It is the gorlock, a beast with legs like a bird, a body like a reptile, with two short forelimbs and a beaked, lizard-like head. Its two legs do indeed have backward-pointing feet. You\"ll have to fight.">
+<CONSTANT TEXT174-DEAD "Your bones will join the others at the entrance of the cave.">
 
 <ROOM STORY174
 	(DESC "174")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT174)
+	(EVENTS STORY174-EVENTS)
+	(CONTINUE STORY315)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY174-EVENTS()
+	<COMBAT-MONSTER ,MONSTER-GORLOCK 4 6 7>
+	<CHECK-COMBAT ,MONSTER-GORLOCK ,STORY174>
+	<COND (<NOT <IS-ALIVE>> <EMPHASIZE ,TEXT174-DEAD>)>>
+
+<CONSTANT TEXT175 "You are trekking across the aptly named Curstmoor. A great rolling expanse of blasted heath stretches before you. Grey clouds hang over a mournful plain studded with rocky outcrops and low hills. A raven flutters to the ground nearby, eyeing you curiously. His brothers caw loudly into the echoing sky.||Dusk falls, and in the dim twilight, a herd of horses comes streaking out of the night straight at you. As they near, it seems to you that their hooves are not touching the ground, and from their manes trail wispy clouds of sparks like tiny stars.">
+<CONSTANT CHOICES175 <LTABLE "Get out of their way" "Mount one of them">>
 
 <ROOM STORY175
 	(DESC "175")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY175-BACKGROUND)
+	(STORY TEXT175)
+	(CHOICES CHOICES175)
+	(DESTINATIONS <LTABLE STORY390 STORY066>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY175-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY174 1> <RETURN ,STORY673>)>
+	<RETURN ,STORY175>>
+
+<CONSTANT TEXT176 "The crew are very nervous about your orders. They drop anchor in a bay, and will row you to shore, but they absolutely refuse to come with you. In fact, they won't even wait for you to come back.||If you insist on going ashore, your crew will sail for Yellowport and meet you there. \"If you ever make it back,\" adds the first mate ominously.">
+<CONSTANT CHOICES176 <LTABLE "Go ashore" OTHERWISE>>
 
 <ROOM STORY176
 	(DESC "176")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT176)
+	(CHOICES CHOICES176)
+	(DESTINATIONS <LTABLE STORY032 STORY085>)
+	(REQUIREMENTS <LTABLE DOCK-YELLOWPORT NONE>)
+	(TYPES <LTABLE R-DOCK R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT177 "You can leave possessions and money here to save having to carry them around with you. You can also rest here safely, and recover any Stamina points you have lost.">
 
 <ROOM STORY177
 	(DESC "177")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT177)
+	(EVENTS STORY177-EVENTS)
+	(CONTINUE STORY400)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY177-EVENTS ()
+	<VISIT-TOWNHOUSE ,STORY177 TOWNHOUSE-CARAN-BARU>>
+
+<CONSTANT TEXT178 "A pale woman in black leather brushes past you in the street, casting you an enigmatic look.">
 
 <ROOM STORY178
 	(DESC "178")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT178)
+	(CHOICES CHOICES-THIEVERY)
+	(DESTINATIONS <LTABLE STORY635 STORY198>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 10>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT179 "You claim that you have come to swear allegiance to Nergan, the rightful king of Sokara. Captain Vorkung is not convinced. He narrows his eyes suspiciously.||\"You'd better leave -- now, before I decide you are a spy and have you shot.\"||One of the archer looses a shaft, and an arrow thuds into the ground at your feet, quivering menacingly.||Realizing it is time to leave, you climb down the mountain.">
 
 <ROOM STORY179
 	(DESC "179")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT179)
+	(CONTINUE STORY474)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT180 "You step through the archway. Immediately the symbols on the stone begin to glow with red-hot energy; your hair stands on end and your body tingles. A crackling nimbus of blue-white force engulfs you, the sky darkens and rumbles, thunder and lightning crash and leap across the heavens.||Suddenly, your vision fades, and, momentarily, everything goes black.||When your sight returns, you find yourself outside the gates of a huge, fortified city. A guard starts in surprise at the sight of you. Then he shakes his head as if to clear it, sure he must have imagined what he just saw.||The gates open, and a troop of heavy cavalry canter past. \"Make way for the Marlock City militia,\" says the guard.||When they have passed, you walk into the city.">
 
 <ROOM STORY180
 	(DESC "180")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT180)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY181
@@ -8682,15 +8901,14 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT257 "The trees are closely packed, leaning together as if in conference, whispering quietly among themselves. Birds twitter in the distance, and slivers of sunlight lance down through the musty gloom.||As you proceed along a forest track, you think you hear a rustling in the bushes. Later, you spot a shadowy figure darting through the trees -- or was it your imagination? An animal snuffling sound right behind you makes you spin around, but there is nothing there.">
-<CONSTANT CHOICES257 <LTABLE TEXT-ROLL-SCOUTING>>
 
 <ROOM STORY257
 	(DESC "257")
 	(STORY TEXT257)
-	(CHOICES CHOICES257)
+	(CHOICES CHOICES-SCOUTING)
 	(DESTINATIONS <LTABLE <LTABLE STORY630 STORY036>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY258
@@ -16718,14 +16936,12 @@ harbourmaster.">
 	(VICTORY F)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT CHOICES681 <LTABLE TEXT-ROLL-SCOUTING>>
-
 <ROOM STORY681
 	(DESC "681")
-	(CHOICES CHOICES681)
+	(CHOICES CHOICES-SCOUTING)
 	(DESTINATIONS <LTABLE <LTABLE STORY652 STORY529>>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10>>)
-	(TYPES <LTABLE R-TEST-ABILITY>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY682

@@ -41,15 +41,14 @@ First Edition
 - Dice rolls handled by the Random Number Generator (but of course!)
 - Character selection and inventory of items and codewords are implemented
 - Items with bonuses to abilities, e.g. +1 COMBAT (weapons), +1 DEFENSE (armours)
-- Combat, random events, and ability tests
-- Titles and honours, blessings, and Worship of a God
+- Combat, Random events, and Ability tests
+- Titles and honours, Blessings, and Worship of a God
 - Diseases, Afflictions, Curses and Poisons
 - Resurrection arrangements
 - Merchants (weapons, armours, magic, maps (!?) and other items)
 - Guilds (investments)
-- Townhouses (storage)
+- Townhouses (store/withdraw money and possessions)
 - Harbour and Ports (Buy/Sell/Upgrade ships, Buy/Sell Cargo, own up to 3 ships)
-
 
 ## Available key commands in the game
 
