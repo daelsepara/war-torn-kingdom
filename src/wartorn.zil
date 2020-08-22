@@ -245,7 +245,7 @@
 	<SET DOOM <GETP ,HERE ,P?DOOM>>
 	<COND (.DOOM
 		<COND (,RESURRECTION-ARRANGEMENTS
-			<RESET-CONTAINER ,PLAYER>
+			<RESET-POSSESSIONS>
 			<SETG ,STAMINA ,MAX-STAMINA>
 			<MOVE ,ALL-MONEY ,PLAYER>
 			<SETG ,MONEY 0>
@@ -4223,6 +4223,29 @@
 ; "Temple Routines"
 ; ---------------------------------------------------------------------------------------------
 
+<ROUTINE BECOME-INITIATE (FEE WORSHIP)
+	<COND (<NOT ,GOD>
+		<COND (<G=? ,MONEY .FEE>
+			<CRLF>
+			<TELL "Become an initiate of " D .WORSHIP "?">
+			<COND (<YES?>
+				<COST-MONEY .FEE "paid">
+				<SETG ,GOD .WORSHIP>
+				<UPDATE-STATUS-LINE>
+			)>
+		)(ELSE
+			<CRLF>
+			<HLIGHT ,H-BOLD>
+			<TELL "You cannot afford to become an initiate of " D .WORSHIP " at this time" ,EXCLAMATION-CR>
+			<HLIGHT 0>
+		)>
+	)(ELSE
+		<CRLF>
+		<HLIGHT ,H-BOLD>
+		<TELL "You are already an initiate of " D ,GOD ,EXCLAMATION-CR>
+		<HLIGHT 0>
+	)>>
+
 <ROUTINE CURE-DISEASES (FEE DISCOUNT INITIATE)
 	<COND (<NOT .INITIATE> <RETURN>)>
 	<COND (<CHECK-GOD .INITIATE> <SET FEE .DISCOUNT>)>
@@ -4563,7 +4586,7 @@
 	<COND (<NOT .MAX> <SET MAX 1>)>
 	<SET COUNT <COUNT-CONTAINER ,CARGO>>
 	<COND (<L=? .COUNT .MAX>
-		<RESET-CONTAINER ,CARGO>
+		<RESET-CARGO>
 	)(ELSE
 		<LOSE-STUFF ,CARGO ,LOST-STUFF "cargo" <- .COUNT .MAX> RESET-CARGO>
 	)>>
@@ -6830,7 +6853,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY157-EVENTS ()
-	<SETG ,STAMINA 3>
+	<COND (<G? ,STAMINA 3> <SETG ,STAMINA 3>)>
 	<SETG ,MONEY 0>
 	<UPDATE-STATUS-LINE>>
 
@@ -6895,195 +6918,141 @@ harbourmaster.">
 	<COND (<CHECK-VISITS-MORE ,STORY160 1> <RETURN ,STORY461>)>
 	<RETURN ,STORY160>>
 
+<CONSTANT TEXT161 "The governor is a seasoned veteran of many battles, a hardy man. He is quick to react, and calls his guards before you can kill him. You are subdued by sheer numbers.||\"Take this dirty rebel assassin to the dungeons,\" sneers Marloes Marlock.||The guards take all your money and possessions.">
+
 <ROOM STORY161
 	(DESC "161")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT161)
+	(EVENTS STORY161-EVENTS)
+	(CONTINUE STORY454)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY161-EVENTS ()
+	<RESET-POSSESSIONS>
+	<SETG ,MONEY 0>
+	<UPDATE-STATUS-LINE>>
+
+<CONSTANT TEXT162 "With the golems out of the way, you can get on with business. You reach forward to strip the armour off the idol of Tyrnai.">
+<CONSTANT CHOICES162 <LTABLE TEXT-ROLL-THIEVERY>>
 
 <ROOM STORY162
 	(DESC "162")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT162)
+	(CHOICES CHOICES162)
+	(DESTINATIONS <LTABLE <LTABLE STORY509 STORY228>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 12>>)
+	(TYPES <LTABLE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT163 "You hold up the pirate captain's head. The guildmaster looks up expectantly, but his face quickly darkens.||\"This is not Amcha! Everyone knows Amcha has only one eye. This poor fellow is probably some beggar you killed in an alley somewhere. You think you can swindle the guild with this pathetic ruse. Get out -- and don't come back until you bring me the head of Amcha One-eye.\"||The guildmaster has you removed by his guards, and you are dumped into the street.">
 
 <ROOM STORY163
 	(DESC "163")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT163)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT164 "The dank tunnels, running with rivulets of foul water, take you deeper into the unknown. You mark the twisting passages with chalk so that you can find your way back.||Shortly, you come out into a large, rough-hewn cavern, wreathed in shadows that dance and flicker in the light you have brought.||A sound makes you start in surprise.">
+<CONSTANT CHOICES164 <LTABLE TEXT-ROLL-SCOUTING TEXT-ROLL-THIEVERY>>
 
 <ROOM STORY164
 	(DESC "164")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT164)
+	(CHOICES CHOICES164)
+	(DESTINATIONS <LTABLE <LTABLE STORY247 STORY042> <LTABLE STORY247 STORY042>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 11> <LTABLE ABILITY-THIEVERY 11>>)
+	(TYPES <LTABLE R-TEST-ABILITY R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT165 "A Sokaran war galley hails you and draws up alongside. \"We're coming aboard for an inspection!\" yells the captain of the galley. His men attempt to grapple your ship.">
+<CONSTANT CHOICES165 <LTABLE "Let them board you" "Try to escape">>
 
 <ROOM STORY165
 	(DESC "165")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT165)
+	(CHOICES CHOICES165)
+	(DESTINATIONS <LTABLE STORY552 STORY444>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT166 "You are on the road between Marlock City and the Shadar Tor. Along most of the length of the road, a thin sliver of a shanty town has grown up. Tents and lean-tos line the way. You find out that the people living here are refugees from Trefoille. The city was burnt to the ground during the recent civil war, in which the old king was overthrown.">
+<CONSTANT TEXT166-PICKPOCKET "A pick-pocket; you lose 10 Shards.">
+<CONSTANT TEXT166-LANTERN "You find a lantern by the side of the road.">
+<CONSTANT CHOICES166 <LTABLE "Go to Marlock City" "Head for the Shadar Tor">>
 
 <ROOM STORY166
 	(DESC "166")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT166)
+	(EVENTS STORY166-EVENTS)
+	(CHOICES CHOICES166)
+	(DESTINATIONS <LTABLE STORY100 STORY035>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY166-EVENTS ("AUX" ROLL)
+	<COND (,RUN-ONCE
+		<SET ROLL <RANDOM-EVENT 1>>
+		<COND (<L=? .ROLL 2>
+			<EMPHASIZE ,TEXT166-PICKPOCKET>
+			<LOSE-MONEY 10>
+		)(<L=? .ROLL 4>
+			<EMPHASIZE ,NOTHING-HAPPENS>
+		)(ELSE
+			<EMPHASIZE ,TEXT166-LANTERN>
+			<KEEP-ITEM ,LANTERN>
+		)>
+	)>>
+
+<CONSTANT TEXT167 "You lose your pursuers in the treacherous rocky passes of the mountains. Eventually, you reach the safety of the foothills.">
 
 <ROOM STORY167
 	(DESC "167")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT167)
+	(CONTINUE STORY474)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT168 "As you stretch out your hand, you loose your footing, and plummet to the ground, right between the two golems! They turn their heads with a grating rumble, and open their mouths to speak. The sound that comes out is a bell-like gonging that alerts the temple. You pick yourself up and fall back on the last resort of the rogue -- running for your life! Warrior priests swarm out of the temple in pursuit.">
 
 <ROOM STORY168
 	(DESC "168")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT168)
+	(EVENTS STORY168-EVENTS)
+	(CONTINUE STORY551)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY168-EVENTS ("AUX" ROLL (RANK 1))
+	<SET ROLL <RANDOM-EVENT 1 -1 T>>
+	<COND (,CURRENT-CHARACTER <SET RANK <GETP ,CURRENT-CHARACTER ,P?RANK>>)>
+	<COND (<L=? .ROLL .RANK> <STORY-JUMP ,STORY395>)>>
+
+<CONSTANT TEXT169 "You see a couple of Sokaran warships, pursuing two other ships. Your first mate says, \"See the Red Pennants on them thar ships? They be pirates, running from the Sokarans.\"||The warships catch up and a bitter battle ensues. You can intervene if you wish.">
+<CONSTANT CHOICES169 <LTABLE "Help the Sokarans" "Help the pirates" "Ignore the battle">>
 
 <ROOM STORY169
 	(DESC "169")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY169-BACKGROUND)
+	(STORY TEXT169)
+	(CHOICES CHOICES169)
+	(DESTINATIONS <LTABLE STORY286 STORY394 STORY443>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY169-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY169 1> <RETURN ,STORY443>)>
+	<RETURN ,STORY169>>
+
+<CONSTANT TEXT170 "Becoming an initiate of Lacuna gives you the benefit of paying less for blessings and other services the temple can offer. It costs 60 Shards to become an initiate. You cannot do this if you are already an initiate of another temple.">
 
 <ROOM STORY170
 	(DESC "170")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT170)
+	(EVENTS STORY170-EVENTS)
+	(CONTINUE STORY615)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY170-EVENTS ()
+	<BECOME-INITIATE 60 ,GOD-LACUNA>>
 
 <ROOM STORY171
 	(DESC "171")
