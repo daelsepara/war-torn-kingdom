@@ -34,6 +34,7 @@
 <CONSTANT TEXT-NEXT-TIME "See you next time!">
 <CONSTANT TEXT-RANDOM-EVENT "Random Event">
 <CONSTANT TEXT-BYE "Bye">
+<CONSTANT TEXT-BACK "Go back">
 <CONSTANT TEXT-GOODBYE "Goodbye!">
 
 ; "CHOICES"
@@ -114,25 +115,25 @@
 <GLOBAL RESURRECTION-ARRANGEMENTS NONE>
 
 ; "diseases and aliments"
-<OBJECT AILMENTS (DESC "Ailments") (FLAGS CONTBIT OPENBIT)>
+<OBJECT AILMENTS (DESC "ailments") (FLAGS CONTBIT OPENBIT)>
 
 ; "object to refer to all of your money"
 <OBJECT ALL-MONEY (DESC "all your money") (FLAGS TAKEBIT NDESCBIT)>
 
 ; "container for blessings"
-<OBJECT BLESSINGS (DESC "Blessings") (FLAGS CONTBIT OPENBIT)>
+<OBJECT BLESSINGS (DESC "blessings") (FLAGS CONTBIT OPENBIT)>
 
 ; "container for ship's cargo"
-<OBJECT CARGO (DESC "Cargo") (FLAGS CONTBIT OPENBIT)>
+<OBJECT CARGO (DESC "cargo") (FLAGS CONTBIT OPENBIT)>
 
 ; "container for codewords"
-<OBJECT CODEWORDS (DESC "Codewords") (FLAGS CONTBIT OPENBIT)>
+<OBJECT CODEWORDS (DESC "codewords") (FLAGS CONTBIT OPENBIT)>
 
 ; "currency description"
 <OBJECT CURRENCY (DESC "shards")>
 
 ; "curses"
-<OBJECT CURSES (DESC "Curses") (FLAGS CONTBIT OPENBIT)>
+<OBJECT CURSES (DESC "curses") (FLAGS CONTBIT OPENBIT)>
 
 ; "container for items given"
 <OBJECT GIVEBAG (DESC "items to give") (FLAGS CONTBIT OPENBIT)>
@@ -167,7 +168,7 @@
 <GLOBAL CURRENT-LOCATION NONE>
 <GLOBAL CONTINUE-TO-CHOICES T>
 <GLOBAL RUN-ONCE F>
-<GLOBAL STARTING-POINT STORY142>
+<GLOBAL STARTING-POINT STORY001>
 
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
@@ -181,9 +182,6 @@
 	<CHOOSE-CHARACTER>
 	<SETG HERE ,STARTING-POINT>
 	<SETG RUN-ONCE T>
-	<MOVE ,SHIP-BARQUE ,VEHICLES>
-	<MOVE ,SHIP-BRIGANTINE ,VEHICLES>
-	<MOVE ,SHIP-GALLEON ,VEHICLES>
 	<REPEAT ()
 		<CRLF>
 		<RESET-CHOICES>
@@ -376,7 +374,8 @@
 						<SETG HERE <GET .DESTINATIONS .CHOICE>>
 						<CRLF>
 					)(<AND <EQUAL? .TYPE R-TEST-ABILITY> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
-						<CRLF><CRLF>
+						<CRLF>
+						<CRLF>
 						<COND (<TEST-ABILITY ,CURRENT-CHARACTER <GET .LIST 1> <GET .LIST 2> T>
 							<SETG HERE <GET <GET .DESTINATIONS .CHOICE> 1>>
 						)(ELSE
@@ -686,10 +685,8 @@
 	<COND (<AND .RANK <G=? .RANK .LEVEL>>
 		<RTRUE>
 	)(ELSE
-		<CRLF><CRLF>
-		<HLIGHT ,H-BOLD>
-		<TELL "Your Rank is not high enough" ,EXCLAMATION-CR>
-		<HLIGHT 0>
+		<CRLF>
+		<EMPHASIZE "Your Rank is not high enough!">
 		<PRESS-A-KEY>
 	)>
 	<RFALSE>>
@@ -697,10 +694,8 @@
 <ROUTINE CHECK-STAMINA (AMOUNT)
 	<COND (<G? .AMOUNT 0>
 		<COND (<L=? ,STAMINA .AMOUNT>
-			<CRLF><CRLF>
-			<HLIGHT ,H-BOLD>
-			<TELL "You'll die if you do that" ,EXCLAMATION-CR>
-			<HLIGHT 0>
+			<CRLF>
+			<EMPHASIZE "You'll die if you do that!">
 			<PRESS-A-KEY>
 			<RFALSE>
 		)>
@@ -803,7 +798,8 @@
 	)>>
 
 <ROUTINE NOT-CHARGED (OBJECT)
-	<CRLF><CRLF>
+	<CRLF>
+	<CRLF>
 	<HLIGHT ,H-BOLD>
 	<TELL CT .OBJECT " has no charges left" ,PERIOD-CR>
 	<HLIGHT 0>
@@ -811,8 +807,8 @@
 
 <ROUTINE NOT-POSSESSED (OBJECT)
 	<HLIGHT ,H-BOLD>
-	<CRLF><CRLF>
-	<TELL "You do not have ">
+	<CRLF>
+	<TELL CR "You do not have ">
 	<COND (<FSET? .OBJECT ,NARTICLEBIT>
 		<TELL "the">
 	)(ELSE
@@ -930,12 +926,7 @@
 			<TELL "Choose a character:">
 			<HLIGHT 0>
 			<CRLF>
-			<DO (I 1 .COUNT)
-				<HLIGHT ,H-BOLD>
-				<TELL N .I>
-				<HLIGHT 0>
-				<TELL " - " D <GET CHARACTERS .I> CR>
-			>
+			<PRINT-MENU ,CHARACTERS T F>
 			<HLIGHT ,H-BOLD>
 			<TELL "C">
 			<HLIGHT 0>
@@ -991,8 +982,7 @@
 				)>
 			)(<EQUAL? .KEY !\Q !\q>
 				<CRLF>
-				<CRLF>
-				<TELL ,TEXT-SURE>
+				<TELL CR ,TEXT-SURE>
 				<COND (<YES?>
 					<QUIT-MESSAGE>
 				)>
@@ -1004,8 +994,7 @@
 
 <ROUTINE CHOOSE-PROFESSION ("AUX" COUNT KEY CHOICE PROFESSION POSSESSIONS (RESULT F))
 	<CRLF>
-	<CRLF>
-	<TELL ,INSTRUCTIONS-PROFESSIONS>
+	<TELL CR ,INSTRUCTIONS-PROFESSIONS>
 	<CRLF>
 	<SET COUNT <GET ,PROFESSIONS 0>>
 	<COND (<G? .COUNT 0>
@@ -1016,12 +1005,7 @@
 			<TELL "Choose a professions:">
 			<HLIGHT 0>
 			<CRLF>
-			<DO (I 1 .COUNT)
-				<HLIGHT ,H-BOLD>
-				<TELL N .I>
-				<HLIGHT 0>
-				<TELL " - " D <GET ,PROFESSIONS .I> CR>
-			>
+			<PRINT-MENU ,PROFESSIONS T F>
 			<HLIGHT ,H-BOLD>
 			<TELL "R">
 			<HLIGHT 0>
@@ -1071,8 +1055,7 @@
 				<RETURN>
 			)(<EQUAL? .KEY !\Q !\q>
 				<CRLF>
-				<CRLF>
-				<TELL ,TEXT-SURE>
+				<TELL CR ,TEXT-SURE>
 				<COND (<YES?>
 					<QUIT-MESSAGE>
 				)>
@@ -1103,7 +1086,7 @@
 				<DO (I 1 .COUNT)
 					<SET ITEM <GET .POSSESSIONS .I>>
 					<COND (<G? .I 1> <TELL ", ">)>
-					<PRINT-ITEM .ITEM F 0>
+					<PRINT-ITEM .ITEM>
 				>
 			)>
 		)(ELSE
@@ -1182,48 +1165,6 @@
 		<PRINT-ITEM .DISEASE T>
 		<TELL ,PERIOD-CR>
 		<MOVE .DISEASE ,AILMENTS>
-	)>>
-
-<ROUTINE ADD-QUANTITY (OBJECT "OPT" AMOUNT CONTAINER "AUX" QUANTITY CURRENT)
-	<COND (<NOT .OBJECT> <RETURN>)>
-	<COND (<L=? .AMOUNT 0> <RETURN>)>
-	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
-	<COND (<EQUAL? .CONTAINER ,PLAYER>
-		<DO (I 1 .AMOUNT)
-			<TAKE-ITEM .OBJECT>
-		>
-	)(ELSE
-		<SET CURRENT <GETP .OBJECT ,P?QUANTITY>>
-		<SET QUANTITY <+ .CURRENT .AMOUNT>>
-		<PUTP .OBJECT ,P?QUANTITY .QUANTITY>
-	)>>
-
-<ROUTINE BUY-STUFF (ITEM PLURAL PRICE "OPT" LIMIT "AUX" QUANTITIES)
-	<COND (<NOT .LIMIT> <SET LIMIT 8>)>
-	<COND (<G=? ,MONEY .PRICE>
-		<CRLF>
-		<TELL "Buy " D .ITEM " for " N .PRICE " " D ,CURRENCY " each?">
-		<COND (<YES?>
-			<REPEAT ()
-				<SET QUANTITIES <GET-NUMBER "How many will you buy" 0 .LIMIT>>
-				<COND (<G? .QUANTITIES 0>
-					<COND (<L=? <* .QUANTITIES .PRICE> ,MONEY>
-						<CRLF>
-						<HLIGHT ,H-BOLD>
-						<TELL "You purchased " N .QUANTITIES " ">
-						<COND (<G? .QUANTITIES 1> <TELL .PLURAL>)(ELSE <TELL D .ITEM>)>
-						<TELL ,PERIOD-CR>
-						<COST-MONEY <* .QUANTITIES .PRICE>>
-						<ADD-QUANTITY .ITEM .QUANTITIES>
-						<COND (<L? ,MONEY .PRICE> <RETURN>)>
-					)(ELSE
-						<EMPHASIZE "You can't afford that!">
-					)>
-				)(ELSE
-					<RETURN>
-				)>
-			>
-		)>
 	)>>
 
 <ROUTINE COST-MONEY (COST "OPT" REASON)
@@ -1863,7 +1804,7 @@
 			<TELL " - [">
 			<COND (<INTBL? <GET .LIST .I> ,SELECT-CHOICES 21> <TELL "X">)(ELSE <TELL " ">)>
 			<TELL "] - ">
-			<PRINT-ITEM <GET .LIST .I> T 0>
+			<PRINT-ITEM <GET .LIST .I> T>
 			<CRLF>
 		>
 		<COND (<AND <OR <EQUAL? .CONTAINER ,PLAYER>> <L? .ITEMS 12>>
@@ -2037,29 +1978,6 @@
 	<SET CODEWORD <GETP .MISSION ,P?CODEWORD>>
 	<COND (.CODEWORD <GAIN-CODEWORD .CODEWORD>)>>
 
-<ROUTINE TAKE-QUANTITIES (OBJECT PLURAL MESSAGE "OPT" AMOUNT)
-	<CRLF>
-	<TELL "Take the " .PLURAL "?">
-	<COND (<YES?> <ADD-QUANTITY .OBJECT <GET-NUMBER .MESSAGE 0 .AMOUNT> ,PLAYER>)>>
-
-<ROUTINE TAKE-STUFF (ITEM PLURAL "OPT" AMOUNT "AUX" TAKEN)
-	<COND (<NOT .AMOUNT> <SET .AMOUNT 1>)>
-	<CRLF>
-	<TELL "Take the ">
-	<COND (<G? .AMOUNT 1> <TELL .PLURAL>)(<TELL D .ITEM>)>
-	<TELL "?">
-	<COND (<YES?>
-		<COND (<G? .AMOUNT 1>
-			<SET TAKEN <GET-NUMBER "How many will you take" 0 .AMOUNT>>
-			<ADD-QUANTITY .ITEM .AMOUNT ,PLAYER>
-			<RETURN .TAKEN>
-		)(ELSE
-			<TAKE-ITEM .ITEM>
-			<RETURN 1>
-		)>
-	)>
-	<RETURN 0>>
-
 <ROUTINE UPGRADE-ABILITIES (POINTS "AUX" KEY ABILITY CURRENT)
 	<COND (<NOT ,CURRENT-CHARACTER> <RETURN>)>
 	<REPEAT ()
@@ -2156,11 +2074,11 @@
 ; "Story - Merchant routines (display)"
 ; ---------------------------------------------------------------------------------------------
 
-<ROUTINE MERCHANT (WARES PRICELIST "OPT" CONTAINER (SELL F) "AUX" ITEM ITEMS KEY)
+<ROUTINE MERCHANT (WARES PRICELIST "OPT" CONTAINER (SELL F) (LIMIT 0) "AUX" ITEM ITEMS KEY)
 	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
 	<COND (<OR <NOT .WARES> <NOT .PRICELIST>> <RETURN>)>
 	<SET ITEMS <GET .WARES 0>>
-	<REPEAT ()
+	<REPEAT MAIN ()
 		<CRLF>
 		<COND (<NOT .SELL>
 			<TELL "You can buy anything you have money for:">
@@ -2168,25 +2086,22 @@
 			<TELL "You can sell these items at these prices if you have them:">
 		)>
 		<CRLF>
-		<DO (I 1 .ITEMS)
-			<HLIGHT ,H-BOLD>
-			<COND (<L? .I 10>
-				<TELL N .I>
-			)(ELSE
-				<TELL C <+ !\A <- .I 10>>>
-			)>
-			<HLIGHT 0>
-			<TELL " - ">
-			<PRINT-ITEM <GET .WARES .I> T>
-			<TELL " (" N <GET .PRICELIST .I> " " D ,CURRENCY ")" CR>
-		>
+		<PRINT-MENU .WARES T T NONE NONE .PRICELIST>
 		<COND (<L? .ITEMS 12>
 			<HLIGHT ,H-BOLD>
 			<TELL "C">
 			<HLIGHT 0>
-			<TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
+			<COND (<EQUAL? .CONTAINER ,PLAYER>
+				<TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
+			)(<EQUAL? .CONTAINER ,CARGO>
+				<TELL " - View cargo">
+				<COND (,CURRENT-VEHICLE
+					<TELL " (" D ,CURRENT-VEHICLE ")">
+				)>
+			)>
+			<CRLF>
 		)>
-		<COND (<L? .ITEMS 18>
+		<COND (<AND <EQUAL? .CONTAINER ,PLAYER> <L? .ITEMS 18>>
 			<HLIGHT ,H-BOLD>
 			<TELL "I">
 			<HLIGHT 0>
@@ -2201,8 +2116,8 @@
 			<SET KEY <INPUT 1>>
 			<COND (
 				<OR
-					<AND <EQUAL? .KEY !\c !\C> <EQUAL? .CONTAINER ,PLAYER> <L? .ITEMS 12>>
-					<AND <EQUAL? .KEY !\i !\I> <EQUAL? .CONTAINER ,PLAYER> <L? .ITEMS 18>>
+					<AND <EQUAL? .KEY !\c !\C> <L? .ITEMS 12> <EQUAL? .CONTAINER ,PLAYER ,CARGO>>
+					<AND <EQUAL? .KEY !\i !\I> <L? .ITEMS 18> <EQUAL? .CONTAINER ,PLAYER>>
 					<AND <EQUAL? .KEY !\h !\H> <L? .ITEMS 17>>
 					<AND <G=? .KEY !\1> <L=? .KEY !\9> <L=? <- .KEY !\0> .ITEMS>>
 					<AND <G=? .KEY !\A> <L=? .KEY !\J> <G? .ITEMS 9> <L=? <+ <- .KEY !\A> 10> .ITEMS>>
@@ -2213,7 +2128,18 @@
 			)>
 		>
 		<CRLF>
-		<COND (<AND <EQUAL? .KEY !\c !\C> <EQUAL? .CONTAINER ,PLAYER> <L? .ITEMS 12>> <DESCRIBE-PLAYER> <PRESS-A-KEY>)>
+		<COND (<AND <EQUAL? .KEY !\c !\C> <EQUAL? .CONTAINER ,PLAYER ,CARGO> <L? .ITEMS 12>>
+			<COND (<EQUAL? .CONTAINER ,PLAYER>
+				<DESCRIBE-PLAYER>
+			)(ELSE
+				<TELL CR "Current designated ship: ">
+				<COND (,CURRENT-VEHICLE <PRINT-ITEM ,CURRENT-VEHICLE T>)(ELSE <TELL "None">)>
+				<CRLF>
+				<TELL "Cargo: ">
+				<PRINT-CONTAINER ,CARGO>
+			)>
+			<PRESS-A-KEY>
+		)>
 		<COND (<AND <EQUAL? .KEY !\i !\I> <EQUAL? .CONTAINER ,PLAYER> <L? .ITEMS 18>> <DESCRIBE-INVENTORY> <PRESS-A-KEY>)>
 		<COND (<AND <EQUAL? .KEY !\h !\H> <L? .ITEMS 17>> <DISPLAY-HELP> <PRESS-A-KEY>)>
 		<COND (<EQUAL? .KEY !\?> <DISPLAY-HELP> <PRESS-A-KEY>)>
@@ -2232,6 +2158,19 @@
 			)>
 			<CRLF>
 			<COND (<NOT .SELL>
+				<COND (<AND <G? .LIMIT 0> <N=? .CONTAINER ,PLAYER> <G=? <COUNT-CONTAINER .CONTAINER> .LIMIT>>
+					<HLIGHT ,H-BOLD>
+					<TELL "Your " D .CONTAINER " is already at full capacity" ,EXCLAMATION-CR>
+					<HLIGHT 0>
+					<PRESS-A-KEY>
+					<AGAIN .MAIN>
+				)(<L=? <GET .PRICELIST .ITEM> 0>
+					<HLIGHT ,H-BOLD>
+					<TELL <GET .WARES .ITEM> " not available here" ,PERIOD-CR>
+					<HLIGHT 0>
+					<PRESS-A-KEY>
+					<AGAIN .MAIN>
+				)>
 				<TELL "Purchase ">
 				<PRINT-ITEM <GET .WARES .ITEM> T>
 				<TELL " (" N <GET .PRICELIST .ITEM> " " D ,CURRENCY ")?">
@@ -2247,17 +2186,19 @@
 						<TELL "You can't afford the ">
 						<PRINT-ITEM <GET .WARES .ITEM> T>
 						<TELL ,EXCLAMATION-CR>
+						<PRESS-A-KEY>
 					)(ELSE
 						<COND (<FSET? <GET .WARES .ITEM> ,TAKEBIT>
 							<COND (<IN? <GET .WARES .ITEM> .CONTAINER>
 								<TELL "You already have the ">
 								<PRINT-ITEM <GET .WARES .ITEM> T>
 								<TELL ,EXCLAMATION-CR>
+								<PRESS-A-KEY>
 							)(ELSE
 								<SETG MONEY <- ,MONEY <GET .PRICELIST .ITEM>>>
 								<TELL "You bought the ">
 								<PRINT-ITEM <GET .WARES .ITEM> T>
-								<CRLF>
+								<TELL ,PERIOD-CR>
 								<COND (<AND <EQUAL? .CONTAINER ,PLAYER> <EQUAL? <COUNT-POSSESSIONS> ,LIMIT-POSSESSIONS> <NOT <IN? <GET .WARES .ITEM> .CONTAINER>>>
 									<EMPHASIZE "You are carrying too many items.">
 									<DROP-REPLACE-ITEM <GET .WARES .ITEM>>
@@ -2267,17 +2208,20 @@
 							)>
 						)(ELSE
 							<TELL "You can't have that" ,EXCLAMATION-CR>
+							<PRESS-A-KEY>
 						)>
 					)>
 				)(ELSE
-					<COND (<CHECK-ITEM <GET .WARES .ITEM>>
+					<COND (<OR <AND <EQUAL? .CONTAINER ,PLAYER> <CHECK-ITEM <GET .WARES .ITEM>>> <IN? <GET .WARES .ITEM> .CONTAINER>>
 						<REMOVE-ITEM <GET .WARES .ITEM> "sold" F T>
 						<SETG MONEY <+ ,MONEY <GET .PRICELIST .ITEM>>>
+						<REMOVE-ITEM <GET .WARES .ITEM> "sold" F T>
 					)(ELSE
 						<CRLF>
 						<TELL "You do not have any ">
 						<PRINT-ITEM <GET .WARES .ITEM> T>
 						<TELL ,EXCLAMATION-CR>
+						<PRESS-A-KEY>
 					)>
 				)>
 			)>
@@ -2416,6 +2360,46 @@
 	<INPUT 1>
 	<RETURN>>
 
+<ROUTINE PRINT-MENU (CHOICES ITEM-MENU SHOW-STATS "OPT" EXIT-KEY EXIT-TEXT PRICES "AUX" ITEMS)
+	<COND (<NOT .CHOICES> <RETURN>)>
+	<SET ITEMS <GET .CHOICES 0>>
+	<DO (I 1 .ITEMS)
+		<HLIGHT ,H-BOLD>
+		<COND (<L? .I 10>
+			<TELL N .I>
+		)(ELSE
+			<TELL C <+ !\A <- .I 10>>>
+		)>
+		<HLIGHT 0>
+		<TELL " - ">
+		<COND (.ITEM-MENU
+			<COND (.SHOW-STATS
+				<PRINT-ITEM <GET .CHOICES .I> T>
+			)(ELSE
+				<TELL D <GET .CHOICES .I>>
+			)>
+		)(ELSE
+			<TELL <GET .CHOICES .I>>
+		)>
+		<COND (.PRICES
+			<COND (<G? <GET .PRICES .I> 0>
+				<TELL " (">
+				<HLIGHT ,H-BOLD>
+				<TELL N <GET .PRICES .I>>
+				<HLIGHT 0>
+				<TELL " " D ,CURRENCY ")">
+			)>
+		)>
+		<CRLF>
+	>
+	<COND (<AND .EXIT-KEY .EXIT-TEXT>
+		<HLIGHT ,H-BOLD>
+		<TELL C .EXIT-KEY>
+		<HLIGHT 0>
+		<TELL " - " .EXIT-TEXT>
+		<CRLF>
+	)>>
+
 ; "Status Line routines"
 ; ---------------------------------------------------------------------------------------------
 
@@ -2437,7 +2421,7 @@
 			<TELL " (Visited " N <GETP ,HERE ,P?VISITS> " times)">
 		)>
 		<COND (,CURRENT-CHARACTER
-			<COND (,CURRENT-VEHICLE <TELL " " D ,CURRENT-VEHICLE>)>
+			<COND (,CURRENT-VEHICLE <TELL " "> <PRINT-CAP-OBJ ,CURRENT-VEHICLE>)>
 			<CURSET 1 <- .WIDTH 20>>
 			<TELL "Stamina: " N ,STAMINA "/" N ,MAX-STAMINA>
 			<LINE-ERASE 2>
@@ -3020,19 +3004,16 @@
 <OBJECT SHIP-BARQUE
 	(DESC "barque")
 	(CAPACITY 1)
-	(TYPE 1)
 	(CONDITION CONDITION-POOR)>
 
 <OBJECT SHIP-BRIGANTINE
 	(DESC "brigantine")
 	(CAPACITY 2)
-	(TYPE 2)
 	(CONDITION CONDITION-POOR)>
 
 <OBJECT SHIP-GALLEON
 	(DESC "galleon")
 	(CAPACITY 3)
-	(TYPE 3)
 	(CONDITION CONDITION-POOR)>
 
 ; "Disease/Poison EFFECTS (CHARISMA COMBAT MAGIC SANCTITY SCOUTING THIEVERY)"
@@ -3480,8 +3461,7 @@
 	)>
 	<COND (.HAS-BLESSING
 		<CRLF>
-		<CRLF>
-		<TELL "Use " T .BLESSING " blessing to reroll?">
+		<TELL CR "Use " T .BLESSING " blessing to reroll?">
 		<COND (<YES?>
 			<DELETE-BLESSING .BLESSING>
 			<SET .RESULT T>
@@ -3679,8 +3659,7 @@
 			)>
 		)(<EQUAL? .KEY !\0>
 			<CRLF>
-			<CRLF>
-			<TELL ,TEXT-SURE>
+			<TELL CR ,TEXT-SURE>
 			<COND (<YES?>
 				<EMPHASIZE ,TEXT-NEXT-TIME ,TEXT-GUILD>
 				<RETURN>
@@ -3696,52 +3675,75 @@
 
 ; "Harbour Master routines"
 ; ---------------------------------------------------------------------------------------------
+
 <CONSTANT SHIPS-LIST <LTABLE SHIP-BARQUE SHIP-BRIGANTINE SHIP-GALLEON>>
-<CONSTANT SHIPS-LABELS <LTABLE "Barque" "Brigantine" "Galleon">>
 
 <OBJECT CARGO-FURS
 	(DESC "Furs")
-	(TYPE 1)>
+	(TYPE 1)
+	(FLAGS TAKEBIT)>
 
 <OBJECT CARGO-GRAINS
 	(DESC "Grains")
-	(TYPE 2)>
+	(TYPE 2)
+	(FLAGS TAKEBIT)>
 
 <OBJECT CARGO-METALS
 	(DESC "Metals")
-	(TYPE 3)>
+	(TYPE 3)
+	(FLAGS TAKEBIT)>
 
 <OBJECT CARGO-MINERALS
 	(DESC "Minerals")
-	(TYPE 4)>
+	(TYPE 4)
+	(FLAGS TAKEBIT)>
 
 <OBJECT CARGO-SPICES
 	(DESC "Spices")
-	(TYPE 5)>
+	(TYPE 5)
+	(FLAGS TAKEBIT)>
 
 <OBJECT CARGO-TEXTILES
 	(DESC "Textiles")
-	(TYPE 6)>
+	(TYPE 6)
+	(FLAGS TAKEBIT)>
 
 <OBJECT CARGO-TIMBER
 	(DESC "Timber")
-	(TYPE 7)>
+	(TYPE 7)
+	(FLAGS TAKEBIT)>
 
 <CONSTANT CARGO-LIST <LTABLE CARGO-FURS CARGO-GRAINS CARGO-METALS CARGO-MINERALS CARGO-SPICES CARGO-TEXTILES CARGO-TIMBER>>
+
+<CONSTANT DESTINATION-COPPER-ISLAND "Copper Island (Over the Blood-Dark Sea)">
+<CONSTANT DESTINATION-SORCERERS-ISLE "Sorcerer's Isle (Over the Blood-Dark Sea)">
+<CONSTANT DESTINATION-WISHPORT "Wishport (Cities of Gold and Glory)">
+<CONSTANT DESTINATION-YELLOWPORT "Yellowport">
 
 <CONSTANT MARLOCK-CARGO-BUY <LTABLE 190 190 700 500 820 325 190>>
 <CONSTANT MARLOCK-CARGO-SELL <LTABLE 180 180 635 460 760 285 180>>
 <CONSTANT MARLOCK-SHIP-BUY <LTABLE 250 450 900>>
 <CONSTANT MARLOCK-SHIP-SELL <LTABLE 125 225 450>>
 <CONSTANT MARLOCK-UPGRADE-PRICES <LTABLE 50 100 150>>
-<CONSTANT MARLOCK-PASSAGES <LTABLE "Yellowport" "Wishport" "Sorcerers' Isle" "Copper Island">>
 <CONSTANT MARLOCK-TICKETS <LTABLE 10 15 30 30>>
 <CONSTANT MARLOCK-TRAVEL <LTABLE STORY372 STORY255 STORY234 STORY424>>
-<CONSTANT HARBOUR-MASTER-MENU <LTABLE "Buy/Sell/Upgrade Ship" "Buy one-way passage to destination" "Select/View ship" "Purchase/Sell Cargo" "Set sail">>
+<CONSTANT MARLOCK-PASSAGES
+	<LTABLE
+		DESTINATION-YELLOWPORT
+		DESTINATION-WISHPORT
+		DESTINATION-SORCERERS-ISLE
+		DESTINATION-COPPER-ISLAND
+	>>
 
-<CONSTANT TEXT-HARBOUR-MASTER "Harbour Master">
+<CONSTANT BUY-SELL-CARGO-MENU <LTABLE "Buy goods" "Sell goods">>
+<CONSTANT BUY-SELL-UPGRADE-MENU <LTABLE "Buy ship" "Sell ship" "Upgrade ship">>
 
-<ROUTINE HARBOUR-MARLOCK ("AUX" KEY CHOICE ITEMS)
+<CONSTANT TEXT-HARBOUR-MASTER "Harbour">
+<CONSTANT HARBOUR-MASTER-MENU <LTABLE "Go to the shipyard" "Book a passage" "View ship manifest" "Visit the market" "Set sail">>
+<CONSTANT TEXT-NO-SHIPS "You don't own any ships!">
+<CONSTANT TEXT-SHIP-NOT-OWNER "You don't own that ship!">
+
+<ROUTINE HARBOUR-MARLOCK ("AUX" KEY CHOICE ITEMS DESTINATION)
 	<DO (I 1 3)
 		<COND (<NOT <IN? <GET ,SHIPS-LIST .I> ,VEHICLES>>
 			<STORY-RESET-CREW ,CONDITION-POOR>
@@ -3750,7 +3752,7 @@
 	<SET ITEMS <GET ,HARBOUR-MASTER-MENU 0>>
 	<REPEAT ()
 		<EMPHASIZE ,TEXT-HARBOUR-MASTER>
-		<PRINT-MENU ,HARBOUR-MASTER-MENU !\0 "Go to the city centre">
+		<PRINT-MENU ,HARBOUR-MASTER-MENU F F !\0 "Go to the city centre">
 		<TELL "What do you wish to do next?">
 		<REPEAT ()
 			<SET .KEY <INPUT 1>>
@@ -3761,75 +3763,133 @@
 		<COND (<EQUAL? .CHOICE 0>
 			<CRLF>
 			<TELL ,TEXT-SURE>
-			<COND (<YES?>
-				<EMPHASIZE ,TEXT-GOODBYE ,TEXT-HARBOUR-MASTER>
-				<RETURN>
-			)>
+			<COND (<YES?> <RETURN>)>
 		)(<EQUAL? .CHOICE 1>
 			<BUY-SELL-UPGRADE-SHIP ,MARLOCK-SHIP-BUY ,MARLOCK-SHIP-SELL ,MARLOCK-UPGRADE-PRICES ,MARLOCK-CARGO-SELL>
 		)(<EQUAL? .CHOICE 2>
-
+			<SET DESTINATION <BOOK-PASSAGE ,MARLOCK-PASSAGES ,MARLOCK-TICKETS ,MARLOCK-TRAVEL>>
+			<COND (.DESTINATION
+				<STORY-JUMP .DESTINATION>
+				<RETURN>
+			)>
 		)(<EQUAL? .CHOICE 3>
+			<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
+				<EMPHASIZE "You have not designated a primary ship!">
+				<VIEW-SHIP-MANIFEST>
+			)(ELSE
+				<EMPHASIZE ,TEXT-NO-SHIPS>
+			)>
 		)(<EQUAL? .CHOICE 4>
+			<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
+				<BUY-SELL-CARGO ,MARLOCK-CARGO-BUY ,MARLOCK-CARGO-SELL>
+			)(ELSE
+				<EMPHASIZE ,TEXT-NO-SHIPS>
+			)>
 		)(<EQUAL? .CHOICE 5>
 			<COND (,CURRENT-VEHICLE
-				<STORY-JUMP ,STORY084>
-				<RETURN>
+				<COND (<VALIDATE-CARGO ,MARLOCK-CARGO-SELL>
+					<STORY-JUMP ,STORY084>
+					<RETURN>
+				)>
 			)(ELSE
 				<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
-					<EMPHASIZE "You have not designated your primary ship!">
+					<VIEW-SHIP-MANIFEST>
 				)(ELSE
-					<EMPHASIZE "You don't own any ship!">
+					<EMPHASIZE ,TEXT-NO-SHIPS>
 				)>
 			)>
 		)>
 	>>
 
-<ROUTINE PRINT-MENU (CHOICES EXIT-KEY EXIT-TEXT "OPT" PRICES "AUX" ITEMS)
-	<COND (<NOT .CHOICES> <RETURN>)>
-	<SET ITEMS <GET .CHOICES 0>>
-	<DO (I 1 .ITEMS)
-		<HLIGHT ,H-BOLD>
-		<COND (<L? .I 10>
-			<TELL N .I>
+<ROUTINE BOOK-PASSAGE (PASSAGES PRICES DESTINATIONS "AUX" KEY COUNT CHOICE DESTINATION)
+	<SET COUNT <GET .PASSAGES 0>>
+	<SET DESTINATION NONE>
+	<REPEAT ()
+		<EMPHASIZE "You can buy a one-way passage on a ship to the following destinations:">
+		<PRINT-MENU .PASSAGES F F !\0 "Go back" .PRICES>
+		<TELL "Select destination:">
+		<REPEAT ()
+			<SET KEY <INPUT 1>>
+			<COND (<OR <EQUAL? .KEY !\0> <AND <G=? .KEY !\1> <L=? .KEY <+ .COUNT !\0>>>> <RETURN>)>
+		>
+		<CRLF>
+		<COND (<EQUAL? .KEY !\0>
+			<TELL CR ,TEXT-SURE>
+			<COND (<YES?>
+				<SET DESTINATION NONE>
+				<RETURN>
+			)>
 		)(ELSE
-			<TELL C <+ !\A <- .I 10>>>
-		)>
-		<HLIGHT 0>
-		<TELL " - " <GET .CHOICES .I>>
-		<COND (.PRICES
-			<COND (<G? <GET .PRICES .I> 0>
-				<TELL " (" N <GET .PRICES .I> " " D ,CURRENCY ")">
+			<CRLF>
+			<SET CHOICE <- .KEY !\0>>
+			<COND (<G=? ,MONEY <GET .PRICES .CHOICE>>
+				<TELL "Book a passage to ">
+				<HLIGHT ,H-BOLD>
+				<TELL <GET .PASSAGES .CHOICE>>
+				<HLIGHT 0>
+				<TELL " for " N <GET .PRICES .CHOICE> " " D ,CURRENCY "?">
+				<COND (<YES?>
+					<COST-MONEY <GET .PRICES .CHOICE> "paid">
+					<SET DESTINATION <GET .DESTINATIONS .CHOICE>>
+					<RETURN>
+				)>
+			)(ELSE
+				<CRLF>
+				<HLIGHT ,H-BOLD>
+				<TELL "You cannot afford to book a passage to " <GET .PASSAGES .CHOICE> ,EXCLAMATION-CR>
+				<HLIGHT 0>
 			)>
 		)>
-		<CRLF>
 	>
-	<HLIGHT ,H-BOLD>
-	<TELL C .EXIT-KEY>
-	<HLIGHT 0>
-	<TELL " - " .EXIT-TEXT>
-	<CRLF>>
+	<RETURN .DESTINATION>>
 
-<CONSTANT BUY-SELL-UPGRADE-MENU <LTABLE "Buy Ship" "Sell Ship" "Upgrade Ship">>
+<ROUTINE BUY-CARGO (BUY-PRICES "AUX" (LIMIT 3))
+	<COND (.BUY-PRICES
+		<COND (,CURRENT-VEHICLE
+			<SET LIMIT <GETP ,CURRENT-VEHICLE ,P?CAPACITY>>
+		)>
+		<MERCHANT ,CARGO-LIST .BUY-PRICES ,CARGO F .LIMIT>
+	)>>
 
-<ROUTINE BUY-SELL-UPGRADE-SHIP (BUY-PRICES SELL-PRICES UPGRADE-PRICES CARGO-PRICES "AUX" KEY ITEMS)
+<ROUTINE BUY-SELL-CARGO (BUY-PRICES SELL-PRICES "AUX" KEY)
 	<REPEAT ()
-		<EMPHASIZE "You can do the following" "Shipyard">
-		<PRINT-MENU ,BUY-SELL-UPGRADE-MENU !\0 "Go back to the Harbour Master">
+		<EMPHASIZE "Market">
+		<PRINT-MENU ,BUY-SELL-CARGO-MENU F F !\0 "Go back">
 		<TELL "What do you want to do?">
-		<SET ITEMS <GET ,BUY-SELL-UPGRADE-MENU 0>>
+		<REPEAT ()
+			<SET KEY <INPUT 1>>
+			<COND (<EQUAL? .KEY !\0 !\1 !\2> <RETURN>)>
+		>
+		<COND (<EQUAL? .KEY !\0>
+			<CRLF>
+			<TELL CR ,TEXT-SURE>
+			<COND (<YES?> <RETURN>)>
+		)(<EQUAL? .KEY !\1>
+			<CRLF>
+			<BUY-CARGO .BUY-PRICES>
+		)(<EQUAL? .KEY !\2>
+			<CRLF>
+			<COND (<G? <COUNT-CONTAINER ,CARGO> 0>
+				<SELL-CARGO .SELL-PRICES>
+			)(ELSE
+				<EMPHASIZE "You have nothing to sell!">
+			)>
+		)>
+	>>
+
+<ROUTINE BUY-SELL-UPGRADE-SHIP (BUY-PRICES SELL-PRICES UPGRADE-PRICES CARGO-PRICES "AUX" KEY)
+	<REPEAT ()
+		<EMPHASIZE "Shipyard">
+		<PRINT-MENU ,BUY-SELL-UPGRADE-MENU F F !\0 "Go back">
+		<TELL "What do you want to do?">
 		<REPEAT ()
 			<SET KEY <INPUT 1>>
 			<COND (<EQUAL? .KEY !\0 !\1 !\2 !\3> <RETURN>)>
 		>
 		<COND (<EQUAL? .KEY !\0>
 			<CRLF>
-			<CRLF>
-			<TELL ,TEXT-SURE>
-			<COND (<YES?>
-				<EMPHASIZE ,TEXT-GOODBYE>
-				<RETURN>
-			)>
+			<TELL CR ,TEXT-SURE>
+			<COND (<YES?> <RETURN>)>
 		)(<EQUAL? .KEY !\1>
 			<CRLF>
 			<BUY-SHIP .BUY-PRICES>
@@ -3837,24 +3897,24 @@
 			<CRLF>
 			<SELL-SHIP .SELL-PRICES .CARGO-PRICES>
 		)(<EQUAL? .KEY !\3>
+			<CRLF>
 			<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
-				<CRLF>
 				<UPGRADE-SHIP .UPGRADE-PRICES>
 			)(ELSE
-				<CRLF>
-				<EMPHASIZE "You don't have any ships">
+				<EMPHASIZE ,TEXT-NO-SHIPS>
 			)>
 		)>
 	>>
 
 <ROUTINE BUY-SHIP (BUY-PRICES "AUX" KEY ITEM)
 	<REPEAT ()
-		<EMPHASIZE "You can buy ships at these prices" "Shipyard">
-		<PRINT-MENU ,SHIPS-LABELS !\0 ,TEXT-BYE .BUY-PRICES>
+		<EMPHASIZE "Shipyard">
+		<PRINT-MENU ,SHIPS-LIST T T !\0 ,TEXT-BACK .BUY-PRICES>
 		<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
 			<DESCRIBE-PLAYER-VEHICLES>
 			<CRLF>
 		)>
+		<TELL "You are carrying " N ,MONEY " " D ,CURRENCY ,PERIOD-CR>
 		<TELL "Which ship shall you buy?">
 		<REPEAT ()
 			<SET KEY <INPUT 1>>
@@ -3862,11 +3922,8 @@
 		>
 		<COND (<EQUAL? .KEY !\0>
 			<CRLF>
-			<CRLF>
-			<TELL ,TEXT-SURE>
-			<COND (<YES?>
-				<RETURN>
-			)>
+			<TELL CR ,TEXT-SURE>
+			<COND (<YES?> <RETURN>)>
 		)(ELSE
 			<SET ITEM <- .KEY !\0>>
 			<COND (<IN? <GET ,SHIPS-LIST .ITEM> ,VEHICLES>
@@ -3874,8 +3931,7 @@
 				<EMPHASIZE "You already own that ship!">
 			)(<G=? ,MONEY <GET .BUY-PRICES .ITEM>>
 				<CRLF>
-				<CRLF>
-				<TELL "Buy a " D <GET ,SHIPS-LIST .ITEM> "?">
+				<TELL CR "Buy a " D <GET ,SHIPS-LIST .ITEM> "?">
 				<COND (<YES?>
 					<COST-MONEY <GET .BUY-PRICES .ITEM> "paid">
 					<MOVE <GET ,SHIPS-LIST .ITEM> ,VEHICLES>
@@ -3895,35 +3951,58 @@
 		)>
 	>>
 
+<ROUTINE SELL-ALL-CARGO (CARGO-PRICES "OPT" CONTAINER "AUX" ITEM TYPE PROFIT)
+	<COND (<NOT .CONTAINER> <SET .CONTAINER ,CARGO>)>
+	<COND (<G? <COUNT-CONTAINER .CONTAINER> 0>
+		<SET PROFIT 0>
+		<SET ITEM <FIRST? .CONTAINER>>
+		<REPEAT ()
+			<COND (<NOT .ITEM> <RETURN>)>
+			<SET TYPE <GETP .ITEM ,P?TYPE>>
+			<COND (<G? .TYPE 0>
+				<SET PROFIT <+ .PROFIT <GET .CARGO-PRICES .TYPE>>>
+			)>
+			<SET ITEM <NEXT? .ITEM>>
+		>
+		<COND (<G? .PROFIT 0>
+			<CRLF>
+			<TELL "You sold: ">
+			<PRINT-CONTAINER .CONTAINER>
+			<RESET-CONTAINER .CONTAINER>
+			<GAIN-MONEY .PROFIT>
+		)>
+	)>>
+
+<ROUTINE SELL-CARGO (SELL-PRICES)
+	<COND (.SELL-PRICES
+		<MERCHANT ,CARGO-LIST .SELL-PRICES ,CARGO T>
+	)>>
+
 <ROUTINE SELL-SHIP (SELL-PRICES CARGO-PRICES "AUX" KEY ITEM)
 	<REPEAT ()
 		<EMPHASIZE "You can sell your ships at these prices" "Shipyard">
-		<PRINT-MENU ,SHIPS-LABELS !\0 ,TEXT-BYE .SELL-PRICES>
+		<PRINT-MENU ,SHIPS-LIST T T !\0 ,TEXT-BACK .SELL-PRICES>
 		<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
 			<DESCRIBE-PLAYER-VEHICLES>
 			<CRLF>
 		)>
-		<TELL "Which shill will you sell?">
+		<TELL "Which ship will you sell?">
 		<REPEAT ()
 			<SET KEY <INPUT 1>>
 			<COND (<EQUAL? .KEY !\0 !\1 !\2 !\3> <RETURN>)>
 		>
 		<COND (<EQUAL? .KEY !\0>
 			<CRLF>
-			<CRLF>
-			<TELL ,TEXT-SURE>
-			<COND (<YES?>
-				<RETURN>
-			)>
+			<TELL CR ,TEXT-SURE>
+			<COND (<YES?> <RETURN>)>
 		)(ELSE
 			<SET ITEM <- .KEY !\0>>
 			<COND (<NOT <IN? <GET ,SHIPS-LIST .ITEM> ,VEHICLES>>
 				<CRLF>
-				<EMPHASIZE "You don't have that ship!">
+				<EMPHASIZE ,TEXT-SHIP-NOT-OWNER>
 			)(ELSE
 				<CRLF>
-				<CRLF>
-				<TELL "Sell " T <GET ,SHIPS-LIST .ITEM> "?">
+				<TELL CR "Sell " T <GET ,SHIPS-LIST .ITEM> "?">
 				<COND (<YES?>
 					<REMOVE <GET ,SHIPS-LIST .ITEM>>
 					<COND (<EQUAL? ,CURRENT-VEHICLE <GET ,SHIPS-LIST .ITEM>>
@@ -3934,35 +4013,13 @@
 					<PRINT-ITEM <GET ,SHIPS-LIST .ITEM> T>
 					<TELL ,PERIOD-CR>
 					<GAIN-MONEY <GET .SELL-PRICES .ITEM>>
-					<SELL-ALL-CARGO .CARGO-PRICES>
+					<COND (<L=? <COUNT-CONTAINER ,VEHICLES> 0> <SELL-ALL-CARGO .CARGO-PRICES>)>
 					<PUTP <GET ,SHIPS-LIST .ITEM> ,P?CONDITION ,CONDITION-POOR>
 					<UPDATE-STATUS-LINE>
 				)>
 			)>
 		)>
 	>>
-
-<ROUTINE SELL-ALL-CARGO (CARGO-PRICES "AUX" ITEM NEXT TYPE PROFIT)
-	<COND (<G? <COUNT-CONTAINER ,CARGO> 0>
-		<SET PROFIT 0>
-		<SET ITEM <FIRST? ,CARGO>>
-		<REPEAT ()
-			<COND (<NOT .ITEM> <RETURN>)>
-			<SET TYPE <GETP .ITEM ,P?TYPE>>
-			<COND (<G? .TYPE 0>
-				<SET PROFIT <+ .PROFIT <GET .CARGO-PRICES .TYPE>>>
-				<SET NEXT <NEXT? .ITEM>>
-				<REMOVE .ITEM>
-				<SET ITEM .NEXT>
-			)(ELSE
-				<SET ITEM <NEXT? .ITEM>>
-			)>
-		>
-		<COND (<G? .PROFIT 0>
-			<EMPHASIZE "You sold your ship's cargo.">
-			<GAIN-MONEY .PROFIT>
-		)>
-	)>>
 
 <ROUTINE UPGRADE-SHIP (UPGRADE-PRICES "AUX" CONDITION KEY UPGRADES ITEM)
 	<SET UPGRADES <LTABLE 0 0 0>>
@@ -3980,11 +4037,12 @@
 			)>
 		>
 		<EMPHASIZE "You can upgrade ships at the following prices" "Shipyard">
-		<PRINT-MENU ,SHIPS-LABELS !\0 ,TEXT-BYE .UPGRADES>
+		<PRINT-MENU ,SHIPS-LIST T T !\0 ,TEXT-BACK .UPGRADES>
 		<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
 			<DESCRIBE-PLAYER-VEHICLES>
 			<CRLF>
 		)>
+		<TELL "You are carrying " N ,MONEY " " D ,CURRENCY ,PERIOD-CR>
 		<TELL "Which ship shall you upgrade?">
 		<REPEAT ()
 			<SET KEY <INPUT 1>>
@@ -3992,8 +4050,7 @@
 		>
 		<COND (<EQUAL? .KEY !\0>
 			<CRLF>
-			<CRLF>
-			<TELL ,TEXT-SURE>
+			<TELL CR ,TEXT-SURE>
 			<COND (<YES?>
 				<RETURN>
 			)>
@@ -4025,9 +4082,87 @@
 					<EMPHASIZE "You can't afford to upgrade this ship!">
 				)>
 			)(ELSE
-				<EMPHASIZE "You don't own that ship!">
+				<EMPHASIZE ,TEXT-SHIP-NOT-OWNER>
 			)>
 		)>
+	>>
+
+<ROUTINE VALIDATE-CARGO (SELL-PRICES "AUX" CAPACITY CARGO)
+	<COND (<NOT ,CURRENT-VEHICLE> <RETURN>)>
+	<SET CAPACITY <GETP ,CURRENT-VEHICLE ,P?CAPACITY>>
+	<SET CARGO <COUNT-CONTAINER ,CARGO>>
+	<COND (<G? .CARGO .CAPACITY>
+		<EMPHASIZE "Your cargo has exceeded the maximum capacity of your designated ship!">
+		<CRLF>
+		<TELL "Sell the excess cargo?">
+		<COND (<YES?>
+			<STORY-LOSE-CARGO <- .CARGO .CAPACITY>>
+			<SELL-ALL-CARGO .SELL-PRICES ,LOST-STUFF>
+			<RTRUE>
+		)>
+		<RFALSE>
+	)>
+	<RTRUE>>
+
+<ROUTINE VIEW-SHIP-MANIFEST ("AUX" LIST COUNT SHIP KEY)
+	<COND (<L=? <COUNT-CONTAINER ,VEHICLES> 0> <RETURN>)>
+	<SET LIST <LTABLE NONE NONE NONE>>
+	<REPEAT ()
+		<EMPHASIZE "Ship manifest">
+		<SET COUNT 0>
+		<DO (I 1 3)
+			<SET SHIP <GET ,SHIPS-LIST .I>>
+			<COND (<IN? .SHIP ,VEHICLES>
+				<INC .COUNT>
+				<PUT .LIST .COUNT .SHIP>
+				<HLIGHT ,H-BOLD>
+				<TELL N .COUNT>
+				<HLIGHT 0>
+				<TELL " [">
+				<COND (<EQUAL? ,CURRENT-VEHICLE .SHIP>
+					<HLIGHT ,H-BOLD>
+					<TELL "X">
+					<HLIGHT 0>
+				)(ELSE
+					<TELL " ">
+				)>
+				<TELL "] - ">
+				<PRINT-ITEM <GET .LIST .COUNT> F>
+				<CRLF>
+			)>
+		>
+		<HLIGHT ,H-BOLD>
+		<TELL "C">
+		<HLIGHT 0>
+		<TELL " - View Cargo" CR>
+		<HLIGHT ,H-BOLD>
+		<TELL "0">
+		<HLIGHT 0>
+		<TELL " - Back" CR>
+		<TELL "Select primary ship: ">
+		<REPEAT ()
+			<SET KEY <INPUT 1>>
+			<COND (<OR <EQUAL? .KEY !\0 !\C !\c> <AND <G=? .KEY !\1> <L=? .KEY <+ .COUNT !\0>>>> <RETURN>)>
+		>
+		<CRLF>
+		<COND (<EQUAL? .KEY !\0>
+			<TELL CR ,TEXT-SURE>
+			<COND (<YES?>
+				<RETURN>
+			)>
+		)(<EQUAL? .KEY !\V !\v>
+			<CRLF>
+			<DESCRIBE-PLAYER-VEHICLES>
+			<PRESS-A-KEY>
+		)(ELSE
+			<SET KEY <- .KEY !\0>>
+			<COND (<EQUAL? ,CURRENT-VEHICLE <GET .LIST .KEY>>
+				<SETG CURRENT-VEHICLE NONE>
+			)(ELSE
+				<SETG ,CURRENT-VEHICLE <GET .LIST .KEY>>
+			)>
+		)>
+		<UPDATE-STATUS-LINE>
 	>>
 
 ; "Gambling Den routines"
@@ -4284,8 +4419,7 @@
 	<TELL "Additional Command Keys:">
 	<HLIGHT 0>
     <CRLF>
-	<CRLF>
-    <TELL ,HELP-TEXT>
+    <TELL CR ,HELP-TEXT>
     <CRLF>>
 
 ; "Story"
@@ -4372,7 +4506,7 @@
 	)>>
 
 <ROUTINE STORY-RESET-CREW ("OPT" CONDITION)
-	<COND (<NOT .CONDITION> <SET .CONDITION ,CONDITION-EXCELLENT>)>
+	<COND (<NOT .CONDITION> <SET .CONDITION ,CONDITION-GOOD>)>
 	<COND (,CURRENT-VEHICLE <PUTP ,CURRENT-VEHICLE ,P?CONDITION .CONDITION>)>>
 
 <CONSTANT TEXT001 "The first sound is the gentle murmur of waves some way off. The cry of gulls. Then the sensation of a softly stirring sea breeze and the baking sun on your back.||If that was all, you could imagine yourself in paradise, but as your senses return you start to feel the aches in every muscle. And then you remember the shipwreck.||You force open your eyes, caked shut by a crust of salt. You are lying on a beach, a desolate slab of wet sand that glistens in the merciless glare of the sun. Small crabs break away as you stir, scurrying for cover amid the long strands of seaweed.||\"Not... food for you yet...\" you murmur, wincing at the pain of cracked lips. Your mouth is dry and there is a pounding in your head born of fatigue and thirst. You don\"t care about the headache or the bruises, just as long as you\"re alive.||As you lie gathering your strength, you hear somebody coming along the shore.">

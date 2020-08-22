@@ -40,13 +40,19 @@ First Edition
 - No in-game illustrations or graphics (also excludes map from the book. Refer to the maps above)
 - Dice rolls handled by the Random Number Generator (but of course!)
 - Character selection and inventory of items and codewords are implemented
-- Also implemented: Combat, Ability Tests
-- Titles and Honours, Blessings
-- Diseases/Afflictions and Poisons
+- Items with bonuses to abilities, e.g. +1 COMBAT (weapons), +1 DEFENSE (armours)
+- Combat, random events, and ability tests
+- Titles and honours, blessings, and Worship of a God
+- Diseases, Afflictions, Curses and Poisons
 - Resurrection arrangements
-- Merchants (Buy/Sell Weapons, Armours, Magic Items, other items)
-- Guilds (Investments)
-- Townhouses (Storage)
+- Merchants (weapons, armours, magic, maps (!?) and other items)
+- Guilds (investments)
+- Townhouses (storage)
+- Harbour and Ports (Buy/Sell/Upgrade ships, Buy/Sell Cargo, own up to 3 ships)
+
+
+## Available key commands in the game
+
 - Select an action by pressing the number keys that correspond to the option (**1** - **9**).
 - In some situations, if there are more than 9 options, items 10-19 map to the keys **A** (or **a**) - **J** (or **j**)
 - Press **q** or **Q** to quit or terminate the program
