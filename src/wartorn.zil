@@ -174,6 +174,7 @@
 ; ---------------------------------------------------------------------------------------------
 
 <GLOBAL CURRENT-LOCATION NONE>
+<GLOBAL PREVIOUS-LOCATION NONE>
 <GLOBAL CONTINUE-TO-CHOICES T>
 <GLOBAL RUN-ONCE F>
 <GLOBAL STARTING-POINT STORY001>
@@ -181,7 +182,7 @@
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
 
-<ROUTINE GAME-BOOK ("AUX" KEY CURRENT-LOCATION)
+<ROUTINE GAME-BOOK ("AUX" KEY)
 	<INSTRUCTIONS>
 	<RESET-PLAYER>
 	<RESET-OBJECTS>
@@ -195,12 +196,12 @@
 		<RESET-CHOICES>
 		<MARK-VISITS>
 		<CHECK-BACKGROUND>
-		<SET CURRENT-LOCATION ,HERE>
+		<SETG CURRENT-LOCATION ,HERE>
 		<GOTO ,HERE>
 		<UPDATE-STATUS-LINE>
 		<PRINT-SECTION>
 		<CHECK-EVENTS>
-		<COND (<EQUAL? .CURRENT-LOCATION ,HERE>
+		<COND (<EQUAL? ,CURRENT-LOCATION ,HERE>
 			<CHECK-DOOM>
 			<CHECK-VICTORY>
 		)>
@@ -508,7 +509,7 @@
 							<SETG CURRENT-VEHICLE NONE>
 						)(ELSE
 							<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
-								<EMPHASIZE "Your ships are docked elsewehre!">
+								<EMPHASIZE "Your ships are docked elsewhere!">
 							)(ELSE
 								<EMPHASIZE "You have no ship!">
 							)>
@@ -576,10 +577,15 @@
 				<RETURN>
 			)>
 		>
-		<COND (<EQUAL? .CURRENT-LOCATION ,HERE> <SETG RUN-ONCE F>)>
+		<COND (<EQUAL? ,CURRENT-LOCATION ,HERE>
+			<SETG RUN-ONCE F>
+		)(ELSE
+			<SETG PREVIOUS-LOCATION ,CURRENT-LOCATION>
+		)>
 		<RETURN .CHOICE>
 	)(.CONTINUE
 		<SETG HERE .CONTINUE>
+		<SETG PREVIOUS-LOCATION ,CURRENT-LOCATION>
 		<PRESS-A-KEY>
 		<RETURN>
 	)>
@@ -1281,7 +1287,7 @@
 	<COND (<G? <COUNT-CONTAINER ,AILMENTS> 0>
 		<HLIGHT ,H-BOLD>
 		<PRINT-CAP-OBJ ,AILMENTS>
-		<TELL  ": ">
+		<TELL ": ">
 		<HLIGHT 0>
 		<PRINT-CONTAINER ,AILMENTS>
 	)>
@@ -1306,21 +1312,21 @@
 <ROUTINE DESCRIBE-PLAYER-BLESSINGS ()
 	<HLIGHT ,H-BOLD>
 	<PRINT-CAP-OBJ ,BLESSINGS>
-	<TELL  ": ">
+	<TELL ": ">
 	<HLIGHT 0>
 	<PRINT-CONTAINER ,BLESSINGS>>
 
 <ROUTINE DESCRIBE-PLAYER-CODEWORDS ()
 	<HLIGHT ,H-BOLD>
 	<PRINT-CAP-OBJ ,CODEWORDS>
-	<TELL  ": ">
+	<TELL ": ">
 	<HLIGHT 0>
 	<PRINT-CONTAINER ,CODEWORDS>>
 
 <ROUTINE DESCRIBE-PLAYER-CURRENCY ()
 	<HLIGHT ,H-BOLD>
 	<PRINT-CAP-OBJ ,CURRENCY>
-	<TELL  ": ">
+	<TELL ": ">
 	<HLIGHT 0>
 	<TELL N ,MONEY CR>>
 
@@ -1328,7 +1334,7 @@
 	<COND (<G? <COUNT-CONTAINER ,MISSIONS> 0>
 		<HLIGHT ,H-BOLD>
 		<PRINT-CAP-OBJ ,MISSIONS>
-		<TELL  ": ">
+		<TELL ": ">
 		<HLIGHT 0>
 		<PRINT-CONTAINER ,MISSIONS>
 	)>>
@@ -1371,7 +1377,7 @@
 <ROUTINE DESCRIBE-PLAYER-TITLES ()
 	<HLIGHT ,H-BOLD>
 	<PRINT-CAP-OBJ ,TITLES-AND-HONOURS>
-	<TELL  ": ">
+	<TELL ": ">
 	<HLIGHT 0>
 	<PRINT-CONTAINER ,TITLES-AND-HONOURS>>
 
@@ -1504,7 +1510,7 @@
 	<CRLF>
 	<TELL "You gain ">
 	<HLIGHT ,H-BOLD>
-	<TELL  N .AMOUNT " " D ,CURRENCY>
+	<TELL N .AMOUNT " " D ,CURRENCY>
 	<HLIGHT 0>
 	<TELL ,PERIOD-CR>
 	<SETG MONEY <+ ,MONEY .AMOUNT>>
@@ -2297,6 +2303,7 @@
 
 <ROUTINE RESET-MISSIONS ()
 	<PUTP ,MISSION-GHOUL-HEAD ,P?COMPLETED F>
+	<PUTP ,MISSION-NEGRAN-CORIN ,P?COMPLETED F>
 	<RESET-CONTAINER ,MISSIONS>>
 
 <ROUTINE RESET-PLAYER ()
@@ -2734,6 +2741,7 @@
 <OBJECT CODEWORD-ALTITUDE (DESC "Altitude")>
 <OBJECT CODEWORD-ALMANAC (DESC "Almanac")>
 <OBJECT CODEWORD-ALOFT (DESC "Aloft")>
+<OBJECT CODEWORD-AMBUSCADE (DESC "Ambuscade")>
 <OBJECT CODEWORD-ANCHOR (DESC "Anchor")>
 <OBJECT CODEWORD-ANVIL (DESC "Anvil")>
 <OBJECT CODEWORD-APPLE (DESC "Apple")>
@@ -2919,6 +2927,10 @@
 	(DESC "bag of pearls")
 	(FLAGS TAKEBIT)>
 
+<OBJECT BLACK-DRAGON-SHIELD
+	(DESC "black dragon shield")
+	(FLAGS TAKEBIT)>
+
 <OBJECT BOOK-OF-THE-SEVEN-SAGES
 	(DESC "Book of the Seven Sages")
 	(FLAGS TAKEBIT NARTICLEBIT)>
@@ -2942,6 +2954,10 @@
 
 <OBJECT FLAME-OPAL-EYE
 	(DESC "flame opal eye")
+	(FLAGS TAKEBIT)>
+
+<OBJECT FOREST-FORSAKEN-MAP
+	(DESC "Forest of the Forsaken map")
 	(FLAGS TAKEBIT)>
 
 <OBJECT GOLDEN-NET
@@ -3035,15 +3051,35 @@
 	(CONTINUE STORY640)
 	(FLAGS TAKEBIT)>
 
+<OBJECT RESURRECTION-ANY
+	(DESC "Any resurrection arrangement")
+	(FLAGS TAKEBIT)>
+
 ; GODS
 ; ---------------------------------------------------------------------------------------------
 
-<OBJECT GOD-ALVIR-VALMIR (DESC "Alvir and Valmir the Twin Gods")>
-<OBJECT GOD-ELNIR (DESC "Elnir the Sky God")>
-<OBJECT GOD-LACUNA (DESC "Lacuna")>
-<OBJECT GOD-MAKA (DESC "Maka")>
-<OBJECT GOD-THREE-FORTUNES (DESC "Three Fortunes")>
-<OBJECT GOD-TYRNAI (DESC "Tyrnai the War God")>
+<OBJECT GOD-ALVIR-VALMIR
+	(DESC "Alvir and Valmir the Twin Gods")>
+
+<OBJECT GOD-ELNIR
+	(DESC "Elnir the Sky God")>
+
+<OBJECT GOD-LACUNA
+	(DESC "Lacuna")>
+
+<OBJECT GOD-MAKA
+	(DESC "Maka")>
+
+<OBJECT GOD-NAGIL
+	(DESC "Nagil, the God of Death")
+	(RESURRECTION RESURRECTION-ANY)>
+
+<OBJECT GOD-THREE-FORTUNES
+	(DESC "Three Fortunes")>
+
+<OBJECT GOD-TYRNAI
+	(DESC "Tyrnai the War God")
+	(RESURRECTION RESURRECTION-TYRNAI)>
 
 ; Blessings
 ; ---------------------------------------------------------------------------------------------
@@ -3130,8 +3166,14 @@
 	(DEFENSE 6)
 	(STAMINA 7)>
 
-<OBJECT MONSTER-KING-SCABB
-	(DESC "King Scab")
+<OBJECT MONSTER-KER-ILK
+	(DESC "Ker'ilk")
+	(COMBAT 4)
+	(DEFENSE 9)
+	(STAMINA 8)>
+
+<OBJECT MONSTER-KING-SKABB
+	(DESC "King Skabb")
 	(COMBAT 5)
 	(DEFENSE 7)
 	(STAMINA 10)>
@@ -3159,6 +3201,12 @@
 	(COMBAT 5)
 	(DEFENSE 8)
 	(STAMINA 9)>
+
+<OBJECT MONSTER-STORM-DEMON
+	(DESC "Storm demon")
+	(COMBAT 3)
+	(DEFENSE 6)
+	(STAMINA 8)>
 
 <OBJECT MONSTER-THUG
 	(DESC "Thug")
@@ -3189,8 +3237,13 @@
 ; ---------------------------------------------------------------------------------------------
 
 <OBJECT MISSION-GHOUL-HEAD
-	(DESC "Warden: ghoul's head")
+	(DESC "Warden: retrieve ghoul's head")
 	(CODEWORD CODEWORD-AGUE)
+	(COMPLETED F)>
+
+<OBJECT MISSION-NEGRAN-CORIN
+	(DESC "Provost Marshal: Slay Nergan Corin")
+	(CODEWORD CODEWORD-ARTERY)
 	(COMPLETED F)>
 
 <OBJECT GHOULS-HEAD
@@ -4252,7 +4305,7 @@
 ; "Townhouse routines"
 ; ---------------------------------------------------------------------------------------------
 
-<CONSTANT TOWNHOUSE-MENU <LTABLE "Leave/Take your posessions." "Leave/Withdraw money.">>
+<CONSTANT TOWNHOUSE-MENU <LTABLE "Leave/Take your possessions." "Leave/Withdraw money.">>
 <CONSTANT TOWNHOUSE-MENU-MONEY <LTABLE "Leave some your money here." "Take the money that was kept here.">>
 <CONSTANT TOWNHOUSE-MENU-POSSESSIONS <LTABLE "Leave some of your possessions here." "Take the  items that are kept here.">>
 
@@ -4332,7 +4385,7 @@
 			<COND (<G? <COUNT-CONTAINER ,PLAYER> 0>
 				<TOWNHOUSE-STORAGE ,PLAYER .TOWNHOUSE "leave" T>
 			)(ELSE
-				<EMPHASIZE "You are not carrying anyting!">
+				<EMPHASIZE "You are not carrying anything!">
 				<PRESS-A-KEY>
 			)>
 		)(<EQUAL? .KEY !\2>
@@ -4486,6 +4539,41 @@
 		)>
 	>>
 
+; "Inns"
+; ---------------------------------------------------------------------------------------------
+
+<ROUTINE VISIT-INN ("OPT" (STORY NONE) (FEE 1) (GAIN 1) "AUX" (DAYS 0) (DIFFERENCE 0) (VISITS))
+	<COND (<NOT .STORY> <SET STORY ,HERE>)>
+	<COND (<L? ,STAMINA ,MAX-STAMINA>
+		<SET DIFFERENCE <- ,MAX-STAMINA ,STAMINA>>
+		<COND (<G=? ,MONEY .FEE>
+			<REPEAT ()
+				<CRLF>
+				<TELL "It costs " N .FEE " per day to regain " N .GAIN " stamina" ,PERIOD-CR>
+				<SET DAYS <GET-NUMBER "How many days will you spend here" 0 12>>
+				<COND (<G? .DAYS 0>
+					<COND (<G=? ,MONEY <* .DAYS .FEE>>
+						<GAIN-STAMINA <* .DAYS .GAIN>>
+						<COST-MONEY <* .DAYS .FEE> "paid">
+						<SET VISITS <GETP .STORY ,P?VISITS>>
+						<SET VISITS <+ .VISITS .DAYS>>
+						<PUTP .STORY ,P?VISITS .VISITS>
+						<RETURN>
+					)(ELSE
+						<EMPHASIZE "You can't afford that!">
+					)>
+				)(ELSE
+					<EMPHASIZE "You left the bar.">
+					<RETURN>
+				)>
+			>
+		)(ELSE
+			<EMPHASIZE "You are turned away at the bar">
+		)>
+	)(ELSE
+		<EMPHASIZE "You are fully recovered.">
+	)>>
+
 ; "Gambling Den routines"
 ; ---------------------------------------------------------------------------------------------
 
@@ -4597,14 +4685,25 @@
 		<EMPHASIZE "You cannot afford this blessing at this time.">
 	)>>
 
-<ROUTINE RENOUNCE-WORSHIP (FEE WORSHIP)
+<ROUTINE RENOUNCE-WORSHIP (FEE WORSHIP "AUX" RESURRECTION)
 	<COND (,GOD
 		<COND (<CHECK-GOD .WORSHIP>
 			<COND (<G=? ,MONEY .FEE>
 				<CRLF>
 				<TELL "Renounce the worship of " D .WORSHIP "?">
 				<COND (<YES?>
-					<COST-MONEY .FEE "paid">
+					<COND (<G? .FEE 0> <COST-MONEY .FEE "paid">)>
+					<SETG ,GOD NONE>
+					<SET RESURRECTION <GETP .WORSHIP ,P?RESURRECTION>>
+					<COND (.RESURRECTION
+						<COND (<EQUAL? .RESURRECTION ,RESURRECTION-ANY>
+							<EMPHASIZE "You lose all outstanding resurrection arrangements!">
+							<SETG RESURRECTION-ARRANGEMENTS NONE>
+						)(<EQUAL? ,RESURRECTION-ARRANGEMENTS .RESURRECTION>
+							<EMPHASIZE "You've lost resurrection arrangements made at this temple!">
+							<SETG RESURRECTION-ARRANGEMENTS NONE>
+						)>
+					)>
 					<UPDATE-STATUS-LINE>
 				)>
 			)(ELSE
@@ -4853,6 +4952,9 @@
 	<PUTP ,STORY121 ,P?DOOM T>
 	<PUTP ,STORY145 ,P?DOOM T>
 	<PUTP ,STORY174 ,P?DOOM T>
+	<PUTP ,STORY182 ,P?DOOM T>
+	<PUTP ,STORY194 ,P?DOOM T>
+	<PUTP ,STORY199 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -4893,14 +4995,20 @@
 <CONSTANT TEXT-ROLL-SCOUTING "Make a SCOUTING roll">
 <CONSTANT TEXT-ROLL-THIEVERY "Make a THIEVERY roll">
 
+<CONSTANT TEXT-STORM "Storm">
+<CONSTANT TEXT-UNEVENTFUL "An uneventful voyage">
+
 <CONSTANT CHOICES-COMBAT <LTABLE TEXT-ROLL-COMBAT>>
 <CONSTANT CHOICES-CHARISMA <LTABLE TEXT-ROLL-CHARISMA>>
 <CONSTANT CHOICES-MAGIC <LTABLE TEXT-ROLL-MAGIC>>
 <CONSTANT CHOICES-SANCTITY <LTABLE TEXT-ROLL-SANCTITY>>
 <CONSTANT CHOICES-SCOUTING <LTABLE TEXT-ROLL-SCOUTING>>
 <CONSTANT CHOICES-THIEVERY <LTABLE TEXT-ROLL-THIEVERY>>
+<CONSTANT CHOICES-RANDOM <LTABLE TEXT-RANDOM-EVENT>>
 
 <CONSTANT ONE-ABILITY <LTABLE R-TEST-ABILITY>>
+<CONSTANT ONE-RANDOM <LTABLE R-RANDOM>>
+
 <CONSTANT TWO-ABILITY <LTABLE R-TEST-ABILITY R-TEST-ABILITY>>
 
 <CONSTANT STORY-STORM-REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 3 5 20> <LTABLE "The ship sinks!" "The mast splits!" "You weather the storm!">>>>
@@ -5348,16 +5456,15 @@ won't follow you there if they don't think you're good enough.\"">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT029 "Your ship is sailing in the coastal waters beside Yellowport. There are a number of other ships, mostly merchantmen, but there are also a few warships of the Sokaran Imperial Navy. \"At least we won't be plagued by pirates with the navy around,\" says the first mate.">
-<CONSTANT CHOICES029 <LTABLE TEXT-RANDOM-EVENT>>
-<CONSTANT STORY029-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE "Storm!" "An uneventful voyage!" "Sokaran war galley!">>>>
+<CONSTANT STORY029-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "Sokaran war galley!">>>>
 
 <ROOM STORY029
 	(DESC "029")
 	(STORY TEXT029)
-	(CHOICES CHOICES029)
+	(CHOICES CHOICES-RANDOM)
 	(DESTINATIONS <LTABLE <LTABLE STORY613 STORY439 STORY165>>)
 	(REQUIREMENTS STORY029-REQUIREMENTS)
-	(TYPES <LTABLE R-RANDOM>)
+	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT030 "The market is large and busy. At the corners of Brimstone Plaza, gigantic braziers burn sweet-smelling incense in an attempt to overpower the rotten-egg smell that permeates the whole city. There are many stalls and goods to choose from.||One trader is offering a treasure map for sale at 200 Shards. He will also buy any old treasure map for 150 Shards.||To buy cargo for a ship, you need to visit the warehouses at the
@@ -6728,16 +6835,15 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT120 "Your ship is sailing in the coastal waters off the Shadar Tor. You can just see the tor, a jumbled mass of rocks, sitting on the clifftops as it has done for a thousand years.">
-<CONSTANT CHOICES120 <LTABLE TEXT-RANDOM-EVENT>>
-<CONSTANT STORY120-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE "Storm" "An uneventful voyage" "A merchant ship">>>>
+<CONSTANT STORY120-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "A merchant ship">>>>
 
 <ROOM STORY120
 	(DESC "120")
 	(STORY TEXT120)
-	(CHOICES CHOICES120)
+	(CHOICES CHOICES-RANDOM)
 	(DESTINATIONS <LTABLE <LTABLE STORY324 STORY559 STORY207>>)
 	(REQUIREMENTS STORY120-REQUIREMENTS)
-	(TYPES <LTABLE R-RANDOM>)
+	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT121 "You wait outside, hoping to take the repulsive ones singly as they emerge. You will have to fight three of them, but you can do so one at a time. However, you will fight with -1 COMBAT during this battle because you are unused to fighting underwater.">
@@ -6914,16 +7020,15 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT136 "The Sea of Whispers. Under a grey-blue sky, the sea is uncannily quiet and flat as a pane of glass. At night, however, the waters seem to come alive with an eerie whispering. One of your crew tells you that the sounds you heard at night are the sea centaurs speaking to one another across the waves.">
-<CONSTANT CHOICES136 <LTABLE TEXT-RANDOM-EVENT>>
-<CONSTANT STORY136-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 7 10 12> <LTABLE "Storm" "An uneventful voyage" "An unusual catch" "A strange dream">>>>
+<CONSTANT STORY136-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 7 10 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "An unusual catch" "A strange dream">>>>
 
 <ROOM STORY136
 	(DESC "136")
 	(STORY TEXT136)
-	(CHOICES CHOICES136)
+	(CHOICES CHOICES-RANDOM)
 	(DESTINATIONS <LTABLE <LTABLE STORY639 STORY507 STORY337 STORY108>>)
 	(REQUIREMENTS STORY136-REQUIREMENTS)
-	(TYPES <LTABLE R-RANDOM>)
+	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT137 "The merchantman appears to be from Golnir. It keeps well away from you, no doubt fearing piracy.">
@@ -6976,7 +7081,7 @@ harbourmaster.">
 	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT142 "All shipping in and out of Marlock City must come through the offices of the harbormaster. Here you can buy passage to far lands, or even a ship of your own, to fill with cargo and crew.||You can buy a one-way passage on a ship to the following destinations: Yellowport, Wishport, Sorcerers' Isle, Copper Island.||If you buy a ship, you are the captain, and can take it wherever you wish, exploring or trading. You also get to name it. There are three types of ship, and four quality levels of crew. You can also buy cargo for your ship to sell in other ports.||The quality of the ship's crew is average unless you pay to upgrade it. If you already own a ship, you can sell it to the harbourmaster at half the listed prices.||It costs 50 Shards to upgrade a poor crew to average, 100 Shards to upgrade an average crew to good, and 150 Shards to upgrade a good crew to excellent.||Cargo can be bought at Marlock City and sold at other ports for profit. If you own a ship you may buy as many Cargo Units as it has room for. You may also sell cargo, if you have any. Prices quoted are for entire Cargo Units.">
+<CONSTANT TEXT142 "All shipping in and out of Marlock City must come through the offices of the harbourmaster. Here you can buy passage to far lands, or even a ship of your own, to fill with cargo and crew.||You can buy a one-way passage on a ship to the following destinations: Yellowport, Wishport, Sorcerers' Isle, Copper Island.||If you buy a ship, you are the captain, and can take it wherever you wish, exploring or trading. You also get to name it. There are three types of ship, and four quality levels of crew. You can also buy cargo for your ship to sell in other ports.||The quality of the ship's crew is average unless you pay to upgrade it. If you already own a ship, you can sell it to the harbourmaster at half the listed prices.||It costs 50 Shards to upgrade a poor crew to average, 100 Shards to upgrade an average crew to good, and 150 Shards to upgrade a good crew to excellent.||Cargo can be bought at Marlock City and sold at other ports for profit. If you own a ship you may buy as many Cargo Units as it has room for. You may also sell cargo, if you have any. Prices quoted are for entire Cargo Units.">
 
 <ROOM STORY142
 	(DESC "142")
@@ -6988,7 +7093,7 @@ harbourmaster.">
 <ROUTINE STORY142-EVENTS ()
 	<HARBOUR-MARLOCK>>
 
-<CONSTANT TEXT143 "To renounce the worship of Elnir, you must pay 40 Shards to the priesthood by way of compensation. A passing noble says disdainfully, \"Ha! Only those born to rule have the fiber to worship the Sky Lord. Those who renounce Elnir never reach the top.\"">
+<CONSTANT TEXT143 "To renounce the worship of Elnir, you must pay 40 Shards to the priesthood by way of compensation. A passing noble says disdainfully, \"Ha! Only those born to rule have the fibre to worship the Sky Lord. Those who renounce Elnir never reach the top.\"">
 
 <ROOM STORY143
 	(DESC "143")
@@ -7030,10 +7135,10 @@ harbourmaster.">
 			<REMOVE-ITEM ,RAT-POISON "used" T T>
 		)>
 	)>
-	<COMBAT-MONSTER ,MONSTER-KING-SCABB 5 7 10>
-	<CHECK-COMBAT ,MONSTER-KING-SCABB ,STORY145 .MODIFIER>>
+	<COMBAT-MONSTER ,MONSTER-KING-SKABB 5 7 10>
+	<CHECK-COMBAT ,MONSTER-KING-SKABB ,STORY145 .MODIFIER>>
 
-<CONSTANT TEXT146 "He seems to see something he approves of because he says, \"Perhaps. But first you must prove yourself. There is a knight, a man of great evil. He is known as the Black Dragon Knight. Defeat him in battle and I will teach you. Bring me his black dragon shield as proof of your valor.\" With that, he turns and walks away.||\"But how will I find him? And then how will I find you?\"||\"Would you have me kill him for you as well?\" he asks over his shoulder. \"As for the second, ask for me in the Blue Griffon Tavern in Caran Baru. My name is Yanryt the Son.\"">
+<CONSTANT TEXT146 "He seems to see something he approves of because he says, \"Perhaps. But first you must prove yourself. There is a knight, a man of great evil. He is known as the Black Dragon Knight. Defeat him in battle and I will teach you. Bring me his black dragon shield as proof of your valour.\" With that, he turns and walks away.||\"But how will I find him? And then how will I find you?\"||\"Would you have me kill him for you as well?\" he asks over his shoulder. \"As for the second, ask for me in the Blue Griffon Tavern in Caran Baru. My name is Yanryt the Son.\"">
 
 <ROOM STORY146
 	(DESC "146")
@@ -7115,7 +7220,7 @@ harbourmaster.">
 	(CONTINUE STORY439)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT154 "The temple of Alvir and Valmir, Divine Rulers of the House of the Sea, is right on the teeming harbor of Marlock City. Its sea-green marbled porticos are draped in a hundred silver nets. Brother and sister, Alvir and Valmir rule below the waves. Alvir brings the souls of the drowned in his nets before his sister, Valmir, for judgment.||A swaggering ship's captain emerges from the temple, saying to you in passing, \"Never, I mean never go to sea without paying your respects to the twin gods -- unless ye want to sail through a world of storms.\"">
+<CONSTANT TEXT154 "The temple of Alvir and Valmir, Divine Rulers of the House of the Sea, is right on the teeming harbour of Marlock City. Its sea-green marbled porticos are draped in a hundred silver nets. Brother and sister, Alvir and Valmir rule below the waves. Alvir brings the souls of the drowned in his nets before his sister, Valmir, for judgment.||A swaggering ship's captain emerges from the temple, saying to you in passing, \"Never, I mean never go to sea without paying your respects to the twin gods -- unless ye want to sail through a world of storms.\"">
 <CONSTANT CHOICES154 <LTABLE "Become an initiate" "Renounce their worship" "Seek a blessing" "Leave the temple">>
 
 <ROOM STORY154
@@ -7164,6 +7269,7 @@ harbourmaster.">
 
 <ROOM STORY158
 	(DESC "158")
+	(VISITS 0)
 	(STORY TEXT158)
 	(EVENTS STORY158-EVENTS)
 	(CHOICES CHOICES158)
@@ -7173,13 +7279,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY158-EVENTS ()
-	<COND (<AND ,RUN-ONCE <L? ,STAMINA ,MAX-STAMINA> <G=? ,MONEY 1>>
-		<TELL "Pay 1 " D ,CURRENCY " to recover 1 Stamina?">
-		<COND (<YES?>
-			<GAIN-STAMINA 1>
-			<COST-MONEY 1 "paid">
-		)>
-	)>>
+	<COND (,RUN-ONCE <VISIT-INN ,STORY158 1 1>)>>
 
 <ROOM STORY158-SHARDS
 	(DESC "158")
@@ -7190,7 +7290,7 @@ harbourmaster.">
 	<GAIN-STAMINA 3>
 	<RETURN ,STORY100>>
 
-<CONSTANT TEXT159 "Your mind falls into a waking dream, and you walk lazily into the waters. The merfolk, laughing and singing, take you down to their undersea home of living coral, where they stop you from drowning with their faerie magic. They keep you for several weeks, until you are no longer an amusement to them.||You wake up, as if from a long sleep, with only a shadowy memory of your ordeal, to find yourself washed up in the harbor of Yellowport. You have lost all the possessions you were carrying but you still have your money.">
+<CONSTANT TEXT159 "Your mind falls into a waking dream, and you walk lazily into the waters. The merfolk, laughing and singing, take you down to their undersea home of living coral, where they stop you from drowning with their faerie magic. They keep you for several weeks, until you are no longer an amusement to them.||You wake up, as if from a long sleep, with only a shadowy memory of your ordeal, to find yourself washed up in the harbour of Yellowport. You have lost all the possessions you were carrying but you still have your money.">
 
 <ROOM STORY159
 	(DESC "159")
@@ -7379,7 +7479,7 @@ harbourmaster.">
 	(CONTINUE STORY510)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT174 "You advance, weapon at the ready. As you draw closer, something rushes out of the cave with a shrieking cry. It is the gorlock, a beast with legs like a bird, a body like a reptile, with two short forelimbs and a beaked, lizard-like head. Its two legs do indeed have backward-pointing feet. You\"ll have to fight.">
+<CONSTANT TEXT174 "You advance, weapon at the ready. As you draw closer, something rushes out of the cave with a shrieking cry. It is the gorlock, a beast with legs like a bird, a body like a reptile, with two short forelimbs and a beaked, lizard-like head. Its two legs do indeed have backward-pointing feet. You'll have to fight.">
 <CONSTANT TEXT174-DEAD "Your bones will join the others at the entrance of the cave.">
 
 <ROOM STORY174
@@ -7463,271 +7563,190 @@ harbourmaster.">
 	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT181 "The Green Man Inn costs you 1 Shard a day. Each day you spend here, you can recover 1 Stamina point if injured, up to the limit of your normal unwounded Stamina score.">
+
 <ROOM STORY181
 	(DESC "181")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(STORY TEXT181)
+	(EVENTS STORY181-EVENTS)
+	(CONTINUE STORY195)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY181-EVENTS ()
+	<VISIT-INN ,STORY181 1 1>>
+
+<CONSTANT TEXT182 "Your ship, crew and cargo are lost to the deep, dark sea. Your only thought now is to save yourself.">
+<CONSTANT TEXT182-DROWNED "You drowned!">
+<CONSTANT TEXT182-DRIFTWOOD "You manage to find some driftwood and make it back to shore">
 
 <ROOM STORY182
 	(DESC "182")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT182)
+	(EVENTS STORY182-EVENTS)
+	(CONTINUE STORY591)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY182-EVENTS ("AUX" ROLL RANK LOSS)
+	<SET RANK <GETP ,CURRENT-CHARACTER ,P?RANK>>
+	<SET ROLL <RANDOM-EVENT 2>>
+	<COND (<G? .ROLL .RANK>
+		<EMPHASIZE ,TEXT182-DROWNED>
+	)(ELSE
+		<RESET-CONTAINER ,CARGO>
+		<REMOVE ,CURRENT-VEHICLE>
+		<SETG ,CURRENT-VEHICLE NONE>
+		<CRLF>
+		<TELL ,TEXT182-DRIFTWOOD>
+		<TELL ,PERIOD-CR>
+		<SET LOSS <RANDOM-EVENT 1 0 T>>
+		<LOSE-STAMINA .LOSS ,DIED-GREW-WEAKER ,STORY182>
+	)>>
+
+<CONSTANT TEXT183 "You find a shadowy natural alcove in the rocky wall of a tunnel. Desperately, you squeeze yourself into it, using all your skill to hide in the darkness. Several ratmen run past, but others sniff you out with their highly developed sense of smell. You are overwhelmed by sheer numbers.">
 
 <ROOM STORY183
 	(DESC "183")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT183)
+	(CONTINUE STORY308)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT184 "The Blue Griffon Tavern is frequented by soldiers and mercenaries. The tavern costs you 1 Shard a day. Each day you spend here, you can recover 1 Stamina point if injured, up to the limit of your normal unwounded Stamina score.">
+<CONSTANT CHOICES184 <LTABLE "Find Yanryt the Son" HAVE-A "Buy drinks all round at the bar, and listen for rumours" "Return to the town centre">>
 
 <ROOM STORY184
 	(DESC "184")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(STORY TEXT184)
+	(EVENTS STORY184-EVENTS)
+	(CHOICES CHOICES184)
+	(DESTINATIONS <LTABLE STORY451 STORY451 STORY341 STORY400>)
+	(REQUIREMENTS <LTABLE CODEWORD-AXE BLACK-DRAGON-SHIELD 3 NONE>)
+	(TYPES <LTABLE R-CODEWORD R-ITEM R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY184-EVENTS ()
+	<VISIT-INN ,STORY184 1 1>>
+
+<CONSTANT TEXT185 "You tell him who you are, and that General Grieve Marlock's brother, the Governor of Yellowport, is your personal friend. His eyes widen as recognition dawns on his fat, greedy face.||\"Ah, er... I was merely jesting!\" he cries. \"Umm... I mean to say, perhaps you need an escort?\"||\"What I require is a levy in order to carry out the important mission the governor has entrusted to me. Sixty Shards ought to do it.\"||The Sokaran captain hands over the 60 Shards and leads his men off your ship. You sail on">
 
 <ROOM STORY185
 	(DESC "185")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT185)
+	(EVENTS STORY185-EVENTS)
+	(CONTINUE STORY439)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY185-EVENTS ()
+	<GAIN-MONEY 60>>
+
+<CONSTANT TEXT186 "You pass the leash over to the man in the palanquin, who leans out and hands you 75 Shards. You leave the slave market.">
 
 <ROOM STORY186
 	(DESC "186")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT186)
+	(EVENTS STORY186-EVENTS)
+	(CONTINUE STORY400)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY186-EVENTS ()
+	<GAIN-MONEY 75>>
+
+<CONSTANT TEXT187 "You tell the high priest that you wish to renounce the worship of Nagil. He brings out a small wax dummy, and carves your name into it. Then he sets fire to it. The wax melts into a puddle on the floor and the priest steps into it, leaving the imprint of his foot.||\"Such is the fate of those who would deny Nagil, the Lord of Death,\" he says.||\"Do I have to pay compensation to the temple?\"||He shakes his head. \"It is you who lose, not we.\"||Do you want to reconsider?">
 
 <ROOM STORY187
 	(DESC "187")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT187)
+	(EVENTS STORY187-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY187-EVENTS ()
+	<RENOUNCE-WORSHIP 0 ,GOD-NAGIL>>
+
+<CONSTANT TEXT188 "You are thrown into a stinking prison cell.||\"We meet again, my dear friend,\" says a half-dead man with white hair.||You recognize the poor old man whom you met the last time you were thrown into the dungeons. He launches into the same old story about the gorlock, the creature with the backward-pointing feet. By the end of it, you are looking forward to being sold into slavery and sent to work in the tin mines of Caran Baru.">
 
 <ROOM STORY188
 	(DESC "188")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT188)
+	(CONTINUE STORY118)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT189 "There is nothing in your limited knowledge of undersea wildlife to help you.">
+<CONSTANT CHOICES189 <LTABLE "Swim back to the Shadar Tor" "Fight your way to the golden net" "Try magic">>
 
 <ROOM STORY189
 	(DESC "189")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT189)
+	(CHOICES CHOICES189)
+	(DESTINATIONS <LTABLE STORY035 STORY121 STORY592>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT190 "You are sailing along the coast off Blessed Springs and Fort Brilon. Gulls cluster around the ship, looking for food. Their cries echo across the vasty seas.">
+<CONSTANT STORY190-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "A shipwreck">>>>
 
 <ROOM STORY190
 	(DESC "190")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT190)
+	(CHOICES CHOICES-RANDOM)
+	(DESTINATIONS <LTABLE <LTABLE STORY038 STORY209 STORY504>>)
+	(REQUIREMENTS STORY190-REQUIREMENTS)
+	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT191 "The provost marshal is a rich and powerful man, cunning and capable.||\"I have need of someone like you,\" he says. \"A group of rebels, loyal to the old king, are hiding out in the Coldbleak Mountains. Their leader, Nergan Corin, is dangerous to us, as he is the heir to the old throne and a rallying point for the rebels. Penetrate their stronghold and slay Nergan Corin, and you will be richly rewarded. I can promise you 500 Shards and a title if you succeed.\"">
+<CONSTANT CHOICES191 <LTABLE HAVE-CODEWORD "Otherwise, the provost dismisses you">>
 
 <ROOM STORY191
 	(DESC "191")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT191)
+	(EVENTS STORY191-EVENTS)
+	(CHOICES CHOICES191)
+	(DESTINATIONS <LTABLE STORY375 STORY010>)
+	(REQUIREMENTS <LTABLE CODEWORD-AMBUSCADE NONE>)
+	(TYPES <LTABLE R-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY191-EVENTS ()
+	<COND (<AND <NOT <CHECK-MISSION ,MISSION-NEGRAN-CORIN>> <NOT <MISSION-COMPLETED ,MISSION-NEGRAN-CORIN>>>
+		<CRLF>
+		<TELL "Take up the mission " D ,MISSION-NEGRAN-CORIN "?">
+		<COND (<YES?> <TAKE-MISSION ,MISSION-NEGRAN-CORIN>)>
+	)>>
+
+<CONSTANT TEXT192 "You reach a hill crowned with a circle of large obsidian standing stones. Despite the bitter wind that blows across these hills, the stones are unweathered and seem almost newly cut. The stones are laid in such a way that they form three archways, each carven with mystic symbols and runes of power.||\"The Gates of the World.\" says the old man. \"Each gate will take you to a part of the world of Harkuna, though I know not to where.\"||Abruptly he turns around and sets off down the hill, leaving you alone with the brooding stones and the howling wind.">
 
 <ROOM STORY192
 	(DESC "192")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT192)
+	(CONTINUE STORY065)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT193 "You find yourself washed up on a rocky shore, battered and cold, but lucky to be alive. You head inland until you come to a road.">
 
 <ROOM STORY193
 	(DESC "193")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT193)
+	(CONTINUE STORY621)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT194 "You know what the strange swellings on the dead bodies mean. They have been injected with the eggs of the ker'ilk, hideous lobster-like beings of the deep. Soon the eggs will hatch, and the young will feed on the bodies of the sailors. You also know that the adults never stray far from their eggs, and warn your men that the ker'ilk are nearby.||Your warning is timely -- several horrific-looking creatures, like giant lobsters, all spines and pincers, surge out of the waters. Your men, however, are ready. A battle ensues -- you must fight one of the creatures.">
+<CONSTANT TEXT194-END "You end up as food for ker'ilk young.">
 
 <ROOM STORY194
 	(DESC "194")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT194)
+	(EVENTS STORY194-EVENTS)
+	(CONTINUE STORY519)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY194-EVENTS()
+	<COMBAT-MONSTER ,MONSTER-KER-ILK 4 9 8>
+	<CHECK-COMBAT ,MONSTER-GORLOCK ,STORY194>
+	<COND (<NOT <IS-ALIVE>> <EMPHASIZE ,TEXT194-END>)>>
 
 <CONSTANT TEXT195 "The Trading Post is a small village, set up here by enterprising settlers from the mainland. Its main export appears to be furs from the forest.||The mayor, a fat genial fellow, who greets you personally, insists that one day the Trading Post will be a thriving town. There is not a lot here yet, however: a small market, a quay, the settlers' houses, and a shrine to Lacuna the Huntress, goddess of nature.">
 <CONSTANT CHOICES195 <LTABLE "Visit the shrine to Lacuna" "Visit the market" "Visit the quayside" "Visit the Green Man Inn" "Climb the hill that overlooks the town" "Go inland, into the forest">>
@@ -7741,100 +7760,81 @@ harbourmaster.">
 	(CODEWORDS <LTABLE CODEWORD-ASPEN>)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT196 "You hack off the hideous head and leave.">
+
 <ROOM STORY196
 	(DESC "196")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT196)
+	(EVENTS STORY196-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY196-EVENTS ()
+	<COND (<OR <CHECK-CODEWORD ,CODEWORD-AGUE> <CHECK-MISSION ,MISSION-GHOUL-HEAD>>
+		<PUTP ,MISSION-GHOUL-HEAD ,P?COMPLETED T>
+	)>
+	<TAKE-ITEM ,GHOULS-HEAD>>
+
+<CONSTANT TEXT197 "The blessing of Sig costs 10 Shards if you are an initiate, 30 Shards otherwise.||The blessing works by allowing you to reroll any failed THIEVERY attempt once. You can have only one blessing for each ability at any one time. Once your THIEVERY blessing is used up, you can return to any branch of the temple of Sig to buy a new one.">
 
 <ROOM STORY197
 	(DESC "197")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT197)
+	(EVENTS STORY197-EVENTS)
+	(CONTINUE STORY235)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY197-EVENTS ()
+	<PURCHASE-BLESSING 30 10 ,GOD-LACUNA ,BLESSING-THIEVERY>>
+
+<CONSTANT TEXT198 "Musing to yourself about the strange woman, you pause at the end of an alleyway to buy roast chestnuts as you watch her striding off into the evening smog enveloping the city.||\"That'll be a Shard,\" grunts the chestnut vendor.||You reach for your money pouch. Then your hands fumble in panic. The pouch has gone! After a moment the truth dawns on you. You stare grimly in the direction that the black-garbed woman went, but there is no sign of her now.||\"I'll have them chestnuts back, then,\" growls the vendor when he sees you can't pay.">
 
 <ROOM STORY198
 	(DESC "198")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT198)
+	(EVENTS STORY198-EVENTS)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY198-EVENTS ()
+	<SETG ,MONEY 0>
+	<UPDATE-STATUS-LINE>>
+
+<CONSTANT TEXT199 "A strange, vaguely humanoid shape, flickering with energy, soars down to attack you. You must fight.">
+<CONSTANT TEXT199-FADE "The demon fades away leaving a clear blue jewel worth 200 Shards. There's nothing else up here, so you climb down again.">
 
 <ROOM STORY199
 	(DESC "199")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY199-BACKGROUND)
+	(STORY TEXT199)
+	(EVENTS STORY199-EVENTS)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY199-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY199 1> <RETURN ,STORY634>)>
+	<RETURN ,STORY199>>
+
+<ROUTINE STORY199-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-STORM-DEMON 3 6 8>
+	<CHECK-COMBAT ,MONSTER-STORM-DEMON ,STORY199>
+	<COND (<IS-ALIVE>
+		<IF-ALIVE ,TEXT199-FADE>
+		<GAIN-MONEY 200>
+	)>>
+
+<CONSTANT TEXT200 "You have acquired an old map of the Forest of the Forsaken in Golnir, the land to the west of Sokara that is described in Fabled Lands book 2: Cities of Gold and Glory. The map shows a safe path that leads to the Tower of Despair, but it seems to conflict with the location of the Tower of Despair on the regular map of Golnir. Which is correct?||As long as you have the Forest of the Forsaken map you can choose the option to look at it at any time.">
 
 <ROOM STORY200
 	(DESC "200")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(STORY TEXT200)
+	(EVENTS STORY200-EVENTS)
+	(CONTINUE STORY030)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY200-EVENTS ()
+	<COND (<CHECK-VISITS-MORE ,STORY200 1> <STORY-JUMP ,PREVIOUS-LOCATION>)>>
 
 <ROOM STORY201
 	(DESC "201")
@@ -15737,9 +15737,14 @@ harbourmaster.">
 	(VICTORY F)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY617-EVENTS ()
+<ROUTINE STORY617-EVENTS ("AUX" INITIAL-STAMINA)
+	<SET INITIAL-STAMINA ,STAMINA>
 	<COMBAT-MONSTER ,MONSTER-GHOUL 3 7 15>
-	<CHECK-COMBAT ,MONSTER-GHOUL ,STORY617>>
+	<CHECK-COMBAT ,MONSTER-GHOUL ,STORY617>
+	<COND (<IS-ALIVE>
+		<COND (<L? ,STAMINA .INITIAL-STAMINA>)>
+		<AFFLICTED-WITH ,DISEASE-GHOULBITE>
+	)>>
 
 <ROOM STORY618
 	(DESC "618")
