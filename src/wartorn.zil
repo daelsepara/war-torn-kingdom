@@ -62,6 +62,7 @@
 <CONSTANT R-PROFESSION 16> ; "check profession"
 <CONSTANT R-TAKE-MISSION 17> ; "take mission"
 <CONSTANT R-DOCK 18> ; "dock at port"
+<CONSTANT R-LOCATION 19> ; "test current location"
 
 ; "No requirements"
 <CONSTANT TWO-NONES <LTABLE R-NONE R-NONE>>
@@ -177,7 +178,7 @@
 <GLOBAL STARTING-POINT STORY001>
 <GLOBAL CURRENT-LOCATION LOCATION-SOKARA>
 
-<CONSTANT LOCATIONS <LTABLE "Somewhere in Sokara" "Marlock" "Yellowport" "Venefax">>
+<CONSTANT LOCATIONS <LTABLE "Somewhere in Sokara" "Marlock City" "Yellowport" "Venefax">>
 <CONSTANT LOCATION-SOKARA 1>
 <CONSTANT LOCATION-MARLOCK 2>
 <CONSTANT LOCATION-YELLOWPORT 3>
@@ -429,6 +430,20 @@
 						)(ELSE
 							<NOT-POSSESSED .LIST>
 						)>
+                    )(<AND <EQUAL? .TYPE R-ANY> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+                        <COND (<CHECK-ANY .LIST>
+                            <SETG HERE <GET .DESTINATIONS .CHOICE>>
+                            <CRLF>
+                        )(ELSE
+                            <NOT-ALL-ANY R-ANY .LIST>
+                        )>
+                    )(<AND <EQUAL? .TYPE R-ALL> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+                        <COND (<CHECK-ALL .LIST>
+                            <SETG HERE <GET .DESTINATIONS .CHOICE>>
+                            <CRLF>
+                        )(ELSE
+                            <NOT-ALL-ANY R-ALL .LIST>
+                        )>
 					)(<AND <OR <EQUAL? .TYPE R-DISCHARGE> <EQUAL? .TYPE R-ITEM>> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<COND (<CHECK-ITEM .LIST>
 							<COND (<CHECK-CHARGES .LIST>
@@ -523,6 +538,18 @@
 							)(ELSE
 								<EMPHASIZE "You have no ship!">
 							)>
+						)>
+					)(<AND <EQUAL? .TYPE R-LOCATION> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+						<COND (<CHECK-LOCATION .LIST>
+							<SETG HERE <GET .DESTINATIONS .CHOICE>>
+							<CRLF>
+						)(ELSE
+							<CRLF>
+							<CRLF>
+							<HLIGHT ,H-BOLD>
+							<TELL "You are not in " <GET ,LOCATIONS .LIST> ,EXCLAMATION-CR>
+							<HLIGHT 0>
+							<PRESS-A-KEY>
 						)>
 					)>
 					<RETURN>
@@ -716,6 +743,9 @@
 		<RETURN <AND <IN? .ITEM ,PLAYER> <G? .QUANTITY 0>>>
 	)>>
 
+<ROUTINE CHECK-LOCATION (LOCATION)
+	<RETURN <AND ,CURRENT-LOCATION <EQUAL? ,CURRENT-LOCATION .LOCATION>>>>
+
 <ROUTINE CHECK-MONEY (AMOUNT)
 	<COND (<OR <AND <G? .AMOUNT 0> <L? ,MONEY .AMOUNT>> <L=? ,MONEY 0>>
 		<CRLF>
@@ -785,6 +815,10 @@
 	<SET VISITS <GETP .LOCATION ,P?VISITS>>
 	<COND (.VISITS <RETURN <G? .VISITS .COUNTER>>)>
 	<RFALSE>>
+
+<ROUTINE GET-DIFFICULTY (STORY INDEX "AUX" ODDS)
+	<SET ODDS <GET <GETP .STORY ,P?REQUIREMENTS> .INDEX>>
+	<RETURN <GET .ODDS 2>>>
 
 <ROUTINE MISSION-COMPLETED (MISSION "AUX" COMPLETED)
 	<COND (<NOT .MISSION> <RTRUE>)>
@@ -923,6 +957,10 @@
 		)>
 	)>
 	<RETURN .RESULT>>
+
+<ROUTINE RESET-DIFFICULTY (STORY INDEX DIFFICULTY "AUX" ODDS)
+	<SET ODDS <GET <GETP .STORY ,P?REQUIREMENTS> .INDEX>>
+	<PUT .ODDS 2 .DIFFICULTY>>
 
 <ROUTINE RESET-ODDS (DICE MODIFIERS "OPT" STORY "AUX" REQUIREMENTS)
 	<COND (<NOT .STORY> <SET .STORY ,HERE>)>
@@ -3145,6 +3183,9 @@
 <OBJECT GOD-THREE-FORTUNES
 	(DESC "Three Fortunes")>
 
+<OBJECT GOD-SIG
+	(DESC "Sig the Cunning")>
+
 <OBJECT GOD-TYRNAI
 	(DESC "Tyrnai the War God")
 	(RESURRECTION RESURRECTION-TYRNAI)>
@@ -3203,9 +3244,13 @@
 	(DESC "poison")
 	(EFFECTS <LTABLE 0 -1 0 0 0 0>)>
 
-<OBJECT DISADVANTAGE-COMBAT
+<OBJECT DISADVANTAGE-COMBAT1
 	(DESC "COMBAT disadvantage")
 	(EFFECTS <LTABLE 0 -1 0 0 0 0>)>
+
+<OBJECT DISADVANTAGE-COMBAT2
+	(DESC "COMBAT disadvantage")
+	(EFFECTS <LTABLE 0 -2 0 0 0 0>)>
 
 ; "Monsters"
 ; ---------------------------------------------------------------------------------------------
@@ -3957,15 +4002,26 @@
 	<SET ITEMS <GET ,HARBOUR-MASTER-MENU 0>>
 	<REPEAT ()
 		<EMPHASIZE ,TEXT-HARBOUR-MASTER>
-		<PRINT-MENU ,HARBOUR-MASTER-MENU F F !\0 "Go to the city centre">
+		<PRINT-MENU ,HARBOUR-MASTER-MENU F F>
+		<HLIGHT ,H-BOLD>
+		<TELL "C">
+		<HLIGHT 0>
+		<TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
+		<HLIGHT ,H-BOLD>
+		<TELL "0">
+		<HLIGHT 0>
+		<TELL " - Go to the city centre" CR>
 		<TELL "What do you wish to do next?">
 		<REPEAT ()
 			<SET .KEY <INPUT 1>>
-			<COND (<AND <G=? .KEY !\0> <L=? .KEY <+ .ITEMS !\0>>> <RETURN>)>
+			<COND (<OR <EQUAL? .KEY !\C !\c !\P !\p> <AND <G=? .KEY !\0> <L=? .KEY <+ .ITEMS !\0>>>> <RETURN>)>
 		>
 		<CRLF>
 		<SET .CHOICE <- .KEY !\0>>
-		<COND (<EQUAL? .CHOICE 0>
+		<COND (<EQUAL? .KEY !\C !\c !\P !\p>
+			<DESCRIBE-PLAYER>
+			<PRESS-A-KEY>
+		)(<EQUAL? .CHOICE 0>
 			<CRLF>
 			<TELL ,TEXT-SURE>
 			<COND (<YES?> <RETURN>)>
@@ -5128,6 +5184,7 @@
 	<RESET-ODDS 1 0 ,STORY049>
 	<RESET-ODDS 2 0 ,STORY051>
 	<RESET-ODDS 1 0 ,STORY124>
+	<RESET-DIFFICULTY ,STORY237 1 10>
 	<PUTP ,STORY014 ,P?DOOM T>
 	<PUTP ,STORY034 ,P?DOOM T>
 	<PUTP ,STORY036 ,P?DOOM T>
@@ -5154,6 +5211,7 @@
 	<PUTP ,STORY210 ,P?DOOM T>
 	<PUTP ,STORY219 ,P?DOOM T>
 	<PUTP ,STORY228 ,P?DOOM T>
+	<PUTP ,STORY238 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -7094,7 +7152,7 @@ harbourmaster.">
 <ROUTINE STORY121-EVENTS ("AUX" REPULSIVE-COMBAT REPULSIVE-DEFENSE)
 	<SET REPULSIVE-COMBAT <LTABLE 4 3 4>>
 	<SET REPULSIVE-DEFENSE <LTABLE 6 5 6>>
-	<AFFLICTED-WITH ,DISADVANTAGE-COMBAT>
+	<AFFLICTED-WITH ,DISADVANTAGE-COMBAT1>
 	<DO (I 1 3)
 		<PUTP ,STORY121 ,P?DOOM T>
 		<COMBAT-MONSTER ,MONSTER-REPULSIVE-ONE <GET .REPULSIVE-COMBAT .I> <GET .REPULSIVE-DEFENSE .I> 10>
@@ -7105,7 +7163,7 @@ harbourmaster.">
 			<RETURN>
 		)>
 	>
-	<COND (<IS-ALIVE> <REMOVE ,DISADVANTAGE-COMBAT>)>>
+	<COND (<IS-ALIVE> <REMOVE ,DISADVANTAGE-COMBAT1>)>>
 
 <CONSTANT CHOICES122 <LTABLE HAVE-CODEWORD HAVE-A OTHERWISE>>
 
@@ -8005,7 +8063,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY197-EVENTS ()
-	<PURCHASE-BLESSING 30 10 ,GOD-LACUNA ,BLESSING-THIEVERY>>
+	<PURCHASE-BLESSING 30 10 ,GOD-SIG ,BLESSING-THIEVERY>>
 
 <CONSTANT TEXT198 "Musing to yourself about the strange woman, you pause at the end of an alleyway to buy roast chestnuts as you watch her striding off into the evening smog enveloping the city.||\"That'll be a Shard,\" grunts the chestnut vendor.||You reach for your money pouch. Then your hands fumble in panic. The pouch has gone! After a moment the truth dawns on you. You stare grimly in the direction that the black-garbed woman went, but there is no sign of her now.||\"I'll have them chestnuts back, then,\" growls the vendor when he sees you can't pay.">
 
@@ -8434,7 +8492,7 @@ paste on the ground below.">
 	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT232 "The interior of the cave is cool and refreshing, a paradise compared with the savage heat of your grueling climb. You find a man, floating cross-legged in the middle of the air! He is dressed only in a loincloth, and is painfully thin. His face is shrouded in a great luxuriant growth of glossy black hair, a beard like no other you have ever seen.||At the sight of you, he gives an exasperated sigh. \"I am Damor the Hermit. You know what a hermit is? That means I like to live alone. So go away!\"||\"I nearly died getting here, old man.\"||\"I guess you would have to be pretty tough to get through the curse I put on the path,\" he says apologetically.">
+<CONSTANT TEXT232 "The interior of the cave is cool and refreshing, a paradise compared with the savage heat of your gruelling climb. You find a man, floating cross-legged in the middle of the air! He is dressed only in a loincloth, and is painfully thin. His face is shrouded in a great luxuriant growth of glossy black hair, a beard like no other you have ever seen.||At the sight of you, he gives an exasperated sigh. \"I am Damor the Hermit. You know what a hermit is? That means I like to live alone. So go away!\"||\"I nearly died getting here, old man.\"||\"I guess you would have to be pretty tough to get through the curse I put on the path,\" he says apologetically.">
 <CONSTANT CHOICES232 <LTABLE HAVE-CODEWORD OTHERWISE>>
 
 <ROOM STORY232
@@ -8452,7 +8510,7 @@ paste on the ground below.">
 	<COND (<CHECK-VISITS-MORE ,STORY232 1> <RETURN ,STORY151>)>
 	<RETURN ,STORY232>>
 
-<CONSTANT TEXT233 "You are on the cobbled road between Yellowport and Trefoille. It is well-kept by the Sokaran military.||You spot a man up ahead, striding towards you. Suddenly, five or six bandits appear from the wayside to assault him. The lone figure executes a series of movements, almost faster than the eye can follow, and you see his sword flashing in the sun. Moments later the bandits are lying dead or dying around him.||You stop to compliment him on his swordsmanship.||The man, a grizzled veteran of many campaigns, regards you with steely grey eyes and says, \"I have learned much of the arts of war in my time, it is true.\"||Impressed by his skill and demeanor, you venture to ask him to teach you some of these arts. He looks you up and down critically.">
+<CONSTANT TEXT233 "You are on the cobbled road between Yellowport and Trefoille. It is well-kept by the Sokaran military.||You spot a man up ahead, striding towards you. Suddenly, five or six bandits appear from the wayside to assault him. The lone figure executes a series of movements, almost faster than the eye can follow, and you see his sword flashing in the sun. Moments later the bandits are lying dead or dying around him.||You stop to compliment him on his swordsmanship.||The man, a grizzled veteran of many campaigns, regards you with steely grey eyes and says, \"I have learned much of the arts of war in my time, it is true.\"||Impressed by his skill and demeanour, you venture to ask him to teach you some of these arts. He looks you up and down critically.">
 <CONSTANT CHOICES233 <LTABLE YOU-ARE-A OTHERWISE>>
 
 <ROOM STORY233
@@ -8470,137 +8528,90 @@ paste on the ground below.">
 	<COND (<CHECK-VISITS-MORE ,STORY233 1> <RETURN ,STORY412>)>
 	<RETURN ,STORY233>>
 
+<CONSTANT TEXT234 "The ship's captain says, \"I'll take you to Dweomer, on the Sorcerers' Isle but it's a dangerous place. You'd better be sure you can handle it -- if you're not at least a master of your profession, I'd advise against. Still, be it on your own head.\"">
+<CONSTANT CHOICES234 <LTABLE "If you want to go" "Otherwise, if you are in Marlock City" "Or if you are in Yellowport">>
+
 <ROOM STORY234
 	(DESC "234")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT234)
+	(CHOICES CHOICES234)
+	(DESTINATIONS <LTABLE STORY026 STORY142 STORY555>)
+	(REQUIREMENTS <LTABLE 30 LOCATION-MARLOCK LOCATION-YELLOWPORT>)
+	(TYPES <LTABLE R-MONEY R-LOCATION R-LOCATION>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT235 "The temple of Sig the Cunning, patron of vagabonds, troubadours, lovers, thieves and rogues, is a ramshackle warehouse in the poor quarter. Inside, however, there is so much wealth, it makes you gasp -- the idol of Sig, a saturnine two-faced young human of indistinct sex, is covered in gems. \"As you can see, we have been made rich by generous, er, donations!\" says a black-robed priest.">
+<CONSTANT CHOICES235 <LTABLE "Seek an audience with the high priest" "Become an initiate" "Renounce worship" "Seek a blessing" "Leave the temple">>
 
 <ROOM STORY235
 	(DESC "235")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT235)
+	(CHOICES CHOICES235)
+	(DESTINATIONS <LTABLE STORY113 STORY437 STORY563 STORY197 STORY100>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT236 "You find Fourze inside, desperately trying to get out of his suit and run off. At the sight of a hardened adventurer rather than a timid villager, he surrenders and confesses all. He terrified people with the monster disguise to keep them away from the farm. He and his men were kidnapping villagers, chaining them in the cellar below and selling them to a slaver from Caran Baru, for work in the slave mines. You find Haylie and several other villagers down below in the cellar.||\"Don't hurt me,\" begs Fourze, \"I'm only trying to make a few Shards.\"||\"By selling your own people into slavery,\" says one of the villagers, giving him a good kick.||You lead them back to Venefax.">
 
 <ROOM STORY236
 	(DESC "236")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT236)
+	(CONTINUE STORY414)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT237 "You explain what a tree-lover you are, and that your heart has always been at home in forests. You portray yourself as the greenest adventurer ever.">
 
 <ROOM STORY237
 	(DESC "237")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT237)
+	(EVENTS STORY237-EVENTS)
+	(CHOICES CHOICES-CHARISMA)
+	(DESTINATIONS <LTABLE <LTABLE STORY391 STORY410>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 10>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY237-EVENTS ("AUX" (DIFFICULTY 0))
+	<RESET-DIFFICULTY ,STORY237 1 10>
+	<SET DIFFICULTY <GET-DIFFICULTY ,STORY237 1>>
+	<COND (<CHECK-PROFESSION ,PROFESSION-WAYFARER> <SET DIFFICULTY <- .DIFFICULTY 3>>)>
+	<COND (<CHECK-GOD ,GOD-LACUNA> <DEC .DIFFICULTY>)>
+	<RESET-DIFFICULTY ,STORY237 1 .DIFFICULTY>>
+
+<CONSTANT TEXT238 "The vile-looking creature shoots toward you with a terrifying predatory speed. You have no choice but to fight it. You will fight at -2 COMBAT score for this fight, as you are unused to fighting underwater.">
 
 <ROOM STORY238
 	(DESC "238")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT238)
+	(EVENTS STORY238-EVENTS)
+	(CONTINUE STORY053)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY238-EVENTS ()
+	<AFFLICTED-WITH ,DISADVANTAGE-COMBAT2>
+	<COMBAT-MONSTER ,MONSTER-REPULSIVE-ONE 5 10 10>
+	<CHECK-COMBAT ,MONSTER-REPULSIVE-ONE ,STORY238>
+	<COND (<IS-ALIVE> <REMOVE ,DISADVANTAGE-COMBAT2>)>>
+
+<CONSTANT TEXT239 "The climb is long and hard, but at last you heave yourself up on to the top of Devil's Peak -- a flat expanse of weathered black rock.">
+<CONSTANT CHOICES239 <LTABLE HAVE-CODEWORD OTHERWISE>>
 
 <ROOM STORY239
 	(DESC "239")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT239)
+	(CHOICES CHOICES239)
+	(DESTINATIONS <LTABLE STORY126 STORY199>)
+	(REQUIREMENTS <LTABLE CODEWORD-ALTITUDE NONE>)
+	(TYPES <LTABLE R-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT240 "You sail into the teeming harbour of Marlock City. Sokaran warships escort you in.||\"Troubled times,\" comments a sailor.">
 
 <ROOM STORY240
 	(DESC "240")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT240)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY241
