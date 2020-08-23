@@ -265,13 +265,12 @@
 	<COND (.DOOM
 		<COND (,RESURRECTION-ARRANGEMENTS
 			<SET HAS-ROYAL-RING <CHECK-ITEM ,ROYAL-RING>>
-			<RESET-POSSESSIONS>
+			<STORY-LOSE-EVERYTHING F>
 			<COND (.HAS-ROYAL-RING
 				<EMPHASIZE "Through a quirk of magical fate, somehow the royal ring has travelled with you through the lands of the dead.">
 				<MOVE ,ROYAL-RING ,PLAYER>
 			)>
 			<SETG ,STAMINA ,MAX-STAMINA>
-			<SETG ,MONEY 0>
 			<STORY-JUMP <GETP ,RESURRECTION-ARRANGEMENTS ,P?CONTINUE>>
 			<SETG ,RESURRECTION-ARRANGEMENTS NONE>
 		)(ELSE
@@ -767,7 +766,7 @@
 
 <ROUTINE CHECK-RANK (LEVEL "OPT" CHARACTER "AUX" RANK)
 	<COND (<NOT .CHARACTER> <SET CHARACTER ,CURRENT-CHARACTER>)>
-	<SET RANK <GETP .CHARACTER ,P?RANK>>
+	<SET RANK <GET-RANK .CHARACTER>>
 	<COND (<AND .RANK <G=? .RANK .LEVEL>>
 		<RTRUE>
 	)(ELSE
@@ -822,6 +821,11 @@
 <ROUTINE GET-DIFFICULTY (STORY INDEX "AUX" ODDS)
 	<SET ODDS <GET <GETP .STORY ,P?REQUIREMENTS> .INDEX>>
 	<RETURN <GET .ODDS 2>>>
+
+<ROUTINE GET-RANK ("OPT" CHARACTER "AUX" (RANK 1))
+	<COND (<NOT .CHARACTER> <SET CHARACTER ,CURRENT-CHARACTER>)>
+	<COND (.CHARACTER <SET RANK <GETP .CHARACTER ,P?RANK>>)>
+	<RETURN .RANK>>
 
 <ROUTINE MISSION-COMPLETED (MISSION "AUX" COMPLETED)
 	<COND (<NOT .MISSION> <RTRUE>)>
@@ -1441,7 +1445,7 @@
 	<COND (<NOT .CHARACTER> <SET CHARACTER ,CURRENT-CHARACTER>)>
 	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
 	<CRLF>
-	<TELL "RANK: " N <GETP .CHARACTER ,P?RANK> CR>
+	<TELL "RANK: " N <GET-RANK .CHARACTER> CR>
 	<COND (<GETP .CHARACTER ,P?PROFESSION>
 		<TELL "PROFESSION: " D <GETP .CHARACTER ,P?PROFESSION> CR>
 	)>
@@ -1607,6 +1611,19 @@
 		<PRINT-ITEM .OBJECT <NOT <EQUAL? .CONTAINER ,CODEWORDS>>>
 		<TELL ,PERIOD-CR>
 		<MOVE .OBJECT .CONTAINER>
+	)>>
+
+<ROUTINE GAIN-RANK ("OPT" (GAIN 1) RANK)
+	<COND (,CURRENT-CHARACTER
+		<CRLF>
+		<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
+		<SET RANK <+ .RANK .GAIN>>
+		<TELL "You've gained a rank! Your rank is now is now: ">
+		<HLIGHT ,H-BOLD>
+		<TELL N .RANK>
+		<HLIGHT 0>
+		<TELL ,PERIOD-CR>
+		<PUTP ,CURRENT-CHARACTER ,P?RANK .RANK>
 	)>>
 
 <ROUTINE GAIN-STAMINA (POINTS "AUX" DIFFERENCE)
@@ -2155,6 +2172,19 @@
 			<TELL " score is already at a maximum" ,EXCLAMATION-CR>
 		)>
 	>>
+
+<ROUTINE UPGRADE-STAMINA ("OPT" UPGRADE)
+	<COND (<NOT .UPGRADE> <SET UPGRADE 1>)>
+	<CRLF>
+	<TELL "You've gained ">
+	<HLIGHT ,H-BOLD>
+	<TELL "+" N .UPGRADE>
+	<HLIGHT 0>
+	<TELL " stamina permanently!" CR>
+	<SETG MAX-STAMINA <+ ,MAX-STAMINA .UPGRADE>>
+	<SETG STAMINA <+ ,STAMINA .UPGRADE>>
+	<COND (<G? ,STAMINA ,MAX-STAMINA> <SETG STAMINA ,MAX-STAMINA>)>
+	<UPDATE-STATUS-LINE>>
 
 <ROUTINE WEAR-BEST ("AUX" ITEMS DEFENSE (SCORE 0))
 	<SET ITEMS <FIRST? ,PLAYER>>
@@ -2843,8 +2873,10 @@
 <OBJECT CODEWORD-ASHEN (DESC "Ashen")>
 <OBJECT CODEWORD-ASPEN (DESC "Aspen")>
 <OBJECT CODEWORD-ASSASSIN (DESC "Assassin")>
+<OBJECT CODEWORD-ASSAULT (DESC "Assault")>
 <OBJECT CODEWORD-ATTAR (DESC "Attar")>
 <OBJECT CODEWORD-AURIC (DESC "Auric")>
+<OBJECT CODEWORD-AVENGE (DESC "Avenge")>
 <OBJECT CODEWORD-AXE (DESC "Axe")>
 <OBJECT CODEWORD-AZURE (DESC "Azure")>
 <OBJECT CODEWORD-BARNACLE (DESC "Barnacle")>
@@ -3087,6 +3119,10 @@
 <OBJECT MANDOLIN
 	(DESC "mandolin")
 	(CHARISMA 1)
+	(FLAGS TAKEBIT)>
+
+<OBJECT MANBEASTS-HELMET
+	(DESC "manbeast's helmet")
 	(FLAGS TAKEBIT)>
 
 <OBJECT MAP
@@ -3373,6 +3409,11 @@
 	(CODEWORD CODEWORD-ARTERY)
 	(COMPLETED F)>
 
+<OBJECT MISSION-CITADEL-VELIS
+	(DESC "The King: Citadel of Velis")
+	(CODEWORD CODEWORD-ASSAULT)
+	(COMPLETED F)>
+
 <OBJECT GHOULS-HEAD
 	(DESC "ghoul's head")
 	(FLAGS TAKEBIT)>
@@ -3382,6 +3423,7 @@
 
 <OBJECT TITLE-PROTECTOR-SOKARA (DESC "Protector of Sokara")>
 <OBJECT TITLE-ILLUMINATE-MOLHERN (DESC "Illuminate of Molhern")>
+<OBJECT TITLE-KINGS-CHAMPION (DESC "King's Champion")>
 <OBJECT TITLE-UNSPEAKABLE-CULTIST (DESC "Unspeakable Cultist") (EFFECTS <LTABLE 0 0 0 -1 0 0>)>
 
 ; "Abilities and Combat"
@@ -3531,14 +3573,13 @@
 ; "Calculate defense score"
 <ROUTINE CALCULATE-DEFENSE (CHARACTER "OPT" CONTAINER "AUX" RESULT)
 	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
-	<SET RESULT <GETP .CHARACTER ,P?RANK>>
+	<SET RESULT <GET-RANK .CHARACTER>>
 	<SET RESULT <+ .RESULT <CALCULATE-ABILITY .CHARACTER ABILITY-COMBAT .CONTAINER>>>
 	<COND (<AND <N=? .CONTAINER ,PLAYER> <N=? .CHARACTER ,CURRENT-CHARACTER>>
 		<SET RESULT <+ .RESULT <FIND-BEST-LIST P?DEFENSE ,WEARBIT <GETP .CHARACTER ,P?POSSESSIONS>>>>
 	)(ELSE
 		<SET RESULT <+ .RESULT <FIND-BEST ,P?DEFENSE ,WEARBIT .CONTAINER>>>
 	)>
-	<COND (<G? .RESULT 12> <SET RESULT 12>)>
 	<COND (<L? .RESULT 1> <SET RESULT 1>)>
 	<RETURN .RESULT>>
 
@@ -5310,7 +5351,7 @@
 <CONSTANT TEXT-SHIPWRECK "Your ship, crew and cargo are lost to the deep, dark sea. Your only thought now is to save yourself.">
 
 <ROUTINE STORY-SHIPWRECK (STORY "AUX" (RANK 1) ROLL LOSS)
-	<SET RANK <GETP ,CURRENT-CHARACTER ,P?RANK>>
+	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
 	<SET ROLL <RANDOM-EVENT 2>>
 	<COND (<G? .ROLL .RANK>
 		<EMPHASIZE ,TEXT-DROWNED>
@@ -5325,8 +5366,10 @@
 		<LOSE-STAMINA .LOSS ,DIED-GREW-WEAKER .STORY>
 	)>>
 
-<ROUTINE STORY-LOSE-EVERYTHING ()
-	<EMPHASIZE "You've lost all your money and possessions.">
+<ROUTINE STORY-LOSE-EVERYTHING ("OPT" (VERBOSE T))
+	<COND (.VERBOSE
+		<EMPHASIZE "You've lost all your money and possessions.">
+	)>
 	<RESET-POSSESSIONS>
 	<SETG MONEY 0>
 	<UPDATE-STATUS-LINE>>
@@ -6110,7 +6153,7 @@ footing and fall to the ground.">
 
 <ROUTINE STORY051-EVENTS ("AUX" (MODIFIER 0) PROFESSION ODDS PARAMETERS CONDITION)
     <RESET-ODDS 2 0 ,STORY051>
-    <SET MODIFIER <GETP ,CURRENT-CHARACTER ,P?RANK>>
+    <SET MODIFIER <GET-RANK ,CURRENT-CHARACTER>>
     <SET PROFESSION <GETP ,CURRENT-CHARACTER ,P?PROFESSION>>
     <SET ODDS <GETP ,STORY051 ,P?REQUIREMENTS>>
     <SET PARAMETERS <GET .ODDS 1>>
@@ -7382,7 +7425,7 @@ harbourmaster.">
 
 <ROUTINE STORY139-EVENTS ("AUX" ROLL (RANK 1))
 	<SET ROLL <RANDOM-EVENT 1 -1 T>>
-	<COND (,CURRENT-CHARACTER <SET RANK <GETP ,CURRENT-CHARACTER ,P?RANK>>)>
+	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
 	<COND (<L=? .ROLL .RANK> <STORY-JUMP ,STORY295>)>>
 
 <CONSTANT TEXT140 "The ship drops you at Yellowport docks. You make your way to the city centre.">
@@ -7748,7 +7791,7 @@ harbourmaster.">
 
 <ROUTINE STORY168-EVENTS ("AUX" ROLL (RANK 1))
 	<SET ROLL <RANDOM-EVENT 1 -1 T>>
-	<COND (,CURRENT-CHARACTER <SET RANK <GETP ,CURRENT-CHARACTER ,P?RANK>>)>
+	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
 	<COND (<L=? .ROLL .RANK> <STORY-JUMP ,STORY395>)>>
 
 <CONSTANT TEXT169 "You see a couple of Sokaran warships, pursuing two other ships. Your first mate says, \"See the Red Pennants on them thar ships? They be pirates, running from the Sokarans.\"||The warships catch up and a bitter battle ensues. You can intervene if you wish.">
@@ -8346,7 +8389,7 @@ paste on the ground below.">
 		<SET MODIFIER -1>
 	)>
 	<SET ROLL <RANDOM-EVENT 1 .MODIFIER T>>
-	<COND (,CURRENT-CHARACTER <SET RANK <GETP ,CURRENT-CHARACTER ,P?RANK>>)>
+	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
 	<COND (<L=? .ROLL .RANK> <STORY-JUMP ,STORY407>)>>
 
 <CONSTANT TEXT217 "You come across a forest glade. Birds twitter in the trees, and woodland animals frolic playfully about. In the middle of the glade stands a mighty willow, ancient beyond reckoning. The trunk is hollow, and a wooden door has been set in the entrance. You step into the glade.">
@@ -8403,7 +8446,7 @@ paste on the ground below.">
 
 <ROUTINE STORY221-EVENTS ("AUX" ROLL (RANK 1))
 	<SET ROLL <RANDOM-EVENT 1 0 T>>
-	<COND (,CURRENT-CHARACTER <SET RANK <GETP ,CURRENT-CHARACTER ,P?RANK>>)>
+	<COND (,CURRENT-CHARACTER <SET RANK <GET-RANK ,CURRENT-CHARACTER>>)>
 	<COND (<L=? .ROLL .RANK> <STORY-JUMP ,STORY057>)>>
 
 <CONSTANT TEXT222 "Your ship is sailing in the coastal waters near Marlock City.">
@@ -8776,117 +8819,80 @@ paste on the ground below.">
 
 <ROOM STORY251
 	(DESC "251")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY251-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY251-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-AVENGE> <RETURN ,STORY622>)>
+	<RETURN ,STORY726>>
+
+<CONSTANT TEXT251 "You lead them a merry chase through the backstreets of Yellowport but unfortunately for you, you run smack dab into another patrol. You are captured and thrown into the dungeons to await your fate but not before the militiamen take all your money and possessions.">
 
 <ROOM STORY252
 	(DESC "252")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT251)
+	(EVENTS STORY-LOSE-EVERYTHING)
+	(CONTINUE STORY454)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT253 "To renounce the worship of Lacuna, you must pass an ordeal of judgment. This entails the high priestess throwing several silver daggers at you, while you remain motionless.||\"If Lacuna sees it in her heart to forgive you, the daggers will all miss,\" she claims.">
+<CONSTANT CHOICES253 <LTABLE "Submit to the ordeal" "Remain an initiate after all">>
 
 <ROOM STORY253
 	(DESC "253")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT253)
+	(CHOICES CHOICES253)
+	(DESTINATIONS <LTABLE STORY313 STORY615>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT254 "You ask for a kiss. \"A kiss is not so easily won,\" says one of the merfolk. \"Tell us a tale to stir our hearts, then we may reward you.\"">
 
 <ROOM STORY254
 	(DESC "254")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT254)
+	(CHOICES CHOICES-CHARISMA)
+	(DESTINATIONS <LTABLE <LTABLE STORY012 STORY281>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 9>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT255 "The provost marshal takes you to an empty side chamber, away from prying ears. Over a glass of fine wine you tell him of your adventures in the Coldbleak Mountains. When you give him the Royal Ring of the House of Corin, he knows that Nergan is dead.||Marloes Marlock is pleased indeed. He pays you 500 Shards, and awards you the title Protector of Sokara.||Also, after completing such a difficult test, you find the experience has taught you much.">
 
 <ROOM STORY255
 	(DESC "255")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT255)
+	(EVENTS STORY255-EVENTS)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY255-EVENTS ()
+	<RETURN-ITEM ,ROYAL-RING T>
+	<GAIN-MONEY 500>
+	<GAIN-TITLE ,TITLE-PROTECTOR-SOKARA>
+	<GAIN-RANK 1>
+	<UPGRADE-STAMINA <ROLL-DICE 1>>>
+
+<CONSTANT TEXT256 "The king is overjoyed with the news. \"Excellent! At this rate, I will soon be able to take my rightful place in the throne room of Old Sokar.\"||He rewards you with the title King's Champion. The title comes with a cash gift of 500 Shards as well.||The king has another mission for you. He explains that an army of steppe nomads, trau, mannekyn people, and Sokaran troops still loyal to Nergan, have gathered on the steppes and are moving to besiege the Citadel of Velis Corin, which guards the Pass of Eagles through the Spine of Harkun. Nergan tells you that an alliance of northern nations has declared war on the new Sokaran regime. A certain General Beladai leads the Northern Alliance, and King Nergan has joined forces with him. He asks you to travel to the Steppes and talk to General Beladai.||\"An adventurer like yourself might be able to steal into the citadel, and bring about its downfall from within, or some such. If the citadel falls, we will have Sokara at our mercy.\"">
+<CONSTANT CHOICES256 <LTABLE "Take up the mission" "Go back down to the foothills of the mountains">>
 
 <ROOM STORY256
 	(DESC "256")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT256)
+	(EVENTS STORY256-EVENTS)
+	(CHOICES CHOICES256)
+	(DESTINATIONS <LTABLE STORY474 STORY474>)
+	(REQUIREMENTS <LTABLE MISSION-CITADEL-VELIS NONE>)
+	(TYPES <LTABLE R-TAKE-MISSION R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY256-EVENTS ()
+	<COND (,RUN-ONCE
+		<GAIN-MONEY 500>
+		<GAIN-TITLE ,TITLE-KINGS-CHAMPION>
+		<GAIN-RANK 1>
+		<UPGRADE-STAMINA <ROLL-DICE 1>>
+	)>>
 
 <CONSTANT TEXT257 "The trees are closely packed, leaning together as if in conference, whispering quietly among themselves. Birds twitter in the distance, and slivers of sunlight lance down through the musty gloom.||As you proceed along a forest track, you think you hear a rustling in the bushes. Later, you spot a shadowy figure darting through the trees -- or was it your imagination? An animal snuffling sound right behind you makes you spin around, but there is nothing there.">
 
@@ -8899,62 +8905,71 @@ paste on the ground below.">
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT258 "Becoming an initiate of the Three Fortunes gives you the benefit of paying less for blessings and other services the temple can offer. It costs 75 Shards. You cannot already be an initiate of another temple.">
+
 <ROOM STORY258
 	(DESC "258")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT258)
+	(EVENTS STORY258-EVENTS)
+	(CONTINUE STORY086)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY258-EVENTS ()
+	<BECOME-INITIATE 75 ,GOD-THREE-FORTUNES>>
+
+<CONSTANT TEXT259 "Fort Brilon, named after a Sokaran king of the first dynasty, is the southernmost castle on the fortified wall that keeps out the rabid manbeasts.||What the soldiers fear most is what they call 'Death Duty' -- going out on patrols beyond the wall, into Nerech itself.">
+<CONSTANT CHOICES259 <LTABLE "East into Nerech (The Plains of Howling Darkness)" "North west to Fort Estgard" "West into the farmlands" "South to Blessed Springs">>
+<CONSTANT TEXT259-THIEF "The thief steals one item from you.">
 
 <ROOM STORY259
 	(DESC "259")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT259)
+	(EVENTS STORY259-EVENTS)
+	(CHOICES CHOICES259)
+	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY472 STORY548 STORY466>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY259-EVENTS ("AUX" ROLL COUNT)
+	<COND (,RUN-ONCE
+		<SET ROLL <RANDOM-EVENT 1>>
+		<COND (<L=? .ROLL 2>
+			<EMPHASIZE ,TEXT259-THIEF>
+			<SET COUNT <COUNT-POSSESSIONS>>
+			<COND (<L=? .COUNT 1>
+				<LOSE-ITEM <GET-ITEM 1 ,PLAYER>>
+			)(ELSE
+				<DEC .COUNT>
+				<LOSE-STUFF ,PLAYER ,LOST-STUFF "item" .COUNT ,RESET-POSSESSIONS>
+			)>
+		)(<L=? .ROLL 4>
+			<EMPHASIZE ,NOTHING-HAPPENS>
+		)(ELSE
+			<TAKE-ITEM ,MANBEASTS-HELMET>
+		)>
+	)>>
+
+<CONSTANT TEXT260 "You are shocked to find that you cannot damage the tomb guardian at all. You have no choice but to run for the door.">
+<CONSTANT TEXT260-CONTINUED "You make it back out into the Forest.">
+<CONSTANT TEXT260-END "The whirlwind guardian catches you, and buffets you against the stone walls until you are dead.">
 
 <ROOM STORY260
 	(DESC "260")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT260)
+	(EVENTS STORY260-EVENTS)
+	(CONTINUE STORY047)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY260-EVENTS ("AUX" ROLL (RANK 1))
+	<SET ROLL <RANDOM-EVENT 1 0 T>>
+	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
+	<COND (<L=? .ROLL .RANK>
+		<PREVENT-DOOM ,STORY260>
+		<EMPHASIZE ,TEXT260-CONTINUED>
+	)(ELSE
+		<EMPHASIZE ,TEXT260-END>
+	)>>
 
 <ROOM STORY261
 	(DESC "261")
