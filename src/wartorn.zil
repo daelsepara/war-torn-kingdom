@@ -101,7 +101,7 @@
 ; "Globals"
 
 <CONSTANT LIMIT-POSSESSIONS 12>
-<GLOBAL CURRENT-VEHICLE NONE>
+<GLOBAL CURRENT-SHIP NONE>
 <GLOBAL MONEY 0>
 <GLOBAL MAX-STAMINA 9>
 <GLOBAL STAMINA 0>
@@ -148,11 +148,8 @@
 ; "container for titles and honours acquired"
 <OBJECT TITLES-AND-HONOURS (DESC "Titles and Honours") (FLAGS CONTBIT OPENBIT)>
 
-; "container for vehicles owned"
-<OBJECT VEHICLES (DESC "vehicles") (FLAGS CONTBIT OPENBIT)>
-
-; "vehicle description"
-<OBJECT VEHICLE (DESC "ships")>
+; "container for ships owned"
+<OBJECT SHIPS (DESC "ships") (FLAGS CONTBIT OPENBIT)>
 
 ; "Townhouses"
 ; ---------------------------------------------------------------------------------------------
@@ -194,8 +191,10 @@
 	<REPEAT ()
 		<CRLF>
 		<RESET-CHOICES>
-		<MARK-VISITS>
-		<CHECK-BACKGROUND>
+		<COND (,RUN-ONCE
+			<MARK-VISITS>
+			<CHECK-BACKGROUND>
+		)>
 		<SETG CURRENT-LOCATION ,HERE>
 		<GOTO ,HERE>
 		<UPDATE-STATUS-LINE>
@@ -500,15 +499,15 @@
 						<SETG HERE <GET .DESTINATIONS .CHOICE>>
 					)(<AND <EQUAL? .TYPE R-DOCK> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<CRLF>
-						<COND (,CURRENT-VEHICLE
+						<COND (,CURRENT-SHIP
 							<CRLF>
-							<TELL "Your " D ,CURRENT-VEHICLE " docks at " <GET ,DOCKS .LIST> ,PERIOD-CR>
-							<PUTP ,CURRENT-VEHICLE ,P?DOCKED .LIST>
+							<TELL "Your " D ,CURRENT-SHIP " docks at " <GET ,DOCKS .LIST> ,PERIOD-CR>
+							<PUTP ,CURRENT-SHIP ,P?DOCKED .LIST>
 							<PRESS-A-KEY>
 							<SETG HERE <GET .DESTINATIONS .CHOICE>>
-							<SETG CURRENT-VEHICLE NONE>
+							<SETG CURRENT-SHIP NONE>
 						)(ELSE
-							<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
+							<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
 								<EMPHASIZE "Your ships are docked elsewhere!">
 							)(ELSE
 								<EMPHASIZE "You have no ship!">
@@ -524,9 +523,18 @@
 				)>
 			)>
 		)>
-		<COND (<OR <AND <G=? .KEY !\A> <L=? .KEY !\Z>> <AND <G=? .KEY !\a> <L=? .KEY !\z>>>
-			<COND (<AND <G=? .KEY !\A> <L=? .KEY !\Z> <G=? <GET .CHOICES 0> <+ <- .KEY !\A> 10>> <SPECIAL-INTERRUPT-ROUTINE .KEY>> <RETURN>)>
-			<COND (<AND <G=? .KEY !\a> <L=? .KEY !\z> <G=? <GET .CHOICES 0> <+ <- .KEY !\a> 10>> <SPECIAL-INTERRUPT-ROUTINE .KEY>> <RETURN>)>
+		<COND (
+			<OR
+				<AND <G=? .KEY !\A> <L=? .KEY !\Z>>
+				<AND <G=? .KEY !\a> <L=? .KEY !\z>>
+			>
+			<COND (<AND <G=? .KEY !\A> <L=? .KEY !\Z> <G=? <GET .CHOICES 0> <+ <- .KEY !\A> 10>>
+				<SPECIAL-INTERRUPT-ROUTINE .KEY>>
+				<RETURN>
+			)(<AND <G=? .KEY !\a> <L=? .KEY !\z> <G=? <GET .CHOICES 0> <+ <- .KEY !\a> 10>>
+				<SPECIAL-INTERRUPT-ROUTINE .KEY>>
+				<RETURN>
+			)>
 		)>
 		<COND (<EQUAL? .KEY !\? !\P !\p !\q !\Q !\r !\R !\s !\S> <CRLF> <RETURN>)>
 		<COND (<AND <EQUAL? .KEY !\c !\C> <L? <GET .CHOICES 0> 12>> <CRLF> <RETURN>)>
@@ -747,8 +755,8 @@
 	>
 	<RTRUE>>
 
-<ROUTINE CHECK-VEHICLE (RIDE)
-	<COND (<OR <IN? .RIDE ,VEHICLES> <AND ,CURRENT-VEHICLE <EQUAL? ,CURRENT-VEHICLE .RIDE>>> <RTRUE>)>
+<ROUTINE CHECK-SHIP (THIS-SHIP)
+	<COND (<OR <IN? .THIS-SHIP ,SHIPS> <AND ,CURRENT-SHIP <EQUAL? ,CURRENT-SHIP .THIS-SHIP>>> <RTRUE>)>
 	<RFALSE>>
 
 <ROUTINE CHECK-VISITS-EQUAL ("OPT" LOCATION COUNTER "AUX" VISITS)
@@ -1273,7 +1281,7 @@
 		<DESCRIBE-PLAYER-STATS>
 		<DESCRIBE-PLAYER-POSSESSIONS>
 		<DESCRIBE-PLAYER-CODEWORDS>
-		<DESCRIBE-PLAYER-VEHICLES>
+		<DESCRIBE-PLAYER-SHIPS>
 		<DESCRIBE-PLAYER-TITLES>
 		<DESCRIBE-PLAYER-BLESSINGS>
 		<DESCRIBE-PLAYER-WORSHIP>
@@ -1381,13 +1389,13 @@
 	<HLIGHT 0>
 	<PRINT-CONTAINER ,TITLES-AND-HONOURS>>
 
-<ROUTINE DESCRIBE-PLAYER-VEHICLES ()
-	<COND (<FIRST? VEHICLES>
+<ROUTINE DESCRIBE-PLAYER-SHIPS ()
+	<COND (<FIRST? SHIPS>
 		<HLIGHT ,H-BOLD>
-		<PRINT-CAP-OBJ ,VEHICLE>
+		<PRINT-CAP-OBJ ,SHIPS>
 		<TELL ": ">
 		<HLIGHT 0>
-		<PRINT-CONTAINER ,VEHICLES>
+		<PRINT-CONTAINER ,SHIPS>
 		<HLIGHT ,H-BOLD>
 		<PRINT-CAP-OBJ ,CARGO>
 		<TELL ": ">
@@ -1963,14 +1971,14 @@
         <RESET-ODDS 1 0 .STORY>
 		<SET ODDS <GETP .STORY ,P?REQUIREMENTS>>
 		<SET PARAMETERS <GET .ODDS 1>>
-		<COND (<EQUAL? ,CURRENT-VEHICLE ,SHIP-BRIGANTINE>
+		<COND (<EQUAL? ,CURRENT-SHIP ,SHIP-BRIGANTINE>
 			<SET DICE 2>
-		)(<EQUAL? ,CURRENT-VEHICLE ,SHIP-GALLEON>
+		)(<EQUAL? ,CURRENT-SHIP ,SHIP-GALLEON>
 			<SET DICE 3>
 		)>
 		<PUT .PARAMETERS 1 .DICE>
-		<COND (,CURRENT-VEHICLE
-			<SET CONDITION <GETP ,CURRENT-VEHICLE ,P?CONDITION>>
+		<COND (,CURRENT-SHIP
+			<SET CONDITION <GETP ,CURRENT-SHIP ,P?CONDITION>>
             <COND (.CONDITION
                 <COND (<EQUAL? .CONDITION ,CONDITION-EXCELLENT>
                     <PUT .PARAMETERS 2 2>
@@ -2131,7 +2139,7 @@
 				<TELL " - View your character (" D ,CURRENT-CHARACTER ")">
 			)(<EQUAL? .CONTAINER ,CARGO>
 				<TELL " - View cargo">
-				<COND (,CURRENT-VEHICLE <TELL " (" D ,CURRENT-VEHICLE ")">)>
+				<COND (,CURRENT-SHIP <TELL " (" D ,CURRENT-SHIP ")">)>
 			)>
 			<CRLF>
 		)>
@@ -2167,7 +2175,7 @@
 				<DESCRIBE-PLAYER>
 			)(ELSE
 				<TELL CR "Current designated ship: ">
-				<COND (,CURRENT-VEHICLE <PRINT-ITEM ,CURRENT-VEHICLE T>)(ELSE <TELL "None">)>
+				<COND (,CURRENT-SHIP <PRINT-ITEM ,CURRENT-SHIP T>)(ELSE <TELL "None">)>
 				<CRLF>
 				<TELL "Cargo: ">
 				<PRINT-CONTAINER ,CARGO>
@@ -2309,7 +2317,7 @@
 <ROUTINE RESET-PLAYER ()
 	<SETG LAST-ROLL 0>
 	<SETG CURRENT-CHARACTER NONE>
-	<SETG CURRENT-VEHICLE NONE>
+	<SETG CURRENT-SHIP NONE>
 	<SETG GOD NONE>
 	<SETG MAX-STAMINA 0>
 	<SETG MONEY 0>
@@ -2324,7 +2332,7 @@
 	<RESET-MISSIONS>
 	<RESET-POSSESSIONS>
 	<RESET-TITLES>
-	<RESET-VEHICLES>>
+	<RESET-SHIPS>>
 
 <ROUTINE RESET-POSSESSIONS ()
 	<RESET-CONTAINER ,PLAYER>>
@@ -2341,8 +2349,8 @@
 <ROUTINE RESET-TITLES ()
 	<RESET-CONTAINER ,TITLES-AND-HONOURS>>
 
-<ROUTINE RESET-VEHICLES ()
-	<RESET-CONTAINER ,VEHICLES>>
+<ROUTINE RESET-SHIPS ()
+	<RESET-CONTAINER ,SHIPS>>
 
 ; "System/Utility/Miscellaneous routines"
 ; ---------------------------------------------------------------------------------------------
@@ -2485,7 +2493,7 @@
 			<TELL " (Visited " N <GETP ,HERE ,P?VISITS> " times)">
 		)>
 		<COND (,CURRENT-CHARACTER
-			<COND (,CURRENT-VEHICLE <TELL " "> <PRINT-CAP-OBJ ,CURRENT-VEHICLE>)>
+			<COND (,CURRENT-SHIP <TELL " "> <PRINT-CAP-OBJ ,CURRENT-SHIP>)>
 			<CURSET 1 <- .WIDTH 20>>
 			<TELL "Stamina: " N ,STAMINA "/" N ,MAX-STAMINA>
 			<LINE-ERASE 2>
@@ -3882,7 +3890,7 @@
 
 <ROUTINE HARBOUR-MARLOCK ("AUX" KEY CHOICE ITEMS DESTINATION)
 	<DO (I 1 3)
-		<COND (<NOT <IN? <GET ,SHIPS-LIST .I> ,VEHICLES>>
+		<COND (<NOT <IN? <GET ,SHIPS-LIST .I> ,SHIPS>>
 			<STORY-RESET-CREW ,CONDITION-AVERAGE>
 		)>
 	>
@@ -3910,26 +3918,26 @@
 				<RETURN>
 			)>
 		)(<EQUAL? .CHOICE 3>
-			<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
+			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
 				<EMPHASIZE "You have not designated a primary ship!">
 				<VIEW-SHIP-MANIFEST>
 			)(ELSE
 				<EMPHASIZE ,TEXT-NO-SHIPS>
 			)>
 		)(<EQUAL? .CHOICE 4>
-			<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
+			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
 				<BUY-SELL-CARGO ,MARLOCK-CARGO-BUY ,MARLOCK-CARGO-SELL>
 			)(ELSE
 				<EMPHASIZE ,TEXT-NO-SHIPS>
 			)>
 		)(<EQUAL? .CHOICE 5>
-			<COND (,CURRENT-VEHICLE
+			<COND (,CURRENT-SHIP
 				<COND (<VALIDATE-CARGO ,MARLOCK-CARGO-SELL>
 					<STORY-JUMP ,STORY084>
 					<RETURN>
 				)>
 			)(ELSE
-				<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
+				<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
 					<VIEW-SHIP-MANIFEST>
 				)(ELSE
 					<EMPHASIZE ,TEXT-NO-SHIPS>
@@ -3982,8 +3990,8 @@
 
 <ROUTINE BUY-CARGO (BUY-PRICES "AUX" (LIMIT 3))
 	<COND (.BUY-PRICES
-		<COND (,CURRENT-VEHICLE
-			<SET LIMIT <GETP ,CURRENT-VEHICLE ,P?CAPACITY>>
+		<COND (,CURRENT-SHIP
+			<SET LIMIT <GETP ,CURRENT-SHIP ,P?CAPACITY>>
 		)>
 		<MERCHANT ,CARGO-LIST .BUY-PRICES ,CARGO F .LIMIT>
 	)>>
@@ -4035,7 +4043,7 @@
 			<SELL-SHIP .SELL-PRICES .CARGO-PRICES>
 		)(<EQUAL? .KEY !\3>
 			<CRLF>
-			<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
+			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
 				<UPGRADE-SHIP .UPGRADE-PRICES>
 			)(ELSE
 				<EMPHASIZE ,TEXT-NO-SHIPS>
@@ -4047,8 +4055,8 @@
 	<REPEAT ()
 		<EMPHASIZE "Shipyard">
 		<PRINT-MENU ,SHIPS-LIST T T !\0 ,TEXT-BACK .BUY-PRICES>
-		<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
-			<DESCRIBE-PLAYER-VEHICLES>
+		<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+			<DESCRIBE-PLAYER-SHIPS>
 			<CRLF>
 		)>
 		<TELL "You are carrying " N ,MONEY " " D ,CURRENCY ,PERIOD-CR>
@@ -4063,7 +4071,7 @@
 			<COND (<YES?> <RETURN>)>
 		)(ELSE
 			<SET ITEM <- .KEY !\0>>
-			<COND (<IN? <GET ,SHIPS-LIST .ITEM> ,VEHICLES>
+			<COND (<IN? <GET ,SHIPS-LIST .ITEM> ,SHIPS>
 				<CRLF>
 				<EMPHASIZE "You already own that ship!">
 			)(<G=? ,MONEY <GET .BUY-PRICES .ITEM>>
@@ -4071,9 +4079,9 @@
 				<TELL CR "Buy a " D <GET ,SHIPS-LIST .ITEM> "?">
 				<COND (<YES?>
 					<COST-MONEY <GET .BUY-PRICES .ITEM> "paid">
-					<MOVE <GET ,SHIPS-LIST .ITEM> ,VEHICLES>
-					<COND (<NOT ,CURRENT-VEHICLE>
-						<SETG ,CURRENT-VEHICLE <GET ,SHIPS-LIST .ITEM>>
+					<MOVE <GET ,SHIPS-LIST .ITEM> ,SHIPS>
+					<COND (<NOT ,CURRENT-SHIP>
+						<SETG ,CURRENT-SHIP <GET ,SHIPS-LIST .ITEM>>
 					)>
 					<CRLF>
 					<TELL "You bought a ">
@@ -4119,8 +4127,8 @@
 	<REPEAT ()
 		<EMPHASIZE "You can sell your ships at these prices" "Shipyard">
 		<PRINT-MENU ,SHIPS-LIST T T !\0 ,TEXT-BACK .SELL-PRICES>
-		<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
-			<DESCRIBE-PLAYER-VEHICLES>
+		<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+			<DESCRIBE-PLAYER-SHIPS>
 			<CRLF>
 		)>
 		<TELL "Which ship will you sell?">
@@ -4134,7 +4142,7 @@
 			<COND (<YES?> <RETURN>)>
 		)(ELSE
 			<SET ITEM <- .KEY !\0>>
-			<COND (<NOT <IN? <GET ,SHIPS-LIST .ITEM> ,VEHICLES>>
+			<COND (<NOT <IN? <GET ,SHIPS-LIST .ITEM> ,SHIPS>>
 				<CRLF>
 				<EMPHASIZE ,TEXT-SHIP-NOT-OWNER>
 			)(ELSE
@@ -4142,15 +4150,15 @@
 				<TELL CR "Sell " T <GET ,SHIPS-LIST .ITEM> "?">
 				<COND (<YES?>
 					<REMOVE <GET ,SHIPS-LIST .ITEM>>
-					<COND (<EQUAL? ,CURRENT-VEHICLE <GET ,SHIPS-LIST .ITEM>>
-						<SETG ,CURRENT-VEHICLE NONE>
+					<COND (<EQUAL? ,CURRENT-SHIP <GET ,SHIPS-LIST .ITEM>>
+						<SETG ,CURRENT-SHIP NONE>
 					)>
 					<CRLF>
 					<TELL "You sold the ">
 					<PRINT-ITEM <GET ,SHIPS-LIST .ITEM> T>
 					<TELL ,PERIOD-CR>
 					<GAIN-MONEY <GET .SELL-PRICES .ITEM>>
-					<COND (<L=? <COUNT-CONTAINER ,VEHICLES> 0> <SELL-ALL-CARGO .CARGO-PRICES>)>
+					<COND (<L=? <COUNT-CONTAINER ,SHIPS> 0> <SELL-ALL-CARGO .CARGO-PRICES>)>
 					<PUTP <GET ,SHIPS-LIST .ITEM> ,P?CONDITION ,CONDITION-POOR>
 					<UPDATE-STATUS-LINE>
 				)>
@@ -4162,7 +4170,7 @@
 	<SET UPGRADES <LTABLE 0 0 0>>
 	<REPEAT ()
 		<DO (I 1 3)
-			<COND (<IN? <GET ,SHIPS-LIST .I> ,VEHICLES>
+			<COND (<IN? <GET ,SHIPS-LIST .I> ,SHIPS>
 				<SET CONDITION <GETP <GET ,SHIPS-LIST .I> ,P?CONDITION>>
 				<COND (<N=? .CONDITION ,CONDITION-EXCELLENT>
 					<PUT .UPGRADES .I <GET .UPGRADE-PRICES <+ .CONDITION 1>>>
@@ -4175,8 +4183,8 @@
 		>
 		<EMPHASIZE "You can upgrade ships at the following prices" "Shipyard">
 		<PRINT-MENU ,SHIPS-LIST T T !\0 ,TEXT-BACK .UPGRADES>
-		<COND (<G? <COUNT-CONTAINER ,VEHICLES> 0>
-			<DESCRIBE-PLAYER-VEHICLES>
+		<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+			<DESCRIBE-PLAYER-SHIPS>
 			<CRLF>
 		)>
 		<TELL "You are carrying " N ,MONEY " " D ,CURRENCY ,PERIOD-CR>
@@ -4194,7 +4202,7 @@
 		)(ELSE
 			<CRLF>
 			<SET .ITEM <- .KEY !\0>>
-			<COND (<IN? <GET ,SHIPS-LIST .ITEM> ,VEHICLES>
+			<COND (<IN? <GET ,SHIPS-LIST .ITEM> ,SHIPS>
 				<COND (<EQUAL? <GET .UPGRADES .ITEM> 0>
 					<EMPHASIZE "That ship can no longer be upgraded!">
 				)(<G=? ,MONEY <GET .UPGRADES .ITEM>>
@@ -4225,8 +4233,8 @@
 	>>
 
 <ROUTINE VALIDATE-CARGO (SELL-PRICES "AUX" CAPACITY CARGO)
-	<COND (<NOT ,CURRENT-VEHICLE> <RETURN>)>
-	<SET CAPACITY <GETP ,CURRENT-VEHICLE ,P?CAPACITY>>
+	<COND (<NOT ,CURRENT-SHIP> <RETURN>)>
+	<SET CAPACITY <GETP ,CURRENT-SHIP ,P?CAPACITY>>
 	<SET CARGO <COUNT-CONTAINER ,CARGO>>
 	<COND (<G? .CARGO .CAPACITY>
 		<EMPHASIZE "Your cargo has exceeded the maximum capacity of your designated ship!">
@@ -4242,21 +4250,21 @@
 	<RTRUE>>
 
 <ROUTINE VIEW-SHIP-MANIFEST ("AUX" LIST COUNT SHIP KEY)
-	<COND (<L=? <COUNT-CONTAINER ,VEHICLES> 0> <RETURN>)>
+	<COND (<L=? <COUNT-CONTAINER ,SHIPS> 0> <RETURN>)>
 	<SET LIST <LTABLE NONE NONE NONE>>
 	<REPEAT ()
 		<EMPHASIZE "Ship manifest">
 		<SET COUNT 0>
 		<DO (I 1 3)
 			<SET SHIP <GET ,SHIPS-LIST .I>>
-			<COND (<IN? .SHIP ,VEHICLES>
+			<COND (<IN? .SHIP ,SHIPS>
 				<INC .COUNT>
 				<PUT .LIST .COUNT .SHIP>
 				<HLIGHT ,H-BOLD>
 				<TELL N .COUNT>
 				<HLIGHT 0>
 				<TELL " [">
-				<COND (<EQUAL? ,CURRENT-VEHICLE .SHIP>
+				<COND (<EQUAL? ,CURRENT-SHIP .SHIP>
 					<HLIGHT ,H-BOLD>
 					<TELL "X">
 					<HLIGHT 0>
@@ -4289,14 +4297,14 @@
 			)>
 		)(<EQUAL? .KEY !\V !\v>
 			<CRLF>
-			<DESCRIBE-PLAYER-VEHICLES>
+			<DESCRIBE-PLAYER-SHIPS>
 			<PRESS-A-KEY>
 		)(ELSE
 			<SET KEY <- .KEY !\0>>
-			<COND (<EQUAL? ,CURRENT-VEHICLE <GET .LIST .KEY>>
-				<SETG CURRENT-VEHICLE NONE>
+			<COND (<EQUAL? ,CURRENT-SHIP <GET .LIST .KEY>>
+				<SETG CURRENT-SHIP NONE>
 			)(ELSE
-				<SETG ,CURRENT-VEHICLE <GET .LIST .KEY>>
+				<SETG ,CURRENT-SHIP <GET .LIST .KEY>>
 			)>
 		)>
 		<UPDATE-STATUS-LINE>
@@ -4964,6 +4972,9 @@
 <CONSTANT ENDING-CITIES-OF-GOLD "Further adventures await at Fabled Lands 2: Cities of Gold and Glory.|">
 
 <ROUTINE SPECIAL-INTERRUPT-ROUTINE (KEY)
+	; "TO-DO: Implement potion-of-healing"
+	; "TO-DO: Implement Forest of the Forsaken Map"
+	; "TO-DO: View Ship Manifest"
 	<RFALSE>>
 
 <CONSTANT DIED-IN-COMBAT "You died in combat">
@@ -5024,7 +5035,7 @@
 
 <ROUTINE STORY-RESET-CREW ("OPT" CONDITION)
 	<COND (<NOT .CONDITION> <SET .CONDITION ,CONDITION-GOOD>)>
-	<COND (,CURRENT-VEHICLE <PUTP ,CURRENT-VEHICLE ,P?CONDITION .CONDITION>)>>
+	<COND (,CURRENT-SHIP <PUTP ,CURRENT-SHIP ,P?CONDITION .CONDITION>)>>
 
 <CONSTANT TEXT001 "The first sound is the gentle murmur of waves some way off. The cry of gulls. Then the sensation of a softly stirring sea breeze and the baking sun on your back.||If that was all, you could imagine yourself in paradise, but as your senses return you start to feel the aches in every muscle. And then you remember the shipwreck.||You force open your eyes, caked shut by a crust of salt. You are lying on a beach, a desolate slab of wet sand that glistens in the merciless glare of the sun. Small crabs break away as you stir, scurrying for cover amid the long strands of seaweed.||\"Not... food for you yet...\" you murmur, wincing at the pain of cracked lips. Your mouth is dry and there is a pounding in your head born of fatigue and thirst. You don\"t care about the headache or the bruises, just as long as you\"re alive.||As you lie gathering your strength, you hear somebody coming along the shore.">
 <CONSTANT CHOICES001 <LTABLE "Lie still until he's gone" "Speak to him">>
@@ -5797,8 +5808,8 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
     )(ELSE
         <PUT .PARAMETERS 1 2>
     )>
-    <COND (,CURRENT-VEHICLE
-        <SET CONDITION <GETP ,CURRENT-VEHICLE ,P?CONDITION>>
+    <COND (,CURRENT-SHIP
+        <SET CONDITION <GETP ,CURRENT-SHIP ,P?CONDITION>>
         <COND (.CONDITION
             <COND (<EQUAL? .CONDITION ,CONDITION-GOOD>
                 <SET MODIFIER <+ .MODIFIER 2>>
@@ -7595,8 +7606,8 @@ harbourmaster.">
 		<EMPHASIZE ,TEXT182-DROWNED>
 	)(ELSE
 		<RESET-CONTAINER ,CARGO>
-		<REMOVE ,CURRENT-VEHICLE>
-		<SETG ,CURRENT-VEHICLE NONE>
+		<REMOVE ,CURRENT-SHIP>
+		<SETG ,CURRENT-SHIP NONE>
 		<CRLF>
 		<TELL ,TEXT182-DRIFTWOOD>
 		<TELL ,PERIOD-CR>
@@ -7824,6 +7835,7 @@ harbourmaster.">
 	)>>
 
 <CONSTANT TEXT200 "You have acquired an old map of the Forest of the Forsaken in Golnir, the land to the west of Sokara that is described in Fabled Lands book 2: Cities of Gold and Glory. The map shows a safe path that leads to the Tower of Despair, but it seems to conflict with the location of the Tower of Despair on the regular map of Golnir. Which is correct?||As long as you have the Forest of the Forsaken map you can choose the option to look at it at any time.">
+<CONSTANT TEXT200-MAP "-- TO-DO: Map Display --">
 
 <ROOM STORY200
 	(DESC "200")
@@ -7834,197 +7846,130 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY200-EVENTS ()
-	<COND (<CHECK-VISITS-MORE ,STORY200 1> <STORY-JUMP ,PREVIOUS-LOCATION>)>>
+	<COND (<CHECK-VISITS-MORE ,STORY200 1>
+		<STORY-JUMP ,PREVIOUS-LOCATION>
+	)(ELSE
+		<TAKE-ITEM ,FOREST-FORSAKEN-MAP>
+	)>>
+
+<CONSTANT TEXT201 "The road between the Citadel and Caran Baru is chock-a-block with troops and carts. It looks like there is a war in the north.">
+<CONSTANT CHOICES201 <LTABLE "Head for the citadel" "Go south to Caran Baru" "Head west" "Head east">>
 
 <ROOM STORY201
 	(DESC "201")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT201)
+	(CHOICES CHOICES201)
+	(DESTINATIONS <LTABLE STORY271 STORY400 STORY276 STORY060>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT202 "Gingerly, you open the door. It leads to a curtained alcove, through which you observe the room beyond. It is a long, low hall -- clearly an ancient Uttakin temple, from a time when the Masked Lords of Uttaku ruled all of Harkuna, but now part of the sewers of Yellowport.||A cheap wooden chair has been placed on the altar to act as a throne. On it sits a large and extremely ugly ratman. He has a tawdry amulet around his neck, and a rusty iron hoop for a crown. Several ratmen are kneeling before him, engaged in conversation.||\"But, Skabb...\" one of the rat men is saying.||\"That's Great King Skabb to you, dung-breath!!\" bellows the rat on the throne.">
+<CONSTANT CHOICES202 <LTABLE "Charge in to the attack" "Sneak in to assassinate the king" "Use sorcery to get close to Skabb" "Bluff your way in">>
 
 <ROOM STORY202
 	(DESC "202")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT202)
+	(CHOICES CHOICES202)
+	(DESTINATIONS <LTABLE STORY428 STORY595 STORY024 STORY336>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT203 "You can hire a fishing boat for 15 Shards a day. It comes with a fishing net.">
+<CONSTANT CHOICES203 <LTABLE "Go fishing" "Don't go fishing">>
 
 <ROOM STORY203
 	(DESC "203")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT203)
+	(CHOICES CHOICES203)
+	(DESTINATIONS <LTABLE STORY267 STORY135>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT204 "There are simply too many of them, and you are beaten into submission. Your end is grisly indeed -- killed, boiled with herbs and garlic, and eaten by the cannibal cultists of Badogor the Unspoken.">
 
 <ROOM STORY204
 	(DESC "204")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT204)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT205 "The runes are written in Old Shadar, an ancient language from thousands of years ago. You realize that the runes form a spell that will give you the power to breathe underwater for a few hours.">
+<CONSTANT CHOICES205 <LTABLE "Use the spell and swim out to sea" "Go down to the beach" "Take the road to Trefoille" "Take the road to Marlock City">>
 
 <ROOM STORY205
 	(DESC "205")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT205)
+	(CHOICES CHOICES205)
+	(DESTINATIONS <LTABLE STORY493 STORY097 STORY602 STORY166>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT206 "The crew absolutely refuses to sail into the Unbounded Ocean. \"There's no land out there, and the seas are infested with Demons of the Deep. If we go too far, we'll fall off the edge of the world!\" says the first mate.||You have no choice but to reconsider your destination.">
 
 <ROOM STORY206
 	(DESC "206")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT206)
+	(CONTINUE STORY507)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT207 "The look-out cries, \"Ship on the starboard bow!\"||You spot a crippled merchant ship, limping towards Marlock City. It looks like a trading vessel from the Feathered Lands.">
+<CONSTANT CHOICES207 <LTABLE "Assist" "Attack">>
 
 <ROOM STORY207
 	(DESC "207")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY207-BACKGROUND)
+	(STORY TEXT207)
+	(CHOICES CHOICES207)
+	(DESTINATIONS <LTABLE STORY293 STORY464>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY207-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY207 4> <RETURN ,STORY137>)>
+	<RETURN ,STORY207>>
+
+<CONSTANT TEXT208 "Using your sorcerous powers you breathe a cloud of greenish vapour over the ratmen. Coughing and gasping, they sink into an enchanted slumber -- all but King Skabb. Standing on the altar, he is able to keep his head above the vapours.">
 
 <ROOM STORY208
 	(DESC "208")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT208)
+	(CONTINUE STORY145)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT209 "You are sailing in the coastal waters off Fort Brilon and Blessed Springs.">
+<CONSTANT CHOICES209 <LTABLE "Sail north along the coast of Nerech" "Sail south to Scorpion Bight" "Sail east into the Sea of Whispers">>
 
 <ROOM STORY209
 	(DESC "209")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT209)
+	(CHOICES CHOICES209)
+	(DESTINATIONS <LTABLE STORY249 STORY430 STORY136>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT210 "They fall back for a moment, but your invocation fails to take hold, and they close in. You must fight them one at a time.">
+<CONSTANT TEXT210-END "You are tossed off the top of the peak, and end up as a messy
+paste on the ground below.">
 
 <ROOM STORY210
 	(DESC "210")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT210)
+	(EVENTS STORY210-EVENTS)
+	(CONTINUE STORY054)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY210-EVENTS ()
+	<DO (I 1 3)
+		<PUTP ,STORY210 ,P?DOOM T>
+		<COMBAT-MONSTER ,MONSTER-STORM-DEMON 4 7 8>
+		<CHECK-COMBAT ,MONSTER-STORM-DEMON ,STORY210>
+		<COND (<NOT <IS-ALIVE>>
+			<EMPHASIZE ,TEXT210-END>
+			<RETURN>
+		)>
+	>>
 
 <ROOM STORY211
 	(DESC "211")
