@@ -3761,7 +3761,7 @@
 		<SET BLESSING ,BLESSING-THIEVERY>
 	)(<CHECK-BLESSING ,BLESSING-LUCK>
 		<SET BLESSING ,BLESSING-LUCK>
-    )(ELSE
+	)(ELSE
 		<SET HAS-BLESSING F>
 	)>
 	<COND (.HAS-BLESSING
@@ -5224,9 +5224,9 @@
 	<HLIGHT ,H-BOLD>
 	<TELL "Additional Command Keys:">
 	<HLIGHT 0>
-    <CRLF>
-    <TELL CR ,HELP-TEXT>
-    <CRLF>>
+	<CRLF>
+	<TELL CR ,HELP-TEXT>
+	<CRLF>>
 
 ; "Story"
 ; ---------------------------------------------------------------------------------------------
@@ -18140,6 +18140,6 @@ paste on the ground below.">
 
 <ROOM STORY-KILLED
 	(DESC "The End")
-    (STORY "You were killed")
+	(STORY "You were killed")
 	(DOOM T)
 	(FLAGS LIGHTBIT)>
