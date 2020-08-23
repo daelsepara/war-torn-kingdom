@@ -63,6 +63,7 @@
 <CONSTANT R-TAKE-MISSION 17> ; "take mission"
 <CONSTANT R-DOCK 18> ; "dock at port"
 <CONSTANT R-LOCATION 19> ; "test current location"
+<CONSTANT R-LOSE-ITEM 20> ; "lose item"
 
 ; "No requirements"
 <CONSTANT TWO-NONES <LTABLE R-NONE R-NONE>>
@@ -178,7 +179,7 @@
 <GLOBAL STARTING-POINT STORY001>
 <GLOBAL CURRENT-LOCATION LOCATION-SOKARA>
 
-<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "City of Trefoille" "Curstmoor" "Shadar Tor">>
+<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "City of Trefoille" "Curstmoor" "Shadar Tor" "River Grimm">>
 <CONSTANT LOCATION-SOKARA 1>
 <CONSTANT LOCATION-MARLOCK 2>
 <CONSTANT LOCATION-YELLOWPORT 3>
@@ -186,6 +187,7 @@
 <CONSTANT LOCATION-TREFOILLE 5>
 <CONSTANT LOCATION-CURSTMOOR 6>
 <CONSTANT LOCATION-SHADAR 7>
+<CONSTANT LOCATION-GRIMM 8>
 
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
@@ -446,7 +448,7 @@
                         )(ELSE
                             <NOT-ALL-ANY R-ALL .LIST>
                         )>
-					)(<AND <OR <EQUAL? .TYPE R-DISCHARGE> <EQUAL? .TYPE R-ITEM>> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+					)(<AND <EQUAL? .TYPE R-ITEM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<COND (<CHECK-ITEM .LIST>
 							<COND (<CHECK-CHARGES .LIST>
 								<COND (<EQUAL? .TYPE R-DISCHARGE> <DISCHARGE-ITEM .LIST 1>)>
@@ -456,18 +458,7 @@
 								<NOT-CHARGED <GET .REQUIREMENTS .CHOICE>>
 							)>
 						)(ELSE
-							<HLIGHT ,H-BOLD>
-							<CRLF>
-							<TELL CR "You do not have ">
-							<COND (<FSET? .LIST ,NARTICLEBIT>
-								<TELL "the">
-							)(ELSE
-								<TELL "a">
-								<COND (<FSET? .LIST ,VOWELBIT> <TELL "n">)>
-							)>
-							<TELL " " D .LIST ,EXCLAMATION-CR>
-							<HLIGHT 0>
-							<PRESS-A-KEY>
+							<NOT-POSSESSED .LIST>
 						)>
 					)(<AND <EQUAL? .TYPE R-CODEWORD-ITEM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<COND (<AND <CHECK-CODEWORD <GET .LIST 1>> <CHECK-ITEM <GET .LIST 2>>>
@@ -552,6 +543,15 @@
 							<TELL "You are not in " <GET ,LOCATIONS .LIST> ,EXCLAMATION-CR>
 							<HLIGHT 0>
 							<PRESS-A-KEY>
+						)>
+                    )(<AND <EQUAL? .TYPE R-LOSE-ITEM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+                        <COND (<CHECK-ITEM <GET .REQUIREMENTS .CHOICE>>
+                            <CRLF>
+                            <LOSE-ITEM <GET .REQUIREMENTS .CHOICE>>
+                            <SETG HERE <GET .DESTINATIONS .CHOICE>>
+                            <CRLF>
+                        )(ELSE
+							<NOT-POSSESSED .LIST>
 						)>
 					)>
 					<RETURN>
@@ -8971,194 +8971,131 @@ paste on the ground below.">
 		<EMPHASIZE ,TEXT260-END>
 	)>>
 
+<CONSTANT TEXT261 "To renounce the worship of Maka, you must pay 15 Shards to the priesthood by way of compensation.||A man lying on a pallet groans, \"I renounced the goddess, and look at me now...\"||He is ravaged by disease. Do you want to change your mind?">
+
 <ROOM STORY261
 	(DESC "261")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT261)
+	(EVENTS STORY261-EVENTS)
+	(CONTINUE STORY141)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY261-EVENTS ()
+	<RENOUNCE-WORSHIP 15 ,GOD-MAKA>>
+
+<CONSTANT TEXT262 "You charge into the burning building in search of the child\"s mother. You see her lying unconscious at the bottom of the stairs. Desperately, you try to get to her but a burning beam has fallen across your way and the smoke is making you choke.">
 
 <ROOM STORY262
 	(DESC "262")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT262)
+	(EVENTS STORY262-EVENTS)
+	(CONTINUE STORY133)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY262-EVENTS ("AUX" ROLL (RANK 1))
+	<SET ROLL <RANDOM-EVENT 1 -1 T>>
+	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
+	<COND (<L=? .ROLL .RANK>
+		<STORY-JUMP ,STORY546>
+	)>>
+
+<CONSTANT TEXT263 "You are passing through a wooded glade when you hear a horrendous trumpeting noise. Suddenly, a massive bear-like form about the size of a large bull appears in front of you. It looks rather like a huge hairy toad, with a gaping, toothy mouth.||The creature breathes a billowing cloud of noxious, sulphurous gas at you.||You feel your head swim as you start to fall asleep.">
 
 <ROOM STORY263
 	(DESC "263")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT263)
+	(EVENTS STORY263-EVENTS)
+	(CONTINUE STORY072)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY263-EVENTS ("AUX" ROLL (RANK 1))
+	<SET ROLL <RANDOM-EVENT 1 -1 T>>
+	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
+	<COND (<L=? .ROLL .RANK>
+		<STORY-JUMP ,STORY491>
+	)>>
+
+<CONSTANT TEXT264 "A large island made of reeds and plants, which grow out of a massive floating bed of kelp, drifts aimlessly across the waters. As you draw near, you see that a number of people have made their home there. The inhabitants hail you and invite you ashore.">
 
 <ROOM STORY264
 	(DESC "264")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY264-BACKGROUND)
+	(STORY TEXT264)
+	(CONTINUE STORY537)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY264-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY264 1> <RETURN ,STORY131>)>
+	<RETURN ,STORY264>>
 
 <ROOM STORY265
 	(DESC "265")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY265-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY265-BACKGROUND ()
+	<COND (<CHECK-TITLE ,TITLE-UNSPEAKABLE-CULTIST> <RETURN ,STORY404>)>
+	<RETURN ,STORY725>>
+
+<CONSTANT TEXT266 "\"You rebel swine,\" slurs one of them.||\"Not showing proper respect to the army,\" says another. \"That can't go unpunished.\"||They wade into you, intent on beating you into submission.">
 
 <ROOM STORY266
 	(DESC "266")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT266)
+	(CHOICES CHOICES-COMBAT)
+	(DESTINATIONS <LTABLE <LTABLE STORY076 STORY498>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-COMBAT 12>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT267 "You row out on to the lake, spread the net, and wait to see what happens.||After an hour or so, a great bubbling and frothing of the waves disturbs your solitude. A massive scaly head, the size of your boat, erupts out of the ochre-coloured water on the end of a long, sinuous neck. Great luminous green eyes look down at you. The creature is covered in brown scales, with a bright red crest running from the head down its thick, ropy neck.||\"I am Vayss the Sea Dragon,\" it says in a rich, creamy voice tinged with evil greed. \"To fish in my lake, you have to pay tribute -- to wit, one silver nugget. Pay now, or face my wrath.\"">
+<CONSTANT CHOICES267 <LTABLE "Hand over a silver nugget" "Unable or refuse to pay">>
 
 <ROOM STORY267
 	(DESC "267")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT267)
+	(CHOICES CHOICES267)
+	(DESTINATIONS <LTABLE STORY505 STORY582>)
+	(REQUIREMENTS <LTABLE SILVER-NUGGET NONE>)
+	(TYPES <LTABLE R-LOSE-ITEM R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT268 "The goblin-folk swarm over you. You try to put up a fight, but there are too many of them. Everything goes black...||You wake up, spluttering, face down on a beach. A wave has just soaked you.||\"Going for a swim, are we?\" asks an old woman who is gathering shells on the beach. You learn from her that a month has passed since your adventure in the faerie mound. You can remember none of it.||You realize you have lost all the money and items you were carrying. Instead, you have a wolf pelt that you are wearing, some rat poison and a silver nugget. The old lady tells you that you are on the delta of the River Grimm.">
 
 <ROOM STORY268
 	(DESC "268")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT268)
+	(EVENTS STORY268-EVENTS)
+	(CONTINUE STORY579)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY268-EVENTS ()
+	<SETG CURRENT-LOCATION ,LOCATION-GRIMM>
+	<SETG STAMINA ,MAX-STAMINA>
+	<STORY-LOSE-EVERYTHING>
+	<TAKE-ITEM ,WOLF-PELT>
+	<TAKE-ITEM ,RAT-POISON>
+	<TAKE-ITEM ,SILVER-NUGGET>
+	<UPDATE-STATUS-LINE>>
+
+<CONSTANT TEXT269 "You find a natural alcove in the wall of a tunnel. Desperately, you squeeze yourself into it, and fade into the shadows. The ratmen come bundling past, whooping and yelling. None of them spot you, and once they have gone you step out, smiling to yourself.">
 
 <ROOM STORY269
 	(DESC "269")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT269)
+	(CONTINUE STORY580)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT270 "You make a swift inspection of the casements, walls and furnishings, searching for secret panels where treasure might be concealed.">
 
 <ROOM STORY270
 	(DESC "270")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT270)
+	(CHOICES CHOICES-THIEVERY)
+	(DESTINATIONS <LTABLE <LTABLE STORY059 STORY243>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 12>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY271
