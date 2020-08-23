@@ -170,11 +170,18 @@
 ; "STORY"
 ; ---------------------------------------------------------------------------------------------
 
-<GLOBAL CURRENT-LOCATION NONE>
-<GLOBAL PREVIOUS-LOCATION NONE>
+<GLOBAL CURRENT-STORY NONE>
+<GLOBAL PREVIOUS-STORY NONE>
 <GLOBAL CONTINUE-TO-CHOICES T>
 <GLOBAL RUN-ONCE F>
 <GLOBAL STARTING-POINT STORY001>
+<GLOBAL CURRENT-LOCATION LOCATION-SOKARA>
+
+<CONSTANT LOCATIONS <LTABLE "Somewhere in Sokara" "Marlock" "Yellowport" "Venefax">>
+<CONSTANT LOCATION-SOKARA 1>
+<CONSTANT LOCATION-MARLOCK 2>
+<CONSTANT LOCATION-YELLOWPORT 3>
+<CONSTANT LOCATION-VENEFAX 4>
 
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
@@ -195,12 +202,12 @@
 			<MARK-VISITS>
 			<CHECK-BACKGROUND>
 		)>
-		<SETG CURRENT-LOCATION ,HERE>
+		<SETG CURRENT-STORY ,HERE>
 		<GOTO ,HERE>
 		<UPDATE-STATUS-LINE>
 		<PRINT-SECTION>
 		<CHECK-EVENTS>
-		<COND (<EQUAL? ,CURRENT-LOCATION ,HERE>
+		<COND (<EQUAL? ,CURRENT-STORY ,HERE>
 			<CHECK-DOOM>
 			<CHECK-VICTORY>
 		)>
@@ -547,12 +554,12 @@
 	>
 	<RETURN .KEY>>
 
-<ROUTINE PROCESS-STORY ("AUX" COUNT CHOICES TYPES REQUIREMENTS LIST CONTINUE CURRENT-LOCATION CHOICE CHOICE-TYPE)
+<ROUTINE PROCESS-STORY ("AUX" COUNT CHOICES TYPES REQUIREMENTS LIST CONTINUE CHOICE CHOICE-TYPE)
 	<SET CHOICES <GETP ,HERE ,P?CHOICES>>
 	<SET TYPES <GETP ,HERE ,P?TYPES>>
 	<SET REQUIREMENTS <GETP ,HERE ,P?REQUIREMENTS>>
 	<SET CONTINUE <GETP ,HERE ,P?CONTINUE>>
-	<SET CURRENT-LOCATION ,HERE>
+	<SETG CURRENT-STORY ,HERE>
 	<SETG RUN-ONCE T>
 	<COND (.CHOICES
 		<REPEAT ()
@@ -589,15 +596,15 @@
 				<RETURN>
 			)>
 		>
-		<COND (<EQUAL? ,CURRENT-LOCATION ,HERE>
+		<COND (<EQUAL? ,CURRENT-STORY ,HERE>
 			<SETG RUN-ONCE F>
 		)(ELSE
-			<SETG PREVIOUS-LOCATION ,CURRENT-LOCATION>
+			<SETG PREVIOUS-STORY ,CURRENT-STORY>
 		)>
 		<RETURN .CHOICE>
 	)(.CONTINUE
 		<SETG HERE .CONTINUE>
-		<SETG PREVIOUS-LOCATION ,CURRENT-LOCATION>
+		<SETG PREVIOUS-STORY ,CURRENT-STORY>
 		<PRESS-A-KEY>
 		<RETURN>
 	)>
@@ -1299,6 +1306,7 @@
 	<COND (,CURRENT-CHARACTER
 		<DESCRIBE-PLAYER-BACKGROUND>
 		<DESCRIBE-PLAYER-STATS>
+		<DESCRIBE-PLAYER-LOCATION>
 		<DESCRIBE-PLAYER-POSSESSIONS>
 		<DESCRIBE-PLAYER-CODEWORDS>
 		<DESCRIBE-PLAYER-SHIPS>
@@ -1357,6 +1365,13 @@
 	<TELL ": ">
 	<HLIGHT 0>
 	<TELL N ,MONEY CR>>
+
+<ROUTINE DESCRIBE-PLAYER-LOCATION ()
+	<CRLF>
+	<HLIGHT ,H-BOLD>
+	<TELL "Current Location: ">
+	<HLIGHT 0>
+	<TELL <GET ,LOCATIONS ,CURRENT-LOCATION> CR>>
 
 <ROUTINE DESCRIBE-PLAYER-MISSIONS ()
 	<COND (<G? <COUNT-CONTAINER ,MISSIONS> 0>
@@ -2777,6 +2792,7 @@
 <OBJECT CODEWORD-ALOFT (DESC "Aloft")>
 <OBJECT CODEWORD-AMBUSCADE (DESC "Ambuscade")>
 <OBJECT CODEWORD-ANCHOR (DESC "Anchor")>
+<OBJECT CODEWORD-ANTHEM (DESC "Anthem")>
 <OBJECT CODEWORD-ANVIL (DESC "Anvil")>
 <OBJECT CODEWORD-APPLE (DESC "Apple")>
 <OBJECT CODEWORD-ARMOUR (DESC "Armour")>
@@ -5443,6 +5459,7 @@
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY010-BACKGROUND ()
+	<SETG CURRENT-LOCATION ,LOCATION-YELLOWPORT>
 	<COND (<CHECK-CODEWORD ,CODEWORD-ASSASSIN>
 		<RETURN ,STORY050>
 	)(<CHECK-VISITS-EQUAL ,STORY010 4>
@@ -5687,11 +5704,15 @@ harbourmaster.">
 <ROOM STORY030
 	(DESC "030")
 	(STORY TEXT030)
+	(EVENTS STORY030-EVENTS)
 	(CHOICES CHOICES030)
 	(DESTINATIONS <LTABLE YELLOWPORT-BUY YELLOWPORT-SELL STORY200 STORY010>)
 	(REQUIREMENTS <LTABLE NONE NONE 200 NONE>)
 	(TYPES <LTABLE R-NONE R-NONE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY030-EVENTS ()
+	<SETG CURRENT-LOCATION ,LOCATION-YELLOWPORT>>
 
 <CONSTANT TEXT031 "A dark emptiness surrounds you. Then, as if in your sleep, you see a tiny glimmer of light off in the distance. Suddenly you wake up, coughing and spluttering, up to your neck in water. You look around. You are floundering in the holy waters of Blessed Springs.||Standing at the side of the pool is a tall, slim, mustachioed man who says, \"I am Aklar the Bold. I found you as bottled dust in the lair of Vayss the Sea Dragon. By sprinkling your ashes into the holy waters, I have brought you back to life. I think a reward is in order, don't you?\"||\"As you can see, I have literally nothing to give you.\"||Aklar frowns in annoyance. \"Blast, I knew I should have taken one of the other bottles. Well, you'll just have to owe me a favour. A big favour.\"||\"I can hardly refuse.\"||\"Well, I must be about my business. We shall meet again, count on it.\"||With that he leaves.||You stagger out of the pool.">
 
@@ -6787,6 +6808,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY100-EVENTS ()
+	<SETG CURRENT-LOCATION ,LOCATION-MARLOCK>
 	<COND (<AND <NOT <CHECK-CODEWORD ,CODEWORD-AEGIS>> <G=? ,MONEY 200>>
 		<CRLF>
 		<TELL "Would you like to buy a townhouse in Marlock City (200 " D ,CURRENCY ")?">
@@ -7304,6 +7326,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY142-EVENTS ()
+	<SETG CURRENT-LOCATION ,LOCATION-MARLOCK>
 	<HARBOUR-MARLOCK>>
 
 <CONSTANT TEXT143 "To renounce the worship of Elnir, you must pay 40 Shards to the priesthood by way of compensation. A passing noble says disdainfully, \"Ha! Only those born to rule have the fibre to worship the Sky Lord. Those who renounce Elnir never reach the top.\"">
@@ -7422,6 +7445,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY152-BACKGROUND ()
+	<SETG CURRENT-LOCATION ,LOCATION-VENEFAX>
 	<COND (<CHECK-CODEWORD ,CODEWORD-ATTAR> <RETURN ,STORY623>)>
 	<RETURN ,STORY152>>
 
@@ -8032,7 +8056,7 @@ harbourmaster.">
 
 <ROUTINE STORY200-EVENTS ()
 	<COND (<CHECK-VISITS-MORE ,STORY200 1>
-		<STORY-JUMP ,PREVIOUS-LOCATION>
+		<STORY-JUMP ,PREVIOUS-STORY>
 	)(ELSE
 		<TAKE-ITEM ,FOREST-FORSAKEN-MAP>
 	)>>
@@ -8294,6 +8318,7 @@ paste on the ground below.">
 
 <CONSTANT TEXT222 "Your ship is sailing in the coastal waters near Marlock City.">
 <CONSTANT STORY222-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "Sea battle">>>>
+
 <ROOM STORY222
 	(DESC "222")
 	(STORY TEXT222)
@@ -8398,62 +8423,52 @@ paste on the ground below.">
 	(DOOM T)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT231 "You notice that the figures have left footprints on the damp grass and cannot, therefore, be ghosts.">
+<CONSTANT CHOICES231 <LTABLE "Step out and confront the figures" "Stay hidden and follow when they leave">>
+
 <ROOM STORY231
 	(DESC "231")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT231)
+	(CHOICES CHOICES231)
+	(DESTINATIONS <LTABLE STORY023 STORY541>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT232 "The interior of the cave is cool and refreshing, a paradise compared with the savage heat of your grueling climb. You find a man, floating cross-legged in the middle of the air! He is dressed only in a loincloth, and is painfully thin. His face is shrouded in a great luxuriant growth of glossy black hair, a beard like no other you have ever seen.||At the sight of you, he gives an exasperated sigh. \"I am Damor the Hermit. You know what a hermit is? That means I like to live alone. So go away!\"||\"I nearly died getting here, old man.\"||\"I guess you would have to be pretty tough to get through the curse I put on the path,\" he says apologetically.">
+<CONSTANT CHOICES232 <LTABLE HAVE-CODEWORD OTHERWISE>>
 
 <ROOM STORY232
 	(DESC "232")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY232-BACKGROUND)
+	(STORY TEXT232)
+	(CHOICES CHOICES232)
+	(DESTINATIONS <LTABLE STORY285 STORY480>)
+	(REQUIREMENTS <LTABLE CODEWORD-ANTHEM NONE>)
+	(TYPES <LTABLE R-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY232-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY232 1> <RETURN ,STORY151>)>
+	<RETURN ,STORY232>>
+
+<CONSTANT TEXT233 "You are on the cobbled road between Yellowport and Trefoille. It is well-kept by the Sokaran military.||You spot a man up ahead, striding towards you. Suddenly, five or six bandits appear from the wayside to assault him. The lone figure executes a series of movements, almost faster than the eye can follow, and you see his sword flashing in the sun. Moments later the bandits are lying dead or dying around him.||You stop to compliment him on his swordsmanship.||The man, a grizzled veteran of many campaigns, regards you with steely grey eyes and says, \"I have learned much of the arts of war in my time, it is true.\"||Impressed by his skill and demeanor, you venture to ask him to teach you some of these arts. He looks you up and down critically.">
+<CONSTANT CHOICES233 <LTABLE YOU-ARE-A OTHERWISE>>
 
 <ROOM STORY233
 	(DESC "233")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY233-BACKGROUND)
+	(STORY TEXT233)
+	(CHOICES CHOICES233)
+	(DESTINATIONS <LTABLE STORY146 STORY567>)
+	(REQUIREMENTS <LTABLE PROFESSION-WARRIOR NONE>)
+	(TYPES <LTABLE R-PROFESSION R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY233-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY233 1> <RETURN ,STORY412>)>
+	<RETURN ,STORY233>>
 
 <ROOM STORY234
 	(DESC "234")
