@@ -55,7 +55,7 @@
 <CONSTANT R-MONEY 9> ; "tests ability to pay indicated amount"
 <CONSTANT R-CODEWORD-ITEM 10> ; "presence of codeword and item"
 <CONSTANT R-DISCHARGE 11> ; "discharge a weapon"
-<CONSTANT R-TITLES 12> ; "check for presence of titles"
+<CONSTANT R-TITLE 12> ; "check for presence of titles"
 <CONSTANT R-VISITS 13> ; "check if location was visited multiple times"
 <CONSTANT R-RANK 14> ; "check if location was visited multiple times"
 <CONSTANT R-GAIN-CODEWORD 15> ; "gain codeword (s)"
@@ -161,6 +161,11 @@
 	(INVESTMENTS 0)
 	(FLAGS CONTBIT OPENBIT)>
 
+<OBJECT TOWNHOUSE-YELLOWPORT
+	(DESC "Townhouse at Yellowport")
+	(INVESTMENTS 0)
+	(FLAGS CONTBIT OPENBIT)>
+
 ; "NON-PERSON OBJECTS Properties"
 ; ---------------------------------------------------------------------------------------------
 
@@ -179,7 +184,8 @@
 <GLOBAL STARTING-POINT STORY001>
 <GLOBAL CURRENT-LOCATION LOCATION-SOKARA>
 
-<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "City of Trefoille" "Curstmoor" "Shadar Tor" "River Grimm">>
+<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth">>
+
 <CONSTANT LOCATION-SOKARA 1>
 <CONSTANT LOCATION-MARLOCK 2>
 <CONSTANT LOCATION-YELLOWPORT 3>
@@ -188,6 +194,8 @@
 <CONSTANT LOCATION-CURSTMOOR 6>
 <CONSTANT LOCATION-SHADAR 7>
 <CONSTANT LOCATION-GRIMM 8>
+<CONSTANT LOCATION-EAGLES 9>
+<CONSTANT LOCATION-MERETH 10>
 
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
@@ -397,10 +405,10 @@
 				<COND (.REQUIREMENTS <SET LIST <GET .REQUIREMENTS .CHOICE>>)>
 				<COND (<AND <G=? .CHOICE 1> <L=? .CHOICE <GET .DESTINATIONS 0>> <L=? .CHOICE <GET .TYPES 0>>>
 					<SET TYPE <GET .TYPES .CHOICE>>
-					<COND (<EQUAL? .TYPE R-NONE>
+					<COND (<EQUAL? .TYPE ,R-NONE>
 						<SETG HERE <GET .DESTINATIONS .CHOICE>>
 						<CRLF>
-					)(<AND <EQUAL? .TYPE R-TEST-ABILITY> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+					)(<AND <EQUAL? .TYPE ,R-TEST-ABILITY> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<CRLF>
 						<CRLF>
 						<COND (<TEST-ABILITY ,CURRENT-CHARACTER <GET .LIST 1> <GET .LIST 2> T>
@@ -409,7 +417,7 @@
 							<SETG HERE <GET <GET .DESTINATIONS .CHOICE> 2>>
 						)>
 						<PRESS-A-KEY>
-					)(<AND <EQUAL? .TYPE R-CODEWORD> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+					)(<AND <EQUAL? .TYPE ,R-CODEWORD> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<COND (<CHECK-CODEWORD .LIST>
 							<SETG HERE <GET .DESTINATIONS .CHOICE>>
 							<CRLF>
@@ -420,38 +428,31 @@
 							<HLIGHT 0>
 							<PRESS-A-KEY>
 						)>
-					)(<AND <EQUAL? .TYPE R-CODEWORDS> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+					)(<AND <EQUAL? .TYPE ,R-CODEWORDS> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<COND (<CHECK-CODEWORDS .LIST>
 							<SETG HERE <GET .DESTINATIONS .CHOICE>>
 							<CRLF>
 						)(ELSE
-							<NOT-ALL-ANY R-ALL .LIST ,CODEWORDS>
+							<NOT-ALL-ANY ,R-ALL .LIST ,CODEWORDS>
 						)>
-					)(<AND <EQUAL? .TYPE R-ITEM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
-						<COND (<CHECK-ITEM .LIST>
-							<SETG HERE <GET .DESTINATIONS .CHOICE>>
-							<CRLF>
-						)(ELSE
-							<NOT-POSSESSED .LIST>
-						)>
-                    )(<AND <EQUAL? .TYPE R-ANY> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+                    )(<AND <EQUAL? .TYPE ,R-ANY> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
                         <COND (<CHECK-ANY .LIST>
                             <SETG HERE <GET .DESTINATIONS .CHOICE>>
                             <CRLF>
                         )(ELSE
-                            <NOT-ALL-ANY R-ANY .LIST>
+                            <NOT-ALL-ANY ,R-ANY .LIST>
                         )>
-                    )(<AND <EQUAL? .TYPE R-ALL> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+                    )(<AND <EQUAL? .TYPE ,R-ALL> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
                         <COND (<CHECK-ALL .LIST>
                             <SETG HERE <GET .DESTINATIONS .CHOICE>>
                             <CRLF>
                         )(ELSE
-                            <NOT-ALL-ANY R-ALL .LIST>
+                            <NOT-ALL-ANY ,R-ALL .LIST>
                         )>
-					)(<AND <EQUAL? .TYPE R-ITEM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+					)(<AND <EQUAL? .TYPE ,R-ITEM ,R-DISCHARGE> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<COND (<CHECK-ITEM .LIST>
 							<COND (<CHECK-CHARGES .LIST>
-								<COND (<EQUAL? .TYPE R-DISCHARGE> <DISCHARGE-ITEM .LIST 1>)>
+								<COND (<EQUAL? .TYPE ,R-DISCHARGE> <DISCHARGE-ITEM .LIST 1>)>
 								<SETG HERE <GET .DESTINATIONS .CHOICE>>
 								<CRLF>
 							)(ELSE
@@ -460,7 +461,7 @@
 						)(ELSE
 							<NOT-POSSESSED .LIST>
 						)>
-					)(<AND <EQUAL? .TYPE R-CODEWORD-ITEM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+					)(<AND <EQUAL? .TYPE ,R-CODEWORD-ITEM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<COND (<AND <CHECK-CODEWORD <GET .LIST 1>> <CHECK-ITEM <GET .LIST 2>>>
 							<SETG HERE <GET .DESTINATIONS .CHOICE>>
 							<CRLF>
@@ -479,7 +480,7 @@
 							<HLIGHT 0>
 							<PRESS-A-KEY>
 						)>
-					)(<AND <EQUAL? .TYPE R-MONEY> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+					)(<AND <EQUAL? .TYPE ,R-MONEY> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<COND (<CHECK-MONEY .LIST>
 							<SETG HERE <GET .DESTINATIONS .CHOICE>>
 							<CRLF>
@@ -488,19 +489,19 @@
 								<PRESS-A-KEY>
 							)>
 						)>
-					)(<AND <EQUAL? .TYPE R-RANK> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+					)(<AND <EQUAL? .TYPE ,R-RANK> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<COND (<CHECK-RANK .LIST>
 							<SETG HERE <GET .DESTINATIONS .CHOICE>>
 							<CRLF>
 						)>
-					)(<AND <EQUAL? .TYPE R-RANDOM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+					)(<AND <EQUAL? .TYPE ,R-RANDOM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<SETG HERE <PROCESS-RANDOM .LIST <GET .DESTINATIONS .CHOICE>>>
-					)(<AND <EQUAL? .TYPE R-GAIN-CODEWORD> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+					)(<AND <EQUAL? .TYPE ,R-GAIN-CODEWORD> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<CRLF>
 						<GAIN-CODEWORD .LIST>
 						<PRESS-A-KEY>
 						<SETG HERE <GET .DESTINATIONS .CHOICE>>
-					)(<AND <EQUAL? .TYPE R-PROFESSION> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+					)(<AND <EQUAL? .TYPE ,R-PROFESSION> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<COND (<CHECK-PROFESSION .LIST>
 							<SETG HERE <GET .DESTINATIONS .CHOICE>>
 							<CRLF>
@@ -511,12 +512,12 @@
 							<TELL "You are not a " D .LIST ,EXCLAMATION-CR>
 							<HLIGHT 0>
 						)>
-					)(<AND <EQUAL? .TYPE R-TAKE-MISSION> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+					)(<AND <EQUAL? .TYPE ,R-TAKE-MISSION> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<CRLF>
 						<TAKE-MISSION .LIST>
 						<PRESS-A-KEY>
 						<SETG HERE <GET .DESTINATIONS .CHOICE>>
-					)(<AND <EQUAL? .TYPE R-DOCK> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+					)(<AND <EQUAL? .TYPE ,R-DOCK> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<CRLF>
 						<COND (,CURRENT-SHIP
 							<CRLF>
@@ -532,7 +533,7 @@
 								<EMPHASIZE "You have no ship!">
 							)>
 						)>
-					)(<AND <EQUAL? .TYPE R-LOCATION> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+					)(<AND <EQUAL? .TYPE ,R-LOCATION> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<COND (<CHECK-LOCATION .LIST>
 							<SETG HERE <GET .DESTINATIONS .CHOICE>>
 							<CRLF>
@@ -544,7 +545,7 @@
 							<HLIGHT 0>
 							<PRESS-A-KEY>
 						)>
-                    )(<AND <EQUAL? .TYPE R-LOSE-ITEM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+                    )(<AND <EQUAL? .TYPE ,R-LOSE-ITEM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
                         <COND (<CHECK-ITEM <GET .REQUIREMENTS .CHOICE>>
                             <CRLF>
                             <LOSE-ITEM <GET .REQUIREMENTS .CHOICE>>
@@ -552,6 +553,25 @@
                             <CRLF>
                         )(ELSE
 							<NOT-POSSESSED .LIST>
+						)>
+					)(<AND <EQUAL? .TYPE ,R-TITLE> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+						<COND (<CHECK-TITLE .LIST>
+							<SETG HERE <GET .DESTINATIONS .CHOICE>>
+							<CRLF>
+						)(ELSE
+							<HLIGHT ,H-BOLD>
+							<CRLF>
+							<TELL CR "You are not ">
+							<COND (<FSET? .LIST ,NARTICLEBIT>
+								<TELL "the">
+							)(<FSET? .LIST ,VOWELBIT>
+								<TELL "an">
+							)(ELSE
+								<TELL "a">
+							)>
+							<TELL " " D .LIST ,EXCLAMATION-CR>
+							<HLIGHT 0>
+							<PRESS-A-KEY>
 						)>
 					)>
 					<RETURN>
@@ -606,16 +626,16 @@
 				<TELL ") ">
 				<HLIGHT 0>
 				<TELL <GET .CHOICES .I>>
-				<COND (<AND <EQUAL? .CHOICE-TYPE R-TEST-ABILITY> .REQUIREMENTS> <TELL " (Difficulty: "> <HLIGHT ,H-BOLD> <TELL N <GET .LIST 2>> <HLIGHT 0> <TELL")">)>
-				<COND (<AND <EQUAL? .CHOICE-TYPE R-ITEM R-CODEWORD R-DISCHARGE R-TAKE-MISSION> .REQUIREMENTS> <TELL " ("> <COND (<EQUAL? .CHOICE-TYPE R-ITEM R-DISCHARGE> <HLIGHT ,H-BOLD>)(ELSE <HLIGHT ,H-ITALIC>)> <TELL D .LIST> <HLIGHT 0> <TELL ")">)>
-				<COND (<AND <EQUAL? .CHOICE-TYPE R-CODEWORD-ITEM> .REQUIREMENTS> <TELL " ("> <HLIGHT ,H-ITALIC> <TELL D <GET .LIST 1>> <HLIGHT 0> <TELL " and "> <HLIGHT ,H-BOLD> <TELL D <GET .LIST 2>> <HLIGHT 0> <TELL ")">)>
-				<COND (<AND <EQUAL? .CHOICE-TYPE R-MONEY> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (" N .LIST " " D ,CURRENCY ")">)>)>
-				<COND (<AND <EQUAL? .CHOICE-TYPE R-RANK> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (Rank "> <HLIGHT ,H-BOLD> <TELL N .LIST> <HLIGHT 0> <TELL ")">)>)>
-				<COND (<AND <EQUAL? .CHOICE-TYPE R-ANY> .REQUIREMENTS> <PRINT-ANY .LIST>)>
-				<COND (<AND <EQUAL? .CHOICE-TYPE R-ALL> .REQUIREMENTS> <PRINT-ALL .LIST>)>
-				<COND (<AND <EQUAL? .CHOICE-TYPE R-VISITS> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (visited > " N .LIST " times)">)>)>
-				<COND (<AND <EQUAL? .CHOICE-TYPE R-PROFESSION> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (" D .LIST ")">)>)>
-				<COND (<AND <EQUAL? .CHOICE-TYPE R-DOCK> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (ship docks at " <GET ,DOCKS .LIST> ")">)>)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-TEST-ABILITY> .REQUIREMENTS> <TELL " (Difficulty: "> <HLIGHT ,H-BOLD> <TELL N <GET .LIST 2>> <HLIGHT 0> <TELL")">)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-ITEM ,R-CODEWORD ,R-DISCHARGE ,R-TAKE-MISSION ,R-TITLE> .REQUIREMENTS> <TELL " ("> <COND (<EQUAL? .CHOICE-TYPE ,R-ITEM ,R-DISCHARGE> <HLIGHT ,H-BOLD>)(ELSE <HLIGHT ,H-ITALIC>)> <TELL D .LIST> <HLIGHT 0> <TELL ")">)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-CODEWORD-ITEM> .REQUIREMENTS> <TELL " Codeword "> <HLIGHT ,H-ITALIC> <TELL D <GET .LIST 1>> <HLIGHT 0> <TELL " and "> <COND (<FSET? <GET .LIST 2> ,NARTICLEBIT> <TELL "the">)(<FSET? <GET .LIST 2> ,VOWELBIT> <TELL "an">)(ELSE TELL "a")> <TELL " "> <PRINT-ITEM <GET .LIST 2> T>)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-MONEY> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (" N .LIST " " D ,CURRENCY ")">)>)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-RANK> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (Rank "> <HLIGHT ,H-BOLD> <TELL N .LIST> <HLIGHT 0> <TELL ")">)>)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-ANY> .REQUIREMENTS> <PRINT-ANY .LIST>)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-ALL> .REQUIREMENTS> <PRINT-ALL .LIST>)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-VISITS> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (visited > " N .LIST " times)">)>)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-PROFESSION> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (" D .LIST ")">)>)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-DOCK> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (ship docks at " <GET ,DOCKS .LIST> ")">)>)>
 				<CRLF>
 			>
 			<SET CHOICE <PROCESS-CHOICES .CHOICES>>
@@ -3052,6 +3072,10 @@
 ; "other objects"
 ; ---------------------------------------------------------------------------------------------
 
+<OBJECT AMULET-OF-PROTECTION
+	(DESC "amulet of protection")
+	(FLAGS TAKEBIT)>
+
 <OBJECT BAG-OF-PEARLS
 	(DESC "bag of pearls")
 	(FLAGS TAKEBIT)>
@@ -3060,7 +3084,7 @@
 	(DESC "black dragon shield")
 	(FLAGS TAKEBIT)>
 
-<OBJECT BOOK-OF-THE-SEVEN-SAGES
+<OBJECT BOOK-SEVEN-SAGES
 	(DESC "Book of the Seven Sages")
 	(FLAGS TAKEBIT NARTICLEBIT)>
 
@@ -3422,9 +3446,9 @@
 ; ---------------------------------------------------------------------------------------------
 
 <OBJECT TITLE-PROTECTOR-SOKARA (DESC "Protector of Sokara")>
-<OBJECT TITLE-ILLUMINATE-MOLHERN (DESC "Illuminate of Molhern")>
-<OBJECT TITLE-KINGS-CHAMPION (DESC "King's Champion")>
-<OBJECT TITLE-UNSPEAKABLE-CULTIST (DESC "Unspeakable Cultist") (EFFECTS <LTABLE 0 0 0 -1 0 0>)>
+<OBJECT TITLE-ILLUMINATE-MOLHERN (DESC "Illuminate of Molhern") (FLAGS VOWELBIT)>
+<OBJECT TITLE-KINGS-CHAMPION (DESC "King's Champion") (FLAGS NARTICLEBIT)>
+<OBJECT TITLE-UNSPEAKABLE-CULTIST (DESC "Unspeakable Cultist") (EFFECTS <LTABLE 0 0 0 -1 0 0>) (FLAGS VOWELBIT)>
 
 ; "Abilities and Combat"
 ; ---------------------------------------------------------------------------------------------
@@ -5299,6 +5323,7 @@
 <CONSTANT TEXT-YOU-CAN-GO "You can go:">
 
 <CONSTANT HAVE-A "You have a">
+<CONSTANT HAVE-AN "You have an">
 <CONSTANT HAVE-THE "You have the">
 <CONSTANT HAVE-CODEWORD "You have the codeword">
 <CONSTANT HAVE-NEITHER "You have neither">
@@ -5525,7 +5550,7 @@
 
 <CONSTANT YELLOWPORT-REQUIREMENTS
 	<LTABLE
-		<LTABLE CODEWORD-ARTIFACT BOOK-OF-THE-SEVEN-SAGES>
+		<LTABLE CODEWORD-ARTIFACT BOOK-SEVEN-SAGES>
 		NONE
 		NONE
 		NONE
@@ -5980,7 +6005,7 @@ footing and fall to the ground.">
 <ROUTINE STORY040-EVENTS ()
 	<UPGRADE-ABILITIES 1>
 	<DELETE-CODEWORD ,CODEWORD-ARTIFACT>
-	<RETURN-ITEM ,BOOK-OF-THE-SEVEN-SAGES T>>
+	<RETURN-ITEM ,BOOK-SEVEN-SAGES T>>
 
 <CONSTANT TEXT041 "The inside of the dome is lit with an eerie yellowish glow that comes from the sea-moss that carpets the ceiling. At the far end, a grotto in the wall contains an idol made from sea shells and coral, presumably of Oannes, the god of the repulsive ones. At its feet lies the golden net of Alvir and Valmir, the object of your quest. Between you and the idol swim several of the giant squid-creatures, carrying out various undersea chores.">
 <CONSTANT CHOICES041 <LTABLE "Swim back to Shadar Tor" "Fight your way to the golden net" "Trust to your magical prowess" "Rack your memory for a solution">>
@@ -9098,194 +9123,142 @@ paste on the ground below.">
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT271 "You arrive at the Pass of Eagles, a thin chasm sliced right through the Spine of Harkun, as if Tyrnai himself had split the mountains with his sword.||A vast citadel has been built right across the southern end of the pass, bottling it up, so that none can travel into Sokara without passing through the castle. Its white walls and flag-topped towers shine brightly in the sunlight.">
+<CONSTANT CHOICES271 <LTABLE "Enter the citadel (The Plains of Howling Darkness)" "Go to the western foothills" "The eastern foothills" "South on the road to Caran Baru" "Take the road to Fort Mereth">>
+
 <ROOM STORY271
 	(DESC "271")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT271)
+	(EVENTS STORY271-EVENTS)
+	(CHOICES CHOICES271)
+	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY003 STORY244 STORY201 STORY518>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY271-EVENTS ()
+	<SETG CURRENT-LOCATION ,LOCATION-EAGLES>>
 
 <ROOM STORY272
 	(DESC "272")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY272-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY272-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-ALOFT> <RETURN ,STORY649>)>
+	<RETURN ,STORY724>>
+
+<CONSTANT TEXT273 "You find the city is in turmoil. A rebel group, loyal to the old king, led an uprising against the army. Vicious fighting ensued and the streets ran with blood before the rebellion was brutally put down. Unfortunately, much damage was done during the battle.">
+<CONSTANT CHOICES273 <LTABLE HAVE-THE IF-NOT>>
 
 <ROOM STORY273
 	(DESC "273")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT273)
+	(EVENTS STORY273-EVENTS)
+	(CHOICES CHOICES273)
+	(DESTINATIONS <LTABLE STORY040 STORY010>)
+	(REQUIREMENTS <LTABLE <LTABLE CODEWORD-ARTIFACT BOOK-SEVEN-SAGES> NONE>)
+	(TYPES <LTABLE R-CODEWORD-ITEM R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY273-EVENTS ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-ABIDE>
+		<EMPHASIZE "Your townhouse has been looted; any possessions you may have cached there have gone.">
+		<RESET-CONTAINER ,TOWNHOUSE-YELLOWPORT>
+	)>>
+
+<CONSTANT TEXT274 "Desperately, you try to sneak behind a pile of coins but the dragon spots you. \"A sneaky little thief, eh? Can't have that, oh no,\" hisses the dragon, and it breathes a cloud of billowing acidic gas all over you. You watch in horror as the coins in front of you begin to melt, and then the cloud engulfs you.">
+<CONSTANT CHOICES274 <LTABLE HAVE-AN IF-NOT>>
 
 <ROOM STORY274
 	(DESC "274")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT274)
+	(CHOICES CHOICES274)
+	(DESTINATIONS <LTABLE STORY298 STORY212>)
+	(REQUIREMENTS <LTABLE AMULET-OF-PROTECTION NONE>)
+	(TYPES <LTABLE R-ITEM R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT275 "If you are an initiate it costs only 5 Shards to propitiate the twin gods of the sea. A non-initiate must pay 20 Shards. The blessing works by allowing you to ignore any one storm at sea. You can only have one Safety from Storms blessing at any one time. Once it is used up, you can return to any branch of the temple of Alvir and Valmir to buy a new one.">
 
 <ROOM STORY275
 	(DESC "275")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT275)
+	(EVENTS STORY275-EVENTS)
+	(CONTINUE STORY154)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY275-EVENTS ()
+	<PURCHASE-BLESSING 20 5 ,GOD-ALVIR-VALMIR ,BLESSING-ALVIR-VALMIR>>
+
+<CONSTANT TEXT276 "You are wandering across the wilderness of north-western Sokara. There is a magnificent castle nearby, with many different pennants flying from its towers.">
+<CONSTANT CHOICES276 <LTABLE "Visit the castle" "Head west to the River Grimm" "Travel north to the mountains" "Head north-east" "Head east into the Bronze Hills" "Go south into the Forest of Larun">>
 
 <ROOM STORY276
 	(DESC "276")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT276)
+	(EVENTS STORY276-EVENTS)
+	(CHOICES CHOICES276)
+	(DESTINATIONS <LTABLE STORY611 STORY123 STORY003 STORY201 STORY110 STORY047>)
+	(TYPES SIX-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY276-EVENTS ()
+	<SETG CURRENT-LOCATION ,LOCATION-SOKARA>>
+
+<CONSTANT TEXT277 "A patrol of militiamen -- mercenaries in the pay of the dictator, General Grieve Marlock -- stop you in the street.">
+<CONSTANT CHOICES277 <LTABLE HAVE-CODEWORD YOU-ARE-A OTHERWISE>>
 
 <ROOM STORY277
 	(DESC "277")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT277)
+	(CHOICES CHOICES277)
+	(DESTINATIONS <LTABLE STORY221 STORY722 STORY723>)
+	(REQUIREMENTS <LTABLE CODEWORD-ASSASSIN TITLE-PROTECTOR-SOKARA NONE>)
+	(TYPES <LTABLE R-CODEWORD R-TITLE R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT278 "You are crossing an open expanse of flinty ground. A few herds of sheep roam the low hills.">
+<CONSTANT CHOICES278 <LTABLE "To Venefax" "West to the Stinking River" "North to the lake" "East">>
 
 <ROOM STORY278
 	(DESC "278")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT278)
+	(EVENTS STORY278-EVENTS)
+	(CHOICES CHOICES278)
+	(DESTINATIONS <LTABLE STORY427 STORY310 STORY135 STORY087>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY278-EVENTS ("AUX" ROLL)
+	<SET ROLL <RANDOM-EVENT 1 0 T>>
+	<COND (<L=? .ROLL 2>
+		<EMPHASIZE "You got lost">
+		<STORY-JUMP ,STORY082>
+		<RETURN>
+	)(<L=? .ROLL 4>
+		<EMPHASIZE ,NOTHING-HAPPENS>
+	)(ELSE
+		<EMPHASIZE "A shepherd gives you a wolf pelt.">
+		<TAKE-ITEM ,WOLF-PELT>
+	)>
+	<CRLF>
+	<TELL ,TEXT-YOU-CAN-GO>
+	<CRLF>>
+
+<CONSTANT TEXT279 "What you have just done is probably sacrilege, desecrating the Temple of Tyrnai, but you don't care. You sneak out of the temple unseen, and head back to town with your prize. Who else could have stolen a holy relic from right under the noses of the warrior priests of Tyrnai?">
 
 <ROOM STORY279
 	(DESC "279")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT279)
+	(CONTINUE STORY400)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT280 "There are too many wolves to contend with. You withdraw before they get angry.">
 
 <ROOM STORY280
 	(DESC "280")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT280)
+	(CONTINUE STORY003)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY281
