@@ -249,11 +249,16 @@
 		<UPDATE-STATUS-LINE>
 	)>>
 
-<ROUTINE CHECK-DOOM ("AUX" DOOM)
+<ROUTINE CHECK-DOOM ("AUX" DOOM HAS-ROYAL-RING)
 	<SET DOOM <GETP ,HERE ,P?DOOM>>
 	<COND (.DOOM
 		<COND (,RESURRECTION-ARRANGEMENTS
+			<SET HAS-ROYAL-RING <CHECK-ITEM ,ROYAL-RING>>
 			<RESET-POSSESSIONS>
+			<COND (.HAS-ROYAL-RING
+				<EMPHASIZE "Through a quirk of magical fate, somehow the royal ring has travelled with you through the lands of the dead.">
+				<MOVE ,ROYAL-RING ,PLAYER>
+			)>
 			<SETG ,STAMINA ,MAX-STAMINA>
 			<SETG ,MONEY 0>
 			<STORY-JUMP <GETP ,RESURRECTION-ARRANGEMENTS ,P?CONTINUE>>
@@ -464,7 +469,7 @@
 							<SETG HERE <GET .DESTINATIONS .CHOICE>>
 							<CRLF>
 							<COND (<G? .LIST 0>
-								<COST-MONEY .LIST "paid">
+								<COST-MONEY .LIST ,TEXT-PAID>
 								<PRESS-A-KEY>
 							)>
 						)>
@@ -2994,6 +2999,10 @@
 	(DESC "Forest of the Forsaken map")
 	(FLAGS TAKEBIT)>
 
+<OBJECT GOLD-CHAIN-MAIL
+	(DESC "gold chain mail of Tyrnai")
+	(FLAGS TAKEBIT)>
+
 <OBJECT GOLDEN-NET
 	(DESC "golden net")
 	(FLAGS TAKEBIT)>
@@ -3040,6 +3049,10 @@
 
 <OBJECT ROPE
 	(DESC "rope")
+	(FLAGS TAKEBIT)>
+
+<OBJECT ROYAL-RING
+	(DESC "royal ring")
 	(FLAGS TAKEBIT)>
 
 <OBJECT RAT-POISON
@@ -4005,7 +4018,7 @@
 				<HLIGHT 0>
 				<TELL " for " N <GET .PRICES .CHOICE> " " D ,CURRENCY "?">
 				<COND (<YES?>
-					<COST-MONEY <GET .PRICES .CHOICE> "paid">
+					<COST-MONEY <GET .PRICES .CHOICE> ,TEXT-PAID>
 					<SET DESTINATION <GET .DESTINATIONS .CHOICE>>
 					<RETURN>
 				)>
@@ -4109,7 +4122,7 @@
 				<CRLF>
 				<TELL CR "Buy a " D <GET ,SHIPS-LIST .ITEM> "?">
 				<COND (<YES?>
-					<COST-MONEY <GET .BUY-PRICES .ITEM> "paid">
+					<COST-MONEY <GET .BUY-PRICES .ITEM> ,TEXT-PAID>
 					<MOVE <GET ,SHIPS-LIST .ITEM> ,SHIPS>
 					<COND (<NOT ,CURRENT-SHIP>
 						<SETG ,CURRENT-SHIP <GET ,SHIPS-LIST .ITEM>>
@@ -4250,7 +4263,7 @@
 							<TELL "You upgraded the ">
 							<PRINT-ITEM <GET ,SHIPS-LIST .ITEM> T>
 							<TELL ,PERIOD-CR>
-							<COST-MONEY <GET .UPGRADES .ITEM> "paid">
+							<COST-MONEY <GET .UPGRADES .ITEM> ,TEXT-PAID>
 							<UPDATE-STATUS-LINE>
 						)>
 					)>
@@ -4593,7 +4606,7 @@
 				<COND (<G? .DAYS 0>
 					<COND (<G=? ,MONEY <* .DAYS .FEE>>
 						<GAIN-STAMINA <* .DAYS .GAIN>>
-						<COST-MONEY <* .DAYS .FEE> "paid">
+						<COST-MONEY <* .DAYS .FEE> ,TEXT-PAID>
 						<SET VISITS <GETP .STORY ,P?VISITS>>
 						<SET VISITS <+ .VISITS .DAYS>>
 						<PUTP .STORY ,P?VISITS .VISITS>
@@ -4668,7 +4681,7 @@
 			<CRLF>
 			<TELL "Become an initiate of " D .WORSHIP "?">
 			<COND (<YES?>
-				<COST-MONEY .FEE "paid">
+				<COST-MONEY .FEE ,TEXT-PAID>
 				<SETG ,GOD .WORSHIP>
 				<UPDATE-STATUS-LINE>
 			)>
@@ -4694,7 +4707,7 @@
 		<CRLF>
 		<TELL "Pay " N .FEE " " D ,CURRENCY " for a cure?">
 		<COND (<YES?>
-			<COST-MONEY .FEE "paid">
+			<COST-MONEY .FEE ,TEXT-PAID>
 			<CRLF>
 			<TELL "You are cured of: ">
 			<PRINT-CONTAINER ,AILMENTS>
@@ -4717,7 +4730,7 @@
 		<CRLF>
 		<TELL "Purchase this blessing for " N .FEE " " D ,CURRENCY "?">
 		<COND (<YES?>
-			<COST-MONEY .FEE "paid">
+			<COST-MONEY .FEE ,TEXT-PAID>
 			<GAIN-BLESSING .BLESSING>
 		)>
 	)(ELSE
@@ -4731,7 +4744,7 @@
 				<CRLF>
 				<TELL "Renounce the worship of " D .WORSHIP "?">
 				<COND (<YES?>
-					<COND (<G? .FEE 0> <COST-MONEY .FEE "paid">)>
+					<COND (<G? .FEE 0> <COST-MONEY .FEE ,TEXT-PAID>)>
 					<SETG ,GOD NONE>
 					<SET RESURRECTION <GETP .WORSHIP ,P?RESURRECTION>>
 					<COND (.RESURRECTION
@@ -5124,6 +5137,7 @@
 	<PUTP ,STORY199 ,P?DOOM T>
 	<PUTP ,STORY210 ,P?DOOM T>
 	<PUTP ,STORY219 ,P?DOOM T>
+	<PUTP ,STORY228 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -5167,6 +5181,7 @@
 <CONSTANT TEXT-ROLL-SCOUTING "Make a SCOUTING roll">
 <CONSTANT TEXT-ROLL-THIEVERY "Make a THIEVERY roll">
 
+<CONSTANT TEXT-PAID "paid">
 <CONSTANT TEXT-STORM "Storm">
 <CONSTANT TEXT-UNEVENTFUL "An uneventful voyage">
 
@@ -5716,7 +5731,7 @@ harbourmaster.">
 		<CRLF>
 		<TELL "Arrange resurrection at this temple?">
 		<COND (<YES?>
-			<COST-MONEY .FEE "paid">
+			<COST-MONEY .FEE ,TEXT-PAID>
 			<SETG RESURRECTION-ARRANGEMENTS ,RESURRECTION-TYRNAI>
 		)>
 	)(ELSE
@@ -6335,7 +6350,7 @@ is off, you return to the city centre.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY074-EVENTS ()
-	<COST-MONEY 15 "paid">>
+	<COST-MONEY 15 ,TEXT-PAID>>
 
 <CONSTANT TEXT075 "The high priest takes you to a private chamber. \"You may be just what the temple needs,\" he says, \"a good, old-fashioned thief. There is a suit of armour made entirely from gold -- ceremonial only, of course. Nevertheless, we would like to, er, have it donated to us.\"||\"I see,\" you reply, \"and where is the armour?\"||\"Well, that's the tricky part -- it's in the Temple of Tyrnai, in Caran Baru. In fact, it's worn by the idol of Tyrnai himself in the temple. Can you bring us the gold chain mail of Tyrnai? In return, we will instruct you in the roguish arts.\"">
 <CONSTANT CHOICES075 <LTABLE "Take up the mission for the Temple of Sig" IF-NOT>>
@@ -8263,194 +8278,124 @@ paste on the ground below.">
 	(TYPES <LTABLE R-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT221 "One of the militiamen recognizes you and shouts, \"That's the one who assassinated Marloes Marlock!\" You turn tail and flee with more than a dozen militiamen on your heels.">
+
 <ROOM STORY221
 	(DESC "221")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT221)
+	(EVENTS STORY221-EVENTS)
+	(CONTINUE STORY252)
 	(FLAGS LIGHTBIT)>
 
+<ROUTINE STORY221-EVENTS ("AUX" ROLL (RANK 1))
+	<SET ROLL <RANDOM-EVENT 1 0 T>>
+	<COND (,CURRENT-CHARACTER <SET RANK <GETP ,CURRENT-CHARACTER ,P?RANK>>)>
+	<COND (<L=? .ROLL .RANK> <STORY-JUMP ,STORY057>)>>
+
+<CONSTANT TEXT222 "Your ship is sailing in the coastal waters near Marlock City.">
+<CONSTANT STORY222-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "Sea battle">>>>
 <ROOM STORY222
 	(DESC "222")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT222)
+	(CHOICES CHOICES-RANDOM)
+	(DESTINATIONS <LTABLE <LTABLE STORY124 STORY420 STORY169>>)
+	(REQUIREMENTS STORY222-REQUIREMENTS)
+	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT223 "The ghoul staggers back, howling at the night sky, and gnashing its teeth. Suddenly, brownish ichor spills from its eyes and the flesh begins to shrivel on its bones. It collapses in on itself, leaving only a mound of putrescent matter, atop of which rests its head, now lifeless, empty eye-sockets staring at the moon. You grab the head, and set off.">
 
 <ROOM STORY223
 	(DESC "223")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT223)
+	(CONTINUE STORY100)
+	(ITEMS <LTABLE GHOULS-HEAD>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT224 "Using your wilderness-honed sense of direction you dart through the maze of tunnels. Soon the sounds of pursuit fade, until they are but a dim echo. Heaving a sigh of relief, you press on.">
 
 <ROOM STORY224
 	(DESC "224")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT224)
+	(CONTINUE STORY580)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT225 "You find a cave, with piles of human bones outside it. However, it is quite empty without signs of habitation. The beast that lived here is dead or departed. You make your way back down to Blessed Springs.">
 
 <ROOM STORY225
 	(DESC "225")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT225)
+	(CONTINUE STORY510)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT226 "You take a stroll through the streets. Marlock City has a busy night life.">
+<CONSTANT CHOICES226 <LTABLE "Explore the barracks area" "Go to the Street of Entertainers" "Search the residential quarter">>
 
 <ROOM STORY226
 	(DESC "226")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT226)
+	(CHOICES CHOICES226)
+	(DESTINATIONS <LTABLE STORY015 STORY129 STORY619>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT227 "The mad beggar takes the money and swallows the lot in one gulp. \"A gourmet meal!\" he babbles.">
+<CONSTANT CHOICES227 <LTABLE "Bless him" "If not, he wanders off ranting and you head back to the city centre">>
 
 <ROOM STORY227
 	(DESC "227")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT227)
+	(EVENTS STORY227-EVENTS)
+	(CHOICES CHOICES227)
+	(DESTINATIONS <LTABLE STORY632 STORY010>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY227-EVENTS ()
+	<COST-MONEY 5 "gave">>
+
+<CONSTANT TEXT228 "A stone slab at the base of the idol shifts ominously as you put your foot on it. A wickedly barbed spear springs out of the ground, straight into your leg.">
+<CONSTANT TEXT228-CONTINUED "You remove the chain mail and sling it over your shoulder. Because it is made of gold, it is useless if worn as armour.||As you glance at the jaguar-headed idol, its eyes seem to turn to look at you">
 
 <ROOM STORY228
 	(DESC "228")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT228)
+	(EVENTS STORY228-EVENTS)
+	(CHOICES CHOICES-SANCTITY)
+	(DESTINATIONS <LTABLE <LTABLE STORY625 STORY279>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SANCTITY 8>>)
+	(TYPES ONE-ABILITY)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY228-EVENTS ()
+	<LOSE-STAMINA 5 ,DIED-FROM-INJURIES ,STORY228>
+	<COND (<IS-ALIVE>
+		<CRLF>
+		<TELL ,TEXT228-CONTINUED>
+		<TELL ,PERIOD-CR>
+		<TAKE-ITEM ,GOLD-CHAIN-MAIL>
+	)>>
+
+<CONSTANT TEXT229 "The guildmaster welcomes you warmly. He has no further missions for you, though he treats you with respect because you brought Amcha to justice.">
 
 <ROOM STORY229
 	(DESC "229")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT229)
+	(EVENTS STORY229-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+; "TO-DO: Check if player has money invested in guilds (banks), townhouses"
+<ROUTINE STORY229-EVENTS ()
+	<COND (<L=? ,MONEY 0> <GAIN-MONEY 200>)>>
+
+<CONSTANT TEXT230 "You are caught in a narrow defile, and seized by many men. You are hauled before Captain Vorkung, who sentences you to be hanged. Sentence is carried out immediately.">
 
 <ROOM STORY230
 	(DESC "230")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT230)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY231
