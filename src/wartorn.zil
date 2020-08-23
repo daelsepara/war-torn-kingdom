@@ -178,11 +178,14 @@
 <GLOBAL STARTING-POINT STORY001>
 <GLOBAL CURRENT-LOCATION LOCATION-SOKARA>
 
-<CONSTANT LOCATIONS <LTABLE "Somewhere in Sokara" "Marlock City" "Yellowport" "Venefax">>
+<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "City of Trefoille" "Curstmoor" "Shadar Tor">>
 <CONSTANT LOCATION-SOKARA 1>
 <CONSTANT LOCATION-MARLOCK 2>
 <CONSTANT LOCATION-YELLOWPORT 3>
 <CONSTANT LOCATION-VENEFAX 4>
+<CONSTANT LOCATION-TREFOILLE 5>
+<CONSTANT LOCATION-CURSTMOOR 6>
+<CONSTANT LOCATION-SHADAR 7>
 
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
@@ -1409,7 +1412,7 @@
 	<HLIGHT ,H-BOLD>
 	<TELL "Current Location: ">
 	<HLIGHT 0>
-	<TELL <GET ,LOCATIONS ,CURRENT-LOCATION> CR>>
+	<TELL "Somewhere in " <GET ,LOCATIONS ,CURRENT-LOCATION> CR>>
 
 <ROUTINE DESCRIBE-PLAYER-MISSIONS ()
 	<COND (<G? <COUNT-CONTAINER ,MISSIONS> 0>
@@ -2829,6 +2832,7 @@
 <OBJECT CODEWORD-ALMANAC (DESC "Almanac")>
 <OBJECT CODEWORD-ALOFT (DESC "Aloft")>
 <OBJECT CODEWORD-AMBUSCADE (DESC "Ambuscade")>
+<OBJECT CODEWORD-AMENDS (DESC "Amends")>
 <OBJECT CODEWORD-ANCHOR (DESC "Anchor")>
 <OBJECT CODEWORD-ANTHEM (DESC "Anthem")>
 <OBJECT CODEWORD-ANVIL (DESC "Anvil")>
@@ -3101,16 +3105,16 @@
 	(DESC "potion of healing")
 	(FLAGS TAKEBIT)>
 
+<OBJECT RAT-POISON
+	(DESC "rat poison")
+	(FLAGS TAKEBIT)>
+
 <OBJECT ROPE
 	(DESC "rope")
 	(FLAGS TAKEBIT)>
 
 <OBJECT ROYAL-RING
 	(DESC "royal ring")
-	(FLAGS TAKEBIT)>
-
-<OBJECT RAT-POISON
-	(DESC "rat poison")
 	(FLAGS TAKEBIT)>
 
 <OBJECT SALT-AND-IRON-FILINGS
@@ -3143,6 +3147,10 @@
 
 <OBJECT VIAL-YELLOW-DUST
 	(DESC "vial of yellow dust")
+	(FLAGS TAKEBIT)>
+
+<OBJECT WILLOW-STAFF
+	(DESC "willow staff")
 	(FLAGS TAKEBIT)>
 
 <OBJECT WOLF-PELT
@@ -3302,6 +3310,12 @@
 	(COMBAT 4)
 	(DEFENSE 7)
 	(STAMINA 5)>
+
+<OBJECT MONSTER-RATMAN
+	(DESC "Ratman")
+	(COMBAT 3)
+	(DEFENSE 6)
+	(STAMINA 6)>
 
 <OBJECT MONSTER-REPULSIVE-ONE
 	(DESC "Repulsive One")
@@ -4751,7 +4765,8 @@
 	<COND (<NOT ,GOD>
 		<COND (<G=? ,MONEY .FEE>
 			<CRLF>
-			<TELL "Become an initiate of " D .WORSHIP "?">
+			<TELL ,TEXT-BECOME-INITIATE>
+			<TELL " of " D .WORSHIP "?">
 			<COND (<YES?>
 				<COST-MONEY .FEE ,TEXT-PAID>
 				<SETG ,GOD .WORSHIP>
@@ -5212,6 +5227,7 @@
 	<PUTP ,STORY219 ,P?DOOM T>
 	<PUTP ,STORY228 ,P?DOOM T>
 	<PUTP ,STORY238 ,P?DOOM T>
+	<PUTP ,STORY247 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -5219,6 +5235,7 @@
 <CONSTANT GOOD-ENDING "Further adventure awaits.|">
 <CONSTANT ENDING-BLOOD-DARK-SEA "Further adventures await at Fabled Lands 3: Over the Blood-Dark Sea.|">
 <CONSTANT ENDING-CITIES-OF-GOLD "Further adventures await at Fabled Lands 2: Cities of Gold and Glory.|">
+<CONSTANT ENDING-PLAINS-HOWLING-DARKNESS "Further adventures await at Fabled Lands 4: The Plains of Howling Darkness.|">
 
 <ROUTINE SPECIAL-INTERRUPT-ROUTINE (KEY)
 	; "TO-DO: Implement potion-of-healing"
@@ -5258,6 +5275,11 @@
 <CONSTANT TEXT-PAID "paid">
 <CONSTANT TEXT-STORM "Storm">
 <CONSTANT TEXT-UNEVENTFUL "An uneventful voyage">
+
+<CONSTANT TEXT-BECOME-INITIATE "Become an Initiate">
+<CONSTANT TEXT-LEAVE-TEMPLE "Leave the temple">
+<CONSTANT TEXT-RENOUNCE-WORSHIP "Renounce worship">
+<CONSTANT TEXT-SEEK-BLESSING "Seek a blessing">
 
 <CONSTANT CHOICES-COMBAT <LTABLE TEXT-ROLL-COMBAT>>
 <CONSTANT CHOICES-CHARISMA <LTABLE TEXT-ROLL-CHARISMA>>
@@ -5833,17 +5855,20 @@ footing and fall to the ground.">
 	<LOSE-STAMINA 4 ,DIED-FROM-INJURIES ,STORY034>
 	<IF-ALIVE ,TEXT034-CONTINUED>>
 
-<CONSTANT TEXT035 "You come to the top of a windswept cliff. An ancient pillar of jumbled rock,
-pitted and weather-beaten, stands at the cliff's edge, like a broken finger pointing at the sky. Seagulls sing their song of desolation in the air.||Judging by the runes etched into the rock, the tor dates back to the time of the Shadar, a race that ruled Harkuna so long ago, they are lost in myth and legend.">
+<CONSTANT TEXT035 "You come to the top of a windswept cliff. An ancient pillar of jumbled rock, pitted and weather-beaten, stands at the cliff's edge, like a broken finger pointing at the sky. Seagulls sing their song of desolation in the air.||Judging by the runes etched into the rock, the tor dates back to the time of the Shadar, a race that ruled Harkuna so long ago, they are lost in myth and legend.">
 <CONSTANT CHOICES035 <LTABLE "Examine the runes" "Go down to the beach" "Take the road to Trefoille" "Take the road to Marlock City">>
 
 <ROOM STORY035
 	(DESC "035")
 	(STORY TEXT035)
+	(EVENTS STORY035-EVENTS)
 	(CHOICES CHOICES035)
 	(DESTINATIONS <LTABLE STORY515 STORY097 STORY602 STORY166>)
 	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY035-EVENTS ()
+	<SETG CURRENT-LOCATION ,LOCATION-SHADAR>>
 
 <CONSTANT TEXT036 "Soon you realize you are completely lost in this strange, magical forest. You wander around for days, barely able to find enough food and water.">
 <CONSTANT TEXT036-CONTINUED "You eventually stagger out of the forest to the coast.">
@@ -5936,8 +5961,13 @@ pitted and weather-beaten, stands at the cliff's edge, like a broken finger poin
 
 <ROUTINE STORY042-EVENTS ("AUX" (MODIFIER 0))
 	<COND (<CHECK-ITEM ,RAT-POISON>
-		<SET MODIFIER 3>
-		<EMPHASIZE "The rat poison adds +3 to your COMBAT rolls.">
+		<CRLF>
+		<TELL "Use the rat poison?">
+		<COND (<YES?>
+			<SET MODIFIER 3>
+			<EMPHASIZE "The rat poison adds +3 to your COMBAT rolls.">
+			<REMOVE-ITEM ,RAT-POISON "used" T T>
+		)>
 	)>
 	<COMBAT-MONSTER ,MONSTER-TWO-RATMEN 6 9 9>
 	<COND (<CHECK-COMBAT ,MONSTER-TWO-RATMEN ,STORY042 .MODIFIER>
@@ -6381,7 +6411,7 @@ is off, you return to the city centre.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT071 "Nagil is the Lord of the Lands of the Dead, and his temple in Marlock City is covered in friezes and gargoyles of ornate design, depicting the souls of the dead on their journey to the underworld.Inside, it is cool and dark, hung with black velvet drapes.||A poster on the wall reads: \"Wanted: person of unusual resourcefulness. See temple warden.\"">
-<CONSTANT CHOICES071 <LTABLE "Become an initiate" "Renounce worship" "Make resurrection arrangements" "Visit the warden" "Leave the temple">>
+<CONSTANT CHOICES071 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP "Make resurrection arrangements" "Visit the warden" TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY071
 	(DESC "071")
@@ -6569,7 +6599,7 @@ stink, laden with sulphur as it is.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT086 "The temple of the Three Fortunes is a squat, square building. A frieze above the door depicts three women weaving a tapestry. \"That's the Tapestry of Fate, wherein our destiny is woven,\" comments a priest.">
-<CONSTANT CHOICES086 <LTABLE "Become an initiate" "Renounce worship" "Seek a blessing" "Leave the temple">>
+<CONSTANT CHOICES086 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY086
 	(DESC "086")
@@ -7364,7 +7394,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT141 "The Temple of Maka, the terrible goddess of disease and famine, is a large underground chamber accessible via an ornate entrance in the middle of the Plaza of the Gods, where all the temples stand in Yellowport.||Down below, the walls are bare earth; the ceiling is covered in the roots of growing plants, for Maka is also the goddess of the harvest who must be kept happy else disease and famine will strike the people, their crops and their livestock, bringing ruin to all.">
-<CONSTANT CHOICES141 <LTABLE "Become an initiate" "Renounce her worship" "Seek a blessing" "Ask to be cured of disease or poison" "Leave the temple">>
+<CONSTANT CHOICES141 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING "Ask to be cured of disease or poison" TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY141
 	(DESC "141")
@@ -7426,6 +7456,7 @@ harbourmaster.">
 		<TELL "Use " T ,RAT-POISON "?">
 		<COND (<YES?>
 			<SET MODIFIER 3>
+			<EMPHASIZE "The rat poison adds +3 to your COMBAT rolls.">
 			<REMOVE-ITEM ,RAT-POISON "used" T T>
 		)>
 	)>
@@ -7516,7 +7547,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT154 "The temple of Alvir and Valmir, Divine Rulers of the House of the Sea, is right on the teeming harbour of Marlock City. Its sea-green marbled porticos are draped in a hundred silver nets. Brother and sister, Alvir and Valmir rule below the waves. Alvir brings the souls of the drowned in his nets before his sister, Valmir, for judgment.||A swaggering ship's captain emerges from the temple, saying to you in passing, \"Never, I mean never go to sea without paying your respects to the twin gods -- unless ye want to sail through a world of storms.\"">
-<CONSTANT CHOICES154 <LTABLE "Become an initiate" "Renounce their worship" "Seek a blessing" "Leave the temple">>
+<CONSTANT CHOICES154 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY154
 	(DESC "154")
@@ -7804,7 +7835,8 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY175-BACKGROUND ()
-	<COND (<CHECK-VISITS-MORE ,STORY174 1> <RETURN ,STORY673>)>
+	<SETG CURRENT-LOCATION ,LOCATION-CURSTMOOR>
+	<COND (<CHECK-VISITS-MORE ,STORY175 1> <RETURN ,STORY673>)>
 	<RETURN ,STORY175>>
 
 <CONSTANT TEXT176 "The crew are very nervous about your orders. They drop anchor in a bay, and will row you to shore, but they absolutely refuse to come with you. In fact, they won't even wait for you to come back.||If you insist on going ashore, your crew will sail for Yellowport and meet you there. \"If you ever make it back,\" adds the first mate ominously.">
@@ -8541,7 +8573,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT235 "The temple of Sig the Cunning, patron of vagabonds, troubadours, lovers, thieves and rogues, is a ramshackle warehouse in the poor quarter. Inside, however, there is so much wealth, it makes you gasp -- the idol of Sig, a saturnine two-faced young human of indistinct sex, is covered in gems. \"As you can see, we have been made rich by generous, er, donations!\" says a black-robed priest.">
-<CONSTANT CHOICES235 <LTABLE "Seek an audience with the high priest" "Become an initiate" "Renounce worship" "Seek a blessing" "Leave the temple">>
+<CONSTANT CHOICES235 <LTABLE "Seek an audience with the high priest" TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY235
 	(DESC "235")
@@ -8614,195 +8646,133 @@ paste on the ground below.">
 	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT241 "To renounce the worship of Elnir, you must pay 40 Shards to the priesthood by way of compensation. The high priest says nothing -- he merely regards you with a mild contempt, as if he expected you to fail in the worship of Elnir. Do you want to change your mind?">
+
 <ROOM STORY241
 	(DESC "241")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT241)
+	(EVENTS STORY241-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY241-EVENTS ()
+	<RENOUNCE-WORSHIP 40 ,GOD-ELNIR>>
+
+<CONSTANT TEXT242 "You fight the Sokarans to a standstill. The Sokaran captain orders the retreat; he and his marines pull back to their galley. You and your crew are too tired to pursue, and the Sokarans pull away.||\"I'll get you next time!\" yells the captain.||You sail on.">
 
 <ROOM STORY242
 	(DESC "242")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT242)
+	(CONTINUE STORY439)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT243 "You cannot find any hidden panels -- but after all, Lauria did say that the real treasure was upstairs. You call to her, but she doesn't reply.">
+<CONSTANT CHOICES243 <LTABLE "Go upstairs" "Wait downstairs">>
 
 <ROOM STORY243
 	(DESC "243")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT243)
+	(CHOICES CHOICES243)
+	(DESTINATIONS <LTABLE STORY386 STORY534>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT244 "You have come to the foothills of the Spine of Harkun. The great mountains rise up majestically before you, their snowcapped peaks wreathed in clouds. You find a clear, cold stream, where you drink your fill and replenish your water supply.">
+<CONSTANT CHOICES244 <LTABLE "Climb upwards" "Head south" "Head east to Disaster Bay" "West to the citadel">>
 
 <ROOM STORY244
 	(DESC "244")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT244)
+	(CHOICES CHOICES244)
+	(DESTINATIONS <LTABLE STORY536 STORY518 STORY495 STORY271>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT245 "The footprints cross a stream, and there you lose them. After an hour's fruitless searching by moonlight, you are forced to give up and go back to the village. There you are admonished for being reckless.||\"What if the ghosts had taken you with them back to their graves?\" says one man grimly.||The next day you are ready to resume your journey.">
+<CONSTANT CHOICES245 <LTABLE "Follow the river north" "Follow the river south" "East into the countryside" "West to the main road">>
 
 <ROOM STORY245
 	(DESC "245")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT245)
+	(CHOICES CHOICES245)
+	(DESTINATIONS <LTABLE STORY576 STORY082 STORY278 STORY558>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT246 "Have you already successfully stolen the gold chain mail of Tyrnai for the Temple of Sig?">
+<CONSTANT CHOICES246 <LTABLE "Yes" "Not yet">>
 
 <ROOM STORY246
 	(DESC "246")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT246)
+	(CHOICES CHOICES246)
+	(DESTINATIONS <LTABLE STORY467 STORY728>)
+	(REQUIREMENTS <LTABLE GOLD-CHAIN-MAIL NONE>)
+	(TYPES <LTABLE R-ITEM R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT247 "The sound was the click of a secret door sliding open in the wall of the cavern. With a swift motion, you step up beside it, back to the wall. A figure emerges but you are able to ambush the ambusher. A sharp blow to the back of the head sends the dark figure crashing to the ground.||Another steps forth, however, shouting in a guttural voice. You realize the figures are ratmen -- manlike creatures that stand on two legs, but which have the tail and hairy features of a gigantic rat.">
 
 <ROOM STORY247
 	(DESC "247")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT247)
+	(EVENTS STORY247-EVENTS)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY247-EVENTS ("AUX" (MODIFIER 0))
+	<COND (<CHECK-ITEM ,RAT-POISON>
+		<CRLF>
+		<TELL "Use the rat poison?">
+		<COND (<YES?>
+			<SET MODIFIER 3>
+			<EMPHASIZE "The rat poison adds +3 to your COMBAT rolls.">
+			<REMOVE-ITEM ,RAT-POISON "used" T T>
+		)>
+	)>
+	<COMBAT-MONSTER ,MONSTER-TWO-RATMEN 3 6 6>
+	<COND (<CHECK-COMBAT ,MONSTER-RATMAN ,STORY247 .MODIFIER>
+		<STORY-JUMP ,STORY423>
+	)(ELSE
+		<STORY-JUMP ,STORY308>
+	)>>
 
 <ROOM STORY248
 	(DESC "248")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY248-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY248-BACKGROUND ()
+	<COND (<CHECK-ITEM ,WILLOW-STAFF> <RETURN ,STORY319>)>
+	<RETURN ,STORY727>>
+
+<CONSTANT TEXT249 "The first mate advises against steering a course to Nerech. \"That land is ringed with reefs that would smash our hull like an egg, Cap'n, and once ashore we'd have to contend with the savage manbeasts. I'm not sure if the crew will stand for it.\"">
+<CONSTANT CHOICES249 <LTABLE "Demand that the crew follow your orders (The Plains of Howling Darkness)" TEXT-ROLL-CHARISMA "Turn back">>
 
 <ROOM STORY249
 	(DESC "249")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT249)
+	(CHOICES CHOICES249)
+	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY-PLAINS-HOWLING-DARKNESS STORY209>)
+	(REQUIREMENTS <LTABLE 4 <LTABLE ABILITY-CHARISMA 11> NONE>)
+	(TYPES <LTABLE R-RANK R-TEST-ABILITY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT250 "The city of Trefoille is a terrifying vision of apocalyptic destruction. It had once been a thriving crossroads town, but now it is a burnt-out hulk. It was almost razed to the ground when it declared for the king, and tried to hold out against the army of Grieve Marlock during the recent civil war. It was sacked by the general's mercenaries. General Marlock is now trying to rebuild it. Craftsmen are hard at work everywhere.||There is nothing here but ashes and rubble.">
+<CONSTANT CHOICES250 <LTABLE "Visit Oliphard the Wizardly" "Take the road to the Shadar Tor" "Take the road to Marlock City" "Head into the Curstmoor" "Take the road north" "Take the road to Yellowport">>
 
 <ROOM STORY250
 	(DESC "250")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT250)
+	(EVENTS STORY250-EVENTS)
+	(CHOICES CHOICES250)
+	(DESTINATIONS <LTABLE STORY656 STORY602 STORY377 STORY175 STORY558 STORY233>)
+	(REQUIREMENTS <LTABLE CODEWORD-AMENDS NONE NONE NONE NONE NONE>)
+	(TYPES <LTABLE R-CODEWORD R-NONE R-NONE R-NONE R-NONE R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY250-EVENTS ()
+	<SETG CURRENT-LOCATION ,LOCATION-TREFOILLE>>
 
 <ROOM STORY251
 	(DESC "251")
@@ -18146,6 +18116,11 @@ paste on the ground below.">
 <ROOM STORY-CITIES-OF-GOLD
 	(DESC "Cities of Gold and Glory")
 	(VICTORY ENDING-CITIES-OF-GOLD)
+	(FLAGS LIGHTBIT)>
+
+<ROOM STORY-PLAINS-HOWLING-DARKNESS
+	(DESC "Plains of Howling Darkness")
+	(VICTORY ENDING-PLAINS-HOWLING-DARKNESS)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY-KILLED
