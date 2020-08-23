@@ -6070,11 +6070,11 @@ footing and fall to the ground.">
 	(STORY TEXT-GUILD-INVESTMENTS)
 	(EVENTS STORY046-EVENTS)
 	(CONTINUE STORY405)
-    (INVESTMENTS 0)
+	(INVESTMENTS 0)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY046-EVENTS ()
-    <GUILD-INVESTMENTS ,STORY046>>
+	<GUILD-INVESTMENTS ,STORY046>>
 
 <CONSTANT TEXT047 "The Forest of Larun is a mighty swathe of densely packed trees, a slice of primordial nature in the middle of busy, industrious Sokara.">
 <CONSTANT CHOICES047 <LTABLE "Venture deeper into the forest" "Venture deeper into the forest" "North to the Bronze Hills" "West to the River Grimm" "South into the countryside" "East to the road">>
@@ -6116,18 +6116,18 @@ footing and fall to the ground.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY049-EVENTS ("AUX" ODDS PARAMETERS)
-    <LOSE-STAMINA 3 ,DIED-FROM-INJURIES ,STORY049>
-    <COND (<IS-ALIVE>
-        <RESET-ODDS 1 0,STORY049>
-        <CRLF>
-        <TELL ,TEXT049-CONTINUED>
-        <TELL ,PERIOD-CR>
-        <COND (<CHECK-ITEM ,CLIMBING-GEAR>
-            <SET ODDS <GETP ,STORY049 ,P?REQUIREMENTS>>
-            <SET PARAMETERS <GET .ODDS 1>>
-            <PUT .PARAMETERS 2 1>
-        )>
-    )>>
+	<LOSE-STAMINA 3 ,DIED-FROM-INJURIES ,STORY049>
+	<COND (<IS-ALIVE>
+		<RESET-ODDS 1 0,STORY049>
+		<CRLF>
+		<TELL ,TEXT049-CONTINUED>
+		<TELL ,PERIOD-CR>
+		<COND (<CHECK-ITEM ,CLIMBING-GEAR>
+			<SET ODDS <GETP ,STORY049 ,P?REQUIREMENTS>>
+			<SET PARAMETERS <GET .ODDS 1>>
+			<PUT .PARAMETERS 2 1>
+		)>
+	)>>
 
 <CONSTANT TEXT050 "The new provost marshal of Yellowport is Royzer. He used to be Marloes Marlock's second in command. Since the assassination of the old provost, Royzer has ruled the city with an iron hand: patrols are frequent and spies are everywhere. You will have to be careful not to get yourself recognized.">
 
@@ -6144,7 +6144,7 @@ footing and fall to the ground.">
 <ROOM STORY051
 	(DESC "051")
 	(STORY TEXT051)
-    (EVENTS STORY051-EVENTS)
+	(EVENTS STORY051-EVENTS)
 	(CHOICES CHOICES051)
 	(DESTINATIONS <LTABLE <LTABLE STORY-KILLED STORY051-CRUSHING-DEFEAT STORY242 STORY062>>)
 	(REQUIREMENTS STORY051-REQUIREMENTS)
@@ -6152,33 +6152,33 @@ footing and fall to the ground.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY051-EVENTS ("AUX" (MODIFIER 0) PROFESSION ODDS PARAMETERS CONDITION)
-    <RESET-ODDS 2 0 ,STORY051>
-    <SET MODIFIER <GET-RANK ,CURRENT-CHARACTER>>
-    <SET PROFESSION <GETP ,CURRENT-CHARACTER ,P?PROFESSION>>
-    <SET ODDS <GETP ,STORY051 ,P?REQUIREMENTS>>
-    <SET PARAMETERS <GET .ODDS 1>>
-    <COND (<CHECK-PROFESSION ,PROFESSION-WARRIOR>
-        <PUT .PARAMETERS 1 3>
-    )(ELSE
-        <PUT .PARAMETERS 1 2>
-    )>
-    <COND (,CURRENT-SHIP
-        <SET CONDITION <GETP ,CURRENT-SHIP ,P?CONDITION>>
-        <COND (.CONDITION
-            <COND (<EQUAL? .CONDITION ,CONDITION-GOOD>
-                <SET MODIFIER <+ .MODIFIER 2>>
-            )(<EQUAL? .CONDITION ,CONDITION-EXCELLENT>
-                <SET MODIFIER <+ .MODIFIER 3>>
-            )(ELSE
-                <SET MODIFIER <- .MODIFIER 2>>
-            )>
-        )(ELSE
-            <SET MODIFIER <- .MODIFIER 2>>
-        )>
-    )(ELSE
-        <SET MODIFIER <- .MODIFIER 2>>
-    )>
-    <PUT .PARAMETERS 2 .MODIFIER>>
+	<RESET-ODDS 2 0 ,STORY051>
+	<SET MODIFIER <GET-RANK ,CURRENT-CHARACTER>>
+	<SET PROFESSION <GETP ,CURRENT-CHARACTER ,P?PROFESSION>>
+	<SET ODDS <GETP ,STORY051 ,P?REQUIREMENTS>>
+	<SET PARAMETERS <GET .ODDS 1>>
+	<COND (<CHECK-PROFESSION ,PROFESSION-WARRIOR>
+		<PUT .PARAMETERS 1 3>
+	)(ELSE
+		<PUT .PARAMETERS 1 2>
+	)>
+	<COND (,CURRENT-SHIP
+		<SET CONDITION <GETP ,CURRENT-SHIP ,P?CONDITION>>
+		<COND (.CONDITION
+			<COND (<EQUAL? .CONDITION ,CONDITION-GOOD>
+				<SET MODIFIER <+ .MODIFIER 2>>
+			)(<EQUAL? .CONDITION ,CONDITION-EXCELLENT>
+				<SET MODIFIER <+ .MODIFIER 3>>
+			)(ELSE
+				<SET MODIFIER <- .MODIFIER 2>>
+			)>
+		)(ELSE
+			<SET MODIFIER <- .MODIFIER 2>>
+		)>
+	)(ELSE
+		<SET MODIFIER <- .MODIFIER 2>>
+	)>
+	<PUT .PARAMETERS 2 .MODIFIER>>
 
 <ROOM STORY051-CRUSHING-DEFEAT
 	(DESC "051")
@@ -6200,7 +6200,7 @@ blessing at any one time. Once it is used up, you can return to any branch of th
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY052-EVENTS ()
-    <PURCHASE-BLESSING 25 10 ,GOD-LACUNA ,BLESSING-SCOUTING>>
+	<PURCHASE-BLESSING 25 10 ,GOD-LACUNA ,BLESSING-SCOUTING>>
 
 <CONSTANT TEXT053 "The creature bursts open in death, spilling a black inky cloud into the water. The sac in which this ink is kept falls free from its body. You can take the ink sac if you wish. You also find coral jewellery worth about 15 Shards.||Nothing else occurs during your foray into the depths, so you return to land. You climb back up the path that leads to the clifftop tor without incident.">
 <CONSTANT CHOICES053 <LTABLE "Take the road to Trefoille" "Take the road to Marlock City">>
@@ -6215,8 +6215,8 @@ blessing at any one time. Once it is used up, you can return to any branch of th
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY053-EVENTS ()
-    <GAIN-MONEY 15>
-    <KEEP-ITEM ,INK-SAC>>
+	<GAIN-MONEY 15>
+	<KEEP-ITEM ,INK-SAC>>
 
 <CONSTANT TEXT054 "You drive back the storm demons long enough for you to work free one of the stakes that is holding Sul Veneris down.">
 
@@ -6237,8 +6237,8 @@ blessing at any one time. Once it is used up, you can return to any branch of th
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY055-EVENTS ()
-    <COMBAT-MONSTER ,MONSTER-CULTIST 3 5 7>
-    <CHECK-COMBAT ,MONSTER-CULTIST ,STORY055 0 ,BAG-OF-PEARLS>>
+	<COMBAT-MONSTER ,MONSTER-CULTIST 3 5 7>
+	<CHECK-COMBAT ,MONSTER-CULTIST ,STORY055 0 ,BAG-OF-PEARLS>>
 
 <CONSTANT TEXT056 "A strange-looking craft is bobbing in the water. It is shaped like a cone, floating on its base, and as you draw nearer, you realize it is made entirely of metal. Its sail, a huge piece of cloth, seems to have collapsed and is spread out around it, on the surface of the sea. Great blue and white letters, in some foreign script, are painted on its side. You notice an opening on one side.">
 <CONSTANT CHOICES056 <LTABLE "Enter the strange craft" "Leave it and sail on">>
@@ -6271,8 +6271,8 @@ is off, you return to the city centre.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY058-EVENTS ()
-    <GAIN-MONEY 25>
-    <DELETE-CODEWORD ,CODEWORD-BARNACLE>>
+	<GAIN-MONEY 25>
+	<DELETE-CODEWORD ,CODEWORD-BARNACLE>>
 
 <CONSTANT TEXT059 "Your deft fingers find a false spine of carved wood among the titles in the bookcase. Pressing it, you hear a click and the bookcase swings out from the wall. Beyond lies a hidden room where you find a verdigris key.">
 <CONSTANT CHOICES059 <LTABLE "Leave at once" "Go upstairs to find Lauria" "Wait for her to return">>
@@ -6316,7 +6316,7 @@ is off, you return to the city centre.">
 			<CHECK-COMBAT ,MONSTER-WOLF ,STORY060 0 ,WOLF-PELT>
 		)>
 	)>
-    <IF-ALIVE ,TEXT-YOU-CAN-GO>>
+	<IF-ALIVE ,TEXT-YOU-CAN-GO>>
 
 <CONSTANT TEXT061 "\"Wait!\" you cry, \"I have seen the light. I wish to join your cult.\" \"What?\" yells the chef. Then his shoulders sag with obvious disappointment. \"We cannot refuse a new member. And we cannot eat our own people.\"||A short ceremony later -- fortunately, the initiation does not involve any cannibalistic rites -- and you are a full member of the Cult of Badogor. You lose 1 point of SANCTITY for joining such a vile cult.|| You take your leave and they wish you well, all smiles and friendship.||\"Remember, never say his name. And don\"t forget to bring us new recruits,\" says the leader.||\"And bring some people for dinner!\" adds the chef.||Hastily you head for the city centre.">
 
@@ -6682,7 +6682,7 @@ stink, laden with sulphur as it is.">
 			<PREVENT-DOOM ,STORY087>
 		)>
 	)>
-    <IF-ALIVE ,TEXT-YOU-CAN-GO>>
+	<IF-ALIVE ,TEXT-YOU-CAN-GO>>
 
 <CONSTANT TEXT088 "You find out how well your investments have done:">
 
