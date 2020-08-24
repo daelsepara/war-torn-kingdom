@@ -186,7 +186,7 @@
 <GLOBAL STARTING-POINT STORY001>
 <GLOBAL CURRENT-LOCATION LOCATION-SOKARA>
 
-<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "Trading Post" "Stinking River" "The Forest of Larun">>
+<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "The Trading Post" "The Stinking River" "The Forest of Larun" "The City of Trees">>
 
 <CONSTANT LOCATION-SOKARA 1>
 <CONSTANT LOCATION-MARLOCK 2>
@@ -201,6 +201,7 @@
 <CONSTANT LOCATION-TRADING 11>
 <CONSTANT LOCATION-STINKING 12>
 <CONSTANT LOCATION-LARUN 13>
+<CONSTANT LOCATION-TREES 14>
 
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
@@ -714,7 +715,7 @@
 ; "Story - Choice Requirements Validations"
 ; ---------------------------------------------------------------------------------------------
 
-<ROUTINE CHECK-AILMENTS (DISEASE)
+<ROUTINE CHECK-AILMENT (DISEASE)
 	<COND (<NOT .DISEASE> <RTRUE>)>
 	<RETURN <IN? .DISEASE ,AILMENTS>>>
 
@@ -1326,7 +1327,7 @@
 
 <ROUTINE AFFLICTED-WITH (DISEASE "OPT" EFFECT)
 	<COND (<NOT .EFFECT> <SET EFFECT ,TEXT-AFFLICTED>)>
-	<COND (<NOT <CHECK-AILMENTS .DISEASE>>
+	<COND (<NOT <CHECK-AILMENT .DISEASE>>
 		<CRLF>
 		<TELL "You are " .EFFECT " with the ">
 		<PRINT-ITEM .DISEASE T>
@@ -1347,6 +1348,50 @@
 			<COST-MONEY .FEE ,TEXT-PAID>
 			<TAKE-ITEM .ITEM>
 		)>
+	)>>
+
+<ROUTINE BUY-ITEMS (ITEM PRICE "OPT" MAX "AUX" NUMBER)
+	<COND (<NOT .MAX> <SET MAX 1>)>
+	<COND (<G=? ,MONEY .PRICE>
+		<REPEAT ()
+			<COND (<L=? ,MONEY .PRICE> <RETURN>)>
+			<CRLF>
+			<COND (<FSET? .ITEM ,NARTICLEBIT>
+				<TELL "The">
+			)(ELSE
+				<TELL "A">
+				<COND (<FSET? .ITEM ,VOWELBIT> <TELL "n">)>
+			)>
+			<TELL " ">
+			<PRINT-ITEM .ITEM T>
+			<TELL " sells at ">
+			<HLIGHT ,H-BOLD>
+			<TELL N .PRICE " " D ,CURRENCY>
+			<HLIGHT 0>
+			<TELL " each.">
+			<SET NUMBER <GET-NUMBER "How many will you buy?" 0 .MAX>>
+			<COND (<G? .NUMBER 0>
+				<COND (<G=? ,MONEY <* .PRICE .NUMBER>>
+					<CRLF>
+					<TELL "Are you sure?">
+					<COND (<YES?>
+						<COST-MONEY <* .PRICE .NUMBER> "paid">
+						<DO (I 1 .NUMBER)
+							<TAKE-ITEM .ITEM T>
+						>
+						<COND (<G=? .NUMBER .MAX>
+							<RETURN>
+						)(ELSE
+							<SET MAX <- .MAX .NUMBER>>
+						)>
+					)>
+				)(ELSE
+					<EMPHASIZE "You can't afford that!">
+				)>
+			)(ELSE
+				<RETURN>
+			)>
+		>
 	)>>
 
 <ROUTINE COST-MONEY (COST "OPT" REASON)
@@ -1425,11 +1470,31 @@
 		<EMPHASIZE "You cannot afford a cure at this time!">
 	)>>
 
+<ROUTINE DELETE-AILMENT (AILMENT FLAG TYPE FIX)
+	<COND (<CHECK-AILMENT .AILMENT>
+		<COND (<FSET? .AILMENT .FLAG>
+			<CRLF>
+			<TELL "The " .TYPE ": ">
+			<PRINT-ITEM .AILMENT T>
+			<TELL " has been " .FIX ,EXCLAMATION-CR>
+			<REMOVE .AILMENT>
+		)>
+	)>>
+
 <ROUTINE DELETE-BLESSING (BLESSING)
 	<DELETE-OBJECT .BLESSING CHECK-BLESSING "blessing of">>
 
 <ROUTINE DELETE-CODEWORD (CODEWORD)
 	<DELETE-OBJECT .CODEWORD CHECK-CODEWORD "codeword">>
+
+<ROUTINE DELETE-CURSE (CURSE)
+	<DELETE-AILMENT .CURSE ,CURSEBIT "curse" "lifted">>
+
+<ROUTINE DELETE-DISEASE (DISEASE)
+	<DELETE-AILMENT .DISEASE ,DISEASEBIT "disease" "cured">>
+
+<ROUTINE DELETE-POISON (POISON)
+	<DELETE-AILMENT .POISON ,POISONBIT "poison" "remedied">>
 
 <ROUTINE DELETE-TITLE (TITLE)
 	<DELETE-OBJECT .TITLE CHECK-TITLE "title of">>
@@ -2088,6 +2153,9 @@
 		>
 	)>>
 
+<ROUTINE SET-DESTINATION (STORY DESTINATION NEW)
+	<PUT <GETP .STORY ,P?DESTINATIONS> .DESTINATION .NEW>>
+
 <ROUTINE SET-LOCATION (LOCATION)
 	<SETG CURRENT-LOCATION .LOCATION>>
 
@@ -2141,7 +2209,7 @@
 			<COND (<FSET? .ITEM ,VOWELBIT> <TELL "n">)>
 		)>
 		<TELL " ">
-		<PRINT-ITEM .ITEM T>
+		<PRINT-ITEM .ITEM T 0 .BUY>
 		<TELL ,PERIOD-CR>
 		<COND (<G=? <COUNT-POSSESSIONS> ,LIMIT-POSSESSIONS>
 			<EMPHASIZE "You are carrying too many items!">
@@ -2932,6 +3000,7 @@
 <OBJECT CODEWORD-ANTHEM (DESC "Anthem")>
 <OBJECT CODEWORD-ANVIL (DESC "Anvil")>
 <OBJECT CODEWORD-APPLE (DESC "Apple")>
+<OBJECT CODEWORD-APPEASE (DESC "Appease")>
 <OBJECT CODEWORD-ARMOUR (DESC "Armour")>
 <OBJECT CODEWORD-ARTERY (DESC "Artery")>
 <OBJECT CODEWORD-ARTIFACT (DESC "Artifact")>
@@ -3143,11 +3212,11 @@
 
 <OBJECT AMULET-OF-PROTECTION
 	(DESC "amulet of protection")
-	(FLAGS TAKEBIT)>
+	(FLAGS TAKEBIT VOWELBIT)>
 
 <OBJECT ASHES
 	(DESC "ashes")
-	(FLAGS TAKEBIT)>
+	(FLAGS TAKEBIT VOWELBIT)>
 
 <OBJECT BAG-OF-PEARLS
 	(DESC "bag of pearls")
@@ -3194,6 +3263,11 @@
 	(DESC "gold chain mail of Tyrnai")
 	(FLAGS TAKEBIT)>
 
+<OBJECT GOLD-COMPASS
+	(DESC "gold compass")
+	(SCOUTING 2)
+	(FLAGS TAKEBIT)>
+
 <OBJECT GOLDEN-NET
 	(DESC "golden net")
 	(FLAGS TAKEBIT)>
@@ -3210,6 +3284,7 @@
 
 <OBJECT LANTERN
 	(DESC "lantern")
+	(QUANTITY 1)
 	(FLAGS TAKEBIT)>
 
 <OBJECT LOCKPICKS
@@ -3229,6 +3304,10 @@
 <OBJECT MAP
 	(DESC "map")
 	(FLAGS TAKEBIT)>
+
+<OBJECT OAK-STAFF
+	(DESC "oak staff")
+	(FLAGS TAKEBIT VOWELBIT)>
 
 <OBJECT OFFICERS-PASS
 	(DESC "officer's pass")
@@ -3310,6 +3389,11 @@
 <OBJECT SILVER-FLUTE
 	(DESC "silver flute")
 	(CHARISMA 2)
+	(FLAGS TAKEBIT)>
+
+<OBJECT SILVER-HOLY-SYMBOL
+	(DESC "silver holy symbol")
+	(SANCTITY 2)
 	(FLAGS TAKEBIT)>
 
 <OBJECT SILVER-NUGGET
@@ -3450,9 +3534,9 @@
 	(DESC "COMBAT disadvantage")
 	(EFFECTS <LTABLE 0 -2 0 0 0 0>)>
 
-<OBJECT GENERIC-CURSE
-	(DESC "Cursed")
-	(EFFECTS <LTABLE 0 0 0 0 0 0>)
+<OBJECT CURSE-TYRNAI
+	(DESC "Tyrnai's Curse")
+	(EFFECTS <LTABLE 0 -1 0 0 0 0>)
 	(FLAGS CURSEBIT)>
 
 ; "Monsters"
@@ -4020,8 +4104,6 @@
 			<REMOVE-ITEM .POTION "used" F T>
 			<SET RESULT 1>
 		)>
-	)(ELSE
-		<CRLF>
 	)>
 	<RETURN .RESULT>>
 
@@ -5020,7 +5102,7 @@
 		<TELL "What do you want to do?">
 		<REPEAT ()
 			<SET KEY <INPUT 1>>
-			<COND (<EQUAL? .KEY !\0 !\1 !\0> <RETURN>)>
+			<COND (<EQUAL? .KEY !\0 !\1 !\2 !\0> <RETURN>)>
 		>
 		<CRLF>
 		<COND (<EQUAL? .KEY !\0>
@@ -5532,6 +5614,62 @@
 <ROUTINE LOCAL-MARKET-SELLING-OTHER ()
 	<MERCHANT <LTABLE SMOLDER-FISH SILVER-NUGGET SILVER-FLUTE> <LTABLE 55 150 500> ,PLAYER T>>
 
+; "City of trees market"
+; ---------------------------------------------------------------------------------------------
+
+<CONSTANT TREES-BUY-MENU <LTABLE "Buy armour/weapons" "Buy magic/other items" "Back">>
+<CONSTANT TREES-SELL-MENU <LTABLE "Sell armour/weapons" "Sell magic/other items" "Back">>
+
+<ROOM CITY-TREES-BUY
+	(DESC "358 Merchant - Selling")
+	(CHOICES CARAN-BUY-MENU)
+	(DESTINATIONS <LTABLE TREES-BUY-GEAR TREES-BUY-OTHER STORY358>)
+	(TYPES THREE-NONES)
+	(FLAGS LIGHTBIT)>
+
+<ROOM TREES-BUY-GEAR
+	(DESC "358 Merchant - Selling armours/weapons")
+	(EVENTS TREES-BUYING-GEAR)
+	(CONTINUE CITY-TREES-BUY)
+	(FLAGS LIGHTBIT)>
+
+<ROOM TREES-BUY-OTHER
+	(DESC "358 Merchant - Selling magic/other items")
+	(EVENTS TREES-BUYING-OTHER)
+	(CONTINUE CITY-TREES-BUY)
+	(FLAGS LIGHTBIT)>
+
+<ROOM CITY-TREES-SELL
+	(DESC "358 Merchant - Buying")
+	(CHOICES CARAN-BUY-MENU)
+	(DESTINATIONS <LTABLE TREES-SELL-GEAR TREES-SELL-OTHER STORY358>)
+	(TYPES THREE-NONES)
+	(FLAGS LIGHTBIT)>
+
+<ROOM TREES-SELL-GEAR
+	(DESC "358 Merchant - Buying armours/weapons")
+	(EVENTS TREES-SELLING-GEAR)
+	(CONTINUE CITY-TREES-SELL)
+	(FLAGS LIGHTBIT)>
+
+<ROOM TREES-SELL-OTHER
+	(DESC "358 Merchant - Buying magic/other items")
+	(EVENTS TREES-SELLING-OTHER)
+	(CONTINUE CITY-TREES-SELL)
+	(FLAGS LIGHTBIT)>
+
+<ROUTINE TREES-BUYING-GEAR ()
+	<MERCHANT <LTABLE LEATHER-ARMOUR AXE BATTLE-AXE MACE SPEAR STAFF SWORD AXE1 BATTLE-AXE1 MACE1 SPEAR1 STAFF1 SWORD1> <LTABLE 50 50 50 50 50 50 50 250 250 250 250 250 250>>>
+
+<ROUTINE TREES-BUYING-OTHER ()
+	<MERCHANT <LTABLE AMBER-WAND EBONY-WAND SILVER-HOLY-SYMBOL GOLD-COMPASS ROPE LANTERN> <LTABLE 500 1000 800 900 50 100>>>
+
+<ROUTINE TREES-SELLING-GEAR ()
+	<MERCHANT <LTABLE LEATHER-ARMOUR RING-MAIL AXE BATTLE-AXE MACE SPEAR STAFF SWORD AXE1 BATTLE-AXE1 MACE1 SPEAR1 STAFF1 SWORD1> <LTABLE 45 90 40 40 40 40 40 40 200 200 200 200 200 200> ,PLAYER T>>
+
+<ROUTINE TREES-SELLING-OTHER ()
+	<MERCHANT <LTABLE AMBER-WAND EBONY-WAND COBALT-WAND MANDOLIN SILVER-HOLY-SYMBOL GOLD-COMPASS ROPE LANTERN SILVER-NUGGET SILVER-FLUTE> <LTABLE 400 800 1600 270 750 800 45 90 150 500> ,PLAYER T>>
+
 ; "Instructions"
 ; ---------------------------------------------------------------------------------------------
 
@@ -5570,6 +5708,7 @@
 	<RESET-ODDS 1 0 ,STORY049>
 	<RESET-ODDS 2 0 ,STORY051>
 	<RESET-ODDS 1 0 ,STORY124>
+	<SET-DESTINATION ,STORY358 3 ,STORY678>
 	<RESET-DIFFICULTY ,STORY237 1 10>
 	<PUTP ,STORY014 ,P?DOOM T>
 	<PUTP ,STORY034 ,P?DOOM T>
@@ -10493,194 +10632,140 @@ paste on the ground below.">
 	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT351 "One day, a new slave is brought in to work beside you. Much to your astonishment, it is Lauria, the thief who left you in the lurch when you burgled a wizard's house in Yellowport.||\"Sorry about the last time,\" she says, \"Business, you know. Now's my chance to make it up to you.\"||She explains that she has discovered an escape route. This time, she promises to set up a diversion while you make for a tunnel where a cave-in has left an opening to the outside. Lauria says she will meet you there later.">
+<CONSTANT CHOICES351 <LTABLE "Go along with her plan" "Escape on your own">>
+
 <ROOM STORY351
 	(DESC "351")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT351)
+	(CHOICES CHOICES351)
+	(DESTINATIONS <LTABLE STORY662 STORY565>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT352 "You mutter an enchantment that is intended to give you the appearance of a ratman but you get some of the intricate syllables wrong, and take on the appearance of a particularly wealthy merchant! At the sight of you, the ratmen redouble their efforts, and you are overwhelmed by sheer numbers.">
 
 <ROOM STORY352
 	(DESC "352")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT352)
+	(CONTINUE STORY308)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT353 "The guard recognizes you, and shouts at the top of his lungs, \"It's the stinking traitor who murdered Nergan. Shoot to kill!\"||Several archers pop up from behind the rocks overhead, and start shooting at you. An arrow embeds itself in your shoulder.">
+<CONSTANT TEXT353-CONTINUED "You realize you made a bad mistake in coming back here, and you run for your life. As you climb down, you are shot at again.">
+<CONSTANT TEXT353-END "You make it back to the foothills of the mountains.">
 
 <ROOM STORY353
 	(DESC "353")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT353)
+	(EVENTS STORY353-EVENTS)
+	(CONTINUE STORY474)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY353-EVENTS ("AUX" ROLL)
+	<LOSE-STAMINA 3 ,DIED-FROM-INJURIES ,STORY353>
+	<COND (<IS-ALIVE>
+		<IF-ALIVE ,TEXT353-CONTINUED>
+		<SET ROLL <RANDOM-EVENT 1 0 T>>
+		<COND (<L=? .ROLL 2>
+			<EMPHASIZE "You are hit twice.">
+			<LOSE-STAMINA 6 ,DIED-FROM-INJURIES ,STORY353>
+		)(<L=? .ROLL 4>
+			<EMPHASIZE "You are hit once.">
+			<LOSE-STAMINA 3 ,DIED-FROM-INJURIES ,STORY353>
+		)(ELSE
+			<EMPHASIZE "The arrows missed completely.">
+			<PREVENT-DOOM ,STORY353>
+		)>
+	)>
+	<IF-ALIVE ,TEXT353-END>>
+
+<CONSTANT TEXT354 "You throw, muttering a prayer for forgiveness to the gods.||The weapon soars through the air. It turns, and catches the sunlight, sparkling like a flashing star, before sinking beneath the water with barely a splash. No ripples appear. Your heart feels uplifted, and the curse is no more!">
 
 <ROOM STORY354
 	(DESC "354")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT354)
+	(EVENTS STORY354-EVENTS)
+	(CONTINUE STORY378)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY354-EVENTS ()
+	<DELETE-CODEWORD ,CODEWORD-APPEASE>
+	<DELETE-CURSE ,CURSE-TYRNAI>>
 
 <ROOM STORY355
 	(DESC "355")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-GUILD-INVESTMENTS)
+	(EVENTS STORY355-EVENTS)
+	(CONTINUE STORY046)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY355-EVENTS ()
+	<CHECK-INVESTMENTS ,STORY046>>
+
+<CONSTANT TEXT356 "You are pious enough to be allowed to enter the sacred grove. You step in and knock on the door. A kindly old druid opens the door and greets you. You hand him the oak staff.||\"Thank you,\" he says, \"An oak staff, eh. That\"s an interesting message, to be sure.\"||He hands you 50 Shards as payment and a willow staff, saying, \"Please take this staff to the Oak Druid in the City of Trees, on the Isle of Druids. I'm sure he'll reward you, too. Good day and thanks again.\"||With that he shuts the door. You head back into the forest.">
 
 <ROOM STORY356
 	(DESC "356")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT356)
+	(EVENTS STORY356-EVENTS)
+	(CONTINUE STORY047)
+	(ITEMS <LTABLE WILLOW-STAFF>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY356-EVENTS ()
+	<GIVE-ITEM ,OAK-STAFF T>
+	<GAIN-MONEY 50>>
+
+<CONSTANT TEXT357 "The moon begins to rise, making the ghosts seem to glow. They sit hunched over their feast like vultures, occasionally stirring their hands in the pile of silver coins and tittering eerily.">
+<CONSTANT CHOICES357 <LTABLE "Confront them" "Stay hidden and follow when they leave">>
 
 <ROOM STORY357
 	(DESC "357")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT357)
+	(CHOICES CHOICES357)
+	(DESTINATIONS <LTABLE STORY023 STORY541>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT358 "\"Welcome to the City of Trees,\" says a passing woman dressed in the garb of a druid.||The city has been built amid the branches of several mighty oaks. Ladders run up and down the trees to houses that perch like nests in the branches. You are not allowed into any houses, but the druids allow you to barter at the market.">
+<CONSTANT CHOICES358 <LTABLE "Buy weapons/armours/magic/other items" "Sell weapons/armours/magic/other items" "Leave the City of Trees">>
 
 <ROOM STORY358
 	(DESC "358")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT358)
+	(EVENTS STORY358-EVENTS)
+	(DESTINATIONS <LTABLE CITY-TREES-BUY CITY-TREES-SELL STORY678>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY358-EVENTS ()
+	<SET-LOCATION ,LOCATION-TREES>
+	<COND (<CHECK-PROFESSION ,PROFESSION-WAYFARER>
+		<SET-DESTINATION ,STORY358 3 ,STORY645>
+	)(ELSE
+		<SET-DESTINATION ,STORY358 3 ,STORY678>
+	)>>
+
+<CONSTANT TEXT359 "A wandering tinker accosts you, selling lanterns for 50 Shards each. You can buy no more than three.">
 
 <ROOM STORY359
 	(DESC "359")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT359)
+	(EVENTS STORY359-EVENTS)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY359-EVENTS ()
+	<BUY-ITEMS ,LANTERN 50 3>>
+
+<CONSTANT TEXT360 "You have no luck in tracking down the ghoul. The next day, you hear a rumour doing the rounds in the taverns. A ghoul was found and destroyed by an adventuring priestess of Tyrnai. Apparently the temple of Nagil rewarded her handsomely. Looks like you were pipped at the post.">
 
 <ROOM STORY360
 	(DESC "360")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT360)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY361

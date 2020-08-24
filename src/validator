@@ -1,6 +1,6 @@
 #!/bin/bash
-grep -n '(STORY' wartorn.zil | grep -v '(STORY TEXT' | grep -v '(STORY NONE)' | grep -v 'STORY-JUMP (STORY)' | grep -v '(STORY "' | grep -v '(STORY JUMP ' | grep -v '(STORY TOWNHOUSE ' | grep -v '(STORY INDEX '
+grep -n '(STORY' wartorn.zil | grep -v '(STORY TEXT' | grep -v '(STORY NONE)' | grep -v 'STORY-JUMP (STORY)' | grep -v '(STORY "' | grep -v '(STORY JUMP ' | grep -v '(STORY TOWNHOUSE ' | grep -v '(STORY INDEX ' | grep -v 'SET-DESTINATION (STORY DESTINATION'
 grep -n '(CHOICE' wartorn.zil | grep -v '(CHOICES CHOICES' | grep -v '(CHOICES NONE)' | grep -v '(CHOICES VENEFAX-' | grep -v '(CHOICES "AUX"' | grep -v '<ROUTINE PRINT-MENU' | grep -v '(CHOICES YELLOWPORT-' | grep -v '(CHOICES MARLOCK-' | grep -v '(CHOICES CARAN-'
-grep -n '(CONTINUE' wartorn.zil | grep -v '(CONTINUE STORY' | grep -v '(CONTINUE NONE)' | grep -v '(CONTINUE YELLOWPORT-' | grep -v '(CONTINUE VENEFAX-' | grep -v '(CONTINUE CARAN-'
+grep -n '(CONTINUE' wartorn.zil | grep -v '(CONTINUE STORY' | grep -v '(CONTINUE NONE)' | grep -v '(CONTINUE YELLOWPORT-' | grep -v '(CONTINUE VENEFAX-' | grep -v '(CONTINUE CARAN-' | grep -v '(CONTINUE CITY-TREES'
 grep -n '(DESTINATION' wartorn.zil | grep -v '(DESTINATIONS <LTABLE ' | grep -v '(DESTINATIONS NONE)' | grep -v '(DESTINATIONS YELLOWPORT-'| grep -v '(DESTINATIONS MARLOCK-' | grep -v '(DESTINATION NONE)'
 grep -n '(REQUIREMENTS' wartorn.zil | grep -v '(REQUIREMENTS NONE)' | grep -v '(REQUIREMENTS <LTABLE ' | grep -v '(REQUIREMENTS STORY' | grep -v '(REQUIREMENTS YELLOWPORT-' | grep -v '(REQUIREMENTS MARLOCK-'
