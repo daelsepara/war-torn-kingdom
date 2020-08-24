@@ -3027,6 +3027,7 @@
 <OBJECT CODEWORD-ANVIL (DESC "Anvil")>
 <OBJECT CODEWORD-APPLE (DESC "Apple")>
 <OBJECT CODEWORD-APPEASE (DESC "Appease")>
+<OBJECT CODEWORD-ARK (DESC "Ark")>
 <OBJECT CODEWORD-ARMOUR (DESC "Armour")>
 <OBJECT CODEWORD-ARTERY (DESC "Artery")>
 <OBJECT CODEWORD-ARTIFACT (DESC "Artifact")>
@@ -3571,6 +3572,12 @@
 
 ; "Monsters"
 ; ---------------------------------------------------------------------------------------------
+
+<OBJECT MONSTER-BANDIT
+	(DESC "Bandit")
+	(COMBAT 3)
+	(DEFENSE 4)
+	(STAMINA 6)>
 
 <OBJECT MONSTER-BLUE-DRAGON
 	(DESC "Blue Dragon Knight")
@@ -5804,6 +5811,8 @@
 	<PUTP ,STORY346 ,P?DOOM T>
 	<PUTP ,STORY347 ,P?DOOM T>
 	<PUTP ,STORY353 ,P?DOOM T>
+	<PUTP ,STORY371 ,P?DOOM T>
+	<PUTP ,STORY389 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -5864,6 +5873,8 @@
 <CONSTANT TEXT-SEEK-BLESSING "Seek a blessing">
 
 <CONSTANT TEXT-TEMPLE-ALVIR-VALMIR "Becoming an initiate of Alvir and Valmir gives you the benefit of paying less for blessings and other services the temple can offer. It costs 40 Shards to become an initiate. You cannot do this if you are already an initiate of another temple.">
+<CONSTANT TEXT-TEMPLE-OF-ELNIR "If you are an initiate it costs only 10 Shards to purchase Elnir's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again when you make a failed CHARISMA roll. It is good for only one reroll. You can have only one CHARISMA blessing at any one time. Once it is used up, you can return to any branch of the Temple of Elnir to buy a new one.">
+
 <CONSTANT TEXT-TO-BEACH "Go down to the beach">
 <CONSTANT TEXT-TO-TREFOILLE "Take the road to Trefoille">
 <CONSTANT TEXT-TO-MARLOCK "Take the road to Marlock City">
@@ -5881,7 +5892,7 @@
 <CONSTANT ONE-ABILITY <LTABLE R-TEST-ABILITY>>
 <CONSTANT ONE-RANDOM <LTABLE R-RANDOM>>
 <CONSTANT TYPE-SAIL <LTABLE R-RANK R-TEST-ABILITY R-NONE>>
-<CONSTANT TEST-SAILING <LTABLE 4 <LTABLE ABILITY-CHARISMA 11> NONE>>
+<CONSTANT STORY-TEST-SAILING <LTABLE 4 <LTABLE ABILITY-CHARISMA 11> NONE>>
 <CONSTANT TWO-ABILITY <LTABLE R-TEST-ABILITY R-TEST-ABILITY>>
 
 <CONSTANT CHOICES-NERECH <LTABLE "Demand that the crew follow your orders (The Plains of Howling Darkness)" TEXT-ROLL-CHARISMA "Turn back">>
@@ -7059,11 +7070,9 @@ is off, you return to the city centre.">
 	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT073 "If you are an initiate it costs only 10 Shards to purchase Elnir's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again when you make a failed CHARISMA roll. It is only good for one reroll. You can have only one CHARISMA blessing at any one time. Once it is used up, you can return to any branch of the Temple of Elnir to buy a new one.">
-
 <ROOM STORY073
 	(DESC "073")
-	(STORY TEXT073)
+	(STORY TEXT-TEMPLE-OF-ELNIR)
 	(EVENTS STORY073-EVENTS)
 	(CONTINUE STORY568)
 	(FLAGS LIGHTBIT)>
@@ -9361,7 +9370,7 @@ paste on the ground below.">
 	(STORY TEXT249)
 	(CHOICES CHOICES-NERECH)
 	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY209> STORY209>)
-	(REQUIREMENTS TEST-SAILING)
+	(REQUIREMENTS STORY-TEST-SAILING)
 	(TYPES TYPE-SAIL)
 	(FLAGS LIGHTBIT)>
 
@@ -10201,7 +10210,7 @@ paste on the ground below.">
 	(STORY TEXT312)
 	(CHOICES CHOICES-NERECH)
 	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY507> STORY507>)
-	(REQUIREMENTS TEST-SAILING)
+	(REQUIREMENTS STORY-TEST-SAILING)
 	(TYPES TYPE-SAIL)
 	(FLAGS LIGHTBIT)>
 
@@ -10530,11 +10539,11 @@ paste on the ground below.">
 <ROOM STORY338
 	(DESC "338")
 	(STORY TEXT338)
-	(EVENTS STORY388-EVENTS)
+	(EVENTS STORY338-EVENTS)
 	(CONTINUE STORY427)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY388-EVENTS ()
+<ROUTINE STORY338-EVENTS ()
 	<CURE-AILMENTS 25 ,POISONBIT>>
 
 <CONSTANT TEXT339 "You find a burned-out house in the poor quarter where a trader has set up a stall, selling ash and debris. The merchant, a weaselly-looking old woman, is screeching, \"Ashes, ashes from the house of a sorceress. Fifteen Shards a packet.\"">
@@ -10862,7 +10871,7 @@ paste on the ground below.">
 	(STORY TEXT-VIOLET-OCEAN)
 	(CHOICES CHOICES-VIOLET-OCEAN)
 	(DESTINATIONS <LTABLE STORY-BLOOD-DARK-SEA <LTABLE STORY-BLOOD-DARK-SEA STORY085> STORY085>)
-	(REQUIREMENTS TEST-SAILING)
+	(REQUIREMENTS STORY-TEST-SAILING)
 	(TYPES TYPE-SAIL)
 	(FLAGS LIGHTBIT)>
 
@@ -10884,7 +10893,7 @@ paste on the ground below.">
 	(STORY TEXT-VIOLET-OCEAN)
 	(CHOICES CHOICES-VIOLET-OCEAN)
 	(DESTINATIONS <LTABLE STORY-BLOOD-DARK-SEA <LTABLE STORY-BLOOD-DARK-SEA STORY439> STORY439>)
-	(REQUIREMENTS TEST-SAILING)
+	(REQUIREMENTS STORY-TEST-SAILING)
 	(TYPES TYPE-SAIL)
 	(FLAGS LIGHTBIT)>
 
@@ -10937,386 +10946,262 @@ paste on the ground below.">
 	<SETG STAMINA ,PREVIOUS-STAMINA>
 	<COND (,BEST-WEAPON <REMOVE ,BEST-WEAPON>)>
 	<COND (,BEST-ARMOUR <REMOVE ,BEST-ARMOUR>)>
-	<FIND-BEST-GEAR>>
+	<FIND-BEST-GEAR>
+	<UPDATE-STATUS-LINE>>
+
+<CONSTANT TEXT371 "With a war cry, you leap to the attack. Your first blow rips away a great chunk of its body. A frightened voice pipes up from inside the Gob-gobbler. \"Help, help, lads, this one's a real fighter!\"||You realize the Gob-gobbler is a man disguised as a monster. But then two bandits run out of the woods to attack you. You must fight them one at a time.">
 
 <ROOM STORY371
 	(DESC "371")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT371)
+	(EVENTS STORY371-EVENTS)
+	(CONTINUE STORY422)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY371-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-BANDIT 3 4 6>
+	<CHECK-COMBAT ,MONSTER-BANDIT ,STORY371>
+	<COND (<IS-ALIVE>
+		<COMBAT-MONSTER ,MONSTER-BANDIT 2 3 7>
+		<CHECK-COMBAT ,MONSTER-BANDIT ,STORY371>
+	)>>
+
+<CONSTANT TEXT372 "A sleek yacht takes you on a trouble-free journey to Yellowport.">
 
 <ROOM STORY372
 	(DESC "372")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT372)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT373 "If you are an initiate it costs only 10 Shards to purchase Tyrnai's blessing. A non-initiate must pay 25 Shards. The blessing works by allowing you to try again when you make a failed COMBAT roll. It is good for only one reroll. You can have only one COMBAT blessing at any one time. Once it is used up, you can return to any branch of the temple of Tyrnai to buy a new one.">
 
 <ROOM STORY373
 	(DESC "373")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT373)
+	(EVENTS STORY373-EVENTS)
+	(CONTINUE STORY526)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY373-EVENTS ()
+	<PURCHASE-BLESSING 25 10 ,GOD-TYRNAI ,BLESSING-COMBAT>>
+
+<CONSTANT TEXT374 "You sense that sorcery is afoot. You make a few magical divinations which tell you that the path is cursed: it will sour the water supply of anyone that travels upon it. However, you can tell that the curse affects only the path. There is just enough room to squeeze your way up beside it, hugging the rock face. You find your water returns to a state that is drinkable.||Eventually, the path leads to a bubbling well of spring water in the rocks, just at the opening of a cave. You refill your canteen, then explore the cave.">
 
 <ROOM STORY374
 	(DESC "374")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT374)
+	(CONTINUE STORY232)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT375 "You tell the provost you have important news, best heard by him alone. He takes you to a side chamber without his guards.">
+<CONSTANT CHOICES375 <LTABLE "If you want to attempt to slay the provost marshal" "Otherwise, you tell him some old news and he throws you out">>
 
 <ROOM STORY375
 	(DESC "375")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT375)
+	(CHOICES CHOICES375)
+	(DESTINATIONS <LTABLE STORY344 STORY010>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT376 "You manage to slip out of your chains, and sneak off into the tunnels. You make it to the outside, but a troop of guards and a pack of dogs finally track you down. The fate of all escaped slaves is death.">
 
 <ROOM STORY376
 	(DESC "376")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT376)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT377 "The road between Marlock and Trefoille is well maintained with regular guard posts. The Sokarans are nothing if not efficient.">
+<CONSTANT CHOICES377 <LTABLE TEXT-TO-TREFOILLE TEXT-TO-MARLOCK "North into Curstmoor">>
 
 <ROOM STORY377
 	(DESC "377")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT377)
+	(EVENTS STORY377-EVENTS)
+	(CHOICES CHOICES377)
+	(DESTINATIONS <LTABLE STORY250 STORY100 STORY175>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY377-EVENTS ("AUX" ROLL COUNT)
+	<COND (,RUN-ONCE
+		<SET ROLL <RANDOM-EVENT 1 0 T>>
+		<COND (<L=? .ROLL 2>
+			<COND (<G? <COUNT-CONTAINER ,BLESSINGS> 0>
+				<EMPHASIZE "A bad omen -- you lose a blessing">
+				<SET COUNT <COUNT-CONTAINER ,BLESSINGS>>
+				<DEC .COUNT>
+				<STORY-LOSE-BLESSING .COUNT>
+			)(ELSE
+				<EMPHASIZE ,NOTHING-HAPPENS>
+			)>
+		)(<L=? .ROLL 2>
+			<EMPHASIZE ,NOTHING-HAPPENS>
+		)(ELSE
+			<EMPHASIZE "You found an ordinary sword.">
+			<TAKE-ITEM ,SWORD>
+		)>
+	)>
+	<CRLF>
+	<TELL ,TEXT-YOU-CAN-GO>
+	<CRLF>>
+
+<CONSTANT TEXT378 "You find a wide pool of bubbling, electric blue water. It gives off a strong invigorating scent, like crushed pine leaves.">
+<CONSTANT CHOICES378 <LTABLE HAVE-CODEWORD HAVE-A OTHERWISE>>
 
 <ROOM STORY378
 	(DESC "378")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT378)
+	(CHOICES CHOICES378)
+	(DESTINATIONS <LTABLE STORY593 STORY556 STORY717>)
+	(REQUIREMENTS <LTABLE CODEWORD-APPEASE VIAL-YELLOW-DUST NONE>)
+	(TYPES <LTABLE R-CODEWORD R-ITEM R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT379 "The scholar is in no condition to resist now that your work has been done for you by the ruffians. You take his purse. Inside you find 100 Shards. Content with a good bit of banditry, you decide to call it a night.">
 
 <ROOM STORY379
 	(DESC "379")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT379)
+	(EVENTS STORY379-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY379-EVENTS ()
+	<GAIN-MONEY 100>>
+
+<CONSTANT TEXT380 "\"By the Larcenous One!\" exclaims the high priest joyfully. \"You are indeed an accomplished rogue.\"||The high priest teaches you secret knowledge of Sig, the God of Deception. You get a 300 Shard reward and you go up 1 Rank.">
 
 <ROOM STORY380
 	(DESC "380")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT380)
+	(EVENTS STORY380-EVENTS)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY380-EVENTS ()
+	<RETURN-ITEM ,GOLD-CHAIN-MAIL T>
+	<GAIN-MONEY 300>
+	<GAIN-RANK 1>
+	<UPGRADE-STAMINA <ROLL-DICE 1>>
+	<COND (<CHECK-AILMENT ,CURSE-TYRNAI> <STORY-JUMP ,STORY564>)>>
+
+<CONSTANT TEXT381 "You dart down a side tunnel but are horrified to meet several ratmen coming to meet you while your pursuers close in behind. You are caught in a vice and, though you fight with desperate bravery, you are overcome.">
 
 <ROOM STORY381
 	(DESC "381")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT381)
+	(CONTINUE STORY308)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT382 "\"Fishing?\" you ask. \"Surely nothing can live in these poisonous waters.\"||The fisherman shows you a bright yellow fish with grey stripes. \"Only the smolder fish has adapted to the sulphur. It feeds on the local seaweed. Mind you, the smolder fish is totally inedible.\"||\"Why hunt it, then?\"||\"Each fish is worth quite a bit to sorcerers and the like. We have a standing quota to fill each month for the magical colleges at Dweomer. The sulphur-laden organs burn in a particular way -- a very useful ingredient in certain magics, I am told.\"||\"And where does all this sulphur come from?\"||\"Scholars say there is an underground volcanic vent. Others believe it is the breath of the sea dragon. Personally, I always drop a silver nugget into the waters once a month to appease the dragon.\"||\"Silver? Not gold?\",||\"The dragon prefers the taste of silver.\"">
 
 <ROOM STORY382
 	(DESC "382")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT382)
+	(CONTINUE STORY135)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT383 "After a while Fourze circles around, heading across country.">
 
 <ROOM STORY383
 	(DESC "383")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT383)
+	(CHOICES CHOICES-SCOUTING)
+	(DESTINATIONS <LTABLE <LTABLE STORY585 STORY263>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT384 "Guildmaster Vernon is pleased to see you. You hand him the copper amulet and he exclaims joyfully, \"The amulet of King Skabb! Well done, indeed.\"||You are given 450 Shards as a reward.">
 
 <ROOM STORY384
 	(DESC "384")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT384)
+	(EVENTS STORY384-EVENTS)
+	(CONTINUE STORY010)
+	(CODEWORDS <LTABLE CODEWORD-ACID>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY384-EVENTS ()
+	<RETURN-ITEM ,COPPER-AMULET T>
+	<GAIN-MONEY 450>>
+
+<CONSTANT TEXT385 "The king is taken totally by surprise, and you cut him down. He falls dead at your feet.||\"Long live General Marlock,\" you mutter under your breath.||You take the king's royal ring as proof of your act.||Although you manage to talk your way out of the stockade, the body is discovered as you are heading down the mountain path. Vengeful soldiers set off in pursuit.">
+<CONSTANT CHOICES385 <LTABLE TEXT-ROLL-SCOUTING TEXT-ROLL-THIEVERY>>
 
 <ROOM STORY385
 	(DESC "385")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT385)
+	(CHOICES CHOICES385)
+	(DESTINATIONS <LTABLE <LTABLE STORY167 STORY230> <LTABLE STORY167 STORY230>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 9> <LTABLE ABILITY-THIEVERY 9>>)
+	(TYPES TWO-ABILITY)
+	(ITEMS <LTABLE ROYAL-RING>)
+	(CODEWORDS <LTABLE CODEWORD-ARK>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT386 "There is no sign of Lauria, but you do find an open trunk and a window with a knotted rope dangling from it. So she found the treasure and then made her escape, leaving you behind to face the music. You allow yourself a tight-lipped smile as you hear her voice echoing leadenly from far off in the fog: \"There's a thief at Master Talanexor's house. Quick!\"||You'll settle the score with Lauria at a future date. For now, you just have time to escape before a patrol arrives.">
 
 <ROOM STORY386
 	(DESC "386")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT386)
+	(CONTINUE STORY010)
+	(CODEWORDS <LTABLE CODEWORD-ASHEN>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT387 "You are on a road between Caran Baru and Trefoille. You come to the Weary Pilgrim Tavern, a way station between the cities. The tavern costs you 1 Shard a day. Each day you spend here, you can recover 1 Stamina point if injured, up to the limit of your normal unwounded Stamina score.">
+<CONSTANT CHOICES387 <LTABLE "If you want to spend 3 Shards buying drinks all round so you can glean rumours" "To leave, you can go: South" "North" "West into the Forest of Larun" "East to the lake">>
 
 <ROOM STORY387
 	(DESC "387")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(STORY TEXT387)
+	(EVENTS STORY387-EVENTS)
+	(CHOICES CHOICES387)
+	(DESTINATIONS <LTABLE STORY666 STORY558 STORY347 STORY047 STORY135>)
+	(REQUIREMENTS <LTABLE 3 NONE NONE NONE NONE>)
+	(TYPES <LTABLE R-MONEY R-NONE R-NONE R-NONE R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY387-EVENTS ()
+	<VISIT-INN ,STORY387 1 1>>
 
 <ROOM STORY388
 	(DESC "388")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-TEMPLE-OF-ELNIR)
+	(EVENTS STORY388-EVENTS)
+	(CONTINUE STORY316)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY388-EVENTS ()
+	<PURCHASE-BLESSING 25 10 ,GOD-ELNIR ,BLESSING-CHARISMA>>
+
+<CONSTANT TEXT389 "Driving one of the creatures back with your sword, you leap on to the forecastle shouting, \"To me, men!\" They rally around you, organizing themselves into a fighting unit and a battle ensues. You must fight one ker'ilk.">
 
 <ROOM STORY389
 	(DESC "389")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT389)
+	(EVENTS STORY389-EVENTS)
+	(CONTINUE STORY519)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY389-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-KER-ILK 4 9 8>
+	<CHECK-COMBAT ,MONSTER-KER-ILK ,STORY389>>
+
+<CONSTANT TEXT390 "The horses rush past you. They seem to gallop through the air, whinnying and neighing, bellowing at the twilight sky. Soon they disappear from your sight. You make camp, and the next day continue your journey.">
+<CONSTANT CHOICES390 <LTABLE "Go north across country" "Head east to the road" "Go to Trefoille" TEXT-TO-MARLOCK "Head west towards the River Grimm">>
 
 <ROOM STORY390
 	(DESC "390")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT390)
+	(CHOICES CHOICES390)
+	(DESTINATIONS <LTABLE STORY560 STORY558 STORY250 STORY100>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY391
