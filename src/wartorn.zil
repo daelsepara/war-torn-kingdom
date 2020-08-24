@@ -176,6 +176,7 @@
 
 <OBJECT CACHE-YELLOWPORT
 	(DESC "Cache at Yellowport")
+	(INVESTMENTS 0)
 	(FLAGS CONTBIT OPENBIT CACHEBIT)>
 
 ; "NON-PERSON OBJECTS Properties"
@@ -2541,6 +2542,7 @@
 	<PUTP ,TOWNHOUSE-YELLOWPORT ,P?INVESTMENTS 0>
 	<PUTP ,TOWNHOUSE-MARLOCK ,P?INVESTMENTS 0>
 	<PUTP ,TOWNHOUSE-CARAN-BARU ,P?INVESTMENTS 0>
+	<PUTP ,CACHE-YELLOWPORT ,P?INVESTMENTS 0>
 	<RESET-CONTAINER ,TOWNHOUSE-YELLOWPORT>
 	<RESET-CONTAINER ,TOWNHOUSE-MARLOCK>
 	<RESET-CONTAINER ,TOWNHOUSE-CARAN-BARU>
@@ -3425,6 +3427,12 @@
 	(COMBAT 3)
 	(DEFENSE 8)
 	(STAMINA 6)>
+
+<OBJECT MONSTER-BLACK-DRAGON
+	(DESC "Black Dragon Knight")
+	(COMBAT 5)
+	(DEFENSE 9)
+	(STAMINA 11)>
 
 <OBJECT MONSTER-CULTIST
 	(DESC "Cultist")
@@ -4853,16 +4861,11 @@
 		<TELL D .TOWNHOUSE>
 		<HLIGHT 0>
 		<CRLF>
-		<COND (<FSET? .TOWNHOUSE ,CACHEBIT>
-			<PRINT-MENU ,CACHE-MENU F F !\0 "You're done here">
-		)(ELSE
-			<PRINT-MENU ,TOWNHOUSE-MENU F F !\0 "You're done here">
-		)>
+		<PRINT-MENU ,TOWNHOUSE-MENU F F !\0 "You're done here">
 		<TELL "What do you want to do?">
 		<REPEAT ()
 			<SET KEY <INPUT 1>>
-			<COND (<EQUAL? .KEY !\0 !\1> <RETURN>)>
-			<COND (<AND <EQUAL? .KEY !\2> <NOT <FSET? .TOWNHOUSE ,CACHEBIT>>> <RETURN>)>
+			<COND (<EQUAL? .KEY !\0 !\1 !\0> <RETURN>)>
 		>
 		<CRLF>
 		<COND (<EQUAL? .KEY !\0>
@@ -4879,7 +4882,7 @@
 			)>
 		)(<EQUAL? .KEY !\1>
 			<TOWNHOUSE-POSSESSIONS .STORY .TOWNHOUSE>
-		)(<AND <EQUAL? .KEY !\2> <NOT <FSET? .TOWNHOUSE ,CACHEBIT>>>
+		)(<EQUAL? .KEY !\2>
 			<TOWNHOUSE-MONEY .STORY .TOWNHOUSE>
 		)>
 	>>
@@ -5462,6 +5465,8 @@
 	<PUTP ,STORY304 ,P?DOOM T>
 	<PUTP ,STORY313 ,P?DOOM T>
 	<PUTP ,STORY318 ,P?DOOM T>
+	<PUTP ,STORY321 ,P?DOOM T>
+	<PUTP ,STORY325 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -5483,6 +5488,9 @@
 <CONSTANT DIED-FROM-INJURIES "You died from your injuries">
 <CONSTANT DIED-FROM-COLD "You eventually freeze to death">
 <CONSTANT NOTHING-HAPPENS "Nothing happens.">
+
+<CONSTANT TEXT-STORM-SEA "Heavy black clouds race towards you across the sky, whipping the waves into a frenzy. The crew mutter among themselves fearfully.">
+<CONSTANT CHOICES-STORM-FURY "The storm hits with full fury">
 
 <CONSTANT TEXT-STORM-SUBSIDES "Your ship is thrown about like flotsam and jetsam. When the storm subsides, you take stock. Much has been swept overboard.||Also, the ship has been swept way off course and the mate has no idea where you are. \"We're lost at sea, Cap'n,\" he moans.">
 <CONSTANT TEXT-GUILD-INVESTMENTS "You can invest money in multiples of 100 Shards. The guild will buy and sell commodities on your behalf using this money until you return to collect it. \"Don't forget that you can lose money as well,\" mutters a merchant whose investments have not paid off.">
@@ -6155,18 +6163,14 @@ footing and fall to the ground.">
 <ROUTINE STORY037-EVENTS ()
 	<KEEP-ITEM ,BAG-OF-PEARLS>>
 
-<CONSTANT TEXT038 "Heavy black clouds race towards you across the sky, whipping the waves into a frenzy. The crew mutter among themselves fearfully.">
-
-<CONSTANT CHOICES038 <LTABLE "The storm hits with full fury">>
-
 <ROOM STORY038
 	(DESC "038")
-	(STORY TEXT038)
+	(STORY TEXT-STORM-SEA)
 	(EVENTS STORY038-EVENTS)
-	(CHOICES CHOICES038)
+	(CHOICES CHOICES-STORM-FURY)
 	(DESTINATIONS <LTABLE <LTABLE STORY325 STORY397 STORY209>>)
 	(REQUIREMENTS STORY-STORM-REQUIREMENTS)
-	(TYPES <LTABLE R-RANDOM>)
+	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY038-EVENTS ()
@@ -6327,7 +6331,7 @@ footing and fall to the ground.">
 	(CHOICES CHOICES049)
 	(DESTINATIONS <LTABLE <LTABLE STORY529 STORY474>>)
 	(REQUIREMENTS STORY049-REQUIREMENTS)
-	(TYPES <LTABLE R-RANDOM>)
+	(TYPES ONE-RANDOM)
 	(DOOM T)
 	(FLAGS LIGHTBIT)>
 
@@ -6364,7 +6368,7 @@ footing and fall to the ground.">
 	(CHOICES CHOICES051)
 	(DESTINATIONS <LTABLE <LTABLE STORY-KILLED STORY051-CRUSHING-DEFEAT STORY242 STORY062>>)
 	(REQUIREMENTS STORY051-REQUIREMENTS)
-	(TYPES <LTABLE R-RANDOM>)
+	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY051-EVENTS ("AUX" (MODIFIER 0) PROFESSION ODDS PARAMETERS CONDITION)
@@ -7477,17 +7481,14 @@ harbourmaster.">
 	(TYPES <LTABLE R-TEST-ABILITY R-MONEY R-NONE R-NONE R-NONE>)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT124 "Heavy black clouds race towards you across the sky, whipping the waves into a frenzy. The crew mutter among themselves fearfully.">
-<CONSTANT CHOICES124 <LTABLE "The storm hits with full fury">>
-
 <ROOM STORY124
 	(DESC "124")
-	(STORY TEXT124)
+	(STORY TEXT-STORM-SEA)
 	(EVENTS STORY124-EVENTS)
-	(CHOICES CHOICES124)
+	(CHOICES CHOICES-STORM-FURY)
 	(DESTINATIONS <LTABLE <LTABLE STORY346 STORY583 STORY420>>)
 	(REQUIREMENTS STORY-STORM-REQUIREMENTS)
-	(TYPES <LTABLE R-RANDOM>)
+	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY124-EVENTS ()
@@ -9678,9 +9679,9 @@ paste on the ground below.">
 
 <ROOM STORY300
 	(DESC "300")
-	(BACKGROUND NONE)
 	(STORY TEXT-TOWNHOUSE)
 	(EVENTS STORY300-EVENTS)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY300-EVENTS ()
@@ -9948,194 +9949,108 @@ paste on the ground below.">
 	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT321 "The Black Dragon Knight comes out to meet you. His armour is of black steel, and you think you can see glowing red eyes through the slits in his full-face helm. You must fight him.">
+
 <ROOM STORY321
 	(DESC "321")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT321)
+	(EVENTS STORY321-EVENTS)
+	(CONTINUE STORY417)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY321-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-BLACK-DRAGON 5 9 11>
+	<CHECK-COMBAT ,MONSTER-BLACK-DRAGON ,STORY321>>
+
+<CONSTANT TEXT322 "The repulsive one recognizes you from your last undersea trip!">
 
 <ROOM STORY322
 	(DESC "322")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT322)
+	(CONTINUE STORY238)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT323 "A few locals are discussing recent events. It seems some hideous beast has made its lair in a cave on the hill that overlooks the village.||\"It's a gorlock,\" says a farmer. \"And it's amassed quite a bit of treasure by all accounts, lifted from its victims. A brave adventurer like yourself could get rich if you killed it. You'd be doing us a favour as well.\"||\"What does it look like?\" you ask.||\"Nobody's come back to tell the tale,\" says the innkeeper.||You leave the tavern.">
 
 <ROOM STORY323
 	(DESC "323")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT323)
+	(CONTINUE STORY510)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY324
 	(DESC "324")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-STORM-SEA)
+	(EVENTS STORY324-EVENTS)
+	(CHOICES CHOICES-STORM-FURY)
+	(DESTINATIONS <LTABLE <LTABLE STORY607 STORY083 STORY559>>)
+	(REQUIREMENTS STORY-STORM-REQUIREMENTS)
+	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY324-EVENTS ()
+	<STORM-AT-SEA ,STORY324 ,STORY559>>
 
 <ROOM STORY325
 	(DESC "325")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-SHIPWRECK)
+	(EVENTS STORY325-EVENTS)
+	(CONTINUE STORY173)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY325-EVENTS ()
+	<STORY-SHIPWRECK ,STORY325>>
+
+<CONSTANT TEXT326 "You follow the footprints to the mill, where you see an old lady and two men brushing flour off their clothes.||\"Another successful year's haunting,\" laughs the woman.||Quietly you creep back and tell the villagers what you have discovered. Brimming with outrage, they go straight to the mill and seize the three miscreants.||\"Old Megan!\" cries one of the villagers when he sees who is the ringleader of the three. \"So, you've been masquerading as a ghost these seven years, eh? Well, tomorrow we'll take you to the gallows and then you can play the part for real.\"">
 
 <ROOM STORY326
 	(DESC "326")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT326)
+	(CONTINUE STORY671)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT327 "You have already cleaned the ratmen out of the tunnels below the city but the old well makes a good cache for equipment and money that you don't want to carry with you. It has an advantage over a townhouse as there is no risk of burglary or fire. You can also rest here as long as you like, restoring any lost Stamina points.">
 
 <ROOM STORY327
 	(DESC "327")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT327)
+	(EVENTS STORY327-EVENTS)
+	(CONTINUE STORY010)
+	(CODEWORDS <LTABLE CODEWORD-ACID>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY327-EVENTS ()
+	<GAIN-CACHE ,CACHE-YELLOWPORT>
+	<VISIT-TOWNHOUSE ,STORY327 ,CACHE-YELLOWPORT>>
+
+<CONSTANT TEXT328 "You are not sure where to start looking for the ghoul, so you wander around, looking for stories, strange murders -- anything that might put you on its trail.">
 
 <ROOM STORY328
 	(DESC "328")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT328)
+	(CHOICES CHOICES-SCOUTING)
+	(DESTINATIONS <LTABLE <LTABLE STORY419 STORY360>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 12>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT329 "\"Still haven't found him? Did you try the Castle of the Dragon Knights to the west of the Bronze Hills?\" As he turns to leave, he adds, \"When you have better tidings, I will return here.\"||You follow him, but he is nowhere to be seen.">
 
 <ROOM STORY329
 	(DESC "329")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT329)
+	(CONTINUE STORY400)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT CHOICES330 <LTABLE "Travel to Wishport" "Choose a different gate">>
 
 <ROOM STORY330
 	(DESC "330")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES330)
+	(DESTINATIONS <LTABLE STORY719 STORY065>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY331
