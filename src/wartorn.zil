@@ -92,11 +92,6 @@
 ; "ability labels"
 <CONSTANT ABILITIES <LTABLE "CHARISMA" "COMBAT" "MAGIC" "SANCTITY" "SCOUTING" "THIEVERY" "DEFENSE" "STAMINA">>
 
-; "Give results"
-<CONSTANT GIVE-GIVEN 0>
-<CONSTANT GIVE-UNABLE 1>
-<CONSTANT GIVE-UNWILLING 2>
-
 ; "PLAYER / CHARACTER / NPC"
 ; ---------------------------------------------------------------------------------------------
 
@@ -134,9 +129,6 @@
 
 ; "currency description"
 <OBJECT CURRENCY (DESC "shards")>
-
-; "container for items given"
-<OBJECT GIVEBAG (DESC "items to give") (FLAGS CONTBIT OPENBIT)>
 
 ; "lost stuff"
 <OBJECT LOST-STUFF (DESC "things lost") (FLAGS CONTBIT OPENBIT)>
@@ -221,7 +213,6 @@
 	<RESET-STORY>
 	<CHOOSE-CHARACTER>
 	<SETG HERE ,STARTING-POINT>
-	<SETG RUN-ONCE T>
 	<REPEAT ()
 		<CRLF>
 		<RESET-CHOICES>
@@ -1317,7 +1308,7 @@
 ; "Player or Item routines"
 ; ---------------------------------------------------------------------------------------------
 
-<ROUTINE ADD-QUANTITY (OBJECT "OPT" AMOUNT CONTAINER "AUX" QUANTITY CURRENT)
+<ROUTINE ADD-QUANTITY (OBJECT "OPT" AMOUNT CONTAINER (BUY F) "AUX" QUANTITY CURRENT)
 	<COND (<NOT .OBJECT> <RETURN>)>
 	<COND (<L=? .AMOUNT 0> <RETURN>)>
 	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
@@ -1798,67 +1789,6 @@
 		<RETURN .ITEMS>
 	)>>
 
-<ROUTINE GIVE-FROM-LIST (LIST UNABLE UNWILLING "OPT" MAX JUMP CONTAINER "AUX" ITEMS COUNT RESULT)
-	<RESET-TEMP-LIST>
-	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
-	<COND (<NOT .MAX> <SET MAX 1>)>
-	<SET ITEMS <GET .LIST 0>>
-	<SET COUNT 0>
-	<DO (I 1 .ITEMS)
-		<COND (<AND <GET .LIST .I> <IN? <GET .LIST .I> .CONTAINER>>
-			<INC .COUNT>
-			<COND (<L=? .COUNT <GET ,TEMP-LIST 0>>
-				<PUT ,TEMP-LIST .COUNT <GET .LIST .I>>
-			)>
-		)>
-	>
-	<COND (<G=? .COUNT .MAX>
-		<RESET-GIVEBAG>
-		<REPEAT ()
-			<TRANSFER-CONTAINER ,GIVEBAG .CONTAINER>
-			<SELECT-FROM-LIST ,TEMP-LIST .COUNT .MAX "item" ,GIVEBAG "give">
-			<COND (<NOT <EQUAL? <COUNT-CONTAINER ,GIVEBAG> .MAX>>
-				<COND (<AND <EQUAL? .MAX <+ <COUNT-CONTAINER ,GIVEBAG> 1>> <IN? ,ALL-MONEY ,GIVEBAG> <INTBL? ,ALL-MONEY .LIST <+ <GET .LIST 0> 1>>>
-					<COND (<G? ,MONEY 0>
-						<CRLF>
-						<TELL ,TEXT-SURE>
-						<COND (<YES?>
-							<YOU-GAVE ,ALL-MONEY>
-							<COND (.JUMP
-								<STORY-JUMP .JUMP>
-								<SETG MONEY 0>
-								<MOVE ,ALL-MONEY ,PLAYER>
-							)>
-							<SET RESULT GIVE-GIVEN>
-							<RETURN>
-						)>
-					)(ELSE
-						<TRANSFER-CONTAINER ,GIVEBAG .CONTAINER>
-						<SET RESULT GIVE-UNABLE>
-						<RETURN>
-					)>
-				)>
-				<TRANSFER-CONTAINER ,GIVEBAG .CONTAINER>
-				<EMPHASIZE .UNWILLING>
-				<SET RESULT GIVE-UNWILLING>
-				<RETURN>
-			)(ELSE
-				<CRLF>
-				<TELL ,TEXT-SURE>
-				<COND (<YES?>
-					<YOU-GAVE>
-					<COND (.JUMP <STORY-JUMP .JUMP>)>
-					<SET RESULT GIVE-GIVEN>
-					<RETURN>
-				)>
-			)>
-		>
-		<RETURN .RESULT>
-	)(ELSE
-		<EMPHASIZE .UNABLE>
-		<RETURN GIVE-UNABLE>
-	)>>
-
 <ROUTINE GIVE-ITEM (ITEM "OPT" (SILENT F))
 	<REMOVE-ITEM .ITEM "gave" F .SILENT>>
 
@@ -1953,11 +1883,13 @@
 		>
 	)>>
 
-<ROUTINE PRINT-ITEM (ITEMS "OPT" (BOLD F) (COUNT 0) "AUX" QUANTITY CHARGES BLESSINGS STARS (WORN F) (EFFECTS NONE) CONDITION)
+<ROUTINE PRINT-ITEM (ITEMS "OPT" (BOLD F) (COUNT 0) (NO-QUANTITY F) "AUX" (QUANTITY 1) CHARGES BLESSINGS STARS (WORN F) (EFFECTS NONE) CONDITION)
 	<COND (.ITEMS
 		<COND (<NOT <FSET? .ITEMS ,NDESCBIT>>
 			<SET BLESSINGS <COUNT-BLESSINGS .ITEMS>>
-			<SET QUANTITY <GETP .ITEMS ,P?QUANTITY>>
+			<COND (<NOT .NO-QUANTITY>
+				<SET QUANTITY <GETP .ITEMS ,P?QUANTITY>>
+			)>
 			<SET CHARGES <GETP .ITEMS ,P?CHARGES>>
 			<SET STARS <GETP .ITEMS ,P?STARS>>
 			<SET WORN <AND <FSET? .ITEMS ,WEARBIT> <FSET? .ITEMS ,WORNBIT>>>
@@ -2156,30 +2088,6 @@
 		>
 	)>>
 
-<ROUTINE SELL-STUFF (ITEM PLURAL PRICE "AUX" (ITEMS-SOLD 0) (QUANTITY 0))
-	<SET QUANTITY <GETP .ITEM ,P?QUANTITY>>
-	<CRLF>
-	<TELL "Sell " D .ITEM " at " N .PRICE " " D ,CURRENCY " each?">
-	<COND (<YES?>
-		<SET ITEMS-SOLD <GET-NUMBER "How many will you sell" 0 .QUANTITY>>
-		<COND (<G? .ITEMS-SOLD 0>
-			<SETG ,MONEY <+ ,MONEY <* .ITEMS-SOLD .PRICE>>>
-			<SET .QUANTITY <- .QUANTITY .ITEMS-SOLD>>
-			<CRLF>
-			<TELL "You sold " N .ITEMS-SOLD " ">
-			<HLIGHT ,H-BOLD>
-			<COND (<G? .ITEMS-SOLD 1> <TELL .PLURAL>)(ELSE <TELL D .ITEM>)>
-			<HLIGHT 0>
-			<TELL ,PERIOD-CR>
-			<COND (<G? .QUANTITY 0>
-				<PUTP .ITEM ,P?QUANTITY .QUANTITY>
-			)(ELSE
-				<PUTP .ITEM ,P?QUANTITY 1>
-				<REMOVE .ITEM>
-			)>
-		)>
-	)>>
-
 <ROUTINE SET-LOCATION (LOCATION)
 	<SETG CURRENT-LOCATION .LOCATION>>
 
@@ -2218,11 +2126,20 @@
 		)>
 	)>>
 
-<ROUTINE TAKE-ITEM (ITEM "AUX" QUANTITY)
+<ROUTINE TAKE-ITEM (ITEM "OPT" (BUY F) "AUX" QUANTITY)
 	<COND (.ITEM
 		<CRLF>
-		<TELL "You gained a">
-		<COND (<FSET? .ITEM ,VOWELBIT> <TELL "n">)>
+		<COND (.BUY
+			<TELL "You bought ">
+		)(ELSE
+			<TELL "You gained ">
+		)>
+		<COND (<FSET? .ITEM ,NARTICLEBIT>
+			<TELL "the">
+		)(ELSE
+			<TELL "a">
+			<COND (<FSET? .ITEM ,VOWELBIT> <TELL "n">)>
+		)>
 		<TELL " ">
 		<PRINT-ITEM .ITEM T>
 		<TELL ,PERIOD-CR>
@@ -2350,22 +2267,10 @@
 		>
 	)>>
 
-<ROUTINE YOU-GAVE ("OPT" ITEM)
-	<CRLF>
-	<HLIGHT ,H-BOLD>
-	<TELL "You gave: ">
-	<HLIGHT 0>
-	<COND (.ITEM
-		<PRINT-ITEM .ITEM T>
-		<CRLF>
-	)(ELSE
-		<PRINT-CONTAINER ,GIVEBAG>
-	)>>
-
 ; "Story - Merchant routines (display)"
 ; ---------------------------------------------------------------------------------------------
 
-<ROUTINE MERCHANT (WARES PRICELIST "OPT" CONTAINER (SELL F) (LIMIT 0) "AUX" ITEM ITEMS KEY)
+<ROUTINE MERCHANT (WARES PRICELIST "OPT" CONTAINER (SELL F) (LIMIT 0) "AUX" ITEM ITEMS KEY QUANTITY)
 	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
 	<COND (<OR <NOT .WARES> <NOT .PRICELIST>> <RETURN>)>
 	<SET ITEMS <GET .WARES 0>>
@@ -2377,7 +2282,7 @@
 			<TELL "You can sell these items at these prices if you have them:">
 		)>
 		<CRLF>
-		<PRINT-MENU .WARES T T NONE NONE .PRICELIST>
+		<PRINT-MENU .WARES T T NONE NONE .PRICELIST T>
 		<COND (<L? .ITEMS 12>
 			<HLIGHT ,H-BOLD>
 			<TELL "C">
@@ -2479,13 +2384,26 @@
 					)(ELSE
 						<COND (<FSET? <GET .WARES .ITEM> ,TAKEBIT>
 							<COND (<IN? <GET .WARES .ITEM> .CONTAINER>
-								<TELL "You already have the ">
-								<PRINT-ITEM <GET .WARES .ITEM> T>
-								<TELL ,EXCLAMATION-CR>
-								<PRESS-A-KEY>
+								<SET QUANTITY <GETP <GET .WARES .ITEM> ,P?QUANTITY>>
+								<COND (<L=? .QUANTITY 0>
+									<TELL "You already have the ">
+									<PRINT-ITEM <GET .WARES .ITEM> T>
+									<TELL ,EXCLAMATION-CR>
+									<PRESS-A-KEY>
+								)(ELSE
+									<SETG MONEY <- ,MONEY <GET .PRICELIST .ITEM>>>
+									<ADD-QUANTITY <GET .WARES .ITEM> 1 .CONTAINER T>
+								)>
 							)(ELSE
 								<SETG MONEY <- ,MONEY <GET .PRICELIST .ITEM>>>
-								<TELL "You bought the ">
+								<TELL "You bought ">
+								<COND (<FSET? <GET .WARES .ITEM> ,NARTICLEBIT>
+									<TELL "the">
+								)(ELSE
+									<TELL "a">
+									<COND (<FSET? <GET .WARES .ITEM> ,VOWELBIT> <TELL "n">)>
+								)>
+								<TELL " ">
 								<PRINT-ITEM <GET .WARES .ITEM> T>
 								<TELL ,PERIOD-CR>
 								<COND (<AND <EQUAL? .CONTAINER ,PLAYER> <EQUAL? <COUNT-POSSESSIONS> ,LIMIT-POSSESSIONS> <NOT <IN? <GET .WARES .ITEM> .CONTAINER>>>
@@ -2555,9 +2473,6 @@
 	>
 	<COND (<EQUAL? .CONTAINER ,PLAYER> <MOVE ,ALL-MONEY .CONTAINER>)>>
 
-<ROUTINE RESET-GIVEBAG ()
-	<RESET-CONTAINER ,GIVEBAG>>
-
 <ROUTINE RESET-MISSIONS ()
 	<PUTP ,MISSION-GHOUL-HEAD ,P?COMPLETED F>
 	<PUTP ,MISSION-NEGRAN-CORIN ,P?COMPLETED F>
@@ -2577,7 +2492,6 @@
 	<RESET-BLESSINGS>
 	<RESET-CARGO>
 	<RESET-CODEWORDS>
-	<RESET-GIVEBAG>
 	<RESET-MISSIONS>
 	<RESET-POSSESSIONS>
 	<RESET-TITLES>
@@ -2663,7 +2577,7 @@
 	<TELL CR "[Press a key to continue]" CR>
 	<INPUT 1>>
 
-<ROUTINE PRINT-MENU (CHOICES ITEM-MENU SHOW-STATS "OPT" EXIT-KEY EXIT-TEXT PRICES "AUX" ITEMS)
+<ROUTINE PRINT-MENU (CHOICES ITEM-MENU SHOW-STATS "OPT" EXIT-KEY EXIT-TEXT PRICES (NO-QUANTITY F)"AUX" ITEMS)
 	<COND (<NOT .CHOICES> <RETURN>)>
 	<SET ITEMS <GET .CHOICES 0>>
 	<DO (I 1 .ITEMS)
@@ -2677,7 +2591,7 @@
 		<TELL " - ">
 		<COND (.ITEM-MENU
 			<COND (.SHOW-STATS
-				<PRINT-ITEM <GET .CHOICES .I> T>
+				<PRINT-ITEM <GET .CHOICES .I> T 0 .NO-QUANTITY>
 			)(ELSE
 				<TELL D <GET .CHOICES .I>>
 			)>
@@ -3324,8 +3238,49 @@
 	(DESC "platinum earring")
 	(FLAGS TAKEBIT)>
 
+<OBJECT POTION-OF-COMELINESS
+	(DESC "potion of comeliness")
+	(QUANTITY 1)
+	(CHARISMA 1)
+	(FLAGS TAKEBIT)>
+
+<OBJECT POTION-OF-GODLINESS
+	(DESC "potion of godliness")
+	(QUANTITY 1)
+	(SANCTITY 1)
+	(FLAGS TAKEBIT)>
+
 <OBJECT POTION-OF-HEALING
 	(DESC "potion of healing")
+	(FLAGS TAKEBIT)>
+
+<OBJECT POTION-OF-INTELLECT
+	(DESC "potion of intellect")
+	(QUANTITY 1)
+	(MAGIC 1)
+	(FLAGS TAKEBIT)>
+
+<OBJECT POTION-OF-NATURE
+	(DESC "potion of nature")
+	(QUANTITY 1)
+	(SCOUTING 1)
+	(FLAGS TAKEBIT)>
+
+<OBJECT POTION-OF-RESTORATION
+	(DESC "potion of restoration")
+	(QUANTITY 1)
+	(FLAGS TAKEBIT)>
+
+<OBJECT POTION-OF-STEALTH
+	(DESC "potion of godliness")
+	(QUANTITY 1)
+	(THIEVERY 1)
+	(FLAGS TAKEBIT)>
+
+<OBJECT POTION-OF-STRENGTH
+	(DESC "potion of strength")
+	(QUANTITY 1)
+	(COMBAT 1)
 	(FLAGS TAKEBIT)>
 
 <OBJECT RAT-POISON
@@ -3391,6 +3346,11 @@
 <OBJECT RESURRECTION-TYRNAI
 	(DESC "Temple of Tyrnai, The War-Torn Kingdom")
 	(CONTINUE STORY640)
+	(FLAGS TAKEBIT)>
+
+<OBJECT RESURRECTION-NAGIL
+	(DESC "Temple of Nagil, The War-Torn Kingdom")
+	(CONTINUE STORY350)
 	(FLAGS TAKEBIT)>
 
 <OBJECT RESURRECTION-ANY
@@ -3933,7 +3893,7 @@
 	<HLIGHT 0>
 	<TELL ,PERIOD-CR>>
 
-<ROUTINE TEST-ABILITY (CHARACTER ABILITY DIFFICULTY "OPT" (MODIFIERS T) "AUX" SCORE (ROLL 0) (RESULT F) (TOTAL 0))
+<ROUTINE TEST-ABILITY (CHARACTER ABILITY DIFFICULTY "OPT" (MODIFIERS T) "AUX" SCORE (ROLL 0) (RESULT F) (TOTAL 0) (MODIFIER 0))
 	<REPEAT ()
 		<SET SCORE <CALCULATE-ABILITY .CHARACTER .ABILITY>>
 		<TELL "Making a ">
@@ -3949,9 +3909,10 @@
 		<TELL N .DIFFICULTY>
 		<HLIGHT 0>
 		<TELL " difficulty.." ,PERIOD-CR>
-		<PRESS-A-KEY>
+		<SET MODIFIER <TEST-ABILITY-POTION .ABILITY>>
+		<COND (<L=? .MODIFIER 0> <PRESS-A-KEY>)>
 		<SET ROLL <ROLL-DICE 2>>
-		<SET TOTAL <+ .SCORE .ROLL>>
+		<SET TOTAL <+ .SCORE .ROLL .MODIFIER>>
 		<CRLF>
 		<TELL "Rolled (">
 		<HLIGHT ,H-BOLD>
@@ -3961,6 +3922,21 @@
 		<HLIGHT ,H-BOLD>
 		<TELL N .ROLL>
 		<HLIGHT 0>
+		<COND (<N=? .MODIFIER 0>
+			<TELL " ">
+			<COND (<G? .MODIFIER 0>
+				<TELL "+ ">
+			)(ELSE
+				<TELL "- ">
+			)>
+			<HLIGHT ,H-BOLD>
+			<COND (<G? .MODIFIER 0>
+				<TELL N .MODIFIER>
+			)(ELSE
+				<TELL N <* .MODIFIER -1>>
+			)>
+			<HLIGHT 0>
+		)>
 		<TELL " = ">
 		<HLIGHT ,H-BOLD>
 		<TELL N .TOTAL>
@@ -4012,6 +3988,37 @@
 		<COND (<YES?>
 			<DELETE-BLESSING .BLESSING>
 			<SET .RESULT T>
+		)>
+	)(ELSE
+		<CRLF>
+	)>
+	<RETURN .RESULT>>
+
+<ROUTINE TEST-ABILITY-POTION (ABILITY "AUX" HAS-POTION POTION RESULT)
+	<SET RESULT 0>
+	<SET HAS-POTION T>
+	<COND (<AND <EQUAL? .ABILITY ,ABILITY-CHARISMA> <CHECK-ITEM ,POTION-OF-COMELINESS>>
+		<SET POTION ,POTION-OF-COMELINESS>
+	)(<AND <EQUAL? .ABILITY ,ABILITY-COMBAT> <CHECK-ITEM ,POTION-OF-STRENGTH>>
+		<SET POTION ,POTION-OF-STRENGTH>
+	)(<AND <EQUAL? .ABILITY ,ABILITY-MAGIC> <CHECK-ITEM ,POTION-OF-INTELLECT>>
+		<SET POTION ,POTION-OF-INTELLECT>
+	)(<AND <EQUAL? .ABILITY ,ABILITY-SANCTITY> <CHECK-ITEM ,POTION-OF-GODLINESS>>
+		<SET POTION ,POTION-OF-GODLINESS>
+	)(<AND <EQUAL? .ABILITY ,ABILITY-SCOUTING> <CHECK-ITEM ,POTION-OF-NATURE>>
+		<SET POTION ,POTION-OF-NATURE>
+	)(<AND <EQUAL? .ABILITY ,ABILITY-THIEVERY> <CHECK-ITEM ,POTION-OF-STEALTH>>
+		<SET POTION ,BLESSING-THIEVERY>
+	)(ELSE
+		<SET HAS-POTION F>
+	)>
+	<COND (.HAS-POTION
+		<TELL CR "Use the ">
+		<PRINT-ITEM .POTION T>
+		<TELL " to add to the roll?">
+		<COND (<YES?>
+			<REMOVE-ITEM .POTION "used" F T>
+			<SET RESULT 1>
 		)>
 	)(ELSE
 		<CRLF>
@@ -5089,21 +5096,21 @@
 				>
 				<COND (<L=? .ROLL 2>
 					<EMPHASIZE "You win five times your bet!">
-					<SETG ,MONEY <+ ,MONEY <* .BET 5>>>
+					<SETG MONEY <+ ,MONEY <* .BET 5>>>
 				)(<L=? .ROLL 4>
 					<EMPHASIZE "You win twice your bet!">
-					<SETG ,MONEY <+ ,MONEY <* .BET 2>>>
+					<SETG MONEY <+ ,MONEY <* .BET 2>>>
 				)(<L=? .ROLL 9>
 					<EMPHASIZE "You lost your bet!">
-					<SETG ,MONEY <- ,MONEY .BET>>
+					<SETG MONEY <- ,MONEY .BET>>
 				)(<L=? .ROLL 11>
 					<EMPHASIZE "You win twice your bet!">
-					<SETG ,MONEY <+ ,MONEY <* .BET 2>>>
+					<SETG MONEY <+ ,MONEY <* .BET 2>>>
 				)(ELSE
 					<EMPHASIZE "You win five times your bet!">
-					<SETG ,MONEY <+ ,MONEY <* .BET 5>>>
+					<SETG MONEY <+ ,MONEY <* .BET 5>>>
 				)>
-				<COND (<L? ,MONEY 0> <SETG ,MONEY 0>)>
+				<COND (<L? ,MONEY 0> <SETG MONEY 0>)>
 				<UPDATE-STATUS-LINE>
 				<COND (<L? ,MONEY .MAX>
 					<EMPHASIZE "You are thrown out of the Gambling Den!">
@@ -5600,6 +5607,8 @@
 	<PUTP ,STORY318 ,P?DOOM T>
 	<PUTP ,STORY321 ,P?DOOM T>
 	<PUTP ,STORY325 ,P?DOOM T>
+	<PUTP ,STORY346 ,P?DOOM T>
+	<PUTP ,STORY347 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -5631,6 +5640,7 @@
 <CONSTANT TEXT-BLESSING-STORM-SAFETY "Your 'Safety from Storms' blessing protected you">
 
 <CONSTANT TEXT-YOU-CAN-GO "You can go:">
+<CONSTANT TEXT-YOU-CAN "You can:">
 
 <CONSTANT HAVE-A "You have a">
 <CONSTANT HAVE-AN "You have an">
@@ -5658,6 +5668,7 @@
 <CONSTANT TEXT-RESURRECTION-ARRANGEMENTS "Make Resurrection Arrangements">
 <CONSTANT TEXT-SEEK-BLESSING "Seek a blessing">
 
+<CONSTANT TEXT-TEMPLE-ALVIR-VALMIR "Becoming an initiate of Alvir and Valmir gives you the benefit of paying less for blessings and other services the temple can offer. It costs 40 Shards to become an initiate. You cannot do this if you are already an initiate of another temple.">
 <CONSTANT TEXT-TO-BEACH "Go down to the beach">
 <CONSTANT TEXT-TO-TREFOILLE "Take the road to Trefoille">
 <CONSTANT TEXT-TO-MARLOCK "Take the road to Marlock City">
@@ -6485,16 +6496,18 @@ footing and fall to the ground.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY049-EVENTS ("AUX" ODDS PARAMETERS)
-	<LOSE-STAMINA 3 ,DIED-FROM-INJURIES ,STORY049>
-	<COND (<IS-ALIVE>
-		<RESET-ODDS 1 0,STORY049>
-		<CRLF>
-		<TELL ,TEXT049-CONTINUED>
-		<TELL ,PERIOD-CR>
-		<COND (<CHECK-ITEM ,CLIMBING-GEAR>
-			<SET ODDS <GETP ,STORY049 ,P?REQUIREMENTS>>
-			<SET PARAMETERS <GET .ODDS 1>>
-			<PUT .PARAMETERS 2 1>
+	<COND (,RUN-ONCE
+		<LOSE-STAMINA 3 ,DIED-FROM-INJURIES ,STORY049>
+		<COND (<IS-ALIVE>
+			<RESET-ODDS 1 0,STORY049>
+			<CRLF>
+			<TELL ,TEXT049-CONTINUED>
+			<TELL ,PERIOD-CR>
+			<COND (<CHECK-ITEM ,CLIMBING-GEAR>
+				<SET ODDS <GETP ,STORY049 ,P?REQUIREMENTS>>
+				<SET PARAMETERS <GET .ODDS 1>>
+				<PUT .PARAMETERS 2 1>
+			)>
 		)>
 	)>>
 
@@ -7989,7 +8002,7 @@ harbourmaster.">
 
 <ROUTINE STORY157-EVENTS ()
 	<COND (<G? ,STAMINA 3> <SETG ,STAMINA 3>)>
-	<SETG ,MONEY 0>
+	<SETG MONEY 0>
 	<UPDATE-STATUS-LINE>>
 
 <CONSTANT TEXT158 "The Three Rings Tavern is a comfortable inn near the city centre. The tavern costs you 1 Shard a day. Each day you spend here, you can recover 1 Stamina point if injured, up to the limit of your normal unwounded Stamina score.">
@@ -8058,7 +8071,7 @@ harbourmaster.">
 
 <ROUTINE STORY161-EVENTS ()
 	<RESET-POSSESSIONS>
-	<SETG ,MONEY 0>
+	<SETG MONEY 0>
 	<UPDATE-STATUS-LINE>>
 
 <CONSTANT TEXT162 "With the golems out of the way, you can get on with business. You reach forward to strip the armour off the idol of Tyrnai.">
@@ -8507,7 +8520,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY198-EVENTS ()
-	<SETG ,MONEY 0>
+	<SETG MONEY 0>
 	<UPDATE-STATUS-LINE>>
 
 <CONSTANT TEXT199 "A strange, vaguely humanoid shape, flickering with energy, soars down to attack you. You must fight.">
@@ -8880,12 +8893,14 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY228-EVENTS ()
-	<LOSE-STAMINA 5 ,DIED-FROM-INJURIES ,STORY228>
-	<COND (<IS-ALIVE>
-		<CRLF>
-		<TELL ,TEXT228-CONTINUED>
-		<TELL ,PERIOD-CR>
-		<TAKE-ITEM ,GOLD-CHAIN-MAIL>
+	<COND (,RUN-ONCE
+		<LOSE-STAMINA 5 ,DIED-FROM-INJURIES ,STORY228>
+		<COND (<IS-ALIVE>
+			<CRLF>
+			<TELL ,TEXT228-CONTINUED>
+			<TELL ,PERIOD-CR>
+			<TAKE-ITEM ,GOLD-CHAIN-MAIL>
+		)>
 	)>>
 
 <CONSTANT TEXT229 "The guildmaster welcomes you warmly. He has no further missions for you, though he treats you with respect because you brought Amcha to justice.">
@@ -9550,16 +9565,18 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY278-EVENTS ("AUX" ROLL)
-	<SET ROLL <RANDOM-EVENT 1 0 T>>
-	<COND (<L=? .ROLL 2>
-		<EMPHASIZE "You got lost">
-		<STORY-JUMP ,STORY082>
-		<RETURN>
-	)(<L=? .ROLL 4>
-		<EMPHASIZE ,NOTHING-HAPPENS>
-	)(ELSE
-		<EMPHASIZE "A shepherd gives you a wolf pelt.">
-		<TAKE-ITEM ,WOLF-PELT>
+	<COND (,RUN-ONCE
+		<SET ROLL <RANDOM-EVENT 1 0 T>>
+		<COND (<L=? .ROLL 2>
+			<EMPHASIZE "You got lost">
+			<STORY-JUMP ,STORY082>
+			<RETURN>
+		)(<L=? .ROLL 4>
+			<EMPHASIZE ,NOTHING-HAPPENS>
+		)(ELSE
+			<EMPHASIZE "A shepherd gives you a wolf pelt.">
+			<TAKE-ITEM ,WOLF-PELT>
+		)>
 	)>
 	<CRLF>
 	<TELL ,TEXT-YOU-CAN-GO>
@@ -9728,11 +9745,9 @@ paste on the ground below.">
 	(CODEWORDS <LTABLE CODEWORD-AID>)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT294 "Becoming an initiate of Alvir and Valmir gives you the benefit of paying less for blessings and other services the temple can offer. It costs 40 Shards to become an initiate. You cannot do this if you are already an initiate of another temple.">
-
 <ROOM STORY294
 	(DESC "294")
-	(STORY TEXT294)
+	(STORY TEXT-TEMPLE-ALVIR-VALMIR)
 	(EVENTS STORY294-EVENTS)
 	(CONTINUE STORY220)
 	(FLAGS LIGHTBIT)>
@@ -9807,18 +9822,23 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY299-EVENTS ("AUX" ROLL)
-	<SET ROLL <RANDOM-EVENT 1 0 T>>
-	<COND (<L=? .ROLL 2>
-		<COMBAT-MONSTER ,MONSTER-DRUNKEN-SOLDIER 4 6 7>
-		<CHECK-COMBAT ,MONSTER-DRUNKEN-SOLDIER ,STORY297 0 ,AXE>
-	)(<L=? .ROLL 4>
-		<EMPHASIZE ,NOTHING-HAPPENS>
-		<PREVENT-DOOM ,STORY299>
-	)(ELSE
-		<EMPHASIZE "You happen upon a merchant selling a mandolin.">
-		<MERCHANT <LTABLE MANDOLIN> <LTABLE 100>>
-		<PREVENT-DOOM ,STORY299>
-	)>>
+	<COND (,RUN-ONCE
+		<SET ROLL <RANDOM-EVENT 1 0 T>>
+		<COND (<L=? .ROLL 2>
+			<COMBAT-MONSTER ,MONSTER-DRUNKEN-SOLDIER 4 6 7>
+			<CHECK-COMBAT ,MONSTER-DRUNKEN-SOLDIER ,STORY297 0 ,AXE>
+		)(<L=? .ROLL 4>
+			<EMPHASIZE ,NOTHING-HAPPENS>
+			<PREVENT-DOOM ,STORY299>
+		)(ELSE
+			<EMPHASIZE "You happen upon a merchant selling a mandolin.">
+			<MERCHANT <LTABLE MANDOLIN> <LTABLE 100>>
+			<PREVENT-DOOM ,STORY299>
+		)>
+	)>
+	<CRLF>
+	<TELL ,TEXT-YOU-CAN-GO>
+	<CRLF>>
 
 <ROOM STORY300
 	(DESC "300")
@@ -10240,22 +10260,27 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY333-EVENTS ("AUX" ROLL COUNT)
-	<SET ROLL <RANDOM-EVENT 1 0 T>>
-	<COND (<L=? .ROLL 2>
-		<COND (<G? <COUNT-CONTAINER ,BLESSINGS> 0>
-			<EMPHASIZE "A water sprite curses you -- you lose a blessing">
-			<SET COUNT <COUNT-CONTAINER ,BLESSINGS>>
-			<DEC .COUNT>
-			<STORY-LOSE-BLESSING .COUNT>
-		)(ELSE
+	<COND (,RUN-ONCE
+		<SET ROLL <RANDOM-EVENT 1 0 T>>
+		<COND (<L=? .ROLL 2>
+			<COND (<G? <COUNT-CONTAINER ,BLESSINGS> 0>
+				<EMPHASIZE "A water sprite curses you -- you lose a blessing">
+				<SET COUNT <COUNT-CONTAINER ,BLESSINGS>>
+				<DEC .COUNT>
+				<STORY-LOSE-BLESSING .COUNT>
+			)(ELSE
+				<EMPHASIZE ,NOTHING-HAPPENS>
+			)>
+		)(<L=? .ROLL 2>
 			<EMPHASIZE ,NOTHING-HAPPENS>
+		)(ELSE
+			<EMPHASIZE ,TEXT-SMOLDER-FISH>
+			<TAKE-ITEM ,SMOLDER-FISH>
 		)>
-	)(<L=? .ROLL 2>
-		<EMPHASIZE ,NOTHING-HAPPENS>
-	)(ELSE
-		<EMPHASIZE ,TEXT-SMOLDER-FISH>
-		<TAKE-ITEM ,SMOLDER-FISH>
-	)>>
+	)>
+	<CRLF>
+	<TELL ,TEXT-YOU-CAN-GO>
+	<CRLF>>
 
 <CONSTANT TEXT334 "To renounce the worship of Lacuna, you must pay 40 Shards in compensation to the shrine. \"If you forsake the love of the goddess, you will never survive the rigours of the wilderness,\" warns the priestess.">
 
@@ -10339,194 +10364,133 @@ paste on the ground below.">
 	(TYPES TWO-ABILITY)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT341 "You hear an interesting story about one of Baroness Ravayne's knights in Golnir. Apparently he is plotting against her.||\"Intrigue and treachery in the court of the baroness...\" mutters a man before his voice fades into a whisper.||You leave the tavern.">
+
 <ROOM STORY341
 	(DESC "341")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT341)
+	(CONTINUE STORY400)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT342 "The alchemist's shop is lined with potions, jars of exotic substances, herbs, and so on. Alembics and beakers bubble and boil, full of strangely-coloured liquids. The alchemist, a tall, gangly fellow with a beak of a nose, sells potions. You can buy as many as you can afford -- each one costs 50 Shards.||A potion can be used just before an ability roll or a fight to add 1 to the relevant ability for that one roll or fight only. Each potion can be used only once.||The alchemist can make you a special potion for 250 Shards, but he needs an ink sac. If you pay the money, and have an ink sac he will make you a potion of restoration. It can be used only once to heal all lost Stamina points, cure poison and disease.">
 
 <ROOM STORY342
 	(DESC "342")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT342)
+	(EVENTS STORY342-EVENTS)
+	(CONTINUE STORY510)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY342-EVENTS ()
+	<MERCHANT <LTABLE POTION-OF-STRENGTH POTION-OF-COMELINESS POTION-OF-INTELLECT POTION-OF-GODLINESS POTION-OF-STEALTH POTION-OF-NATURE> <LTABLE 50 50 50 50 50 50>>
+	<COND (<AND <G=? ,MONEY 250> <CHECK-ITEM ,INK-SAC> <NOT <CHECK-ITEM ,POTION-OF-RESTORATION>>>
+		<CRLF>
+		<TELL "Ask the alchemist to make you a ">
+		<PRINT-ITEM ,POTION-OF-RESTORATION T>
+		<TELL "?">
+		<COND (<YES?>
+			<REMOVE-ITEM ,INK-SAC "gave">
+			<COST-MONEY 250 ,TEXT-PAID>
+			<TAKE-ITEM ,POTION-OF-RESTORATION>
+		)>
+	)>>
 
 <ROOM STORY343
 	(DESC "343")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-TEMPLE-ALVIR-VALMIR)
+	(EVENTS STORY343-EVENTS)
+	(CONTINUE STORY154)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY343-EVENTS ()
+	<BECOME-INITIATE 40 ,GOD-ALVIR-VALMIR>>
+
+<CONSTANT CHOICES344 <LTABLE TEXT-ROLL-COMBAT TEXT-ROLL-MAGIC>>
 
 <ROOM STORY344
 	(DESC "344")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-YOU-CAN)
+	(CHOICES CHOICES344)
+	(DESTINATIONS <LTABLE <LTABLE STORY161 STORY718> <LTABLE STORY161 STORY718>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-COMBAT 14> <LTABLE ABILITY-MAGIC 14>>)
+	(TYPES TWO-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT345 "A ship, impaled on some rocks, is breaking up. Nothing remains except for rotten timbers. A little bottle is bobbing in the waves nearby. Inside, a message reads, \"Never sail at night through rocky waters.\" You sail on.">
 
 <ROOM STORY345
 	(DESC "345")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT345)
+	(CONTINUE STORY209)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY346
 	(DESC "346")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-SHIPWRECK)
+	(EVENTS STORY346-EVENTS)
+	(CONTINUE STORY453)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY346-EVENTS ()
+	<STORY-SHIPWRECK ,STORY346>>
+
+<CONSTANT TEXT347 "The road is nearly blocked by wagons and supply convoys. A troop of soldiers forces its way through the throng -- the men bang heads indiscriminately to clear people out of the way">
+<CONSTANT CHOICES347 <LTABLE "North to Caran Baru" "East into the Coldbleak Mountains" "South along the road" "West into the Forest of Larun">>
 
 <ROOM STORY347
 	(DESC "347")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT347)
+	(EVENTS STORY347-EVENTS)
+	(CHOICES CHOICES347)
+	(DESTINATIONS <LTABLE STORY400 STORY474 STORY387 STORY047>)
+	(TYPES FOUR-NONES)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY347-EVENTS ("AUX" ROLL)
+	<COND (,RUN-ONCE
+		<SET ROLL <RANDOM-EVENT 1 0 T>>
+		<COND (<L=? .ROLL 2>
+			<EMPHASIZE "You were banged on the head!">
+			<LOSE-STAMINA 1 ,DIED-FROM-INJURIES ,STORY347>
+		)(<L=? .ROLL 2>
+			<EMPHASIZE ,NOTHING-HAPPENS>
+			<PREVENT-DOOM ,STORY347>
+		)(ELSE
+			<EMPHASIZE "You were mistaken for a beggar by a passing priest!">
+			<GAIN-MONEY 10>
+			<PREVENT-DOOM ,STORY347>
+		)>
+	)>
+	<IF-ALIVE ,TEXT-YOU-CAN-GO>>
+
+<CONSTANT TEXT348 "You remember what the fishermen say: the root of a certain seaweed, when crushed, gives off a cloud of toxic fluid. This sap is harmless to humans but is known to paralyse marine creatures for a short while. Fortunately, the seaweed grows in abundance here. You swim down with a handful of the roots, squeezing its sap into the waters. The hideous creatures shoot towards you, but are paralysed the instant they enter the cloud of reddish fluid that billows around you.||You take the golden net and swim back to the Shadar Tor as fast as you can.">
+<CONSTANT CHOICES348 <LTABLE TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
 
 <ROOM STORY348
 	(DESC "348")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT348)
+	(CHOICES CHOICES348)
+	(DESTINATIONS <LTABLE STORY602 STORY166>)
+	(TYPES TWO-NONES)
+	(ITEMS <LTABLE GOLDEN-NET>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT349 "You are too fast to get caught, and run off into the shadowy backstreets of Caran Baru. Cursing your luck, you consider your next move.">
 
 <ROOM STORY349
 	(DESC "349")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT349)
+	(CONTINUE STORY400)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT350 "You are restored to life at the Temple of Nagil in Marlock City. Your Stamina is back to its normal score. The possessions and cash you were carrying at the time of your death are lost. \"Nagil has taken you from the barge of souls that sails to the lands of the dead, and returned you to us,\" declares the high priest.||You leave the temple.">
 
 <ROOM STORY350
 	(DESC "350")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT350)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY351
