@@ -118,7 +118,7 @@
 <GLOBAL RESURRECTION-ARRANGEMENTS NONE>
 
 ; "diseases and aliments"
-<OBJECT AILMENTS (DESC "ailments") (FLAGS CONTBIT OPENBIT)>
+<OBJECT AILMENTS (DESC "ailments/diseases/curses") (FLAGS CONTBIT OPENBIT)>
 
 ; "object to refer to all of your money"
 <OBJECT ALL-MONEY (DESC "all your money") (FLAGS TAKEBIT NDESCBIT)>
@@ -134,9 +134,6 @@
 
 ; "currency description"
 <OBJECT CURRENCY (DESC "shards")>
-
-; "curses"
-<OBJECT CURSES (DESC "curses") (FLAGS CONTBIT OPENBIT)>
 
 ; "container for items given"
 <OBJECT GIVEBAG (DESC "items to give") (FLAGS CONTBIT OPENBIT)>
@@ -197,7 +194,7 @@
 <GLOBAL STARTING-POINT STORY001>
 <GLOBAL CURRENT-LOCATION LOCATION-SOKARA>
 
-<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "Trading Post" "Stinking River">>
+<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "Trading Post" "Stinking River" "The Forest of Larun">>
 
 <CONSTANT LOCATION-SOKARA 1>
 <CONSTANT LOCATION-MARLOCK 2>
@@ -211,6 +208,7 @@
 <CONSTANT LOCATION-MERETH 10>
 <CONSTANT LOCATION-TRADING 11>
 <CONSTANT LOCATION-STINKING 12>
+<CONSTANT LOCATION-LARUN 13>
 
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
@@ -1251,21 +1249,23 @@
 ; "Container routines"
 ; ---------------------------------------------------------------------------------------------
 
-<ROUTINE COUNT-CONTAINER (CONTAINER "AUX" COUNT ITEM QUANTITY REMOVE)
+<ROUTINE COUNT-CONTAINER (CONTAINER "OPT" (FLAG NONE) "AUX" COUNT ITEM QUANTITY REMOVE)
 	<SET COUNT 0>
 	<SET ITEM <FIRST? .CONTAINER>>
 	<REPEAT ()
 		<SET REMOVE NONE>
 		<COND (<NOT .ITEM> <RETURN>)>
 		<COND (<NOT <FSET? .ITEM ,NDESCBIT>>
-			<SET QUANTITY <GETP .ITEM ,P?QUANTITY>>
-			<COND (<G? .QUANTITY 0>
-				<SET COUNT <+ .COUNT .QUANTITY>>
-			)(<EQUAL? .QUANTITY 0>
-				<PUTP .ITEM ,P?QUANTITY 1>
-				<SET REMOVE .ITEM>
-			)(ELSE
-				<INC .COUNT>
+			<COND (<OR <NOT .FLAG> <FSET? .ITEM .FLAG>>
+				<SET QUANTITY <GETP .ITEM ,P?QUANTITY>>
+				<COND (<G? .QUANTITY 0>
+					<SET COUNT <+ .COUNT .QUANTITY>>
+				)(<EQUAL? .QUANTITY 0>
+					<PUTP .ITEM ,P?QUANTITY 1>
+					<SET REMOVE .ITEM>
+				)(ELSE
+					<INC .COUNT>
+				)>
 			)>
 		)>
 		<SET ITEM <NEXT? .ITEM>>
@@ -1273,7 +1273,7 @@
 	>
 	<RETURN .COUNT>>
 
-<ROUTINE PRINT-CONTAINER (CONTAINER "AUX" COUNT ITEMS)
+<ROUTINE PRINT-CONTAINER (CONTAINER "OPT" (FLAG NONE) "AUX" COUNT ITEMS)
 	<COUNT-CONTAINER .CONTAINER>
 	<SET COUNT 0>
 	<SET ITEMS <FIRST? .CONTAINER>>
@@ -1281,8 +1281,15 @@
 		<REPEAT ()
 			<COND (.ITEMS
 				<COND (<NOT <FSET? .ITEMS ,NDESCBIT>>
-					<PRINT-ITEM .ITEMS F .COUNT>
-					<INC .COUNT>
+					<COND (.FLAG
+						<COND (<FSET? .ITEMS .FLAG>
+							<PRINT-ITEM .ITEMS F .COUNT>
+							<INC .COUNT>
+						)>
+					)(ELSE
+						<PRINT-ITEM .ITEMS F .COUNT>
+						<INC .COUNT>
+					)>
 				)>
 			)(ELSE
 				<RETURN>
@@ -1336,6 +1343,21 @@
 		<MOVE .DISEASE ,AILMENTS>
 	)>>
 
+<ROUTINE BUY-ITEM (ITEM FEE)
+	<COND (<AND <G=? ,MONEY .FEE> <NOT <CHECK-ITEM .ITEM>>>
+		<CRLF>
+		<TELL "Do you want to buy ">
+		<PRINT-ITEM .ITEM T>
+		<TELL " for ">
+		<HLIGHT ,H-BOLD>
+		<TELL N .FEE " shards?">
+		<HLIGHT 0>
+		<COND (<YES?>
+			<COST-MONEY .FEE ,TEXT-PAID>
+			<TAKE-ITEM .ITEM>
+		)>
+	)>>
+
 <ROUTINE COST-MONEY (COST "OPT" REASON)
 	<CRLF>
 	<HLIGHT ,H-BOLD>
@@ -1365,6 +1387,52 @@
 
 <ROUTINE COUNT-POSSESSIONS ()
 	<RETURN <COUNT-CONTAINER ,PLAYER>>>
+
+<ROUTINE CURE-AILMENTS (FEE FLAG "OPT" (FLAG2 NONE) "AUX" COUNT)
+	<COND (<NOT .FLAG> <RETURN>)>
+	<COND (<G=? ,MONEY .FEE>
+		<SET COUNT <COUNT-CONTAINER ,AILMENTS .FLAG>>
+		<COND (.FLAG2 <SET COUNT <+ .COUNT <COUNT-CONTAINER ,AILMENTS .FLAG2>>>)>
+		<COND (<G? .COUNT 0>
+			<CRLF>
+			<COND (<G? .FEE 0>
+				<TELL "Pay ">
+				<HLIGHT ,H-BOLD>
+				<TELL N .FEE " " D ,CURRENCY>
+				<HLIGHT 0>
+			)(<EQUAL? .FEE 0>
+				<TELL "Do you wish">
+			)>
+			<TELL " to be cured?">
+			<COND (<YES?>
+				<COND (<G? .FEE 0> <COST-MONEY .FEE TEXT-PAID>)>
+				<COND (<G? <COUNT-CONTAINER ,AILMENTS .FLAG> 0>
+					<CRLF>
+					<TELL "You are cured of: ">
+					<PRINT-CONTAINER ,AILMENTS .FLAG>
+					<RESET-CONTAINER ,AILMENTS .FLAG>
+				)>
+				<COND (.FLAG2
+					<COND (<G? <COUNT-CONTAINER ,AILMENTS .FLAG2> 0>
+						<CRLF>
+						<TELL "You are cured of: ">
+						<PRINT-CONTAINER ,AILMENTS .FLAG2>
+						<RESET-CONTAINER ,AILMENTS .FLAG2>
+					)>
+				)>
+			)>
+		)(ELSE
+			<COND (<EQUAL? .FLAG ,CURSEBIT ,CURSEBIT>
+				<EMPHASIZE "There are no curses to lift!">
+			)(<EQUAL? .FLAG ,POISONBIT ,POISONBIT>
+				<EMPHASIZE "You are not poisoned!">
+			)(<EQUAL? .FLAG ,DISEASEBIT ,DISEASEBIT>
+				<EMPHASIZE "There are no diseases to cure!">
+			)>
+		)>
+	)(ELSE
+		<EMPHASIZE "You cannot afford a cure at this time!">
+	)>>
 
 <ROUTINE DELETE-BLESSING (BLESSING)
 	<DELETE-OBJECT .BLESSING CHECK-BLESSING "blessing of">>
@@ -1427,13 +1495,6 @@
 		<TELL ": ">
 		<HLIGHT 0>
 		<PRINT-CONTAINER ,AILMENTS>
-	)>
-	<COND (<G? <COUNT-CONTAINER ,CURSES> 0>
-		<HLIGHT ,H-BOLD>
-		<PRINT-CAP-OBJ ,CURSES>
-		<TELL ": ">
-		<HLIGHT 0>
-		<PRINT-CONTAINER ,CURSES>
 	)>>
 
 <ROUTINE DESCRIBE-PLAYER-BACKGROUND ()
@@ -2480,18 +2541,19 @@
 <ROUTINE RESET-CODEWORDS ()
 	<RESET-CONTAINER ,CODEWORDS>>
 
-<ROUTINE RESET-CONTAINER (CONTAINER "AUX" ITEM NEXT)
+<ROUTINE RESET-CONTAINER (CONTAINER "OPT" (FLAG) "AUX" ITEM NEXT)
 	<SET ITEM <FIRST? .CONTAINER>>
 	<REPEAT ()
 		<COND (<NOT .ITEM> <RETURN>)>
 		<SET NEXT <NEXT? .ITEM>>
-		<REMOVE .ITEM>
+		<COND (.FLAG
+			<COND (<FSET? .ITEM .FLAG> <REMOVE .ITEM>)>
+		)(ELSE
+			<REMOVE .ITEM>
+		)>
 		<SET ITEM .NEXT>
 	>
 	<COND (<EQUAL? .CONTAINER ,PLAYER> <MOVE ,ALL-MONEY .CONTAINER>)>>
-
-<ROUTINE RESET-CURSES ()
-	<RESET-CONTAINER ,CURSES>>
 
 <ROUTINE RESET-GIVEBAG ()
 	<RESET-CONTAINER ,GIVEBAG>>
@@ -2515,7 +2577,6 @@
 	<RESET-BLESSINGS>
 	<RESET-CARGO>
 	<RESET-CODEWORDS>
-	<RESET-CURSES>
 	<RESET-GIVEBAG>
 	<RESET-MISSIONS>
 	<RESET-POSSESSIONS>
@@ -3170,6 +3231,10 @@
 	(DESC "amulet of protection")
 	(FLAGS TAKEBIT)>
 
+<OBJECT ASHES
+	(DESC "ashes")
+	(FLAGS TAKEBIT)>
+
 <OBJECT BAG-OF-PEARLS
 	(DESC "bag of pearls")
 	(FLAGS TAKEBIT)>
@@ -3205,6 +3270,10 @@
 
 <OBJECT FOREST-FORSAKEN-MAP
 	(DESC "Forest of the Forsaken map")
+	(FLAGS TAKEBIT)>
+
+<OBJECT GHOULS-HEAD
+	(DESC "ghoul's head")
 	(FLAGS TAKEBIT)>
 
 <OBJECT GOLD-CHAIN-MAIL
@@ -3405,11 +3474,13 @@
 
 <OBJECT DISEASE-GHOULBITE
 	(DESC "ghoulbite")
-	(EFFECTS <LTABLE -1 -1 0 -1 0 0>)>
+	(EFFECTS <LTABLE -1 -1 0 -1 0 0>)
+	(FLAGS DISEASEBIT)>
 
 <OBJECT POISON-COMBAT
 	(DESC "poison")
-	(EFFECTS <LTABLE 0 -1 0 0 0 0>)>
+	(EFFECTS <LTABLE 0 -1 0 0 0 0>)
+	(FLAGS POISONBIT)>
 
 <OBJECT DISADVANTAGE-COMBAT1
 	(DESC "COMBAT disadvantage")
@@ -3418,6 +3489,11 @@
 <OBJECT DISADVANTAGE-COMBAT2
 	(DESC "COMBAT disadvantage")
 	(EFFECTS <LTABLE 0 -2 0 0 0 0>)>
+
+<OBJECT GENERIC-CURSE
+	(DESC "Cursed")
+	(EFFECTS <LTABLE 0 0 0 0 0 0>)
+	(FLAGS CURSEBIT)>
 
 ; "Monsters"
 ; ---------------------------------------------------------------------------------------------
@@ -3565,7 +3641,7 @@
 ; ---------------------------------------------------------------------------------------------
 
 <OBJECT MISSION-GHOUL-HEAD
-	(DESC "Warden: retrieve ghoul's head")
+	(DESC "Warden: Retrieve ghoul's head")
 	(CODEWORD CODEWORD-AGUE)
 	(COMPLETED F)>
 
@@ -3579,9 +3655,10 @@
 	(CODEWORD CODEWORD-ASSAULT)
 	(COMPLETED F)>
 
-<OBJECT GHOULS-HEAD
-	(DESC "ghoul's head")
-	(FLAGS TAKEBIT)>
+<OBJECT MISSION-BOOK-SAGES
+	(DESC "Pyletes the Sage: Retrieve the Book of the Seven Sages")
+	(CODEWORD CODEWORD-ARTIFACT)
+	(COMPLETE F)>
 
 ; "Titles and Honours for War-Torn Kingdom"
 ; ---------------------------------------------------------------------------------------------
@@ -4188,7 +4265,7 @@
 <CONSTANT DESTINATION-COPPER-ISLAND "Copper Island (Over the Blood-Dark Sea)">
 <CONSTANT DESTINATION-SORCERERS-ISLE "Sorcerer's Isle (Over the Blood-Dark Sea)">
 <CONSTANT DESTINATION-WISHPORT "Wishport (Cities of Gold and Glory)">
-<CONSTANT DESTINATION-YELLOWPORT "Yellowport">
+<CONSTANT DESTINATION-YELLOWPORT "Yellowport (War-Torn Kingdom)">
 
 <CONSTANT MARLOCK-CARGO-BUY <LTABLE 190 190 700 500 820 325 190>>
 <CONSTANT MARLOCK-CARGO-SELL <LTABLE 180 180 635 460 760 285 180>>
@@ -4208,10 +4285,11 @@
 <CONSTANT BUY-SELL-CARGO-MENU <LTABLE "Buy goods" "Sell goods">>
 <CONSTANT BUY-SELL-UPGRADE-MENU <LTABLE "Buy ship" "Sell ship" "Upgrade ship">>
 
-<CONSTANT TEXT-HARBOUR-MASTER "Harbour">
-<CONSTANT HARBOUR-MASTER-MENU <LTABLE "Go to the shipyard" "Book a passage" "View ship manifest" "Visit the market" "Set sail">>
 <CONSTANT TEXT-NO-SHIPS "You don't own any ships!">
 <CONSTANT TEXT-SHIP-NOT-OWNER "You don't own that ship!">
+
+<CONSTANT HARBOUR-MASTER-MENU <LTABLE "Go to the shipyard" "Book a passage" "View ship manifest" "Visit the market" "Set sail">>
+<CONSTANT TEXT-HARBOUR-MASTER "Harbour Master">
 
 <ROUTINE HARBOUR-MARLOCK ("AUX" KEY CHOICE ITEMS DESTINATION)
 	<DO (I 1 3)
@@ -4270,6 +4348,76 @@
 			<COND (,CURRENT-SHIP
 				<COND (<VALIDATE-CARGO ,MARLOCK-CARGO-SELL>
 					<STORY-JUMP ,STORY084>
+					<RETURN>
+				)>
+			)(ELSE
+				<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+					<VIEW-SHIP-MANIFEST>
+				)(ELSE
+					<EMPHASIZE ,TEXT-NO-SHIPS>
+				)>
+			)>
+		)>
+	>>
+
+<CONSTANT HARBOUR-TRADING-MENU <LTABLE "Book a passage" "View ship manifest" "Visit the market" "Set sail">>
+<CONSTANT TRADING-POST-PASSAGES	<LTABLE	DESTINATION-YELLOWPORT>>
+<CONSTANT TRADING-POST-TICKETS	<LTABLE	15>>
+<CONSTANT TRADING-POST-TRAVEL	<LTABLE	STORY074>>
+
+<CONSTANT TRADING-POST-CARGO-BUY <LTABLE 135 220 600 400 900 325 120>>
+<CONSTANT TRADING-POST-CARGO-SELL <LTABLE 130 210 570 310 820 285 100>>
+
+<ROUTINE HARBOUR-TRADING-POST ("AUX" KEY CHOICE ITEMS DESTINATION)
+	<SET ITEMS <GET ,HARBOUR-TRADING-MENU 0>>
+	<REPEAT ()
+		<EMPHASIZE ,TEXT-HARBOUR-MASTER>
+		<PRINT-MENU ,HARBOUR-TRADING-MENU F F>
+		<HLIGHT ,H-BOLD>
+		<TELL "C">
+		<HLIGHT 0>
+		<TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
+		<HLIGHT ,H-BOLD>
+		<TELL "0">
+		<HLIGHT 0>
+		<TELL " - Go back to the village" CR>
+		<TELL "What do you wish to do next?">
+		<REPEAT ()
+			<SET .KEY <INPUT 1>>
+			<COND (<OR <EQUAL? .KEY !\C !\c !\P !\p> <AND <G=? .KEY !\0> <L=? .KEY <+ .ITEMS !\0>>>> <RETURN>)>
+		>
+		<CRLF>
+		<SET .CHOICE <- .KEY !\0>>
+		<COND (<EQUAL? .KEY !\C !\c !\P !\p>
+			<DESCRIBE-PLAYER>
+			<PRESS-A-KEY>
+		)(<EQUAL? .CHOICE 0>
+			<CRLF>
+			<TELL ,TEXT-SURE>
+			<COND (<YES?> <RETURN>)>
+		)(<EQUAL? .CHOICE 1>
+			<SET DESTINATION <BOOK-PASSAGE ,TRADING-POST-PASSAGES ,TRADING-POST-TICKETS ,TRADING-POST-TRAVEL>>
+			<COND (.DESTINATION
+				<STORY-JUMP .DESTINATION>
+				<RETURN>
+			)>
+		)(<EQUAL? .CHOICE 2>
+			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+				<EMPHASIZE "You have not designated a primary ship!">
+				<VIEW-SHIP-MANIFEST>
+			)(ELSE
+				<EMPHASIZE ,TEXT-NO-SHIPS>
+			)>
+		)(<EQUAL? .CHOICE 3>
+			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+				<BUY-SELL-CARGO ,TRADING-POST-CARGO-BUY ,TRADING-POST-CARGO-SELL>
+			)(ELSE
+				<EMPHASIZE ,TEXT-NO-SHIPS>
+			)>
+		)(<EQUAL? .CHOICE 4>
+			<COND (,CURRENT-SHIP
+				<COND (<VALIDATE-CARGO ,TRADING-POST-CARGO-SELL>
+					<STORY-JUMP ,STORY155>
 					<RETURN>
 				)>
 			)(ELSE
@@ -4995,24 +5143,9 @@
 		<HLIGHT 0>
 	)>>
 
-<ROUTINE CURE-DISEASES (FEE DISCOUNT INITIATE)
-	<COND (<NOT .INITIATE> <RETURN>)>
+<ROUTINE GOD-CURE (FEE DISCOUNT INITIATE FLAG "OPT" FLAG2)
 	<COND (<CHECK-GOD .INITIATE> <SET FEE .DISCOUNT>)>
-	<COND (<L=? <COUNT-CONTAINER ,AILMENTS> 0>
-		<EMPHASIZE "You are not afflicted with poisons or diseases of any kind!">
-	)(<G=? ,MONEY .FEE>
-		<CRLF>
-		<TELL "Pay " N .FEE " " D ,CURRENCY " for a cure?">
-		<COND (<YES?>
-			<COST-MONEY .FEE ,TEXT-PAID>
-			<CRLF>
-			<TELL "You are cured of: ">
-			<PRINT-CONTAINER ,AILMENTS>
-			<RESET-AILMENTS>
-		)>
-	)(ELSE
-		<EMPHASIZE "You cannot afford a cure at this time.">
-	)>>
+	<CURE-AILMENTS .FEE .FLAG .FLAG2>>
 
 <ROUTINE PURCHASE-BLESSING (FEE DISCOUNT INITIATE BLESSING)
 	<COND (<NOT .BLESSING> <RETURN>)>
@@ -5473,7 +5606,7 @@
 <CONSTANT BAD-ENDING "Your adventure ends here.|">
 <CONSTANT GOOD-ENDING "Further adventure awaits.|">
 <CONSTANT ENDING-BLOOD-DARK-SEA "Further adventures await at Fabled Lands 3: Over the Blood-Dark Sea.|">
-<CONSTANT ENDING-CITIES-OF-GOLD "Further adventures await at Fabled Lands 2: Cities of Gold and Glory.|">
+<CONSTANT ENDING-CITIES-GOLD-GLORY "Further adventures await at Fabled Lands 2: Cities of Gold and Glory.|">
 <CONSTANT ENDING-PLAINS-HOWLING-DARKNESS "Further adventures await at Fabled Lands 4: The Plains of Howling Darkness.|">
 
 <ROUTINE SPECIAL-INTERRUPT-ROUTINE (KEY)
@@ -5529,6 +5662,8 @@
 <CONSTANT TEXT-TO-TREFOILLE "Take the road to Trefoille">
 <CONSTANT TEXT-TO-MARLOCK "Take the road to Marlock City">
 
+<CONSTANT TEXT-SMOLDER-FISH "You caught a smolder fish while fishing.">
+
 <CONSTANT CHOICES-COMBAT <LTABLE TEXT-ROLL-COMBAT>>
 <CONSTANT CHOICES-CHARISMA <LTABLE TEXT-ROLL-CHARISMA>>
 <CONSTANT CHOICES-MAGIC <LTABLE TEXT-ROLL-MAGIC>>
@@ -5555,8 +5690,17 @@
 		)>
 	)>>
 
+<ROUTINE STORY-LOSE-BLESSING ("OPT" MAX "AUX" COUNT)
+	<COND (<NOT <ASSIGNED? MAX>> <SET MAX 1>)>
+	<SET COUNT <COUNT-CONTAINER ,BLESSINGS>>
+	<COND (<L=? .COUNT .MAX>
+		<RESET-CARGO>
+	)(ELSE
+		<LOSE-STUFF ,BLESSINGS ,LOST-STUFF "blessing" <- .COUNT .MAX> RESET-BLESSINGS>
+	)>>
+
 <ROUTINE STORY-LOSE-CARGO ("OPT" MAX "AUX" COUNT)
-	<COND (<NOT .MAX> <SET MAX 1>)>
+	<COND (<NOT <ASSIGNED? MAX>> <SET MAX 1>)>
 	<SET COUNT <COUNT-CONTAINER ,CARGO>>
 	<COND (<L=? .COUNT .MAX>
 		<RESET-CARGO>
@@ -6200,7 +6344,8 @@ footing and fall to the ground.">
 <ROUTINE STORY040-EVENTS ()
 	<UPGRADE-ABILITIES 1>
 	<DELETE-CODEWORD ,CODEWORD-ARTIFACT>
-	<RETURN-ITEM ,BOOK-SEVEN-SAGES T>>
+	<RETURN-ITEM ,BOOK-SEVEN-SAGES T>
+	<COMPLETE-MISSION ,MISSION-BOOK-SAGES>>
 
 <CONSTANT TEXT041 "The inside of the dome is lit with an eerie yellowish glow that comes from the sea-moss that carpets the ceiling. At the far end, a grotto in the wall contains an idol made from sea shells and coral, presumably of Oannes, the god of the repulsive ones. At its feet lies the golden net of Alvir and Valmir, the object of your quest. Between you and the idol swim several of the giant squid-creatures, carrying out various undersea chores.">
 <CONSTANT CHOICES041 <LTABLE "Swim back to Shadar Tor" "Fight your way to the golden net" "Trust to your magical prowess" "Rack your memory for a solution">>
@@ -6302,10 +6447,14 @@ footing and fall to the ground.">
 <ROOM STORY047
 	(DESC "047")
 	(STORY TEXT047)
+	(EVENTS STORY047-EVENTS)
 	(CHOICES CHOICES047)
 	(DESTINATIONS <LTABLE STORY596 STORY110 STORY333 STORY560 STORY387>)
 	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY047-EVENTS ()
+	<SET-LOCATION LOCATION-LARUN>>
 
 <CONSTANT TEXT048 "The warden is in charge of security. \"We have had an unfortunate, umm... accident,\" he says worriedly. \"In the crypt below the temple we sometimes experiment with the corpses of the dead -- you know, the occasional zombie, part of the rituals in honour of the particular aspect of Nagil we revere here. It seems a ghoul has escaped from the pits and is terrorizing the city at night. We'd rather someone like you sorted the problem out before the city militia got to hear of it. Destroy it and bring me the ghoul's head.\"||\"Search for it at night,\" says the warden as you leave.">
 <CONSTANT CHOICES048 <LTABLE "Take up the mission" IF-NOT>>
@@ -6759,7 +6908,7 @@ is off, you return to the city centre.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY077-EVENTS ()
-	<CURE-DISEASES 75 30 ,GOD-MAKA>>
+	<GOD-CURE 75 30 ,GOD-MAKA ,POISONBIT ,DISEASEBIT>>
 
 <ROOM STORY078
 	(DESC "078")
@@ -6807,7 +6956,6 @@ is off, you return to the city centre.">
 <CONSTANT TEXT082 "You are following the course of the Stinking River -- and it certainly does
 stink, laden with sulphur as it is.">
 <CONSTANT TEXT082-STUNG "You are stung by a large golden insect.">
-<CONSTANT TEXT082-CAUGHT "You caught a smolder fish.">
 <CONSTANT CHOICES082 <LTABLE "Follow the river north" "Follow the river south to Yellowport" "Go west to the road" "Go east into the countryside">>
 
 <ROOM STORY082
@@ -6827,7 +6975,7 @@ stink, laden with sulphur as it is.">
 	)(<L=? .ROLL 4>
 		<EMPHASIZE ,NOTHING-HAPPENS>
 	)(ELSE
-		<EMPHASIZE ,TEXT082-CAUGHT>
+		<EMPHASIZE ,TEXT-SMOLDER-FISH>
 		<TAKE-ITEM ,SMOLDER-FISH>
 	)>>
 
@@ -7056,7 +7204,7 @@ stink, laden with sulphur as it is.">
 	(DESC "099")
 	(STORY TEXT099)
 	(CHOICES CHOICES099)
-	(DESTINATIONS <LTABLE STORY-CITIES-OF-GOLD STORY-CITIES-OF-GOLD STORY333 STORY175 STORY560 STORY579 STORY100>)
+	(DESTINATIONS <LTABLE STORY-CITIES-GOLD-GLORY STORY-CITIES-GOLD-GLORY STORY333 STORY175 STORY560 STORY579 STORY100>)
 	(TYPES SEVEN-NONES)
 	(FLAGS LIGHTBIT)>
 
@@ -7333,14 +7481,9 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY114-EVENTS ()
-	<COND (<OR <L? ,STAMINA ,MAX-STAMINA> <G? <COUNT-CONTAINER ,AILMENTS> 0>>
+	<COND (<OR <L? ,STAMINA ,MAX-STAMINA> <G? <COUNT-CONTAINER ,AILMENTS ,DISEASEBIT> 0> <G? <COUNT-CONTAINER ,AILMENTS ,POISONBIT> 0>>
 		<SETG ,STAMINA ,MAX-STAMINA>
-		<COND (<G? <COUNT-CONTAINER ,AILMENTS> 0>
-			<CRLF>
-			<TELL "The priest cures you of: ">
-			<PRINT-CONTAINER ,AILMENTS>
-			<RESET-AILMENTS>
-		)>
+		<CURE-AILMENTS 0 ,DISEASEBIT ,POISONBIT>
 	)>>
 
 <CONSTANT TEXT115 "You are exploring Marlock City.">
@@ -7476,7 +7619,7 @@ harbourmaster.">
 	(DESC "123")
 	(STORY TEXT123)
 	(CHOICES CHOICES123)
-	(DESTINATIONS <LTABLE <LTABLE STORY-CITIES-OF-GOLD STORY-CITIES-OF-GOLD> STORY-CITIES-OF-GOLD STORY276 STORY003 STORY333>)
+	(DESTINATIONS <LTABLE <LTABLE STORY-CITIES-GOLD-GLORY STORY-CITIES-GOLD-GLORY> STORY-CITIES-GOLD-GLORY STORY276 STORY003 STORY333>)
 	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10> 1 NONE NONE NONE>)
 	(TYPES <LTABLE R-TEST-ABILITY R-MONEY R-NONE R-NONE R-NONE>)
 	(FLAGS LIGHTBIT)>
@@ -10053,194 +10196,147 @@ paste on the ground below.">
 	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT331 "You fall into conversation with Pyletes, a kindly old scholar priest of Molhern, the God of Knowledge.||\"Many years ago, the Book of the Seven Sages was stolen from us,\" he says. \"News suggests that the scorpion men are in possession of it. I need a young adventurer like yourself to travel to Scorpion Bight and return the book to me. In return I can show you how to improve the skill of your choice.\"">
+<CONSTANT CHOICES331 <LTABLE "Take up the quest" IF-NOT>>
+
 <ROOM STORY331
 	(DESC "331")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY331-BACKGROUND)
+	(STORY TEXT331)
+	(CHOICES CHOICES331)
+	(DESTINATIONS <LTABLE STORY010 STORY010>)
+	(REQUIREMENTS <LTABLE MISSION-BOOK-SAGES NONE>)
+	(TYPES <LTABLE R-TAKE-MISSION R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY331-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY331 1> <RETURN ,STORY627>)>
+	<RETURN ,STORY331>>
+
+<CONSTANT TEXT332 "The quayside at the Trading Post is a simple affair, without the harbour facilities or the shipwrights of large ports. There are no ships available to buy here, but if you already own a ship, you can buy and sell cargo.">
 
 <ROOM STORY332
 	(DESC "332")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT332)
+	(EVENTS STORY332-EVENTS)
+	(CONTINUE STORY195)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY332-EVENTS ()
+	<SET-LOCATION ,LOCATION-TRADING>
+	<HARBOUR-TRADING-POST>>
+
+<CONSTANT TEXT333 "You are on the east bank of the River Grimm.">
+<CONSTANT CHOICES333 <LTABLE "Cross to the west bank (Cities of Gold and Glory)" "Head east into the Forest of Larun" "Follow the river north" "Follow the river south">>
 
 <ROOM STORY333
 	(DESC "333")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT333)
+	(EVENTS STORY333-EVENTS)
+	(CHOICES CHOICES333)
+	(DESTINATIONS <LTABLE STORY-CITIES-GOLD-GLORY STORY047 STORY123 STORY099>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY333-EVENTS ("AUX" ROLL COUNT)
+	<SET ROLL <RANDOM-EVENT 1 0 T>>
+	<COND (<L=? .ROLL 2>
+		<COND (<G? <COUNT-CONTAINER ,BLESSINGS> 0>
+			<EMPHASIZE "A water sprite curses you -- you lose a blessing">
+			<SET COUNT <COUNT-CONTAINER ,BLESSINGS>>
+			<DEC .COUNT>
+			<STORY-LOSE-BLESSING .COUNT>
+		)(ELSE
+			<EMPHASIZE ,NOTHING-HAPPENS>
+		)>
+	)(<L=? .ROLL 2>
+		<EMPHASIZE ,NOTHING-HAPPENS>
+	)(ELSE
+		<EMPHASIZE ,TEXT-SMOLDER-FISH>
+		<TAKE-ITEM ,SMOLDER-FISH>
+	)>>
+
+<CONSTANT TEXT334 "To renounce the worship of Lacuna, you must pay 40 Shards in compensation to the shrine. \"If you forsake the love of the goddess, you will never survive the rigours of the wilderness,\" warns the priestess.">
 
 <ROOM STORY334
 	(DESC "334")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT334)
+	(EVENTS STORY334-EVENTS)
+	(CONTINUE STORY195)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY334-EVENTS ()
+	<RENOUNCE-WORSHIP 40 ,GOD-LACUNA>>
+
+<CONSTANT TEXT335 "The captain eyes your crew, and your marines. They are a tough-looking lot, seasoned sailors and veterans of quite a few battles at sea. \"Bah!\" he exclaims, \"It's not worth the trouble. I'll let it pass this time.\" With that, he returns to his ship, and departs.">
 
 <ROOM STORY335
 	(DESC "335")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT335)
+	(CONTINUE STORY439)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT336 "You step in, saying, \"I have a message for King Skabb...\"||The ratmen stare at you in amazement.||\"A human! Get it!\" screams Skabb.||The four ratmen charge toward you with a roar, wielding swords before you can say anything more. Soon they have been joined by many others and you have little choice but to turn and flee for your life! Desperately, you race down the sewer tunnels with an army of ratmen in hot pursuit.">
+<CONSTANT CHOICES336 <LTABLE "Lose them in the tunnels" "Try some magic" "Hide">>
 
 <ROOM STORY336
 	(DESC "336")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT336)
+	(CHOICES CHOICES336)
+	(DESTINATIONS <LTABLE STORY079 STORY296 STORY127>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT337 "The crew have been using a net to catch fish. This time they have caught a sea centaur, a strange-looking creature with a top half like a man and a bottom half like a sea horse. It struggles feebly, clutching at the net with webbed fingers, trying to saw it apart with a long, serrated dagger made of sea shell.||The first mate looks at you with his hand on his cutlass. \"We'll have to put it to the sword, Cap'n. They're terrible bad luck to have on board.\"">
+<CONSTANT CHOICES337 <LTABLE "Give the order to kill it" "Spare its life">>
 
 <ROOM STORY337
 	(DESC "337")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY337-BACKGROUND)
+	(STORY TEXT337)
+	(CHOICES CHOICES337)
+	(DESTINATIONS <LTABLE STORY522 STORY604>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY337-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY337 1> <RETURN ,STORY037>)>
+	<RETURN ,STORY337>>
+
+<CONSTANT TEXT338 "You climb down the ladder into a house with herbs and plants hanging on the walls, and shelves lined with pots, pans and bottles of all sorts. The healer, an old woman, can cure you of poison but is unable to cure disease, lift curses or heal wounds. It will cost you 25 Shards to get cured, if you are poisoned. If you pay, you can restore your abilities to normal.">
 
 <ROOM STORY338
 	(DESC "338")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT338)
+	(EVENTS STORY388-EVENTS)
+	(CONTINUE STORY427)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY388-EVENTS ()
+	<CURE-AILMENTS 25 ,POISONBIT>>
+
+<CONSTANT TEXT339 "You find a burned-out house in the poor quarter where a trader has set up a stall, selling ash and debris. The merchant, a weaselly-looking old woman, is screeching, \"Ashes, ashes from the house of a sorceress. Fifteen Shards a packet.\"">
 
 <ROOM STORY339
 	(DESC "339")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT339)
+	(EVENTS STORY339-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY339-EVENTS ()
+	<BUY-ITEM ,ASHES 15>>
+
+<CONSTANT CHOICES340 <LTABLE TEXT-ROLL-SCOUTING TEXT-ROLL-THIEVERY>>
 
 <ROOM STORY340
 	(DESC "340")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES340)
+	(DESTINATIONS <LTABLE <LTABLE STORY239 STORY034> <LTABLE STORY239 STORY034>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10> <LTABLE ABILITY-THIEVERY 10>>)
+	(TYPES TWO-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY341
@@ -17885,9 +17981,9 @@ paste on the ground below.">
 	(VICTORY ENDING-BLOOD-DARK-SEA)
 	(FLAGS LIGHTBIT)>
 
-<ROOM STORY-CITIES-OF-GOLD
+<ROOM STORY-CITIES-GOLD-GLORY
 	(DESC "Cities of Gold and Glory")
-	(VICTORY ENDING-CITIES-OF-GOLD)
+	(VICTORY ENDING-CITIES-GOLD-GLORY)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY-PLAINS-HOWLING-DARKNESS
