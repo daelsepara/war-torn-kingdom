@@ -190,7 +190,7 @@
 <GLOBAL STARTING-POINT STORY001>
 <GLOBAL CURRENT-LOCATION LOCATION-SOKARA>
 
-<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "The Trading Post" "The Stinking River" "The Forest of Larun" "The City of Trees">>
+<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "The Trading Post" "The Stinking River" "The Forest of Larun" "The City of Trees" "Caran Baru">>
 
 <CONSTANT LOCATION-SOKARA 1>
 <CONSTANT LOCATION-MARLOCK 2>
@@ -206,6 +206,7 @@
 <CONSTANT LOCATION-STINKING 12>
 <CONSTANT LOCATION-LARUN 13>
 <CONSTANT LOCATION-TREES 14>
+<CONSTANT LOCATION-CARAN 15>
 
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
@@ -1571,18 +1572,22 @@
 	)>>
 
 <ROUTINE DESCRIBE-PLAYER-BLESSINGS ()
-	<HLIGHT ,H-BOLD>
-	<PRINT-CAP-OBJ ,BLESSINGS>
-	<TELL ": ">
-	<HLIGHT 0>
-	<PRINT-CONTAINER ,BLESSINGS>>
+	<COND (<G? <COUNT-CONTAINER ,BLESSINGS> 0>
+		<HLIGHT ,H-BOLD>
+		<PRINT-CAP-OBJ ,BLESSINGS>
+		<TELL ": ">
+		<HLIGHT 0>
+		<PRINT-CONTAINER ,BLESSINGS>
+	)>>
 
 <ROUTINE DESCRIBE-PLAYER-CODEWORDS ()
-	<HLIGHT ,H-BOLD>
-	<PRINT-CAP-OBJ ,CODEWORDS>
-	<TELL ": ">
-	<HLIGHT 0>
-	<PRINT-CONTAINER ,CODEWORDS>>
+	<COND (<G? <COUNT-CONTAINER ,CODEWORDS> 0>
+		<HLIGHT ,H-BOLD>
+		<PRINT-CAP-OBJ ,CODEWORDS>
+		<TELL ": ">
+		<HLIGHT 0>
+		<PRINT-CONTAINER ,CODEWORDS>
+	)>>
 
 <ROUTINE DESCRIBE-PLAYER-CURRENCY ()
 	<HLIGHT ,H-BOLD>
@@ -1631,11 +1636,13 @@
 	)>>
 
 <ROUTINE DESCRIBE-PLAYER-RESURRECTIONS ()
-	<HLIGHT ,H-BOLD>
-	<TELL "Resurrection Arrangements: ">
-	<HLIGHT 0>
-	<COND (,RESURRECTION-ARRANGEMENTS <TELL D ,RESURRECTION-ARRANGEMENTS>)(ELSE <TELL "None">)>
-	<CRLF>>
+	<COND (,RESURRECTION-ARRANGEMENTS
+		<HLIGHT ,H-BOLD>
+		<TELL "Resurrection Arrangements: ">
+		<HLIGHT 0>
+		<TELL D ,RESURRECTION-ARRANGEMENTS>
+		<CRLF>
+	)>>
 
 <ROUTINE DESCRIBE-PLAYER-STATS ("OPT" CHARACTER CONTAINER)
 	<COND (<NOT .CHARACTER> <SET CHARACTER ,CURRENT-CHARACTER>)>
@@ -1659,7 +1666,7 @@
 	<TELL "THIEVERY: " N <CALCULATE-ABILITY .CHARACTER ABILITY-THIEVERY .CONTAINER> CR>>
 
 <ROUTINE DESCRIBE-PLAYER-SHIPS ()
-	<COND (<FIRST? SHIPS>
+	<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
 		<HLIGHT ,H-BOLD>
 		<PRINT-CAP-OBJ ,SHIPS>
 		<TELL ": ">
@@ -1673,11 +1680,13 @@
 	)>>
 
 <ROUTINE DESCRIBE-PLAYER-TITLES ()
-	<HLIGHT ,H-BOLD>
-	<PRINT-CAP-OBJ ,TITLES-AND-HONOURS>
-	<TELL ": ">
-	<HLIGHT 0>
-	<PRINT-CONTAINER ,TITLES-AND-HONOURS>>
+	<COND (<G? <COUNT-CONTAINER ,TITLES-AND-HONOURS> 0>
+		<HLIGHT ,H-BOLD>
+		<PRINT-CAP-OBJ ,TITLES-AND-HONOURS>
+		<TELL ": ">
+		<HLIGHT 0>
+		<PRINT-CONTAINER ,TITLES-AND-HONOURS>
+	)>>
 
 <ROUTINE DESCRIBE-PLAYER-TOWNHOUSES ()
 	<COND (<G? <COUNT-CONTAINER ,TOWNHOUSES> 0>
@@ -1690,11 +1699,13 @@
 	)>>
 
 <ROUTINE DESCRIBE-PLAYER-WORSHIP ()
+	<COND (,GOD
 	<HLIGHT ,H-BOLD>
 	<TELL "God: ">
 	<HLIGHT 0>
-	<COND (,GOD <TELL D ,GOD>)(ELSE <TELL "None">)>
-	<CRLF>>
+	<TELL D ,GOD>
+	<CRLF>
+	)>>
 
 <ROUTINE DISCHARGE-ITEM (ITEM "OPT" AMOUNT "AUX" (CHARGES 0))
 	<SET CHARGES <GETP .ITEM ,P?CHARGES>>
@@ -3025,8 +3036,10 @@
 <OBJECT CODEWORD-ANCHOR (DESC "Anchor")>
 <OBJECT CODEWORD-ANTHEM (DESC "Anthem")>
 <OBJECT CODEWORD-ANVIL (DESC "Anvil")>
+<OBJECT CODEWORD-APACHE (DESC "Apache")>
 <OBJECT CODEWORD-APPLE (DESC "Apple")>
 <OBJECT CODEWORD-APPEASE (DESC "Appease")>
+<OBJECT CODEWORD-AQUA (DESC "Aqua")>
 <OBJECT CODEWORD-ARK (DESC "Ark")>
 <OBJECT CODEWORD-ARMOUR (DESC "Armour")>
 <OBJECT CODEWORD-ARTERY (DESC "Artery")>
@@ -3425,6 +3438,10 @@
 <OBJECT SILVER-HOLY-SYMBOL
 	(DESC "silver holy symbol")
 	(SANCTITY 2)
+	(FLAGS TAKEBIT)>
+
+<OBJECT SILVER-MEDALLION
+	(DESC "silver medallion")
 	(FLAGS TAKEBIT)>
 
 <OBJECT SILVER-NUGGET
@@ -5355,8 +5372,7 @@
 ; "Yellowport market"
 ; ---------------------------------------------------------------------------------------------
 
-<CONSTANT YELLOWPORT-BUY-MENU <LTABLE "Buy armour" "Buy weapons" "Buy Magical Equipment" "Buy other items" "Return to the Market">>
-<CONSTANT YELLOWPORT-SELL-MENU <LTABLE "Sell armour" "Sell weapons (no COMBAT bonuses)" "Sell weapons (+1 COMBAT)" "Sell weapons (+2 COMBAT)" "Sell weapons (+3 COMBAT)" "Sell Magical Equipment" "Sell other items" "Return to the Market">>
+<CONSTANT YELLOWPORT-BUY-MENU <LTABLE "Buy armour" "Buy weapons" "Buy Magical Equipment" "Buy other items" "Return to the market">>
 
 <ROOM YELLOWPORT-BUY
 	(DESC "030 Merchant - Selling")
@@ -5389,17 +5405,19 @@
 	(CONTINUE YELLOWPORT-BUY)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE YELLOWPORT-BUYING-WEAPONS ()
-	<MERCHANT <LTABLE AXE BATTLE-AXE MACE SPEAR STAFF SWORD BATTLE-AXE1 MACE1 SPEAR1 STAFF1 SWORD1> <LTABLE 50 50 50 50 50 50 250 250 250 250 250>>>
-
 <ROUTINE YELLOWPORT-BUYING-ARMOUR ()
 	<MERCHANT <LTABLE LEATHER-ARMOUR RING-MAIL CHAIN-MAIL> <LTABLE 50 100 200>>>
+
+<ROUTINE YELLOWPORT-BUYING-WEAPONS ()
+	<MERCHANT <LTABLE AXE BATTLE-AXE MACE SPEAR STAFF SWORD BATTLE-AXE1 MACE1 SPEAR1 STAFF1 SWORD1> <LTABLE 50 50 50 50 50 50 250 250 250 250 250>>>
 
 <ROUTINE YELLOWPORT-BUYING-MAGIC ()
 	<MERCHANT <LTABLE AMBER-WAND> <LTABLE 500>>>
 
 <ROUTINE YELLOWPORT-BUYING-OTHER ()
 	<MERCHANT <LTABLE MANDOLIN HOLY-SYMBOL COMPASS ROPE LANTERN CLIMBING-GEAR RAT-POISON> <LTABLE 300 200 500 50 100 100 60>>>
+
+<CONSTANT YELLOWPORT-SELL-MENU <LTABLE "Sell armour" "Sell weapons (no COMBAT bonuses)" "Sell weapons (+1 COMBAT)" "Sell weapons (+2 COMBAT)" "Sell weapons (+3 COMBAT)" "Sell Magical Equipment" "Sell other items" "Return to the market">>
 
 <ROOM YELLOWPORT-SELL
 	(DESC "030 Merchant - Buying")
@@ -5732,6 +5750,99 @@
 <ROUTINE TREES-SELLING-OTHER ()
 	<MERCHANT <LTABLE AMBER-WAND EBONY-WAND COBALT-WAND MANDOLIN SILVER-HOLY-SYMBOL GOLD-COMPASS ROPE LANTERN SILVER-NUGGET SILVER-FLUTE> <LTABLE 400 800 1600 270 750 800 45 90 150 500> ,PLAYER T>>
 
+; "Marlock city market"
+; ---------------------------------------------------------------------------------------------
+
+<CONSTANT MARLOCK-BUY-MENU <LTABLE "Buy armour" "Buy weapons" "Buy magical and other items" "Return to the market">>
+
+<ROOM MARLOCK-CITY-BUY
+	(DESC "396 Merchant - Selling")
+	(CHOICES MARLOCK-BUY-MENU)
+	(DESTINATIONS <LTABLE MARLOCK-BUY-ARMOUR MARLOCK-BUY-WEAPONS MARLOCK-BUY-OTHER STORY396>)
+	(TYPES FOUR-NONES)
+	(FLAGS LIGHTBIT)>
+
+<ROOM MARLOCK-BUY-ARMOUR
+	(DESC "386 Merchant - Selling armours")
+	(EVENTS MARLOCK-BUYING-ARMOUR)
+	(CONTINUE MARLOCK-CITY-BUY)
+	(FLAGS LIGHTBIT)>
+
+<ROOM MARLOCK-BUY-WEAPONS
+	(DESC "396 Merchant - Selling weapons")
+	(EVENTS MARLOCK-BUYING-WEAPONS)
+	(CONTINUE MARLOCK-CITY-BUY)
+	(FLAGS LIGHTBIT)>
+
+<ROOM MARLOCK-BUY-OTHER
+	(DESC "396 Merchant - Selling magical and other items")
+	(EVENTS MARLOCK-BUYING-OTHER)
+	(CONTINUE MARLOCK-CITY-BUY)
+	(FLAGS LIGHTBIT)>
+
+<ROUTINE MARLOCK-BUYING-ARMOUR ()
+	<MERCHANT <LTABLE LEATHER-ARMOUR RING-MAIL CHAIN-MAIL SPLINT-ARMOUR> <LTABLE 70 120 220 420>>>
+
+<ROUTINE MARLOCK-BUYING-WEAPONS ()
+	<MERCHANT <LTABLE AXE BATTLE-AXE MACE SPEAR STAFF SWORD AXE1 BATTLE-AXE1 MACE1 SPEAR1 STAFF1 SWORD1> <LTABLE 70 70 70 70 70 70 270 270 270 270 270 270>>>
+
+<ROUTINE MARLOCK-BUYING-OTHER ()
+	<MERCHANT <LTABLE AMBER-WAND> <LTABLE 500>>>
+
+<CONSTANT MARLOCK-SELL-MENU <LTABLE "Sell armour" "Sell weapons (COMBAT +0-1)" "Sell weapons (++2-3 COMBAT)" "Sell magical items" "Sell other items" "Return to the market">>
+
+<ROOM MARLOCK-CITY-SELL
+	(DESC "396 Merchant - Buying")
+	(CHOICES MARLOCK-SELL-MENU)
+	(DESTINATIONS <LTABLE MARLOCK-SELL-ARMOUR MARLOCK-SELL-WEAPONS1 MARLOCK-SELL-WEAPONS2 MARLOCK-SELL-MAGIC MARLOCK-SELL-OTHER STORY396>)
+	(TYPES SIX-NONES)
+	(FLAGS LIGHTBIT)>
+
+<ROOM MARLOCK-SELL-ARMOUR
+	(DESC "396 Merchant - Buying armours")
+	(EVENTS MARLOCK-SELLING-ARMOUR)
+	(CONTINUE MARLOCK-CITY-SELL)
+	(FLAGS LIGHTBIT)>
+
+<ROOM MARLOCK-SELL-WEAPONS1
+	(DESC "396 Merchant - Buying weapons (COMBAT +0-1)")
+	(EVENTS MARLOCK-SELLING-WEAPONS1)
+	(CONTINUE MARLOCK-CITY-SELL)
+	(FLAGS LIGHTBIT)>
+
+<ROOM MARLOCK-SELL-WEAPONS2
+	(DESC "396 Merchant - Buying weapons (COMBAT +2-3)")
+	(EVENTS MARLOCK-SELLING-WEAPONS2)
+	(CONTINUE MARLOCK-CITY-SELL)
+	(FLAGS LIGHTBIT)>
+
+<ROOM MARLOCK-SELL-MAGIC
+	(DESC "396 Merchant - Buying magic items")
+	(EVENTS MARLOCK-SELLING-MAGIC)
+	(CONTINUE MARLOCK-CITY-SELL)
+	(FLAGS LIGHTBIT)>
+
+<ROOM MARLOCK-SELL-OTHER
+	(DESC "396 Merchant - Buying other items")
+	(EVENTS MARLOCK-SELLING-OTHER)
+	(CONTINUE MARLOCK-CITY-SELL)
+	(FLAGS LIGHTBIT)>
+
+<ROUTINE MARLOCK-SELLING-ARMOUR ()
+	<MERCHANT <LTABLE LEATHER-ARMOUR RING-MAIL CHAIN-MAIL SPLINT-ARMOUR PLATE-ARMOUR HEAVY-PLATE> <LTABLE 25 70 160 340 700 1420> ,PLAYER T>>
+
+<ROUTINE MARLOCK-SELLING-WEAPONS1 ()
+	<MERCHANT <LTABLE AXE BATTLE-AXE MACE SPEAR STAFF SWORD AXE1 BATTLE-AXE1 MACE1 SPEAR1 STAFF1 SWORD1> <LTABLE 20 20 20 20 20 20 180 180 180 180 180 180> ,PLAYER T>>
+
+<ROUTINE MARLOCK-SELLING-WEAPONS2 ()
+	<MERCHANT <LTABLE AXE2 BATTLE-AXE2 MACE2 SPEAR2 STAFF2 SWORD2 AXE3 BATTLE-AXE3 MACE3 SPEAR3 STAFF3 SWORD3> <LTABLE 380 380 380 380 380 380 780 780 780 780 780 780> ,PLAYER T>>
+
+<ROUTINE MARLOCK-SELLING-MAGIC ()
+	<MERCHANT <LTABLE AMBER-WAND EBONY-WAND COBALT-WAND> <LTABLE 380 780 1580> ,PLAYER T>>
+
+<ROUTINE MARLOCK-SELLING-OTHER ()
+	<MERCHANT <LTABLE MANDOLIN LOCKPICKS HOLY-SYMBOL COMPASS ROPE LANTERN CLIMBING-GEAR BAG-OF-PEARLS RAT-POISON SILVER-NUGGET SILVER-FLUTE> <LTABLE 250 250 80 430 25 70 70 80 130 190 500> ,PLAYER T>>
+
 ; "Instructions"
 ; ---------------------------------------------------------------------------------------------
 
@@ -5813,6 +5924,7 @@
 	<PUTP ,STORY353 ,P?DOOM T>
 	<PUTP ,STORY371 ,P?DOOM T>
 	<PUTP ,STORY389 ,P?DOOM T>
+	<PUTP ,STORY393 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -9556,7 +9668,7 @@ paste on the ground below.">
 <ROUTINE STORY261-EVENTS ()
 	<RENOUNCE-WORSHIP 15 ,GOD-MAKA>>
 
-<CONSTANT TEXT262 "You charge into the burning building in search of the child\"s mother. You see her lying unconscious at the bottom of the stairs. Desperately, you try to get to her but a burning beam has fallen across your way and the smoke is making you choke.">
+<CONSTANT TEXT262 "You charge into the burning building in search of the child's mother. You see her lying unconscious at the bottom of the stairs. Desperately, you try to get to her but a burning beam has fallen across your way and the smoke is making you choke.">
 
 <ROOM STORY262
 	(DESC "262")
@@ -10769,7 +10881,7 @@ paste on the ground below.">
 <ROUTINE STORY355-EVENTS ()
 	<CHECK-INVESTMENTS ,STORY046>>
 
-<CONSTANT TEXT356 "You are pious enough to be allowed to enter the sacred grove. You step in and knock on the door. A kindly old druid opens the door and greets you. You hand him the oak staff.||\"Thank you,\" he says, \"An oak staff, eh. That\"s an interesting message, to be sure.\"||He hands you 50 Shards as payment and a willow staff, saying, \"Please take this staff to the Oak Druid in the City of Trees, on the Isle of Druids. I'm sure he'll reward you, too. Good day and thanks again.\"||With that he shuts the door. You head back into the forest.">
+<CONSTANT TEXT356 "You are pious enough to be allowed to enter the sacred grove. You step in and knock on the door. A kindly old druid opens the door and greets you. You hand him the oak staff.||\"Thank you,\" he says, \"An oak staff, eh. That's an interesting message, to be sure.\"||He hands you 50 Shards as payment and a willow staff, saying, \"Please take this staff to the Oak Druid in the City of Trees, on the Isle of Druids. I'm sure he'll reward you, too. Good day and thanks again.\"||With that he shuts the door. You head back into the forest.">
 
 <ROOM STORY356
 	(DESC "356")
@@ -11204,195 +11316,208 @@ paste on the ground below.">
 	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT391 "\"Umm, well, I suppose I could let one such as you through,\" says the tree thoughtfully. Then it uproots itself with a great tearing sound, and shuffles out of the way. \"There you go. You may pass.\"||You walk through the thorn bush gate. Beyond, you find several huge oak trees whose branches are so big that they are able to support the homes of many people.">
+
 <ROOM STORY391
 	(DESC "391")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT391)
+	(CONTINUE STORY358)
+	(CODEWORDS <LTABLE CODEWORD-APPLE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT392 "You pass your hands over the mad beggar, mumbling a prayer to the gods.||The beggar cries out, \"A cloud has been lifted from my mind. The curse is dispelled. I remember all!\"||His name, he tells you, is Akradai, the Azure Prince of the Horde of the Thundering Skies, nomads of the steppes. \"I was cursed with madness by Shazir of the Ruby Citadel but now you have cured me,\" he says. \"I am forever in your debt. Seek me on the steppes and I shall reward you.\"">
 
 <ROOM STORY392
 	(DESC "392")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT392)
+	(CONTINUE STORY010)
+	(CODEWORDS <LTABLE CODEWORD-AZURE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT393 "You hear a sound behind you. You spin around just as a another man, a beefy, disreputable-looking thug, comes for you with a long dagger. \"Get the interfering busybody!\" yells the man with the eyepatch. You must fight.">
 
 <ROOM STORY393
 	(DESC "393")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT393)
+	(EVENTS STORY393-EVENTS)
+	(CONTINUE STORY476)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY393-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-THUG 3 6 13>
+	<CHECK-COMBAT ,MONSTER-THUG ,STORY393>>
+
+<CONSTANT TEXT394 "When you and your crew join the fray, the battle is short-lived. The Sokarans are overpowered, and taken as slaves by the pirates.||The pirate captain, Verin Crookback, is a short, bull-chested man. He walks like a hunchback, because of a crippling wound he took to the shoulder blade, many years ago. He thanks you for your help and rewards you with a share of the booty from the Sokaran warships -- only 50 Shards. He also hands you a silver medallion.||\"If you ever go to the Kingdom of the Reavers,\" he says, \"flash this about. One of the lads'll recognize it. Villains, the lot of them, but they'll honour one who carries the medallion. Someone will bring you to me. I'll help you, if you need it.\"||The pirates take their leave and you sail on.">
 
 <ROOM STORY394
 	(DESC "394")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT394)
+	(EVENTS STORY394-EVENTS)
+	(CONTINUE STORY420)
+	(ITEMS <LTABLE SILVER-MEDALLION>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY394-EVENTS ()
+	<GAIN-MONEY 50>>
+
+<CONSTANT TEXT395 "You make it out of the temple with your pursuers close behind. However, you manage to lose them amid the alleys of Caran Baru, hiding inside a barrel of rotting food -- garbage from the army barracks. You emerge stinking, but safe.">
 
 <ROOM STORY395
 	(DESC "395")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT395)
+	(CONTINUE STORY400)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT396 "The market square in Marlock City is huge. Armed guards stand around the edge to enforce General Marlock's will. Merchants and traders from all over Harkuna hawk their goods in a dozen languages.||Items that are not available locally are not listed. The general has imposed a sales tax on all trade; the tax has been included in all the prices listed.">
+<CONSTANT CHOICES396 <LTABLE "Buy armours/weapons/magic/other items" "Sell armours/weapons/magic/other items" "Return to city centre">>
 
 <ROOM STORY396
 	(DESC "396")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT396)
+	(EVENTS STORY396-EVENTS)
+	(CHOICES CHOICES396)
+	(DESTINATIONS <LTABLE MARLOCK-CITY-BUY MARLOCK-CITY-SELL STORY100>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY396-EVENTS ()
+	<SET-LOCATION ,LOCATION-MARLOCK>>
 
 <ROOM STORY397
 	(DESC "397")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-STORM-SUBSIDES)
+	(EVENTS STORY-LOSE-CARGO)
+	(CONTINUE STORY090)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT398 "You make your way up the hill. After a while, you spot a cave set into the hillside, a little further up. Judging by the human bones, dumped near the entrance, this is the lair of a dangerous beast. Fresh tracks, of some large, two-legged, three-toed creature, lead from the cave into some nearby trees. It seems it is not at home, at the moment.">
+<CONSTANT CHOICES398 <LTABLE HAVE-CODEWORD IF-NOT>>
 
 <ROOM STORY398
 	(DESC "398")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY398-BACKGROUND)
+	(STORY TEXT398)
+	(CHOICES CHOICES398)
+	(DESTINATIONS <LTABLE STORY463 STORY710>)
+	(REQUIREMENTS <LTABLE CODEWORD-APACHE NONE>)
+	(TYPES <LTABLE R-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY398-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY398 1> <RETURN ,STORY225>)>
+	<RETURN ,STORY398>>
+
+<CONSTANT TEXT399 "You were asked by the Governor of Yellowport to assassinate Nergan Corin. It is a good time to make the attempt if you want to.">
+<CONSTANT CHOICES399 <LTABLE "Try to assassinate Nergan Corin" "Join the rebels and try to kill the governor instead">>
 
 <ROOM STORY399
 	(DESC "399")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT399)
+	(CHOICES CHOICES399)
+	(DESTINATIONS <LTABLE STORY715 STORY716>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT400 "Caran Baru is a medium-sized town, that acts as a way-station between the citadel to the north, and the rich towns of the south. It is a garrison town; many supplies, arms and soldiers move through Caran Baru on the north-south trail. Shops, traders, temples and the like have sprung up here to serve the needs of the military. There is also a sizeable mining community, for the mines of Sokara lie in the Bronze Hills just outside town, and a slave market where poor unfortunates, sold into slavery, are bought for work in the mines.||You can buy a townhouse in Caran Baru for 200 Shards. Owning a townhouse gives you a place to rest and store equipment.">
+
+<CONSTANT CARAN-BARU-CHOICES
+	<LTABLE
+		"Visit the marketplace"
+		"Visit the merchants' guild"
+		"Visit the slave market"
+		"Visit the temple of Tyrnai"
+		"Visit the temple of Lacuna"
+		"Visit the temple of the Three Fortunes"
+		"Visit your townhouse"
+		"Visit the Blue Griffon Tavern"
+		"Visit the Blue Griffon Tavern"
+		"Follow the road north to the citadel"
+		"Go west into the Bronze Hills"
+		"Travel north east into the country"
+		"Take the east road to Fort Mereth"
+		"Head south east into the mountains"
+		"Take the south road"
+	>>
+
+<CONSTANT CARAN-BARU-DESTINATIONS
+	<LTABLE
+		STORY215
+		STORY112
+		STORY473
+		STORY282
+		STORY615
+		STORY086
+		STORY177
+		STORY184
+		STORY201
+		STORY110
+		STORY060
+		STORY458
+		STORY474
+		STORY347
+	>>
+
+<CONSTANT CARAN-BARU-REQUIREMENTS
+	<LTABLE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		CODEWORD-AQUA
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+		NONE
+	>>
+
+<CONSTANT CARAN-BARU-TYPES
+	<LTABLE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-CODEWORD
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+		R-NONE
+	>>
 
 <ROOM STORY400
 	(DESC "400")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT400)
+	(EVENTS STORY400-EVENTS)
+	(CHOICES CARAN-BARU-CHOICES)
+	(DESTINATIONS CARAN-BARU-DESTINATIONS)
+	(REQUIREMENTS CARAN-BARU-REQUIREMENTS)
+	(TYPES CARAN-BARU-TYPES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY400-EVENTS ()
+	<SET-LOCATION ,LOCATION-CARAN>
+	<COND (<CHECK-CODEWORD ,CODEWORD-BARNACLE>
+		<STORY-JUMP ,STORY418>
+	)(<AND <NOT <CHECK-CODEWORD ,CODEWORD-AQUA>> <G=? ,MONEY 200>>
+		<CRLF>
+		<TELL "Would you like to buy a townhouse in Caran Baru (200 " D ,CURRENCY ")?">
+		<COND (<YES?>
+			<COST-MONEY 200>
+			<GAIN-CODEWORD ,CODEWORD-AQUA>
+			<GAIN-TOWNHOUSE ,TOWNHOUSE-CARAN-BARU>
+		)>
+	)>>
 
 <ROOM STORY401
 	(DESC "401")
