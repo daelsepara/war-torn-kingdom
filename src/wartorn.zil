@@ -196,7 +196,7 @@
 <GLOBAL STARTING-POINT STORY001>
 <GLOBAL CURRENT-LOCATION LOCATION-SOKARA>
 
-<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth">>
+<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "Trading Post" "Stinking River">>
 
 <CONSTANT LOCATION-SOKARA 1>
 <CONSTANT LOCATION-MARLOCK 2>
@@ -208,6 +208,8 @@
 <CONSTANT LOCATION-GRIMM 8>
 <CONSTANT LOCATION-EAGLES 9>
 <CONSTANT LOCATION-MERETH 10>
+<CONSTANT LOCATION-TRADING 11>
+<CONSTANT LOCATION-STINKING 12>
 
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
@@ -853,6 +855,13 @@
 	<SET VISITS <GETP .LOCATION ,P?VISITS>>
 	<COND (.VISITS <RETURN <G? .VISITS .COUNTER>>)>
 	<RFALSE>>
+
+<ROUTINE COMPLETE-MISSION (MISSION "AUX" CODEWORD)
+	<COND (<NOT .MISSION> <RETURN>)>
+	<SET CODEWORD <GETP .MISSION ,P?CODEWORD>>
+	<COND (<OR <CHECK-CODEWORD .CODEWORD> <CHECK-MISSION .MISSION>>
+		<PUTP .MISSION ,P?COMPLETED T>
+	)>>
 
 <ROUTINE GET-DIFFICULTY (STORY INDEX "AUX" ODDS)
 	<SET ODDS <GET <GETP .STORY ,P?REQUIREMENTS> .INDEX>>
@@ -2480,6 +2489,7 @@
 <ROUTINE RESET-MISSIONS ()
 	<PUTP ,MISSION-GHOUL-HEAD ,P?COMPLETED F>
 	<PUTP ,MISSION-NEGRAN-CORIN ,P?COMPLETED F>
+	<PUTP ,MISSION-CITADEL-VELIS ,P?COMPLETED F>
 	<RESET-CONTAINER ,MISSIONS>>
 
 <ROUTINE RESET-PLAYER ()
@@ -2500,6 +2510,7 @@
 	<RESET-MISSIONS>
 	<RESET-POSSESSIONS>
 	<RESET-TITLES>
+	<RESET-TOWNHOUSES>
 	<RESET-SHIPS>>
 
 <ROUTINE RESET-POSSESSIONS ()
@@ -2516,6 +2527,16 @@
 
 <ROUTINE RESET-TITLES ()
 	<RESET-CONTAINER ,TITLES-AND-HONOURS>>
+
+<ROUTINE RESET-TOWNHOUSES ()
+	<PUTP ,TOWNHOUSE-YELLOWPORT ,P?INVESTMENTS 0>
+	<PUTP ,TOWNHOUSE-MARLOCK ,P?INVESTMENTS 0>
+	<PUTP ,TOWNHOUSE-CARAN-BARU ,P?INVESTMENTS 0>
+	<RESET-CONTAINER ,TOWNHOUSE-YELLOWPORT>
+	<RESET-CONTAINER ,TOWNHOUSE-MARLOCK>
+	<RESET-CONTAINER ,TOWNHOUSE-CARAN-BARU>
+	<RESET-CONTAINER ,CACHE-YELLOWPORT>
+	<RESET-CONTAINER ,TOWNHOUSES>>
 
 <ROUTINE RESET-SHIPS ()
 	<RESET-CONTAINER ,SHIPS>>
@@ -3239,7 +3260,7 @@
 	(DESC "royal ring")
 	(FLAGS TAKEBIT)>
 
-<OBJECT SALT-AND-IRON-FILINGS
+<OBJECT SALT-IRON-FILINGS
 	(DESC "salt and iron filings")
 	(FLAGS TAKEBIT)>
 
@@ -3249,6 +3270,11 @@
 
 <OBJECT SCROLL-OF-EBRON
 	(DESC "scroll of Ebron")
+	(FLAGS TAKEBIT)>
+
+<OBJECT SILVER-FLUTE
+	(DESC "silver flute")
+	(CHARISMA 2)
 	(FLAGS TAKEBIT)>
 
 <OBJECT SILVER-NUGGET
@@ -3444,6 +3470,12 @@
 	(COMBAT 3)
 	(DEFENSE 5)
 	(STAMINA 6)>
+
+<OBJECT MONSTER-MAN-EYEPATCH
+	(DESC "Man with eyepatch")
+	(COMBAT 5)
+	(DEFENSE 8)
+	(STAMINA 12)>
 
 <OBJECT MONSTER-MILITIAMAN
 	(DESC "Militiaman")
@@ -5135,7 +5167,7 @@
 	<MERCHANT <LTABLE AMBER-WAND EBONY-WAND COBALT-WAND> <LTABLE 400 800 600> ,PLAYER T>>
 
 <ROUTINE YELLOWPORT-SELLING-OTHER ()
-	<MERCHANT <LTABLE MANDOLIN LOCKPICKS HOLY-SYMBOL COMPASS ROPE LANTERN CLIMBING-GEAR BAG-OF-PEARLS RAT-POISON SILVER-NUGGET TREASURE-MAP> <LTABLE 270 270 100 450 45 90 90 100 50 200 150> ,PLAYER T>>
+	<MERCHANT <LTABLE MANDOLIN LOCKPICKS HOLY-SYMBOL COMPASS ROPE LANTERN CLIMBING-GEAR BAG-OF-PEARLS RAT-POISON SILVER-NUGGET TREASURE-MAP SILVER-FLUTE> <LTABLE 270 270 100 450 45 90 90 100 50 200 150 500> ,PLAYER T>>
 
 ; "Venefax Market"
 ; ---------------------------------------------------------------------------------------------
@@ -5191,7 +5223,7 @@
 	<MERCHANT <LTABLE LEATHER-ARMOUR RING-MAIL BATTLE-AXE MACE SPEAR STAFF SWORD BATTLE-AXE1 MACE1 SPEAR1 STAFF1 SWORD1> <LTABLE 45 90 40 40 40 40 40 200 200 200 200 200> ,PLAYER T>>
 
 <ROUTINE VENEFAX-SELLING-OTHER ()
-	<MERCHANT <LTABLE ROPE LANTERN CLIMBING-GEAR SCORPION-ANTIDOTE> <LTABLE 45 90 90 90> ,PLAYER T>>
+	<MERCHANT <LTABLE ROPE LANTERN CLIMBING-GEAR SCORPION-ANTIDOTE SILVER-FLUTE> <LTABLE 45 90 90 90 500> ,PLAYER T>>
 
 ; "Caran Baru Market"
 ; ---------------------------------------------------------------------------------------------
@@ -5319,28 +5351,28 @@
 	<MERCHANT <LTABLE AMBER-WAND EBONY-WAND COBALT-WAND SELENIUM-WAND> <LTABLE 400 800 1600 	1600> ,PLAYER T>>
 
 <ROUTINE CARAN-SELLING-OTHER ()
-	<MERCHANT <LTABLE MANDOLIN LOCKPICKS HOLY-SYMBOL COMPASS ROPE LANTERN CLIMBING-GEAR BAG-OF-PEARLS RAT-POISON SILVER-NUGGET PLATINUM-EARRING WOLF-PELT> <LTABLE 270 270 100 450 45 90 90 100 50 150 800 90> ,PLAYER T>>
+	<MERCHANT <LTABLE MANDOLIN LOCKPICKS HOLY-SYMBOL COMPASS ROPE LANTERN CLIMBING-GEAR BAG-OF-PEARLS RAT-POISON SILVER-NUGGET PLATINUM-EARRING WOLF-PELT SILVER-FLUTE> <LTABLE 270 270 100 450 45 90 90 100 50 150 800 90 500> ,PLAYER T>>
 
 ; "Local market"
 ; ---------------------------------------------------------------------------------------------
 
 <ROOM LOCAL-MARKET-BUY
 	(DESC "292 Merchant selling items")
-	(EVENTS LOCAL-MARKET-BUYING-ITEMS)
+	(EVENTS LOCAL-MARKET-BUYING-OTHER)
 	(CONTINUE STORY292)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE LOCAL-MARKET-BUYING-ITEMS ()
+<ROUTINE LOCAL-MARKET-BUYING-OTHER ()
 	<MERCHANT <LTABLE SMOLDER-FISH SILVER-NUGGET> <LTABLE 60 160>>>
 
 <ROOM LOCAL-MARKET-SELL
 	(DESC "292 Merchant buying items")
-	(EVENTS LOCAL-MARKET-SELLING-ITEMS)
+	(EVENTS LOCAL-MARKET-SELLING-OTHER)
 	(CONTINUE STORY292)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE LOCAL-MARKET-SELLING-ITEMS ()
-	<MERCHANT <LTABLE SMOLDER-FISH SILVER-NUGGET> <LTABLE 55 150> ,PLAYER T>>
+<ROUTINE LOCAL-MARKET-SELLING-OTHER ()
+	<MERCHANT <LTABLE SMOLDER-FISH SILVER-NUGGET SILVER-FLUTE> <LTABLE 55 150 500> ,PLAYER T>>
 
 ; "Instructions"
 ; ---------------------------------------------------------------------------------------------
@@ -5412,6 +5444,7 @@
 	<PUTP ,STORY289 ,P?DOOM T>
 	<PUTP ,STORY297 ,P?DOOM T>
 	<PUTP ,STORY299 ,P?DOOM T>
+	<PUTP ,STORY304 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -6213,7 +6246,7 @@ footing and fall to the ground.">
 	(EVENTS STORY045-EVENTS)
 	(CHOICES CHOICES045)
 	(DESTINATIONS <LTABLE STORY617 STORY155 STORY303>)
-	(REQUIREMENTS <LTABLE NONE NONE SALT-AND-IRON-FILINGS>)
+	(REQUIREMENTS <LTABLE NONE NONE SALT-IRON-FILINGS>)
 	(TYPES <LTABLE R-NONE R-NONE R-ITEM>)
 	(DOOM T)
 	(FLAGS LIGHTBIT)>
@@ -8264,11 +8297,15 @@ harbourmaster.">
 <ROOM STORY195
 	(DESC "195")
 	(STORY TEXT195)
+	(EVENT STORY195-EVENTS)
 	(CHOICES CHOICES195)
 	(DESTINATIONS <LTABLE STORY544 STORY452 STORY332 STORY181 STORY011 STORY257>)
 	(TYPES SIX-NONES)
 	(CODEWORDS <LTABLE CODEWORD-ASPEN>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY195-EVENTS ()
+	<SET-LOCATION ,LOCATION-TRADING>>
 
 <CONSTANT TEXT196 "You hack off the hideous head and leave.">
 
@@ -8280,9 +8317,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY196-EVENTS ()
-	<COND (<OR <CHECK-CODEWORD ,CODEWORD-AGUE> <CHECK-MISSION ,MISSION-GHOUL-HEAD>>
-		<PUTP ,MISSION-GHOUL-HEAD ,P?COMPLETED T>
-	)>
+	<COMPLETE-MISSION ,MISSION-GHOUL-HEAD>
 	<TAKE-ITEM ,GHOULS-HEAD>>
 
 <CONSTANT TEXT197 "The blessing of Sig costs 10 Shards if you are an initiate, 30 Shards otherwise.||The blessing works by allowing you to reroll any failed THIEVERY attempt once. You can have only one blessing for each ability at any one time. Once your THIEVERY blessing is used up, you can return to any branch of the temple of Sig to buy a new one.">
@@ -9630,157 +9665,107 @@ paste on the ground below.">
 <ROUTINE STORY300-EVENTS ()
 	<VISIT-TOWNHOUSE ,STORY300 ,TOWNHOUSE-YELLOWPORT>>
 
+<CONSTANT TEXT301 "A barque is heading for the Isle of Druids to buy furs and its captain is prepared to take you. The journey, across the Sea of Whispers, is uneventful, and you dock at the trading post on the island a week or so later.">
+
 <ROOM STORY301
 	(DESC "301")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT301)
+	(EVENTS STORY301-EVENTS)
+	(CONTINUE STORY195)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY301-EVENTS ()
+	<COST-MONEY 15 ,TEXT-PAID>>
+
+<CONSTANT TEXT302 "You can explore:">
+<CONSTANT CHOICES302 <LTABLE "The poor quarter" "The harbour district" "The area around the palace">>
 
 <ROOM STORY302
 	(DESC "302")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT302)
+	(CHOICES CHOICES302)
+	(DESTINATIONS <LTABLE STORY093 STORY587 STORY277>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT303 "As fast as you can, you lay out a line of the powder in front of you. The ghoul gives a moaning wail and shrinks back, unable to cross the line of salt and iron filings. Quickly you run around the ghoul, encircling it with the powder. The creature lunges for you but it cannot cross the line -- you keep it at bay at every turn. Soon it is completely trapped. Casually, you sit on a tombstone, and wait for sunrise. With the first rays of dawn the ghoul is burnt to a crisp. You take the charred head and make your way back to town.">
 
 <ROOM STORY303
 	(DESC "303")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT303)
+	(EVENTS STORY303-EVENTS)
+	(CONTINUE STORY100)
+	(ITEMS <LTABLE GHOULS-HEAD>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY303-EVENTS ()
+	<REMOVE-ITEM ,SALT-IRON-FILINGS "used" T>
+	<COMPLETE-MISSION ,MISSION-GHOUL-HEAD>>
+
+<CONSTANT TEXT304 "He spots you before you can get the jump on him. \"Stinking assassin!\" he yells, drawing his sword. You must fight him.">
 
 <ROOM STORY304
 	(DESC "304")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT304)
+	(EVENTS STORY304-EVENTS)
+	(CONTINUE STORY092)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY304-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-MAN-EYEPATCH 5 8 12>
+	<CHECK-COMBAT ,MONSTER-MAN-EYEPATCH ,STORY304>>
 
 <ROOM STORY305
 	(DESC "305")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY305-BACKGROUND)
+	(CHOICES CHOICES-MAGIC)
+	(DESTINATIONS <LTABLE <LTABLE STORY609 STORY528>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-MAGIC 11>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY305-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY305 1> <RETURN ,STORY367>)>
+	<RETURN ,STORY305>>
+
+<CONSTANT TEXT306 "Something doesn't feel right about the pearls. You realize a minor enchantment has been put on them. They are in fact tiny pebbles made to look like pearls. You squeeze them in the palm of your hand and they revert to their natural state. \"By the twin gods!\" exclaims the young man. \"Look at that, they were pebbles all along.\" You stare at him for a long while, fingering your weapon. The sea gypsy shifts uneasily from foot to foot, coughing nervously and hands you another bag of pearls. This time you are sure they are real.||You take your leave, and resume your journey.">
 
 <ROOM STORY306
 	(DESC "306")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT306)
+	(CONTINUE STORY085)
+	(ITEMS <LTABLE BAG-OF-PEARLS>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT307 "It feels like you are playing the flute for an eternity. But at last they tire of your music...||You wake up with a scream. You realize you are not aboard your ship! You find out that you are in the temple of Alvir and Valmir in Yellowport. A priest tells you that your crew brought you here three months ago because they could not wake you from your sleep.||Your ship and crew are long gone now. The priests, however, have been looking after all your possessions. Among them is a silver flute (+2 CHARISMA). While you have the flute, it adds 2 to your CHARISMA. Note that it is worth 500 Shards, and that you can sell it at any market if you like.||You leave the temple.">
 
 <ROOM STORY307
 	(DESC "307")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT307)
+	(EVENTS STORY307-EVENTS)
+	(CONTINUE STORY010)
+	(ITEMS <LTABLE SILVER-FLUTE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY307-EVENTS ()
+	<SET-LOCATION ,LOCATION-YELLOWPORT>>
+
+<CONSTANT TEXT308 "The ratmen beat you into unconsciousness, and then toss you down an underground sewer outlet. You are washed up on the beaches outside Yellowport, where you come to. You have 1 Stamina point left, and the ratmen have taken all the items and money that you were carrying.||Groggily, you make your way back into the city.">
 
 <ROOM STORY308
 	(DESC "308")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT308)
+	(EVENTS STORY308-EVENTS)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY308-EVENTS ()
+	<SET-LOCATION ,LOCATION-YELLOWPORT>
+	<STORY-LOSE-EVERYTHING F>
+	<SETG STAMINA 1>
+	<UPDATE-STATUS-LINE>>
 
 <CONSTANT TEXT309 "As you move closer to the sarcophagus, your foot crosses the edge of the pentacle by a few inches. It is enough. The lid of the sarcophagus explodes into the air with a deafening crash, and a pillar of black smoke erupts from the stone coffin. The smoke hurtles towards you, like a miniature tornado. You must fight the tomb guardian.">
 
@@ -9795,24 +9780,19 @@ paste on the ground below.">
 	<SET WEAPON <FIND-BEST ,P?COMBAT ,WEAPONBIT ,PLAYER>>
 	<COND (<G? .WEAPON 0> <STORY-JUMP ,STORY043>)>>
 
+<CONSTANT TEXT310 "The Stinking River has cut its way through the high ground here. On the edge of the chasm that overlooks the river lies the village of High Therys. The locals are behaving very oddly. You watch the villagers lay out a fine feast on the village green. A pig is set roasting on a spit, loaves of freshly baked bread are piled beside bowls overflowing with fruits, butter and cheese. Then the innkeeper comes with huge bottles of wine and beer. Lastly, the richest merchants of the village bring coffers full of silver which they set beside the table.||To your amazement, instead of sitting down to dine, the villagers then scurry home and start closing the shutters on their windows.">
+
 <ROOM STORY310
 	(DESC "310")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY310-BACKGROUND)
+	(STORY TEXT310)
+	(CONTINUE STORY283)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY310-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY310 1> <RETURN ,STORY614>)>
+	<RETURN ,STORY310>>
 
 <ROOM STORY311
 	(DESC "311")
