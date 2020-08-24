@@ -153,6 +153,9 @@
 ; "container for ships owned"
 <OBJECT SHIPS (DESC "ships") (FLAGS CONTBIT OPENBIT)>
 
+; "townhouses and/secret caches"
+<OBJECT TOWNHOUSES (DESC "townhouses/secret caches") (FLAGS CONTBIT OPENBIT)>
+
 ; "Townhouses"
 ; ---------------------------------------------------------------------------------------------
 
@@ -165,6 +168,15 @@
 	(DESC "Townhouse at Yellowport")
 	(INVESTMENTS 0)
 	(FLAGS CONTBIT OPENBIT)>
+
+<OBJECT TOWNHOUSE-MARLOCK
+	(DESC "Townhouse at Marlock City")
+	(INVESTMENTS 0)
+	(FLAGS CONTBIT OPENBIT)>
+
+<OBJECT CACHE-YELLOWPORT
+	(DESC "Cache at Yellowport")
+	(FLAGS CONTBIT OPENBIT CACHEBIT)>
 
 ; "NON-PERSON OBJECTS Properties"
 ; ---------------------------------------------------------------------------------------------
@@ -822,6 +834,10 @@
 	<COND (<OR <IN? .THIS-SHIP ,SHIPS> <AND ,CURRENT-SHIP <EQUAL? ,CURRENT-SHIP .THIS-SHIP>>> <RTRUE>)>
 	<RFALSE>>
 
+<ROUTINE CHECK-TOWNHOUSE (TOWNHOUSE)
+	<COND (<NOT .TOWNHOUSE> <RTRUE>)>
+	<RETURN <IN? .TOWNHOUSE ,TOWNHOUSES>>>
+
 <ROUTINE CHECK-VISITS-EQUAL ("OPT" LOCATION COUNTER "AUX" VISITS)
 	<COND (<NOT .LOCATION> <SET LOCATION ,HERE>)>
 	<COND (<NOT .COUNTER> <SET .COUNTER 1>)>
@@ -1372,6 +1388,7 @@
 		<DESCRIBE-PLAYER-BACKGROUND>
 		<DESCRIBE-PLAYER-STATS>
 		<DESCRIBE-PLAYER-LOCATION>
+		<DESCRIBE-PLAYER-TOWNHOUSES>
 		<DESCRIBE-PLAYER-POSSESSIONS>
 		<DESCRIBE-PLAYER-CODEWORDS>
 		<DESCRIBE-PLAYER-SHIPS>
@@ -1448,7 +1465,7 @@
 	)>>
 
 <ROUTINE DESCRIBE-PLAYER-POSSESSIONS ()
-	<CRLF>
+	<COND (<L=? <COUNT-CONTAINER ,TOWNHOUSES> 0> <CRLF>)>
 	<HLIGHT ,H-BOLD>
 	<TELL "Possessions: ">
 	<HLIGHT 0>
@@ -1482,13 +1499,6 @@
 	<TELL "SCOUTING: " N <CALCULATE-ABILITY .CHARACTER ABILITY-SCOUTING .CONTAINER> CR>
 	<TELL "THIEVERY: " N <CALCULATE-ABILITY .CHARACTER ABILITY-THIEVERY .CONTAINER> CR>>
 
-<ROUTINE DESCRIBE-PLAYER-TITLES ()
-	<HLIGHT ,H-BOLD>
-	<PRINT-CAP-OBJ ,TITLES-AND-HONOURS>
-	<TELL ": ">
-	<HLIGHT 0>
-	<PRINT-CONTAINER ,TITLES-AND-HONOURS>>
-
 <ROUTINE DESCRIBE-PLAYER-SHIPS ()
 	<COND (<FIRST? SHIPS>
 		<HLIGHT ,H-BOLD>
@@ -1501,6 +1511,23 @@
 		<TELL ": ">
 		<HLIGHT 0>
 		<PRINT-CONTAINER ,CARGO>
+	)>>
+
+<ROUTINE DESCRIBE-PLAYER-TITLES ()
+	<HLIGHT ,H-BOLD>
+	<PRINT-CAP-OBJ ,TITLES-AND-HONOURS>
+	<TELL ": ">
+	<HLIGHT 0>
+	<PRINT-CONTAINER ,TITLES-AND-HONOURS>>
+
+<ROUTINE DESCRIBE-PLAYER-TOWNHOUSES ()
+	<COND (<G? <COUNT-CONTAINER ,TOWNHOUSES> 0>
+		<CRLF>
+		<HLIGHT ,H-BOLD>
+		<PRINT-CAP-OBJ ,TOWNHOUSES>
+		<TELL ": ">
+		<HLIGHT 0>
+		<PRINT-CONTAINER ,TOWNHOUSES>
 	)>>
 
 <ROUTINE DESCRIBE-PLAYER-WORSHIP ()
@@ -1646,6 +1673,9 @@
 		<PUTP ,CURRENT-CHARACTER ,P?RANK .RANK>
 	)>>
 
+<ROUTINE GAIN-CACHE (CACHE)
+	<GAIN-OBJECT .CACHE ,TOWNHOUSES "secret cache" CHECK-TOWNHOUSE>>
+
 <ROUTINE GAIN-STAMINA (POINTS "AUX" DIFFERENCE)
 	<COND (<L? ,STAMINA ,MAX-STAMINA>
 		<SET DIFFERENCE <- ,MAX-STAMINA ,STAMINA>>
@@ -1665,6 +1695,9 @@
 
 <ROUTINE GAIN-TITLE (TITLE)
 	<GAIN-OBJECT .TITLE ,TITLES-AND-HONOURS "title" CHECK-TITLE>>
+
+<ROUTINE GAIN-TOWNHOUSE (TOWNHOUSE)
+	<GAIN-OBJECT .TOWNHOUSE ,TOWNHOUSES "townhouse" CHECK-TOWNHOUSE>>
 
 <ROUTINE GET-ITEM (ITEM "OPT" CONTAINER "AUX" ITEMS COUNT)
 	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
@@ -2882,6 +2915,7 @@
 <OBJECT CODEWORD-ALMANAC (DESC "Almanac")>
 <OBJECT CODEWORD-ALOFT (DESC "Aloft")>
 <OBJECT CODEWORD-AMBUSCADE (DESC "Ambuscade")>
+<OBJECT CODEWORD-AMCHA (DESC "Amcha")>
 <OBJECT CODEWORD-AMENDS (DESC "Amends")>
 <OBJECT CODEWORD-ANCHOR (DESC "Anchor")>
 <OBJECT CODEWORD-ANTHEM (DESC "Anthem")>
@@ -2899,8 +2933,13 @@
 <OBJECT CODEWORD-AVENGE (DESC "Avenge")>
 <OBJECT CODEWORD-AXE (DESC "Axe")>
 <OBJECT CODEWORD-AZURE (DESC "Azure")>
+
+; "codewords from other books. Included here only for completeness"
+; ---------------------------------------------------------------------------------------------
+
 <OBJECT CODEWORD-BARNACLE (DESC "Barnacle")>
 <OBJECT CODEWORD-BRUSH (DESC "Brush")>
+<OBJECT CODEWORD-CUTLASS (DESC "Cutlass")>
 <OBJECT CODEWORD-DEFEND (DESC "Defend")>
 <OBJECT CODEWORD-DELIVER (DESC "Deliver")>
 <OBJECT CODEWORD-ELDRITCH (DESC "Eldritch")>
@@ -4508,6 +4547,7 @@
 ; "Townhouse routines"
 ; ---------------------------------------------------------------------------------------------
 
+<CONSTANT CACHE-MENU <LTABLE "Leave/Take your possessions.">>
 <CONSTANT TOWNHOUSE-MENU <LTABLE "Leave/Take your possessions." "Leave/Withdraw money.">>
 <CONSTANT TOWNHOUSE-MENU-MONEY <LTABLE "Leave some your money here." "Take the money that was kept here.">>
 <CONSTANT TOWNHOUSE-MENU-POSSESSIONS <LTABLE "Leave some of your possessions here." "Take the  items that are kept here.">>
@@ -4687,40 +4727,47 @@
 <ROUTINE VISIT-TOWNHOUSE (STORY TOWNHOUSE "AUX" ROLL KEY)
 	<COND (<L? ,STAMINA ,MAX-STAMINA> <GAIN-STAMINA <- ,MAX-STAMINA ,STAMINA>>)>
 	<UPDATE-STATUS-LINE>
-	<SET ROLL <RANDOM-EVENT 2 0 T>>
-	<COND (<L=? .ROLL 9>
-		<COND (<G? <COUNT-CONTAINER .TOWNHOUSE> 0>
-			<EMPHASIZE "Your possessions are safe.">
-		)(ELSE
-			<EMPHASIZE ,NOTHING-HAPPENS>
+	<COND (<NOT <FSET? .TOWNHOUSE ,CACHEBIT>>
+		<SET ROLL <RANDOM-EVENT 2 0 T>>
+		<COND (<L=? .ROLL 9>
+			<COND (<G? <COUNT-CONTAINER .TOWNHOUSE> 0>
+				<EMPHASIZE "Your possessions are safe.">
+			)(ELSE
+				<EMPHASIZE ,NOTHING-HAPPENS>
+			)>
+		)(<L=? .ROLL 11>
+			<COND (<G? <GETP .TOWNHOUSE ,P?INVESTMENTS> 0>
+				<EMPHASIZE "A break-in! All the money left here is gone!">
+				<PUTP .TOWNHOUSE ,P?INVESTMENTS 0>
+			)(ELSE
+				<EMPHASIZE "Robbers did not find any money here!">
+			)>
+		)(<L=? .ROLL 12>
+			<COND (<G? <COUNT-CONTAINER .TOWNHOUSE> 0>
+				<EMPHASIZE "Raiding nomads take all your possessions!">
+				<RESET-CONTAINER .TOWNHOUSE>
+			)(ELSE
+				<EMPHASIZE "Raiding nomads did not find anything of value here!">
+			)>
 		)>
-	)(<L=? .ROLL 11>
-		<COND (<G? <GETP .TOWNHOUSE ,P?INVESTMENTS> 0>
-			<EMPHASIZE "A break-in! All the money left here is gone!">
-			<PUTP .TOWNHOUSE ,P?INVESTMENTS 0>
-		)(ELSE
-			<EMPHASIZE "Robbers did not find any money here!">
-		)>
-	)(<L=? .ROLL 12>
-		<COND (<G? <COUNT-CONTAINER .TOWNHOUSE> 0>
-			<EMPHASIZE "Raiding nomads take all your possessions!">
-			<RESET-CONTAINER .TOWNHOUSE>
-		)(ELSE
-			<EMPHASIZE "Raiding nomads did not find anything of value here!">
-		)>
+		<PRESS-A-KEY>
 	)>
-	<PRESS-A-KEY>
 	<REPEAT ()
 		<CRLF>
 		<HLIGHT ,H-BOLD>
 		<TELL D .TOWNHOUSE>
 		<HLIGHT 0>
 		<CRLF>
-		<PRINT-MENU ,TOWNHOUSE-MENU F F !\0 "You're done here">
+		<COND (<FSET? .TOWNHOUSE ,CACHEBIT>
+			<PRINT-MENU ,CACHE-MENU F F !\0 "You're done here">
+		)(ELSE
+			<PRINT-MENU ,TOWNHOUSE-MENU F F !\0 "You're done here">
+		)>
 		<TELL "What do you want to do?">
 		<REPEAT ()
 			<SET KEY <INPUT 1>>
-			<COND (<EQUAL? .KEY !\0 !\1 !\2> <RETURN>)>
+			<COND (<EQUAL? .KEY !\0 !\1> <RETURN>)>
+			<COND (<AND <EQUAL? .KEY !\2> <NOT <FSET? .TOWNHOUSE ,CACHEBIT>>> <RETURN>)>
 		>
 		<CRLF>
 		<COND (<EQUAL? .KEY !\0>
@@ -4737,7 +4784,7 @@
 			)>
 		)(<EQUAL? .KEY !\1>
 			<TOWNHOUSE-POSSESSIONS .STORY .TOWNHOUSE>
-		)(<EQUAL? .KEY !\2>
+		)(<AND <EQUAL? .KEY !\2> <NOT <FSET? .TOWNHOUSE ,CACHEBIT>>>
 			<TOWNHOUSE-MONEY .STORY .TOWNHOUSE>
 		)>
 	>>
@@ -5293,6 +5340,7 @@
 	<PUTP ,STORY228 ,P?DOOM T>
 	<PUTP ,STORY238 ,P?DOOM T>
 	<PUTP ,STORY247 ,P?DOOM T>
+	<PUTP ,STORY289 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -5345,6 +5393,7 @@
 <CONSTANT TEXT-BECOME-INITIATE "Become an Initiate">
 <CONSTANT TEXT-LEAVE-TEMPLE "Leave the temple">
 <CONSTANT TEXT-RENOUNCE-WORSHIP "Renounce worship">
+<CONSTANT TEXT-RESURRECTION-ARRANGEMENTS "Make Resurrection Arrangements">
 <CONSTANT TEXT-SEEK-BLESSING "Seek a blessing">
 
 <CONSTANT CHOICES-COMBAT <LTABLE TEXT-ROLL-COMBAT>>
@@ -5361,6 +5410,17 @@
 <CONSTANT TWO-ABILITY <LTABLE R-TEST-ABILITY R-TEST-ABILITY>>
 
 <CONSTANT STORY-STORM-REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 3 5 20> <LTABLE "The ship sinks!" "The mast splits!" "You weather the storm!">>>>
+
+<ROUTINE STORY-GAIN-CARGO (CARGO "OPT" CAPACITY COUNT)
+	<COND (,CURRENT-SHIP
+		<MOVE .CARGO ,CURRENT-SHIP>
+		<SET CAPACITY <GETP ,CURRENT-SHIP ,P?CAPACITY>>
+		<SET COUNT <COUNT-CONTAINER ,CARGO>>
+		<COND (<G? .COUNT .CAPACITY>
+			<DEC .COUNT>
+			<STORY-LOSE-CARGO .COUNT>
+		)>
+	)>>
 
 <ROUTINE STORY-LOSE-CARGO ("OPT" MAX "AUX" COUNT)
 	<COND (<NOT .MAX> <SET MAX 1>)>
@@ -5402,6 +5462,11 @@
 <ROUTINE STORY-RESET-CREW ("OPT" CONDITION)
 	<COND (<NOT .CONDITION> <SET .CONDITION ,CONDITION-GOOD>)>
 	<COND (,CURRENT-SHIP <PUTP ,CURRENT-SHIP ,P?CONDITION .CONDITION>)>>
+
+<ROUTINE STORY-ROLL-RANK (STORY "OPT" (MODIFIER -1) "AUX" ROLL (RANK 1))
+	<SET ROLL <RANDOM-EVENT 1 .MODIFIER T>>
+	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
+	<COND (<L=? .ROLL .RANK> <STORY-JUMP .STORY>)>>
 
 <CONSTANT TEXT001 "The first sound is the gentle murmur of waves some way off. The cry of gulls. Then the sensation of a softly stirring sea breeze and the baking sun on your back.||If that was all, you could imagine yourself in paradise, but as your senses return you start to feel the aches in every muscle. And then you remember the shipwreck.||You force open your eyes, caked shut by a crust of salt. You are lying on a beach, a desolate slab of wet sand that glistens in the merciless glare of the sun. Small crabs break away as you stir, scurrying for cover amid the long strands of seaweed.||\"Not... food for you yet...\" you murmur, wincing at the pain of cracked lips. Your mouth is dry and there is a pounding in your head born of fatigue and thirst. You don\"t care about the headache or the bruises, just as long as you\"re alive.||As you lie gathering your strength, you hear somebody coming along the shore.">
 <CONSTANT CHOICES001 <LTABLE "Lie still until he's gone" "Speak to him">>
@@ -5621,6 +5686,7 @@
 		<COND (<YES?>
 			<COST-MONEY 200>
 			<GAIN-CODEWORD ,CODEWORD-ABIDE>
+			<GAIN-TOWNHOUSE ,TOWNHOUSE-YELLOWPORT>
 		)>
 	)>>
 
@@ -6479,7 +6545,7 @@ is off, you return to the city centre.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT071 "Nagil is the Lord of the Lands of the Dead, and his temple in Marlock City is covered in friezes and gargoyles of ornate design, depicting the souls of the dead on their journey to the underworld.Inside, it is cool and dark, hung with black velvet drapes.||A poster on the wall reads: \"Wanted: person of unusual resourcefulness. See temple warden.\"">
-<CONSTANT CHOICES071 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP "Make resurrection arrangements" "Visit the warden" TEXT-LEAVE-TEMPLE>>
+<CONSTANT CHOICES071 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-RESURRECTION-ARRANGEMENTS "Visit the warden" TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY071
 	(DESC "071")
@@ -6971,6 +7037,7 @@ harbourmaster.">
 		<COND (<YES?>
 			<COST-MONEY 200>
 			<GAIN-CODEWORD ,CODEWORD-AEGIS>
+			<GAIN-TOWNHOUSE ,TOWNHOUSE-MARLOCK>
 		)>
 	)>>
 
@@ -7448,10 +7515,8 @@ harbourmaster.">
 	(CONTINUE STORY663)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY139-EVENTS ("AUX" ROLL (RANK 1))
-	<SET ROLL <RANDOM-EVENT 1 -1 T>>
-	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
-	<COND (<L=? .ROLL .RANK> <STORY-JUMP ,STORY295>)>>
+<ROUTINE STORY139-EVENTS ()
+	<STORY-ROLL-RANK ,STORY295>>
 
 <CONSTANT TEXT140 "The ship drops you at Yellowport docks. You make your way to the city centre.">
 
@@ -7814,10 +7879,8 @@ harbourmaster.">
 	(CONTINUE STORY551)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY168-EVENTS ("AUX" ROLL (RANK 1))
-	<SET ROLL <RANDOM-EVENT 1 -1 T>>
-	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
-	<COND (<L=? .ROLL .RANK> <STORY-JUMP ,STORY395>)>>
+<ROUTINE STORY168-EVENTS ()
+	<STORY-ROLL-RANK ,STORY395>>
 
 <CONSTANT TEXT169 "You see a couple of Sokaran warships, pursuing two other ships. Your first mate says, \"See the Red Pennants on them thar ships? They be pirates, running from the Sokarans.\"||The warships catch up and a bitter battle ensues. You can intervene if you wish.">
 <CONSTANT CHOICES169 <LTABLE "Help the Sokarans" "Help the pirates" "Ignore the battle">>
@@ -8404,7 +8467,7 @@ paste on the ground below.">
 	(CONTINUE STORY566)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY216-EVENTS ("AUX" ROLL (MODIFIER 0) (RANK 1))
+<ROUTINE STORY216-EVENTS ("AUX" (MODIFIER 0))
 	<COND (
 		<OR
 			<CHECK-PROFESSION ,PROFESSION-ROGUE>
@@ -8413,9 +8476,7 @@ paste on the ground below.">
 		>
 		<SET MODIFIER -1>
 	)>
-	<SET ROLL <RANDOM-EVENT 1 .MODIFIER T>>
-	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
-	<COND (<L=? .ROLL .RANK> <STORY-JUMP ,STORY407>)>>
+	<STORY-ROLL-RANK ,STORY407 .MODIFIER>>
 
 <CONSTANT TEXT217 "You come across a forest glade. Birds twitter in the trees, and woodland animals frolic playfully about. In the middle of the glade stands a mighty willow, ancient beyond reckoning. The trunk is hollow, and a wooden door has been set in the entrance. You step into the glade.">
 
@@ -8469,10 +8530,8 @@ paste on the ground below.">
 	(CONTINUE STORY252)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY221-EVENTS ("AUX" ROLL (RANK 1))
-	<SET ROLL <RANDOM-EVENT 1 0 T>>
-	<COND (,CURRENT-CHARACTER <SET RANK <GET-RANK ,CURRENT-CHARACTER>>)>
-	<COND (<L=? .ROLL .RANK> <STORY-JUMP ,STORY057>)>>
+<ROUTINE STORY221-EVENTS ()
+	<STORY-ROLL-RANK ,STORY057 0>>
 
 <CONSTANT TEXT222 "Your ship is sailing in the coastal waters near Marlock City.">
 <CONSTANT STORY222-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "Sea battle">>>>
@@ -9017,12 +9076,8 @@ paste on the ground below.">
 	(CONTINUE STORY133)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY262-EVENTS ("AUX" ROLL (RANK 1))
-	<SET ROLL <RANDOM-EVENT 1 -1 T>>
-	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
-	<COND (<L=? .ROLL .RANK>
-		<STORY-JUMP ,STORY546>
-	)>>
+<ROUTINE STORY262-EVENTS ()
+	<STORY-ROLL-RANK ,STORY546>>
 
 <CONSTANT TEXT263 "You are passing through a wooded glade when you hear a horrendous trumpeting noise. Suddenly, a massive bear-like form about the size of a large bull appears in front of you. It looks rather like a huge hairy toad, with a gaping, toothy mouth.||The creature breathes a billowing cloud of noxious, sulphurous gas at you.||You feel your head swim as you start to fall asleep.">
 
@@ -9033,12 +9088,8 @@ paste on the ground below.">
 	(CONTINUE STORY072)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY263-EVENTS ("AUX" ROLL (RANK 1))
-	<SET ROLL <RANDOM-EVENT 1 -1 T>>
-	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
-	<COND (<L=? .ROLL .RANK>
-		<STORY-JUMP ,STORY491>
-	)>>
+<ROUTINE STORY263-EVENTS ()
+	<STORY-ROLL-RANK ,STORY491>>
 
 <CONSTANT TEXT264 "A large island made of reeds and plants, which grow out of a massive floating bed of kelp, drifts aimlessly across the waters. As you draw near, you see that a number of people have made their home there. The inhabitants hail you and invite you ashore.">
 
@@ -9261,194 +9312,119 @@ paste on the ground below.">
 	(CONTINUE STORY003)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT281 "Your tale of valour and derring-do falls on an unappreciative audience. The merfolk slip beneath the waves with snorts of derision, leaving you alone on the desolate beach. There is nothing for you to do but return to the clifftop tor.">
+<CONSTANT CHOICES281 <LTABLE "Take the road to Trefoille" "Take the road to Marlock City">>
+
 <ROOM STORY281
 	(DESC "281")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT281)
+	(CHOICES CHOICES281)
+	(DESTINATIONS <LTABLE STORY602 STORY166>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT282 "The Temple of Tyrnai, the God of Battle, Chaos and Strife, is built like a small fortress in one corner of the city, near the barracks. Its heavy wooden gates are flanked by iron statues of bull-headed men wielding clubs. The workmanship is uncannily lifelike. Inside the temple, the god is represented by a stone idol of a jaguar-headed warrior. A beautiful suit of gold chain mail adorns the idol.">
+<CONSTANT CHOICES282 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-RESURRECTION-ARRANGEMENTS TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY282
 	(DESC "282")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY282-BACKGROUND)
+	(STORY TEXT282)
+	(CHOICES CHOICES282)
+	(DESTINATIONS <LTABLE STORY636 STORY514 STORY107 STORY033 STORY400>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY282-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-ARMOUR> <RETURN ,STORY246>)>
+	<RETURN ,STORY282>>
+
+<CONSTANT TEXT283 "\"What goes on here?\" you ask. \"Why do you behave so oddly?||The villagers seem quite frightened of you, but one old fellow has nerve enough to reply. \"This banquet is for the ghosts of three travellers who lost their way in a storm, fell into our millpond and were drowned.\"||\"When was this?\" you ask.||\"Seven years since. They come every year on this night, and if we didn't placate them with victuals and treasure there'd be a mess of trouble.\"||\"How do you know that?\"||\"Old Megan told us,\" he says. \"She knows about such things.\"">
+<CONSTANT CHOICES283 <LTABLE "Stay out at night and watch for the ghosts" "Follow the river north" "Follow the river south" "Head east into the countryside" "Go west to the main road">>
 
 <ROOM STORY283
 	(DESC "283")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT283)
+	(CHOICES CHOICES283)
+	(DESTINATIONS <LTABLE STORY590 STORY576 STORY082 STORY278 STORY558>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT284 "You find an open window and squeeze through into a long hall. Your foot, however, snags on a thin wire stretched across the floor. The wire triggers a loud bell-like gonging that alerts the temple. You have little choice but to run for your life as warrior priests swarm out of the temple and the iron statues at its gates come to life to join in the chase.">
 
 <ROOM STORY284
 	(DESC "284")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT284)
+	(EVENTS STORY284-EVENTS)
+	(CONTINUE STORY551)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY284-EVENTS ()
+	<STORY-ROLL-RANK ,STORY395>>
+
+<CONSTANT TEXT285 "You mention how a bard in a tavern told you about Damor the Hermit, and that he knew the secret of the Greatest Story Ever Told.||\"Ah,\" says Damor. \"I have waited for one  such as you.\" He tells you the secret of the Greatest Story. \"Well, young adventurer, destiny beckons, for it is fated that your life will be the Greatest Story Ever Told.\"||As you consider this, you feel a sense of momentary enlightenment.||\"Right, that's that,\" says Damor. \"Now, go away and don't come back.\"||For a few hours, he lifts the curse that soured your water so you can make it down again safely.">
 
 <ROOM STORY285
 	(DESC "285")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT285)
+	(EVENTS STORY285-EVENTS)
+	(CONTINUE STORY244)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY285-EVENTS ()
+	<UPGRADE-STAMINA <ROLL-DICE 1>>>
+
+<CONSTANT TEXT286 "When you and your crew join the fray, the battle is short lived. The pirates are overpowered, though they fight to the last man, preferring death to enslavement or execution. The Sokaran leader, an admiral in the navy, thanks you gravely for your help. He rewards you with a share of the pirate's booty. You get 400 Shards and 1 Cargo Unit of spices, if you have room for it in your ship's hold.">
+<CONSTANT TEXT286-CONTINUED "You sail on">
 
 <ROOM STORY286
 	(DESC "286")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT286)
+	(EVENTS STORY286-EVENTS)
+	(CONTINUE STORY420)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY286-EVENTS ()
+	<GAIN-MONEY 400>
+	<STORY-GAIN-CARGO ,CARGO-SPICES>>
+
+<CONSTANT TEXT287 "You wait for an hour. At dusk, something emerges. It is the gorlock, a beast with legs like a bird, a body like a reptile, with two short forelimbs and a beaked, lizard-like head. You see that its two legs do have backward-pointing feet. The beast heads off into the hills, and you creep forward.">
 
 <ROOM STORY287
 	(DESC "287")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT287)
+	(CONTINUE STORY315)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT288 "You end up dead in an alleyway with your throat cut.">
 
 <ROOM STORY288
 	(DESC "288")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT288)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT289 "There is a pause, as if you are both waiting for something to happen. You realize the gods have not heard your prayer. You adversary realizes it too. It snarls triumphantly and slashes you across the chest.">
 
 <ROOM STORY289
 	(DESC "289")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT289)
+	(EVENTS STORY289-EVENTS)
+	(CONTINUE STORY617)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY289-EVENTS ()
+	<LOSE-STAMINA 2 ,DIED-FROM-INJURIES ,STORY289>>
+
+<CONSTANT CHOICES290 <LTABLE HAVE-CODEWORD HAVE-CODEWORD OTHERWISE>>
 
 <ROOM STORY290
 	(DESC "290")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES290)
+	(DESTINATIONS <LTABLE STORY403 STORY512 STORY721>)
+	(REQUIREMENTS <LTABLE CODEWORD-CUTLASS CODEWORD-AMCHA NONE>)
+	(TYPES <LTABLE R-CODEWORD R-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY291
