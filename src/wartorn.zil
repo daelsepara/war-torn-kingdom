@@ -445,20 +445,20 @@
 						)(ELSE
 							<NOT-ALL-ANY ,R-ALL .LIST ,CODEWORDS>
 						)>
-                    )(<AND <EQUAL? .TYPE ,R-ANY> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
-                        <COND (<CHECK-ANY .LIST>
-                            <SETG HERE <GET .DESTINATIONS .CHOICE>>
-                            <CRLF>
-                        )(ELSE
-                            <NOT-ALL-ANY ,R-ANY .LIST>
-                        )>
-                    )(<AND <EQUAL? .TYPE ,R-ALL> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
-                        <COND (<CHECK-ALL .LIST>
-                            <SETG HERE <GET .DESTINATIONS .CHOICE>>
-                            <CRLF>
-                        )(ELSE
-                            <NOT-ALL-ANY ,R-ALL .LIST>
-                        )>
+					)(<AND <EQUAL? .TYPE ,R-ANY> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+						<COND (<CHECK-ANY .LIST>
+							<SETG HERE <GET .DESTINATIONS .CHOICE>>
+							<CRLF>
+						)(ELSE
+							<NOT-ALL-ANY ,R-ANY .LIST>
+						)>
+					)(<AND <EQUAL? .TYPE ,R-ALL> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+						<COND (<CHECK-ALL .LIST>
+							<SETG HERE <GET .DESTINATIONS .CHOICE>>
+							<CRLF>
+						)(ELSE
+							<NOT-ALL-ANY ,R-ALL .LIST>
+						)>
 					)(<AND <EQUAL? .TYPE ,R-ITEM ,R-DISCHARGE> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<COND (<CHECK-ITEM .LIST>
 							<COND (<CHECK-CHARGES .LIST>
@@ -555,13 +555,13 @@
 							<HLIGHT 0>
 							<PRESS-A-KEY>
 						)>
-                    )(<AND <EQUAL? .TYPE ,R-LOSE-ITEM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
-                        <COND (<CHECK-ITEM <GET .REQUIREMENTS .CHOICE>>
-                            <CRLF>
-                            <LOSE-ITEM <GET .REQUIREMENTS .CHOICE>>
-                            <SETG HERE <GET .DESTINATIONS .CHOICE>>
-                            <CRLF>
-                        )(ELSE
+					)(<AND <EQUAL? .TYPE ,R-LOSE-ITEM> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+						<COND (<CHECK-ITEM <GET .REQUIREMENTS .CHOICE>>
+							<CRLF>
+							<LOSE-ITEM <GET .REQUIREMENTS .CHOICE>>
+							<SETG HERE <GET .DESTINATIONS .CHOICE>>
+							<CRLF>
+						)(ELSE
 							<NOT-POSSESSED .LIST>
 						)>
 					)(<AND <EQUAL? .TYPE ,R-TITLE> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
@@ -2016,7 +2016,7 @@
 				<COND (<OR <G? .BLESSINGS 0> <G? .QUANTITY 1> <G? .CHARGES 0>> <TELL ", ">)>
 				<TELL "stars: " N .STARS>
 			)>
-            <COND (.WORN
+			<COND (.WORN
 				<COND (<OR <G? .BLESSINGS 0> <G? .QUANTITY 1> <G? .CHARGES 0> <G? .STARS 0>> <TELL ", ">)>
 				<TELL "worn">
 			)>
