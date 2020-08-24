@@ -103,6 +103,10 @@
 <GLOBAL MAX-STAMINA 9>
 <GLOBAL STAMINA 0>
 
+<GLOBAL BEST-WEAPON NONE>
+<GLOBAL BEST-ARMOUR NONE>
+<GLOBAL PREVIOUS-STAMINA 0>
+
 ; "Current Character"
 <GLOBAL CURRENT-CHARACTER NONE>
 
@@ -321,16 +325,16 @@
 	<COND (<CHECK-CODEWORD .CODEWORD> <STORY-JUMP .STORY>)>>
 
 <ROUTINE GAIN-BLESSINGS ("OPT" BLESSINGS)
-	<COND (<NOT .BLESSINGS> <SET BLESSINGS <GETP ,HERE ,P?BLESSINGS>>)>
+	<COND (<NOT .BLESSINGS> <SET BLESSINGS <GETP ,CURRENT-STORY ,P?BLESSINGS>>)>
 	<GAIN-OBJECTS .BLESSINGS GAIN-BLESSING>>
 
 <ROUTINE GAIN-CODEWORDS ("OPT" CODEWORDS)
-	<COND (<NOT .CODEWORDS> <SET CODEWORDS <GETP ,HERE ,P?CODEWORDS>>)>
+	<COND (<NOT .CODEWORDS> <SET CODEWORDS <GETP ,CURRENT-STORY ,P?CODEWORDS>>)>
 	<GAIN-OBJECTS .CODEWORDS GAIN-CODEWORD>>
 
 <ROUTINE GAIN-ITEMS ("OPT" ITEMS)
-	<COND (<NOT .ITEMS> <SET ITEMS <GETP ,HERE ,P?ITEMS>>)>
-	<GAIN-OBJECTS .ITEMS TAKE-ITEM>>
+	<COND (<NOT .ITEMS> <SET ITEMS <GETP ,CURRENT-STORY ,P?ITEMS>>)>
+	<GAIN-OBJECTS .ITEMS ,TAKE-ITEM>>
 
 <ROUTINE GAIN-OBJECTS (OBJECTS GAIN-ROUTINE "AUX" COUNT)
 	<COND (<NOT .OBJECTS> <RETURN>)>
@@ -342,7 +346,7 @@
 	)>>
 
 <ROUTINE GAIN-TITLES ("OPT" TITLES)
-	<COND (<NOT .TITLES> <SET TITLES <GETP ,HERE ,P?TITLES>>)>
+	<COND (<NOT .TITLES> <SET TITLES <GETP ,CURRENT-STORY ,P?TITLES>>)>
 	<GAIN-OBJECTS .TITLES GAIN-TITLE>>
 
 <ROUTINE IF-ALIVE (TEXT)
@@ -654,12 +658,14 @@
 			<SETG RUN-ONCE F>
 		)(ELSE
 			<SETG PREVIOUS-STORY ,CURRENT-STORY>
+			<SETG RUN-ONCE T>
 		)>
 		<RETURN .CHOICE>
 	)(.CONTINUE
 		<SETG HERE .CONTINUE>
 		<SETG PREVIOUS-STORY ,CURRENT-STORY>
 		<PRESS-A-KEY>
+		<SETG RUN-ONCE T>
 		<RETURN>
 	)>
 	<RETURN !\x>>
@@ -703,6 +709,7 @@
 	<COND (.STORY
 		<SETG HERE .STORY>
 		<SETG CONTINUE-TO-CHOICES F>
+		<SETG RUN-ONCE T>
 		<PRESS-A-KEY>
 	)>>
 
@@ -1266,7 +1273,7 @@
 	<RETURN .COUNT>>
 
 <ROUTINE PRINT-CONTAINER (CONTAINER "OPT" (FLAG NONE) "AUX" COUNT ITEMS)
-	<COUNT-CONTAINER .CONTAINER>
+	<COND (<EQUAL? .CONTAINER ,PLAYER> <FIND-BEST-GEAR>)>
 	<SET COUNT 0>
 	<SET ITEMS <FIRST? .CONTAINER>>
 	<COND (.ITEMS
@@ -1605,7 +1612,23 @@
 	<HLIGHT ,H-BOLD>
 	<TELL "Possessions: ">
 	<HLIGHT 0>
-	<PRINT-CONTAINER ,PLAYER>>
+	<PRINT-CONTAINER ,PLAYER>
+	<COND (<OR ,BEST-ARMOUR ,BEST-WEAPON>
+		<COND (,BEST-ARMOUR
+			<HLIGHT ,H-BOLD>
+			<TELL "Best Armour: ">
+			<HLIGHT 0>
+			<PRINT-ITEM ,BEST-ARMOUR>
+			<COND (,BEST-WEAPON <TELL " ">)>
+		)>
+		<COND (,BEST-WEAPON
+			<HLIGHT ,H-BOLD>
+			<TELL "Best Weapon: ">
+			<HLIGHT 0>
+			<PRINT-ITEM ,BEST-WEAPON>
+		)>
+		<CRLF>
+	)>>
 
 <ROUTINE DESCRIBE-PLAYER-RESURRECTIONS ()
 	<HLIGHT ,H-BOLD>
@@ -2044,7 +2067,8 @@
 	<PRINT-ITEM .ITEM T>
 	<TELL ,PERIOD-CR>
 	<COND (<NOT .SILENT> <PRESS-A-KEY>)>
-	<WEAR-BEST>>
+	<WEAR-BEST>
+	<FIND-BEST-GEAR>>
 
 <ROUTINE RETURN-ITEM (ITEM "OPT" (SILENT F))
 	<REMOVE-ITEM .ITEM "returned" T .SILENT>>
@@ -2229,7 +2253,8 @@
 			)>
 		)>
 	)>
-	<WEAR-BEST>>
+	<WEAR-BEST>
+	<FIND-BEST-GEAR>>
 
 <ROUTINE TAKE-MISSION (MISSION "OPT" CODEWORD)
 	<GAIN-OBJECT .MISSION ,MISSIONS "mission" CHECK-MISSION>
@@ -2328,6 +2353,7 @@
 				<SET DEFENSE <GETP .ITEMS ,P?DEFENSE>>
 				<COND (<AND <G? .DEFENSE 0> <EQUAL? .DEFENSE .SCORE>>
 					<FSET .ITEMS ,WORNBIT>
+					<SET-BEST-GEAR .ITEMS>
 					<RETURN>
 				)>
 			)>
@@ -3226,6 +3252,10 @@
 	(DESC "black dragon shield")
 	(FLAGS TAKEBIT)>
 
+<OBJECT BOARS-TUSK
+	(DESC "boar's tusk")
+	(FLAGS TAKEBIT)>
+
 <OBJECT BOOK-SEVEN-SAGES
 	(DESC "Book of the Seven Sages")
 	(FLAGS TAKEBIT NARTICLEBIT)>
@@ -3776,18 +3806,24 @@
 				<COND (<AND <FSET? .ITEM .FLAG> <FSET? .ITEM ,NDESCBIT>>
 					<COND (<EQUAL? .SCORE .MATCH>
 						<SET .RESULT .SCORE>
+						<SET-BEST-GEAR .ITEM>
 						<RETURN>
 					)>
 				)>
 			)(<AND <NOT <FSET? .ITEM ,NDESCBIT>> <EQUAL? .SCORE .MATCH>>
 				<SET .RESULT .SCORE>
+				<SET-BEST-GEAR .ITEM>
 				<RETURN>
 			)>
 		)(.FLAG
 			<COND (<AND <NOT <FSET? .ITEM ,NDESCBIT>> <FSET? .ITEM .FLAG>>
-				<COND (<G? .SCORE .RESULT> <SET .RESULT .SCORE>)>
+				<COND (<G=? .SCORE .RESULT>
+					<SET .RESULT .SCORE>
+					<SET-BEST-GEAR .ITEM>
+				)>
 			)>
-		)(<AND <NOT <FSET? .ITEM ,NDESCBIT>> <G? .SCORE .RESULT>>
+		)(<AND <NOT <FSET? .ITEM ,NDESCBIT>> <G=? .SCORE .RESULT>>
+			<SET-BEST-GEAR .ITEM>
 			<SET .RESULT .SCORE>
 		)>
 		<SET ITEM <NEXT? .ITEM>>
@@ -3805,13 +3841,30 @@
 		<SET SCORE <GETP .ITEM .PROPERTY>>
 		<COND (<AND .FLAG <NOT <FSET? .ITEM ,NDESCBIT>>>
 			<COND (<FSET? .ITEM .FLAG>
-				<COND (<G? .SCORE .RESULT> <SET .RESULT .SCORE>)>
+				<COND (<G=? .SCORE .RESULT>
+					<SET .RESULT .SCORE>
+					<SET-BEST-GEAR .ITEM>
+				)>
 			)>
-		)(<AND <G? .SCORE .RESULT> <NOT <FSET? .ITEM ,NDESCBIT>>>
+		)(<AND <G=? .SCORE .RESULT> <NOT <FSET? .ITEM ,NDESCBIT>>>
+			<SET-BEST-GEAR .ITEM>
 			<SET .RESULT .SCORE>
 		)>
 	>
 	<RETURN .RESULT>>
+
+<ROUTINE FIND-BEST-GEAR ()
+	<SETG BEST-WEAPON NONE>
+	<SETG BEST-ARMOUR NONE>
+	<FIND-BEST ,P?COMBAT ,WEAPONBIT ,PLAYER>
+	<FIND-BEST ,P?DEFENSE ,WEARBIT ,PLAYER>>
+
+<ROUTINE SET-BEST-GEAR (ITEM)
+	<COND (<FSET? .ITEM ,WEAPONBIT>
+		<SETG BEST-WEAPON .ITEM>
+	)(<FSET? .ITEM ,WEARBIT>
+		<SETG BEST-ARMOUR .ITEM>
+	)>>
 
 ; "Fighting routines"
 ; ---------------------------------------------------------------------------------------------
@@ -3927,6 +3980,8 @@
 	<HLIGHT 0>
 	<TELL " (COMBAT: " N .COMBAT-MONSTER " DEFENSE: " N .DEFENSE-MONSTER ")">
 	<TELL ,PERIOD-CR>
+	; "Track Previous Stamina"
+	<SETG PREVIOUS-STAMINA .STAMINA-PLAYER> 
 	<REPEAT ()
 		<INC .ROUND>
 		<COMBAT-STATUS .ROUND .MONSTER .STAMINA-PLAYER .STAMINA-MONSTER>
@@ -5748,6 +5803,7 @@
 	<PUTP ,STORY325 ,P?DOOM T>
 	<PUTP ,STORY346 ,P?DOOM T>
 	<PUTP ,STORY347 ,P?DOOM T>
+	<PUTP ,STORY353 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -5824,8 +5880,14 @@
 
 <CONSTANT ONE-ABILITY <LTABLE R-TEST-ABILITY>>
 <CONSTANT ONE-RANDOM <LTABLE R-RANDOM>>
-
+<CONSTANT TYPE-SAIL <LTABLE R-RANK R-TEST-ABILITY R-NONE>>
+<CONSTANT TEST-SAILING <LTABLE 4 <LTABLE ABILITY-CHARISMA 11> NONE>>
 <CONSTANT TWO-ABILITY <LTABLE R-TEST-ABILITY R-TEST-ABILITY>>
+
+<CONSTANT CHOICES-NERECH <LTABLE "Demand that the crew follow your orders (The Plains of Howling Darkness)" TEXT-ROLL-CHARISMA "Turn back">>
+
+<CONSTANT TEXT-VIOLET-OCEAN "\"The Violet Ocean's a dangerous place, Cap'n,\" says the first mate. \"The crew won't follow you there if they don't think you're good enough.\"">
+<CONSTANT CHOICES-VIOLET-OCEAN <LTABLE "Demand that the crew follow your orders (Over the Blood-Dark Sea)" TEXT-ROLL-CHARISMA "Turn back">>
 
 <CONSTANT STORY-STORM-REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 3 5 20> <LTABLE "The ship sinks!" "The mast splits!" "You weather the storm!">>>>
 
@@ -5895,7 +5957,7 @@
 	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
 	<COND (<L=? .ROLL .RANK> <STORY-JUMP .STORY>)>>
 
-<CONSTANT TEXT001 "The first sound is the gentle murmur of waves some way off. The cry of gulls. Then the sensation of a softly stirring sea breeze and the baking sun on your back.||If that was all, you could imagine yourself in paradise, but as your senses return you start to feel the aches in every muscle. And then you remember the shipwreck.||You force open your eyes, caked shut by a crust of salt. You are lying on a beach, a desolate slab of wet sand that glistens in the merciless glare of the sun. Small crabs break away as you stir, scurrying for cover amid the long strands of seaweed.||\"Not... food for you yet...\" you murmur, wincing at the pain of cracked lips. Your mouth is dry and there is a pounding in your head born of fatigue and thirst. You don\"t care about the headache or the bruises, just as long as you\"re alive.||As you lie gathering your strength, you hear somebody coming along the shore.">
+<CONSTANT TEXT001 "The first sound is the gentle murmur of waves some way off. The cry of gulls. Then the sensation of a softly stirring sea breeze and the baking sun on your back.||If that was all, you could imagine yourself in paradise, but as your senses return you start to feel the aches in every muscle. And then you remember the shipwreck.||You force open your eyes, caked shut by a crust of salt. You are lying on a beach, a desolate slab of wet sand that glistens in the merciless glare of the sun. Small crabs break away as you stir, scurrying for cover amid the long strands of seaweed.||\"Not... food for you yet...\" you murmur, wincing at the pain of cracked lips. Your mouth is dry and there is a pounding in your head born of fatigue and thirst. You don't care about the headache or the bruises, just as long as you're alive.||As you lie gathering your strength, you hear somebody coming along the shore.">
 <CONSTANT CHOICES001 <LTABLE "Lie still until he's gone" "Speak to him">>
 
 <ROOM STORY001
@@ -6137,17 +6199,13 @@
 <ROUTINE STORY012-EVENTS ()
 	<CODEWORD-JUMP ,CODEWORD-ANCHOR ,STORY116>>
 
-<CONSTANT TEXT013 "\"The Violet Ocean's a dangerous place, Cap'n,\" says the first mate. \"The crew
-won't follow you there if they don't think you're good enough.\"">
-<CONSTANT CHOICES013 <LTABLE "Demand that the crew follow your orders (Over the Blood-Dark Sea)" TEXT-ROLL-CHARISMA "Turn back">>
-
 <ROOM STORY013
 	(DESC "013")
-	(STORY TEXT013)
-	(CHOICES CHOICES013)
+	(STORY TEXT-VIOLET-OCEAN)
+	(CHOICES CHOICES-VIOLET-OCEAN)
 	(DESTINATIONS <LTABLE STORY-BLOOD-DARK-SEA <LTABLE STORY-BLOOD-DARK-SEA STORY507> STORY507>)
 	(REQUIREMENTS <LTABLE 4 <LTABLE ABILITY-CHARISMA 12> NONE>)
-	(TYPES <LTABLE R-RANK R-TEST-ABILITY R-NONE>)
+	(TYPES TYPE-SAIL)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT014 "Someone stabs you in the back.">
@@ -6839,7 +6897,7 @@ is off, you return to the city centre.">
 	)>
 	<IF-ALIVE ,TEXT-YOU-CAN-GO>>
 
-<CONSTANT TEXT061 "\"Wait!\" you cry, \"I have seen the light. I wish to join your cult.\" \"What?\" yells the chef. Then his shoulders sag with obvious disappointment. \"We cannot refuse a new member. And we cannot eat our own people.\"||A short ceremony later -- fortunately, the initiation does not involve any cannibalistic rites -- and you are a full member of the Cult of Badogor. You lose 1 point of SANCTITY for joining such a vile cult.|| You take your leave and they wish you well, all smiles and friendship.||\"Remember, never say his name. And don\"t forget to bring us new recruits,\" says the leader.||\"And bring some people for dinner!\" adds the chef.||Hastily you head for the city centre.">
+<CONSTANT TEXT061 "\"Wait!\" you cry, \"I have seen the light. I wish to join your cult.\" \"What?\" yells the chef. Then his shoulders sag with obvious disappointment. \"We cannot refuse a new member. And we cannot eat our own people.\"||A short ceremony later -- fortunately, the initiation does not involve any cannibalistic rites -- and you are a full member of the Cult of Badogor. You lose 1 point of SANCTITY for joining such a vile cult.|| You take your leave and they wish you well, all smiles and friendship.||\"Remember, never say his name. And don't forget to bring us new recruits,\" says the leader.||\"And bring some people for dinner!\" adds the chef.||Hastily you head for the city centre.">
 
 <ROOM STORY061
 	(DESC "061")
@@ -9297,15 +9355,14 @@ paste on the ground below.">
 	<RETURN ,STORY727>>
 
 <CONSTANT TEXT249 "The first mate advises against steering a course to Nerech. \"That land is ringed with reefs that would smash our hull like an egg, Cap'n, and once ashore we'd have to contend with the savage manbeasts. I'm not sure if the crew will stand for it.\"">
-<CONSTANT CHOICES249 <LTABLE "Demand that the crew follow your orders (The Plains of Howling Darkness)" TEXT-ROLL-CHARISMA "Turn back">>
 
 <ROOM STORY249
 	(DESC "249")
 	(STORY TEXT249)
-	(CHOICES CHOICES249)
+	(CHOICES CHOICES-NERECH)
 	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY209> STORY209>)
-	(REQUIREMENTS <LTABLE 4 <LTABLE ABILITY-CHARISMA 11> NONE>)
-	(TYPES <LTABLE R-RANK R-TEST-ABILITY R-NONE>)
+	(REQUIREMENTS TEST-SAILING)
+	(TYPES TYPE-SAIL)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT250 "The city of Trefoille is a terrifying vision of apocalyptic destruction. It had once been a thriving crossroads town, but now it is a burnt-out hulk. It was almost razed to the ground when it declared for the king, and tried to hold out against the army of Grieve Marlock during the recent civil war. It was sacked by the general's mercenaries. General Marlock is now trying to rebuild it. Craftsmen are hard at work everywhere.||There is nothing here but ashes and rubble.">
@@ -10137,16 +10194,15 @@ paste on the ground below.">
 		<STORY-JUMP ,STORY335>
 	)>>
 
-<CONSTANT TEXT312 "\"Nerech is a dangerous place, Cap'n,\" says the first mate. \"Even its coastal waters are brimming with hazards. Rocks and monsters and the like. Then once ashore -- well, Land of the Manbeasts, they call it. The crew won't follow you there if they don\"t think you\"re good enough to lead them.\"">
-<CONSTANT CHOICES312 <LTABLE "Demand that the crew follow your orders (The Plains of Howling Darkness)" TEXT-ROLL-CHARISMA "Turn back">>
+<CONSTANT TEXT312 "\"Nerech is a dangerous place, Cap'n,\" says the first mate. \"Even its coastal waters are brimming with hazards. Rocks and monsters and the like. Then once ashore -- well, Land of the Manbeasts, they call it. The crew won't follow you there if they don't think you're good enough to lead them.\"">
 
 <ROOM STORY312
 	(DESC "312")
 	(STORY TEXT312)
-	(CHOICES CHOICES312)
+	(CHOICES CHOICES-NERECH)
 	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY507> STORY507>)
-	(REQUIREMENTS <LTABLE 4 <LTABLE ABILITY-CHARISMA 11> NONE>)
-	(TYPES <LTABLE R-RANK R-TEST-ABILITY R-NONE>)
+	(REQUIREMENTS TEST-SAILING)
+	(TYPES TYPE-SAIL)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT313 "You stand against the wall as the high priestess draws back her arm, and hurls a stream of daggers at you.">
@@ -10768,195 +10824,120 @@ paste on the ground below.">
 	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT361 "You find a huddled, moaning figure on the ground. As you approach, a net is thrown over you from behind. You glimpse a face painted with white bone dust and big red circles around the eyes just before a terrific blow on the back of your head slams you into unconsciousness.">
+
 <ROOM STORY361
 	(DESC "361")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY361-BACKGROUND)
+	(STORY TEXT361)
+	(CONTINUE STORY508)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY361-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY361 1> <RETURN ,STORY055>)>
+	<RETURN ,STORY361>>
+
+<CONSTANT TEXT362 "The sea dragon dives deep to the bottom of the lake. You are pulled along at a terrific rate through the murky waters. You think your lungs are about to burst when at last the creature surges upwards, breaking the surface.||You find yourself in a cave inside a small rocky island, somewhere on the surface of the lake. A hole in the roof lets in a shaft of bright sunlight, that reflects off the water, casting dappled yellow light all over the walls.||Part of the cave is dry ground, heaped with the dragon's treasure hoard -- sparkling coins, swords, armour and the like. You notice a rocky ledge, lined with a number of bottles, full of yellow dust.||The dragon pulls itself on top of its hoard. You have a few seconds to try to hide.">
 
 <ROOM STORY362
 	(DESC "362")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT362)
+	(CHOICES CHOICES-THIEVERY)
+	(DESTINATIONS <LTABLE <LTABLE STORY016 STORY274>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 10>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT363 "You collapse a rotting beam, just inside the cabin. The roof falls in, and a cloud of debris fills the water, obscuring you completely. You grab the gems, but it is not long before the magic of the sea centaurs takes you over. You live on for a hundred years as a sea centaur.">
 
 <ROOM STORY363
 	(DESC "363")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT363)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY364
 	(DESC "364")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-VIOLET-OCEAN)
+	(CHOICES CHOICES-VIOLET-OCEAN)
+	(DESTINATIONS <LTABLE STORY-BLOOD-DARK-SEA <LTABLE STORY-BLOOD-DARK-SEA STORY085> STORY085>)
+	(REQUIREMENTS TEST-SAILING)
+	(TYPES TYPE-SAIL)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT365 "Sul Veneris wakes up the moment you remove the stake. He rips the other stakes out of the ground, and soars into the air, with a shout like a clap of thunder. He swings his hammer around his head, and bolts of lightning leap forth to strike the storm demons.||As he rises into the clouds in pursuit of the demons, a bolt of lightning streaks from his hand and strikes you full force! You are thrown backwards, but to your amazement you are unhurt. In fact, you feel empowered by the blast.||You have freed Sul Veneris, the Lord of Thunder.||Then, you climb down to the bottom.">
 
 <ROOM STORY365
 	(DESC "365")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT365)
+	(EVENTS STORY365-EVENTS)
+	(CONTINUE STORY658)
+	(CODEWORDS <LTABLE CODEWORD-ALOFT>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY365-EVENTS ()
+	<UPGRADE-STAMINA 3>>
 
 <ROOM STORY366
 	(DESC "366")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-VIOLET-OCEAN)
+	(CHOICES CHOICES-VIOLET-OCEAN)
+	(DESTINATIONS <LTABLE STORY-BLOOD-DARK-SEA <LTABLE STORY-BLOOD-DARK-SEA STORY439> STORY439>)
+	(REQUIREMENTS TEST-SAILING)
+	(TYPES TYPE-SAIL)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT367 "You have attempted to steal the chain mail before. This time, security has been doubled with warrior priests of Tyrnai in abundance. Inside the temple, there are two more of the bullheaded iron golem guards, and you realize there is no way you can succeed.||You head back to the city centre.">
 
 <ROOM STORY367
 	(DESC "367")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT367)
+	(CONTINUE STORY400)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT368 "Becoming an initiate of Maka gives you the benefit of paying less for blessings and other services the temple can offer. It costs 50 Shards to become an initiate. You cannot become an initiate of Maka if you are already an initiate of another temple.">
 
 <ROOM STORY368
 	(DESC "368")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT368)
+	(EVENTS STORY368-EVENTS)
+	(CONTINUE STORY141)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY368-EVENTS ()
+	<BECOME-INITIATE 50 ,GOD-MAKA>>
+
+<CONSTANT TEXT369 "The priestess, dressed in ceremonial leather armour, and carrying a silver bow, recognizes you, and welcomes you. She offers you the usual services.">
+<CONSTANT CHOICES369 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY369
 	(DESC "369")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY369-BACKGROUND)
+	(STORY TEXT369)
+	(CHOICES CHOICES369)
+	(DESTINATIONS <LTABLE STORY618 STORY334 STORY052 STORY195>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY369-BACKGROUND ()
+	<COND (<CHECK-ITEM ,BOARS-TUSK> <RETURN ,STORY612>)>
+	<RETURN ,STORY369>>
+
+<CONSTANT TEXT370 "You come round, back to your Stamina score before the fight started. You lose the weapon and armour you were using. The Dragon Knights compliment you on your bravery. \"Until the next time,\" says your recent opponent.||You take your leave, somewhat bruised.">
 
 <ROOM STORY370
 	(DESC "370")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT370)
+	(EVENTS STORY370-EVENTS)
+	(CONTINUE STORY276)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY370-EVENTS ()
+	<SETG STAMINA ,PREVIOUS-STAMINA>
+	<COND (,BEST-WEAPON <REMOVE ,BEST-WEAPON>)>
+	<COND (,BEST-ARMOUR <REMOVE ,BEST-ARMOUR>)>
+	<FIND-BEST-GEAR>>
 
 <ROOM STORY371
 	(DESC "371")
