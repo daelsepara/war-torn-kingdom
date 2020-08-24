@@ -770,6 +770,13 @@
 <ROUTINE CHECK-CODEWORDS (CODEWORDS)
 	<RETURN <CHECK-ALL .CODEWORDS ,CODEWORDS>>>
 
+<ROUTINE CHECK-CREW (THIS-CONDITION "AUX" CONDITION)
+	<COND (,CURRENT-SHIP
+		<SET CONDITION <GETP ,CURRENT-SHIP ,P?CONDITION>>
+		<RETURN <AND <CHECK-SHIP ,CURRENT-SHIP> <G=? .CONDITION .THIS-CONDITION>>>
+	)>
+	<RFALSE>>
+
 <ROUTINE CHECK-ITEM (ITEM "AUX" QUANTITY)
 	<COND (<NOT .ITEM> <RTRUE>)>
 	<SET QUANTITY <GETP .ITEM ,P?QUANTITY>>
@@ -833,7 +840,9 @@
 	<RTRUE>>
 
 <ROUTINE CHECK-SHIP (THIS-SHIP)
-	<COND (<OR <IN? .THIS-SHIP ,SHIPS> <AND ,CURRENT-SHIP <EQUAL? ,CURRENT-SHIP .THIS-SHIP>>> <RTRUE>)>
+	<COND (,CURRENT-SHIP
+		<RETURN <AND <IN? .THIS-SHIP ,SHIPS> <EQUAL? ,CURRENT-SHIP .THIS-SHIP>>>
+	)>
 	<RFALSE>>
 
 <ROUTINE CHECK-TOWNHOUSE (TOWNHOUSE)
@@ -3507,6 +3516,12 @@
 	(DEFENSE 8)
 	(STAMINA 9)>
 
+<OBJECT MONSTER-SCORPION-MAN
+	(DESC "Scorpion Man")
+	(COMBAT 3)
+	(DEFENSE 6)
+	(STAMINA 8)>
+
 <OBJECT MONSTER-STORM-DEMON
 	(DESC "Storm demon")
 	(COMBAT 3)
@@ -5445,6 +5460,8 @@
 	<PUTP ,STORY297 ,P?DOOM T>
 	<PUTP ,STORY299 ,P?DOOM T>
 	<PUTP ,STORY304 ,P?DOOM T>
+	<PUTP ,STORY313 ,P?DOOM T>
+	<PUTP ,STORY318 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -5499,6 +5516,10 @@
 <CONSTANT TEXT-RENOUNCE-WORSHIP "Renounce worship">
 <CONSTANT TEXT-RESURRECTION-ARRANGEMENTS "Make Resurrection Arrangements">
 <CONSTANT TEXT-SEEK-BLESSING "Seek a blessing">
+
+<CONSTANT TEXT-TO-BEACH "Go down to the beach">
+<CONSTANT TEXT-TO-TREFOILLE "Take the road to Trefoille">
+<CONSTANT TEXT-TO-MARLOCK "Take the road to Marlock City">
 
 <CONSTANT CHOICES-COMBAT <LTABLE TEXT-ROLL-COMBAT>>
 <CONSTANT CHOICES-CHARISMA <LTABLE TEXT-ROLL-CHARISMA>>
@@ -6094,7 +6115,7 @@ footing and fall to the ground.">
 	<IF-ALIVE ,TEXT034-CONTINUED>>
 
 <CONSTANT TEXT035 "You come to the top of a windswept cliff. An ancient pillar of jumbled rock, pitted and weather-beaten, stands at the cliff's edge, like a broken finger pointing at the sky. Seagulls sing their song of desolation in the air.||Judging by the runes etched into the rock, the tor dates back to the time of the Shadar, a race that ruled Harkuna so long ago, they are lost in myth and legend.">
-<CONSTANT CHOICES035 <LTABLE "Examine the runes" "Go down to the beach" "Take the road to Trefoille" "Take the road to Marlock City">>
+<CONSTANT CHOICES035 <LTABLE "Examine the runes" TEXT-TO-BEACH TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
 
 <ROOM STORY035
 	(DESC "035")
@@ -6398,7 +6419,7 @@ blessing at any one time. Once it is used up, you can return to any branch of th
 	<PURCHASE-BLESSING 25 10 ,GOD-LACUNA ,BLESSING-SCOUTING>>
 
 <CONSTANT TEXT053 "The creature bursts open in death, spilling a black inky cloud into the water. The sac in which this ink is kept falls free from its body. You can take the ink sac if you wish. You also find coral jewellery worth about 15 Shards.||Nothing else occurs during your foray into the depths, so you return to land. You climb back up the path that leads to the clifftop tor without incident.">
-<CONSTANT CHOICES053 <LTABLE "Take the road to Trefoille" "Take the road to Marlock City">>
+<CONSTANT CHOICES053 <LTABLE TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
 
 <ROOM STORY053
 	(DESC "053")
@@ -8428,7 +8449,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT205 "The runes are written in Old Shadar, an ancient language from thousands of years ago. You realize that the runes form a spell that will give you the power to breathe underwater for a few hours.">
-<CONSTANT CHOICES205 <LTABLE "Use the spell and swim out to sea" "Go down to the beach" "Take the road to Trefoille" "Take the road to Marlock City">>
+<CONSTANT CHOICES205 <LTABLE "Use the spell and swim out to sea" TEXT-TO-BEACH TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
 
 <ROOM STORY205
 	(DESC "205")
@@ -8526,7 +8547,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT213 "Each creature bursts open in death, spilling a black inky cloud into the water. The sac in which this ink is kept falls free from its body. You also find coral jewellery worth about 45 Shards. You swim down and take the golden net and strike out for the Shadar Tor as fast as you can.">
-<CONSTANT CHOICES213 <LTABLE "Take the road to Trefoille" "Take the road to Marlock City">>
+<CONSTANT CHOICES213 <LTABLE TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
 
 <ROOM STORY213
 	(DESC "213")
@@ -8984,13 +9005,13 @@ paste on the ground below.">
 	(DESC "249")
 	(STORY TEXT249)
 	(CHOICES CHOICES249)
-	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY-PLAINS-HOWLING-DARKNESS STORY209>)
+	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY209> STORY209>)
 	(REQUIREMENTS <LTABLE 4 <LTABLE ABILITY-CHARISMA 11> NONE>)
 	(TYPES <LTABLE R-RANK R-TEST-ABILITY R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT250 "The city of Trefoille is a terrifying vision of apocalyptic destruction. It had once been a thriving crossroads town, but now it is a burnt-out hulk. It was almost razed to the ground when it declared for the king, and tried to hold out against the army of Grieve Marlock during the recent civil war. It was sacked by the general's mercenaries. General Marlock is now trying to rebuild it. Craftsmen are hard at work everywhere.||There is nothing here but ashes and rubble.">
-<CONSTANT CHOICES250 <LTABLE "Visit Oliphard the Wizardly" "Take the road to the Shadar Tor" "Take the road to Marlock City" "Head into the Curstmoor" "Take the road north" "Take the road to Yellowport">>
+<CONSTANT CHOICES250 <LTABLE "Visit Oliphard the Wizardly" "Take the road to the Shadar Tor" TEXT-TO-MARLOCK "Head into the Curstmoor" "Take the road north" "Take the road to Yellowport">>
 
 <ROOM STORY250
 	(DESC "250")
@@ -9417,7 +9438,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT281 "Your tale of valour and derring-do falls on an unappreciative audience. The merfolk slip beneath the waves with snorts of derision, leaving you alone on the desolate beach. There is nothing for you to do but return to the clifftop tor.">
-<CONSTANT CHOICES281 <LTABLE "Take the road to Trefoille" "Take the road to Marlock City">>
+<CONSTANT CHOICES281 <LTABLE TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
 
 <ROOM STORY281
 	(DESC "281")
@@ -9750,7 +9771,12 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY307-EVENTS ()
-	<SET-LOCATION ,LOCATION-YELLOWPORT>>
+	<SET-LOCATION ,LOCATION-YELLOWPORT>
+	<RESET-CONTAINER ,CARGO>
+	<COND (,CURRENT-SHIP
+		<REMOVE ,CURRENT-SHIP>
+		<SETG CURRENT-SHIP NONE>
+	)>>
 
 <CONSTANT TEXT308 "The ratmen beat you into unconsciousness, and then toss you down an underground sewer outlet. You are washed up on the beaches outside Yellowport, where you come to. You have 1 Stamina point left, and the ratmen have taken all the items and money that you were carrying.||Groggily, you make your way back into the city.">
 
@@ -9794,194 +9820,132 @@ paste on the ground below.">
 	<COND (<CHECK-VISITS-MORE ,STORY310 1> <RETURN ,STORY614>)>
 	<RETURN ,STORY310>>
 
+<CONSTANT TEXT311 "He narrows his eyes angrily at your refusal.">
+
 <ROOM STORY311
 	(DESC "311")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT311)
+	(EVENTS STORY311-EVENTS)
+	(CONTINUE STORY720)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY311-EVENTS ()
+	<COND (<AND <CHECK-SHIP ,SHIP-GALLEON> <CHECK-CREW ,CONDITION-GOOD>>
+		<STORY-JUMP ,STORY335>
+	)>>
+
+<CONSTANT TEXT312 "\"Nerech is a dangerous place, Cap'n,\" says the first mate. \"Even its coastal waters are brimming with hazards. Rocks and monsters and the like. Then once ashore -- well, Land of the Manbeasts, they call it. The crew won't follow you there if they don\"t think you\"re good enough to lead them.\"">
+<CONSTANT CHOICES312 <LTABLE "Demand that the crew follow your orders (The Plains of Howling Darkness)" TEXT-ROLL-CHARISMA "Turn back">>
 
 <ROOM STORY312
 	(DESC "312")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT312)
+	(CHOICES CHOICES312)
+	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY507> STORY507>)
+	(REQUIREMENTS <LTABLE 4 <LTABLE ABILITY-CHARISMA 11> NONE>)
+	(TYPES <LTABLE R-RANK R-TEST-ABILITY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT313 "You stand against the wall as the high priestess draws back her arm, and hurls a stream of daggers at you.">
 
 <ROOM STORY313
 	(DESC "313")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT313)
+	(EVENTS STORY313-EVENTS)
+	(CONTINUE STORY400)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY313-EVENTS ("AUX" ROLL)
+	<SET ROLL <RANDOM-EVENT 2 0 T>>
+	<COND (<L=? .ROLL <CALCULATE-DEFENSE ,CURRENT-CHARACTER>>
+		<EMPHASIZE "The daggers all miss.">
+		<PREVENT-DOOM ,STORY313>
+	)(ELSE
+		<LOSE-STAMINA <ROLL-DICE 1> ,DIED-FROM-INJURIES ,STORY313>
+	)>
+	<COND (<IS-ALIVE> <SETG GOD NONE>)>>
+
+<CONSTANT TEXT314 "The runes mean nothing to you.">
+<CONSTANT CHOICES314 <LTABLE TEXT-TO-BEACH TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
 
 <ROOM STORY314
 	(DESC "314")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT314)
+	(CHOICES CHOICES314)
+	(DESTINATIONS <LTABLE STORY097 STORY602 STORY166>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT315 "With the gorlock out of the way, you are free to investigate its lair. Inside the cave, you find 500 Shards, a mace and a silver nugget.">
 
 <ROOM STORY315
 	(DESC "315")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT315)
+	(EVENTS STORY315-EVENTS)
+	(CONTINUE STORY510)
+	(ITEMS <LTABLE MACE SILVER-NUGGET>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY315-EVENTS ()
+	<GAIN-MONEY 500>>
+
+<CONSTANT TEXT316 "The temple of Elnir is an imposing edifice of grey stone, inlaid with yellow marbling. Elnir is the god of the sky and of kingship. He is the ruler of the gods.||\"His dreams are the clouds before a storm,\" says a passing priest.">
+<CONSTANT CHOICES316 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY316
 	(DESC "316")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT316)
+	(CHOICES CHOICES316)
+	(DESTINATIONS <LTABLE STORY291 STORY143 STORY388 STORY010>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT317 "It is the same craft you got the magic spear from, with the silver-skinned demon inside -- still dead, you presume. You examine it again, but there is nothing else of interest on board. The figure still lies there unmoving. You sail on">
 
 <ROOM STORY317
 	(DESC "317")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT317)
+	(CONTINUE STORY085)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT318 "A scorpion man scuttles out of the brush to confront you. It resembles a huge scorpion, but with a human head and torso. It holds a sword and shield in its human arms. The creature\"s eyes blaze with an unearthly yellow light, and it scrabbles toward you with frightening speed, whipping its sting up and around at you. You must fight it.">
 
 <ROOM STORY318
 	(DESC "318")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT318)
+	(EVENTS STORY318-EVENTS)
+	(CONTINUE STORY657)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY318-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-SCORPION-MAN 3 6 8>
+	<CHECK-COMBAT ,MONSTER-SCORPION-MAN ,STORY318>>
+
+<CONSTANT TEXT319 "You give the willow staff to the Oak Druid of the City of Trees.||\"A willow staff, is it? I see,\" the druid intones. \"Thank you.\"||As a reward, the druid lets you train with the City of Trees' best hunters and trackers.">
 
 <ROOM STORY319
 	(DESC "319")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT319)
+	(EVENTS STORY319-EVENTS)
+	(CONTINUE STORY195)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY319-EVENTS ()
+	<RETURN-ITEM ,WILLOW-STAFF T>
+	<GAIN-RANK 1>
+	<UPGRADE-STAMINA <ROLL-DICE 1>>>
+
+<CONSTANT TEXT320 "You learn from their conversation that they are from the jungles of distant Ankon-Konu, the Feathered Lands, and that they have come here to find new sacrifices for their god, and new members for their cult. The chef pronounces the cauldron is ready, and they remove the net that holds you.">
+<CONSTANT CHOICES320 <LTABLE "Fight them" "Shout 'Badogor!' repeatedly" "Join their cult">>
 
 <ROOM STORY320
 	(DESC "320")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT320)
+	(CHOICES CHOICES320)
+	(DESTINATIONS <LTABLE STORY204 STORY101 STORY061>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY321
