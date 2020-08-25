@@ -5916,6 +5916,7 @@
 	<RESET-ODDS 1 0 ,STORY049>
 	<RESET-ODDS 2 0 ,STORY051>
 	<RESET-ODDS 1 0 ,STORY124>
+	<RESET-ODDS 2 0 ,STORY444>
 	<SET-DESTINATION ,STORY358 3 ,STORY678>
 	<RESET-DIFFICULTY ,STORY237 1 10>
 	<PUTP ,STORY014 ,P?DOOM T>
@@ -12058,194 +12059,150 @@ paste on the ground below.">
 <ROUTINE STORY440-EVENTS ()
 	<BECOME-INITIATE 60 ,GOD-ELNIR>>
 
+<CONSTANT TEXT441 "You clamber up on to the battlements of the Temple of Tyrnai with relative ease and manoeuvre yourself into a position overlooking the golem guards at the gate. Now you have to reach down without being noticed.">
+
 <ROOM STORY441
 	(DESC "441")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT441)
+	(CHOICES CHOICES-THIEVERY)
+	(DESTINATIONS <LTABLE <LTABLE STORY022 STORY168>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 11>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT442 "You set out to explore the city of Yellowport at night, unwholesome though it is with its reeking air and dusty ochre streets.">
+<CONSTANT CHOICES442 <LTABLE "Head for the rough part of town" "Go to the wealthy area" "Explore the merchants' storehouses">>
 
 <ROOM STORY442
 	(DESC "442")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT442)
+	(EVENTS STORY442-EVENTS)
+	(CHOICES CHOICES442)
+	(DESTINATIONS <LTABLE STORY021 STORY178 STORY265>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY442-EVENTS ()
+	<SET-LOCATION ,LOCATION-YELLOWPORT>>
+
+<CONSTANT TEXT443 "You are witness to a major sea battle involving at least forty warships between the Sokaran navy and a pirate fleet. Arrows fill the air and smoking fireballs are launched from catapults mounted on some of the ships. The shrieks of the dying carry across the waves. You decide it would be better not to get involved in such a conflict.">
 
 <ROOM STORY443
 	(DESC "443")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT443)
+	(CONTINUE STORY420)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT444 "You try to make a run for it.">
+<CONSTANT STORY444-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 7 100> <LTABLE "The galley overtakes you" "You outrun them">>>>
 
 <ROOM STORY444
 	(DESC "444")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT444)
+	(EVENTS STORY444-EVENTS)
+	(CHOICES CHOICES-RANDOM)
+	(DESTINATIONS <LTABLE <LTABLE STORY051 STORY402>>)
+	(REQUIREMENTS STORY444-REQUIREMENTS)
+	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY444-EVENTS ("AUX" ODDS PARAMETERS (MODIFIER 0) (CONDITION NONE))
+	<RESET-ODDS 2 0 ,STORY444>
+	<SET MODIFIER 0>
+	<SET ODDS <GETP ,STORY444 ,P?REQUIREMENTS>>
+	<SET PARAMETERS <GET .ODDS 1>>
+	<SET MODIFIER <+ .MODIFIER <GET-RANK ,CURRENT-CHARACTER>>>
+	<COND (,CURRENT-SHIP
+		<SET CONDITION <GETP ,CURRENT-SHIP ,P?CONDITION>>
+		<COND (.CONDITION
+			<COND (<EQUAL? .CONDITION ,CONDITION-EXCELLENT>
+				<SET MODIFIER <+ .MODIFIER 2>>
+			)(<EQUAL? .CONDITION ,CONDITION-GOOD>
+				<INC .MODIFIER>
+			)(<EQUAL? .CONDITION ,CONDITION-POOR>
+				<DEC .MODIFIER>
+			)>
+		)(ELSE
+			<DEC .MODIFIER>
+		)>
+	)(ELSE
+		<DEC .MODIFIER>
+	)>
+	<PUT .PARAMETERS 2 .MODIFIER>>
+
+<CONSTANT TEXT445 "You climb up, and squeeze through an open window into a long hall. Thin wires are stretched across the room, but you are an able enough rogue to crawl though without touching any of them and setting off possible traps or alarms.||Inside the temple, it is cool and dark, filled with an unearthly stillness. Suddenly, the temple doors are flung open, and two figures lumber into the room. You realize with a thrill of horror that the bull-headed iron statues outside the gates have come to life. They are golems, set here to guard the temple.">
+<CONSTANT CHOICES445 <LTABLE "Run for your life" "Fight them">>
 
 <ROOM STORY445
 	(DESC "445")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT445)
+	(CHOICES CHOICES445)
+	(DESTINATIONS <LTABLE STORY349 STORY569>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT446 "You set out that night on your quest.">
 
 <ROOM STORY446
 	(DESC "446")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY446-BACKGROUND)
+	(STORY TEXT446)
+	(CHOICES CHOICES-MAGIC)
+	(DESTINATIONS <LTABLE <LTABLE STORY511 STORY328>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-MAGIC 10>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY446-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY446 1> <RETURN ,STORY226>)>
+	<RETURN ,STORY446>>
+
+<CONSTANT TEXT447 "You find yourself washed up on a rocky shore, beneath towering cliffs. You are battered and cold, but lucky to be alive. Eventually, you find a path up the cliff. You climb up to find yourself at the Shadar Tor.">
 
 <ROOM STORY447
 	(DESC "447")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT447)
+	(EVENTS STORY447-EVENTS)
+	(CONTINUE STORY035)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY447-EVENTS ()
+	<SET-LOCATION ,LOCATION-SHADAR>>
+
+<CONSTANT TEXT448 "If you are an initiate it costs only 5 Shards to propitiate the twin gods of the sea. A non-initiate must pay 20 Shards.||The blessing works by allowing you to ignore any one storm at sea. You can only have one 'Safety from Storms' blessing at any one time. Once it is used up, you can return to any branch of the temple of Alvir and Valmir to buy a new one.">
 
 <ROOM STORY448
 	(DESC "448")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT448)
+	(EVENTS STORY448-EVENTS)
+	(CONTINUE STORY220)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY448-EVENTS ()
+	<PURCHASE-BLESSING 20 5 ,GOD-ALVIR-VALMIR ,BLESSING-SAFETY-FROM-STORMS>>
+
+<CONSTANT TEXT449 "You creep past a scorpion man guard, which is dozing at the entrance to one of the burrows. The stench inside the mound is foul -- a kind of acrid, rotting vegetable smell. You head for the centre of the mound, past tunnels, rooms and egg chambers, avoiding the inhabitants by skulking in the shadows.||Finally, you come to a room which is more like the laboratory of a sorcerer than a scorpion den: jars, alembics and scrolls lie all over the place. A scorpion man is at work at a desk. Unlike others of his kind, he wears rudimentary clothing.||Suddenly a stuffed animal's head mounted on the wall says, \"There is an intruder, master.\"||The scorpion man wheels round and charges straight at you.">
 
 <ROOM STORY449
 	(DESC "449")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT449)
+	(CHOICES CHOICES-MAGIC)
+	(DESTINATIONS <LTABLE <LTABLE STORY503 STORY105>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-MAGIC 9>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT450 "A wooden stockade encloses the springs. At the gate, two militiamen stand on guard, and a priest, dressed in blue robes, sits behind a desk.||\"Thirty-five Shards to enjoy the divine spa,\" says the priest.">
+<CONSTANT CHOICES450 <LTABLE "Pay and enter" "Cannot or will not pay">>
 
 <ROOM STORY450
 	(DESC "450")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT450)
+	(CHOICES CHOICES450)
+	(DESTINATIONS <LTABLE STORY378 STORY510>)
+	(REQUIREMENTS <LTABLE 30 NONE>)
+	(TYPES <LTABLE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY451
