@@ -5160,7 +5160,7 @@
 		)>
 	>>
 
-<ROUTINE VISIT-TOWNHOUSE (STORY TOWNHOUSE "AUX" ROLL KEY)
+<ROUTINE VISIT-TOWNHOUSE (STORY TOWNHOUSE "OPT" (FATAL F) (CODEWORD NONE) "AUX" ROLL KEY)
 	<COND (<L? ,STAMINA ,MAX-STAMINA> <GAIN-STAMINA <- ,MAX-STAMINA ,STAMINA>>)>
 	<UPDATE-STATUS-LINE>
 	<COND (<NOT <FSET? .TOWNHOUSE ,CACHEBIT>>
@@ -5179,11 +5179,20 @@
 				<EMPHASIZE "Robbers did not find any money here!">
 			)>
 		)(<L=? .ROLL 12>
-			<COND (<G? <COUNT-CONTAINER .TOWNHOUSE> 0>
-				<EMPHASIZE "Raiding nomads take all your possessions!">
+			<COND (.FATAL
+				<EMPHASIZE "Earthquake! You lose all possessions you left here and the townhouse is destroyed.">
+				<COND (.CODEWORD <DELETE-CODEWORD .CODEWORD>)>
 				<RESET-CONTAINER .TOWNHOUSE>
+				<GAIN-MONEY <GETP .TOWNHOUSE ,P?INVESTMENTS>>
+				<PUTP .TOWNHOUSE ,P?INVESTMENTS 0>
+				<RETURN>
 			)(ELSE
-				<EMPHASIZE "Raiding nomads did not find anything of value here!">
+				<COND (<G? <COUNT-CONTAINER .TOWNHOUSE> 0>
+					<EMPHASIZE "Raiding nomads take all your possessions!">
+					<RESET-CONTAINER .TOWNHOUSE>
+				)(ELSE
+					<EMPHASIZE "Raiding nomads did not find anything of value here!">
+				)>
 			)>
 		)>
 		<PRESS-A-KEY>
@@ -11901,100 +11910,94 @@ paste on the ground below.">
 	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT431 "You notice that Oliphard has erected his pavilion over a verdigris trapdoor set into the floor.||\"I see you have the key,\" says Oliphard. \"Please, be my guest -- use the door.\"||You open it up and climb some short stairs into a square chamber with three doors.|| \"They are doors of teleportation -- step through and you will be taken to whatever land is displayed!\" says Oliphard.||The first door leads to a teeming city of merchants -- Metriciens in Golnir.||The second door leads to a cloud-fringed peak: Sky Mountain in the Great Steppes, far to the north.||The third door leads to Dweomer, the City of Sorcerers, on Sorcerers' Isle.">
+<CONSTANT CHOICES431 <LTABLE "Enter the first door (Cities of Gold and Glory)" "Enter the second door (The Plains of Howling Darkness)" "Enter the third door (Over the Blood-Dark Sea)" "If you don't want to step through any of the doors">>
+
 <ROOM STORY431
 	(DESC "431")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT431)
+	(CHOICES CHOICES431)
+	(DESTINATIONS <LTABLE STORY-CITIES-GOLD-GLORY STORY-PLAINS-HOWLING-DARKNESS STORY-BLOOD-DARK-SEA STORY656>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT432 "The militiamen are down. The tall gentleman watches you like a snake with its eyes on a mongoose. You have no time to bother with him now.||\"We'll meet again, perhaps,\" he says in a voice like slithering murder.||\"Remember my name: Talanexor the Fireweaver.\"||\"Remember my name,\" you call back as you lope off, \"Lauria the Housebreaker.\"||Let the conniving vixen get into trouble. She nearly played you for her patsy, after all.">
 
 <ROOM STORY432
 	(DESC "432")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT432)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT433 "You rush in, taking the ruffians by surprise. A couple of good buffets around the head, and they run off. The scholar lies groaning on the ground.">
+<CONSTANT CHOICES433 <LTABLE "Help him up" "Rob him">>
 
 <ROOM STORY433
 	(DESC "433")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT433)
+	(CHOICES CHOICES433)
+	(DESTINATIONS <LTABLE STORY172 STORY379>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY434
 	(DESC "434")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-TOWNHOUSE)
+	(EVENTS STORY434-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY434-EVENTS ()
+	<VISIT-TOWNHOUSE ,STORY434 ,TOWNHOUSE-MARLOCK T ,CODEWORD-AEGIS>>
+
+<CONSTANT TEXT435 "Becoming an initiate of Tyrnai gives you the benefit of paying less for blessings and other services the temple can offer. To qualify as an initiate you must have a COMBAT score of at least 6. You cannot become an initiate of Tyrnai if you are already an initiate of another temple.">
 
 <ROOM STORY435
 	(DESC "435")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT435)
+	(EVENTS STORY435-EVENTS)
+	(CONTINUE STORY526)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY435-EVENTS ("AUX" COMBAT)
+	<SET COMBAT <CALCULATE-ABILITY ,CURRENT-CHARACTER ,ABILITY-COMBAT ,PLAYER>>
+	<COND (<NOT ,GOD>
+		<COND (<G=? .COMBAT 6>
+			<CRLF>
+			<TELL "Become an Initiate of ">
+			<HLIGHT ,H-BOLD>
+			<TELL D ,GOD-TYRNAI>
+			<HLIGHT 0>
+			<TELL " (COMBAT: ">
+			<HLIGHT ,H-BOLD>
+			<TELL N .COMBAT>
+			<HLIGHT 0>
+			<TELL ")?">
+			<COND (<YES?>
+				<SETG GOD ,GOD-TYRNAI>
+				<CRLF>
+				<HLIGHT ,H-BOLD>
+				<TELL "You have become an Initiate of " D ,GOD ,PERIOD-CR>
+				<HLIGHT 0>
+			)>
+		)(ELSE
+			<CRLF>
+			<TELL "You cannot become an Initiate of ">
+			<HLIGHT ,H-BOLD>
+			<TELL D ,GOD-TYRNAI>
+			<HLIGHT 0>
+			<TELL " at this time. Your combat is score is ">
+			<HLIGHT ,H-BOLD>
+			<TELL N .COMBAT>
+			<HLIGHT 0>
+			<TELL ", lower than the required.">
+		)>
+	)(ELSE
+		<CRLF>
+		<HLIGHT ,H-BOLD>
+		<TELL "You are already an Initiate of " D ,GOD ,EXCLAMATION-CR>
+		<HLIGHT 0>
+	)>>
 
 <ROOM STORY436
 	(DESC "436")
