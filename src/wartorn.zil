@@ -190,7 +190,7 @@
 <GLOBAL STARTING-POINT STORY001>
 <GLOBAL CURRENT-LOCATION LOCATION-SOKARA>
 
-<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "The Trading Post" "The Stinking River" "The Forest of Larun" "The City of Trees" "Caran Baru" "Bronze Hills" "Fort Brilon">>
+<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "The Trading Post" "The Stinking River" "The Forest of Larun" "The City of Trees" "Caran Baru" "Bronze Hills" "Fort Brilon" "Scorpion Bight" "Disaster Bay">>
 
 <CONSTANT LOCATION-SOKARA 1>
 <CONSTANT LOCATION-MARLOCK 2>
@@ -209,6 +209,8 @@
 <CONSTANT LOCATION-CARAN 15>
 <CONSTANT LOCATION-BRONZE 16>
 <CONSTANT LOCATION-BRILON 17>
+<CONSTANT LOCATION-SCORPION 18>
+<CONSTANT LOCATION-DISASTER 19>
 
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
@@ -561,7 +563,7 @@
 							<CRLF>
 							<CRLF>
 							<HLIGHT ,H-BOLD>
-							<TELL "You are not in " <GET ,LOCATIONS .LIST> ,EXCLAMATION-CR>
+							<TELL "You are not in " <GET-LOCATION .LIST> ,EXCLAMATION-CR>
 							<HLIGHT 0>
 							<PRESS-A-KEY>
 						)>
@@ -1625,7 +1627,7 @@
 	<HLIGHT ,H-BOLD>
 	<TELL "Current Location: ">
 	<HLIGHT 0>
-	<TELL "Somewhere in " <GET ,LOCATIONS ,CURRENT-LOCATION> CR>>
+	<TELL "Somewhere in " <GET-LOCATION ,CURRENT-LOCATION> CR>>
 
 <ROUTINE DESCRIBE-PLAYER-MISSIONS ()
 	<COND (<G? <COUNT-CONTAINER ,MISSIONS> 0>
@@ -1910,6 +1912,11 @@
 			<SET ITEMS <NEXT? .ITEMS>>
 		>
 		<RETURN .ITEMS>
+	)>>
+
+<ROUTINE GET-LOCATION (LOCATION)
+	<COND (<L=? .LOCATION 20>
+		<RETURN <GET ,LOCATIONS .LOCATION>>
 	)>>
 
 <ROUTINE GIVE-ITEM (ITEM "OPT" (SILENT F))
@@ -3174,6 +3181,11 @@
 <OBJECT MACE3
 	(DESC "mace")
 	(COMBAT 3)
+	(FLAGS TAKEBIT WEAPONBIT)>
+
+<OBJECT MAGIC-SPEAR
+	(DESC "magic spear")
+	(COMBAT 2)
 	(FLAGS TAKEBIT WEAPONBIT)>
 
 <OBJECT SPEAR
@@ -5433,7 +5445,7 @@
 	)>>
 
 ; "TO-DO: Allow cancellation of previous resurrection arrangement"
-<ROUTINE PURCHASE-RESURRECTION (FEE DISCOUNT INITIATE RESURRECTION)
+<ROUTINE PURCHASE-RESURRECTION (FEE DISCOUNT INITIATE RESURRECTION "OPT" STORY)
 	<COND (<NOT .RESURRECTION> <RETURN>)>
 	<COND (<NOT .INITIATE> <RETURN>)>
 	<COND (<CHECK-GOD .INITIATE> <SET FEE .DISCOUNT>)>
@@ -5449,6 +5461,7 @@
 				<COST-MONEY .FEE ,TEXT-PAID>
 				<SETG RESURRECTION-ARRANGEMENTS .RESURRECTION>
 				<EMPHASIZE "You have made resurrection arrangements at this temple.">
+				<COND (.STORY <PUTP .RESURRECTION ,P?CONTINUE .STORY>)>
 			)>
 		)(ELSE
 			<EMPHASIZE "... and you cannot afford to make a new arrangement at this time.">
@@ -6070,7 +6083,9 @@
 
 ; "reset routines"
 <ROUTINE RESET-OBJECTS ()
-	<FSET ,LEATHER-JERKIN ,WORNBIT>>
+	<FSET ,LEATHER-JERKIN ,WORNBIT>
+	<PUTP ,RESURRECTION-NAGIL ,P?CONTINUE ,STORY350>
+	<PUTP ,RESURRECTION-TYRNAI ,P?CONTINUE ,STORY640>>
 
 <ROUTINE RESET-STORY ()
 	<RESET-ODDS 1 0 ,STORY038>
@@ -6753,6 +6768,7 @@ harbourmaster.">
 
 <ROOM STORY032
 	(DESC "032")
+	(LOCATION LOCATION-SCORPION)
 	(STORY TEXT032)
 	(EVENTS STORY032-EVENTS)
 	(CONTINUE STORY492)
@@ -10581,6 +10597,7 @@ paste on the ground below.">
 
 <ROOM STORY318
 	(DESC "318")
+	(LOCATION LOCATION-SCORPION)
 	(STORY TEXT318)
 	(EVENTS STORY318-EVENTS)
 	(CONTINUE STORY657)
@@ -11776,6 +11793,7 @@ paste on the ground below.">
 
 <ROOM STORY406
 	(DESC "406")
+	(LOCATION LOCATION-SCORPION)
 	(STORY TEXT406)
 	(CHOICES CHOICES406)
 	(DESTINATIONS <LTABLE STORY714 STORY492>)
@@ -12012,6 +12030,7 @@ paste on the ground below.">
 
 <ROOM STORY427
 	(DESC "427")
+	(LOCATION LOCATION-VENEFAX)
 	(BACKGROUND STORY427-BACKGROUND)
 	(FLAGS LIGHTBIT)>
 
@@ -12683,7 +12702,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY478-EVENTS ()
-	<PURCHASE-RESURRECTION 600 200 ,GOD-NAGIL ,RESURRECTION-NAGIL>>
+	<PURCHASE-RESURRECTION 600 200 ,GOD-NAGIL ,RESURRECTION-NAGIL ,STORY350>>
 
 <CONSTANT TEXT479 "They seem quite alarmed to see you charge forward undaunted. As your first blow lands solidly and you hear a satisfying grunt of pain, you know for a fact that these are no ghosts that you are facing, but people of flesh and blood. Fight them one at a time.">
 
@@ -12849,194 +12868,120 @@ paste on the ground below.">
 	<UPGRADE-ABILITIES 1>
 	<IF-ALIVE ,TEXT490-CONTINUED>>
 
+<CONSTANT TEXT491 "You succumb to the insidious breath of the beast. Death has claimed you.">
+
 <ROOM STORY491
 	(DESC "491")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT490)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT492 "You are on a rough track that runs between Venefax and the territories of the scorpion men, slogging your way through hot, dry scrubland. A hawk circles overhead, cawing harshly.">
+<CONSTANT CHOICES492 <LTABLE "Go north to Venefax" "Go south into Scorpion Bight">>
 
 <ROOM STORY492
 	(DESC "492")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT492)
+	(CHOICES CHOICES492)
+	(DESTINATIONS <LTABLE STORY427 STORY318>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT493 "Gills grow out of your cheeks as soon as you have read the runes aloud! You make your way down a track to the beach, and swim out to sea. The gills work perfectly, and you find yourself swimming in the eerie silence of a submarine world.||Suddenly, a hideous form looms out of the murk. It is rather like a giant squid, but it carries a spear in one of its many tentacles and wears rudimentary armour. Great black eyes shine with an implacable alien intelligence.">
+<CONSTANT CHOICES493 <LTABLE HAVE-CODEWORD OTHERWISE>>
 
 <ROOM STORY493
 	(DESC "493")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT493)
+	(CHOICES CHOICES493)
+	(DESTINATIONS <LTABLE STORY116 STORY238>)
+	(REQUIREMENTS <LTABLE CODEWORD-ANCHOR NONE>)
+	(TYPES <LTABLE R-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT494 "You dodge down a side tunnel, and mutter an enchantment intended to give you the appearance of a ratman. Your pursuers come bundling around the corner. One of them stops to shout at you, \"Where'd the human go?\"||Nonchalantly, you point down the tunnel, and the ratmen go haring off down it, whooping and yelling. You turn and walk the other way, a smile on your face.">
 
 <ROOM STORY494
 	(DESC "494")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT494)
+	(CONTINUE STORY580)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT495 "You arrive at Disaster Bay, where you find a community of fishermen. Judging by their wealth, they also make a living by other means -- you suspect by looting the ships that get wrecked in the stormy waters of the bay.||A man offers to take you by boat, safely through the bay, and north to the port of Yarimura, on the Great Steppes; it will cost you 50 Shards.">
+<CONSTANT CHOICES495 <LTABLE "Pay to go to Yarimura (The Plains of Howling Darkness)" "Head north to the mountains" "Head for Fort Mereth">>
 
 <ROOM STORY495
 	(DESC "495")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(LOCATION LOCATION-DISASTER)
+	(STORY TEXT495)
+	(CHOICES CHOICES495)
+	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY244 STORY518 STORY299>)
+	(REQUIREMENTS <LTABLE 50 NONE NONE NONE>)
+	(TYPES <LTABLE R-MONEY R-NONE R-NONE R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT496 "You manoeuvre your ship as close as possible, and then take a rowboat over to the craft. Climbing inside, you find yourself in a small cabin which is lit by winking red and green lights set into the walls. A figure lies sprawled beside an ornate couch. The figure, although manlike, appears to have silver skin, and a great big round head, with one black, glittering eye that seems to fill its whole face. Whatever it is appears to be dead.||Quickly you search the craft, and find a kind of spear that fires steel balls from one end. It counts as a magic spear. Worried that you may be meddling with a ship of demons, you head back quickly, and sail on.">
 
 <ROOM STORY496
 	(DESC "496")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY496-BACKGROUND)
+	(STORY TEXT496)
+	(CONTINUE STORY085)
+	(ITEMS <LTABLE MAGIC-SPEAR>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY496-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY496 1> <RETURN ,STORY317>)>
+	<RETURN ,STORY496>>
+
+<CONSTANT TEXT497 "The tavern costs you 1 Shard a day. Each day you spend here, you can recover 1 Stamina point if injured, up to the limit of your normal unwounded Stamina score.">
+<CONSTANT CHOICES497 <LTABLE "Spend Shards buying drinks for the locals, and ask them about the scorpion men" OTHERWISE>>
 
 <ROOM STORY497
 	(DESC "497")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(STORY TEXT497)
+	(EVENTS STORY497-EVENTS)
+	(CHOICES CHOICES497)
+	(DESTINATIONS <LTABLE STORY525 STORY427>)
+	(REQUIREMENTS <LTABLE 3 NONE>)
+	(TYPES <LTABLE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY497-EVENTS ()
+	<VISIT-INN ,STORY497 1 1>>
+
+<CONSTANT TEXT498 "There are too many of them, and they give you a good hiding. \"Maybe that'll teach you some respect,\" one of them says, as they swagger off, leaving you groaning in the gutter. You are reduced to only 1 Stamina point. You decide to call it a night.">
 
 <ROOM STORY498
 	(DESC "498")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT498)
+	(EVENTS STORY498-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY498-EVENTS ()
+	<SETG STAMINA 1>
+	<UPDATE-STATUS-LINE>>
+
+<CONSTANT TEXT499 "You board your ship, which is docked in the harbour. The crew gives a drunken cheer as you come on board.||\"Where are we bound, Cap'n?\" says the first mate.">
+<CONSTANT CHOICES499 <LTABLE "Return to shore" "Set sail">>
 
 <ROOM STORY499
 	(DESC "499")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT499)
+	(CHOICES CHOICES499)
+	(DESTINATIONS <LTABLE STORY555 STORY029>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT500 "You are restored to life at the war-god's temple in Yellowport. Your Stamina is back to its normal score. The possessions and cash you were carrying at the time of your death are lost.||The high priest, pale and wan after the effort of interceding with the god to bring you back to life says, \"You have returned from beyond the dark mirror of death. Tyrnai has granted you another chance. Strive to seek battle in his name.\"">
 
 <ROOM STORY500
 	(DESC "500")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT500)
+	(CONTINUE STORY526)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY501
