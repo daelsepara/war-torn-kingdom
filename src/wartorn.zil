@@ -421,7 +421,7 @@
 					)(<AND <EQUAL? .TYPE ,R-TEST-ABILITY> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<CRLF>
 						<CRLF>
-						<COND (<TEST-ABILITY ,CURRENT-CHARACTER <GET .LIST 1> <GET .LIST 2> T>
+						<COND (<TEST-ABILITY ,CURRENT-CHARACTER <GET .LIST 1> <GET .LIST 2>>
 							<SETG HERE <GET <GET .DESTINATIONS .CHOICE> 1>>
 						)(ELSE
 							<SETG HERE <GET <GET .DESTINATIONS .CHOICE> 2>>
@@ -3547,7 +3547,8 @@
 <CONSTANT CONDITION-EXCELLENT 3>
 
 <CONSTANT DOCK-YELLOWPORT 1>
-<CONSTANT DOCKS <LTABLE "Yellowport">>
+<CONSTANT DOCK-MARLOCK 2>
+<CONSTANT DOCKS <LTABLE "Yellowport" "Marlock City">>
 
 <OBJECT SHIP-BARQUE
 	(DESC "barque")
@@ -4067,7 +4068,7 @@
 	<HLIGHT 0>
 	<TELL ,PERIOD-CR>>
 
-<ROUTINE TEST-ABILITY (CHARACTER ABILITY DIFFICULTY "OPT" (MODIFIERS T) "AUX" SCORE (ROLL 0) (RESULT F) (TOTAL 0) (MODIFIER 0))
+<ROUTINE TEST-ABILITY (CHARACTER ABILITY DIFFICULTY "OPT" (MODIFIER 0) "AUX" SCORE (ROLL 0) (RESULT F) (TOTAL 0))
 	<REPEAT ()
 		<SET SCORE <CALCULATE-ABILITY .CHARACTER .ABILITY>>
 		<TELL "Making a ">
@@ -4083,7 +4084,8 @@
 		<TELL N .DIFFICULTY>
 		<HLIGHT 0>
 		<TELL " difficulty.." ,PERIOD-CR>
-		<SET MODIFIER <TEST-ABILITY-POTION .ABILITY>>
+		<SET MODIFIER <+ .MODIFIER <TEST-ABILITY-GOD .ABILITY>>>
+		<SET MODIFIER <+ .MODIFIER <TEST-ABILITY-POTION .ABILITY>>>
 		<COND (<L=? .MODIFIER 0> <PRESS-A-KEY>)>
 		<SET ROLL <ROLL-DICE 2>>
 		<SET TOTAL <+ .SCORE .ROLL .MODIFIER>>
@@ -4165,6 +4167,13 @@
 		)>
 	)(ELSE
 		<CRLF>
+	)>
+	<RETURN .RESULT>>
+
+<ROUTINE TEST-ABILITY-GOD (ABILITY "AUX" RESULT)
+	<SET RESULT 0>
+	<COND (<EQUAL? .ABILITY ,ABILITY-THIEVERY>
+		<COND (<CHECK-GOD ,GOD-SIG> <INC .RESULT>)>
 	)>
 	<RETURN .RESULT>>
 
@@ -4471,6 +4480,7 @@
 <CONSTANT TEXT-HARBOUR-MASTER "Harbour Master">
 
 <ROUTINE HARBOUR-MARLOCK ("AUX" KEY CHOICE ITEMS DESTINATION)
+	<COND (,CURRENT-SHIP <PUTP ,CURRENT-SHIP ,P?DOCKED ,DOCK-MARLOCK>)>
 	<DO (I 1 3)
 		<COND (<NOT <IN? <GET ,SHIPS-LIST .I> ,SHIPS>>
 			<STORY-RESET-CREW ,CONDITION-AVERAGE>
@@ -4503,7 +4513,7 @@
 			<TELL ,TEXT-SURE>
 			<COND (<YES?> <RETURN>)>
 		)(<EQUAL? .CHOICE 1>
-			<BUY-SELL-UPGRADE-SHIP ,MARLOCK-SHIP-BUY ,MARLOCK-SHIP-SELL ,MARLOCK-UPGRADE-PRICES ,MARLOCK-CARGO-SELL>
+			<BUY-SELL-UPGRADE-SHIP ,MARLOCK-SHIP-BUY ,MARLOCK-SHIP-SELL ,MARLOCK-UPGRADE-PRICES ,MARLOCK-CARGO-SELL ,DOCK-MARLOCK>
 		)(<EQUAL? .CHOICE 2>
 			<SET DESTINATION <BOOK-PASSAGE ,MARLOCK-PASSAGES ,MARLOCK-TICKETS ,MARLOCK-TRAVEL>>
 			<COND (.DESTINATION
@@ -4691,7 +4701,7 @@
 		)>
 	>>
 
-<ROUTINE BUY-SELL-UPGRADE-SHIP (BUY-PRICES SELL-PRICES UPGRADE-PRICES CARGO-PRICES "AUX" KEY)
+<ROUTINE BUY-SELL-UPGRADE-SHIP (BUY-PRICES SELL-PRICES UPGRADE-PRICES CARGO-PRICES DOCK "AUX" KEY)
 	<REPEAT ()
 		<EMPHASIZE "Shipyard">
 		<PRINT-MENU ,BUY-SELL-UPGRADE-MENU F F !\0 "Go back">
@@ -4706,7 +4716,7 @@
 			<COND (<YES?> <RETURN>)>
 		)(<EQUAL? .KEY !\1>
 			<CRLF>
-			<BUY-SHIP .BUY-PRICES>
+			<BUY-SHIP .BUY-PRICES .DOCK>
 		)(<EQUAL? .KEY !\2>
 			<CRLF>
 			<SELL-SHIP .SELL-PRICES .CARGO-PRICES>
@@ -4720,7 +4730,7 @@
 		)>
 	>>
 
-<ROUTINE BUY-SHIP (BUY-PRICES "AUX" KEY ITEM)
+<ROUTINE BUY-SHIP (BUY-PRICES "OPT" DOCK "AUX" KEY ITEM)
 	<REPEAT ()
 		<EMPHASIZE "Shipyard">
 		<PRINT-MENU ,SHIPS-LIST T T !\0 ,TEXT-BACK .BUY-PRICES>
@@ -4749,9 +4759,8 @@
 				<COND (<YES?>
 					<COST-MONEY <GET .BUY-PRICES .ITEM> ,TEXT-PAID>
 					<MOVE <GET ,SHIPS-LIST .ITEM> ,SHIPS>
-					<COND (<NOT ,CURRENT-SHIP>
-						<SETG ,CURRENT-SHIP <GET ,SHIPS-LIST .ITEM>>
-					)>
+					<PUTP <GET ,SHIPS-LIST .ITEM> ,P?DOCKED .DOCK>
+					<COND (<NOT ,CURRENT-SHIP> <SETG ,CURRENT-SHIP <GET ,SHIPS-LIST .ITEM>>)>
 					<CRLF>
 					<TELL "You bought a ">
 					<PRINT-ITEM <GET ,SHIPS-LIST .ITEM> T>
@@ -6011,8 +6020,11 @@
 <CONSTANT TEXT-RESURRECTION-ARRANGEMENTS "Make Resurrection Arrangements">
 <CONSTANT TEXT-SEEK-BLESSING "Seek a blessing">
 
-<CONSTANT TEXT-TEMPLE-ALVIR-VALMIR "Becoming an initiate of Alvir and Valmir gives you the benefit of paying less for blessings and other services the temple can offer. It costs 40 Shards to become an initiate. You cannot do this if you are already an initiate of another temple.">
-<CONSTANT TEXT-TEMPLE-OF-ELNIR "If you are an initiate it costs only 10 Shards to purchase Elnir's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again when you make a failed CHARISMA roll. It is good for only one reroll. You can have only one CHARISMA blessing at any one time. Once it is used up, you can return to any branch of the Temple of Elnir to buy a new one.">
+<CONSTANT TEXT-INITIATE-ALMIR-VALMIR "Becoming an initiate of Alvir and Valmir gives you the benefit of paying less for blessings and other services the temple can offer. It costs 40 Shards to become an initiate. You cannot do this if you are already an initiate of another temple.">
+
+<CONSTANT TEXT-INITIATE-ELNIR "Becoming an initiate of Elnir gives you the benefit of paying less for blessings and other services the temple can offer. It costs 60 Shards to become an initiate. You cannot become an initiate of Elnir if you are already an initiate of another temple.">
+
+<CONSTANT TEXT-BLESSING-ELNIR "If you are an initiate it costs only 10 Shards to purchase Elnir's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again when you make a failed CHARISMA roll. It is good for only one reroll. You can have only one CHARISMA blessing at any one time. Once it is used up, you can return to any branch of the Temple of Elnir to buy a new one.">
 
 <CONSTANT TEXT-TO-BEACH "Go down to the beach">
 <CONSTANT TEXT-TO-TREFOILLE "Take the road to Trefoille">
@@ -7211,7 +7223,7 @@ is off, you return to the city centre.">
 
 <ROOM STORY073
 	(DESC "073")
-	(STORY TEXT-TEMPLE-OF-ELNIR)
+	(STORY TEXT-BLESSING-ELNIR)
 	(EVENTS STORY073-EVENTS)
 	(CONTINUE STORY568)
 	(FLAGS LIGHTBIT)>
@@ -10057,11 +10069,9 @@ paste on the ground below.">
 	(TYPES <LTABLE R-CODEWORD R-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT291 "Becoming an initiate of Elnir gives you the benefit of paying less for blessings and other services the temple can offer. It costs 60 Shards to become an initiate. You cannot become an initiate of Elnir if you are already an initiate of another temple.">
-
 <ROOM STORY291
 	(DESC "291")
-	(STORY TEXT291)
+	(STORY TEXT-INITIATE-ELNIR)
 	(EVENTS STORY291-EVENTS)
 	(CONTINUE STORY316)
 	(FLAGS LIGHTBIT)>
@@ -10091,7 +10101,7 @@ paste on the ground below.">
 
 <ROOM STORY294
 	(DESC "294")
-	(STORY TEXT-TEMPLE-ALVIR-VALMIR)
+	(STORY TEXT-INITIATE-ALMIR-VALMIR)
 	(EVENTS STORY294-EVENTS)
 	(CONTINUE STORY220)
 	(FLAGS LIGHTBIT)>
@@ -10740,7 +10750,7 @@ paste on the ground below.">
 
 <ROOM STORY343
 	(DESC "343")
-	(STORY TEXT-TEMPLE-ALVIR-VALMIR)
+	(STORY TEXT-INITIATE-ALMIR-VALMIR)
 	(EVENTS STORY343-EVENTS)
 	(CONTINUE STORY154)
 	(FLAGS LIGHTBIT)>
@@ -11310,7 +11320,7 @@ paste on the ground below.">
 
 <ROOM STORY388
 	(DESC "388")
-	(STORY TEXT-TEMPLE-OF-ELNIR)
+	(STORY TEXT-BLESSING-ELNIR)
 	(EVENTS STORY388-EVENTS)
 	(CONTINUE STORY316)
 	(FLAGS LIGHTBIT)>
@@ -12007,81 +12017,46 @@ paste on the ground below.">
 	(CONTINUE STORY195)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT437 "Becoming an initiate of Sig gives you the benefit of paying less for blessings and other services. Also, you can add 1 to your THIEVERY score, as Sig will watch over your pilfering activities and keep you safe from the law. It costs 50 Shards to become an initiate. You cannot become an initiate of Sig if you are an initiate of any other temple.">
+
 <ROOM STORY437
 	(DESC "437")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT437)
+	(EVENTS STORY437-EVENTS)
+	(CONTINUE STORY235)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY437-EVENTS ()
+	<BECOME-INITIATE 50 ,GOD-SIG>>
+
+<CONSTANT TEXT438 "The climb is too arduous for you. The air becomes too thin to breathe, and you cannot find the footholds you need to pull yourself up. You are forced to abandon the attempt and climb back down.">
 
 <ROOM STORY438
 	(DESC "438")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT438)
+	(CONTINUE STORY244)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT439 "Your ship is sailing in the coastal waters beside Yellowport.">
+<CONSTANT CHOICES439 <LTABLE "Sail into Yellowport Harbour" "Sail north east towards Scorpion Bight" "Sail south west along the coast" "Sail south into the Violet Ocean">>
 
 <ROOM STORY439
 	(DESC "439")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT439)
+	(CHOICES CHOICES439)
+	(DESTINATIONS <LTABLE STORY555 STORY430 STORY120 STORY366>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY440
 	(DESC "440")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-INITIATE-ELNIR)
+	(EVENTS STORY440-EVENTS)
+	(CONTINUE STORY568)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY440-EVENTS ()
+	<BECOME-INITIATE 60 ,GOD-ELNIR>>
 
 <ROOM STORY441
 	(DESC "441")
