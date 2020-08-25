@@ -1346,6 +1346,20 @@
 <ROUTINE AFFLICTED-WITH (DISEASE "OPT" EFFECT)
 	<COND (<NOT .EFFECT> <SET EFFECT ,TEXT-AFFLICTED>)>
 	<COND (<NOT <CHECK-AILMENT .DISEASE>>
+		<COND (<OR <FSET? .DISEASE ,POISONBIT> <FSET? .DISEASE ,DISEASEBIT>>
+			<COND (<CHECK-BLESSING ,BLESSING-IMMUNITY-POISON-DISEASE>
+				<CRLF>
+				<TELL "Use the blessing ">
+				<PRINT-ITEM ,BLESSING-IMMUNITY-POISON-DISEASE T>
+				<TELL " to counter the ">
+				<PRINT-ITEM .DISEASE T>
+				<TELL "?">
+				<COND (<YES?>
+					<DELETE-BLESSING ,BLESSING-IMMUNITY-POISON-DISEASE>
+					<RETURN>
+				)>
+			)>
+		)>
 		<CRLF>
 		<TELL "You are " .EFFECT " with the ">
 		<PRINT-ITEM .DISEASE T>
@@ -2206,38 +2220,40 @@
 
 <ROUTINE STORM-AT-SEA (STORY JUMP "AUX" (DICE 1) (ODDS NONE) (PARAMETERS NONE) (CONDITION 0))
 	<COND (<NOT .STORY> <SET STORY ,HERE>)>
-	<COND (<OR <CHECK-BLESSING ,BLESSING-ALVIR-VALMIR> <CHECK-BLESSING ,BLESSING-SAFETY-FROM-STORMS>>
+	<COND (<CHECK-BLESSING ,BLESSING-SAFETY-FROM-STORMS>
 		<CRLF>
-		<COND (<CHECK-BLESSING ,BLESSING-SAFETY-FROM-STORMS>
+		<TELL "Use the blessing ">
+		<PRINT-ITEM ,BLESSING-SAFETY-FROM-STORMS T>
+		<TELL " for safe passage?">
+		<COND (<YES?>
+			<CRLF>
 			<TELL ,TEXT-BLESSING-STORM-SAFETY>
 			<DELETE-BLESSING ,BLESSING-SAFETY-FROM-STORMS>
-		)(ELSE
-			<TELL ,TEXT-ALMIR-VALMIR-BLESSING>
-			<DELETE-BLESSING ,BLESSING-ALVIR-VALMIR>
+			<TELL ,PERIOD-CR>
+			<STORY-JUMP .JUMP>
+			<RETURN>
 		)>
-		<TELL ,PERIOD-CR>
-		<STORY-JUMP .JUMP>
-	)(ELSE
-        <RESET-ODDS 1 0 .STORY>
-		<SET ODDS <GETP .STORY ,P?REQUIREMENTS>>
-		<SET PARAMETERS <GET .ODDS 1>>
-		<COND (<EQUAL? ,CURRENT-SHIP ,SHIP-BRIGANTINE>
-			<SET DICE 2>
-		)(<EQUAL? ,CURRENT-SHIP ,SHIP-GALLEON>
-			<SET DICE 3>
+	)>
+	<RESET-ODDS 1 0 .STORY>
+	<SET ODDS <GETP .STORY ,P?REQUIREMENTS>>
+	<SET PARAMETERS <GET .ODDS 1>>
+	<COND (<EQUAL? ,CURRENT-SHIP ,SHIP-BRIGANTINE>
+		<SET DICE 2>
+	)(<EQUAL? ,CURRENT-SHIP ,SHIP-GALLEON>
+		<SET DICE 3>
+	)>
+	<PUT .PARAMETERS 1 .DICE>
+	<COND (,CURRENT-SHIP
+		<SET CONDITION <GETP ,CURRENT-SHIP ,P?CONDITION>>
+		<COND (.CONDITION
+			<COND (<EQUAL? .CONDITION ,CONDITION-EXCELLENT>
+				<PUT .PARAMETERS 2 2>
+			)(<EQUAL? .CONDITION ,CONDITION-GOOD>
+				<PUT .PARAMETERS 2 1>
+			)>
 		)>
-		<PUT .PARAMETERS 1 .DICE>
-		<COND (,CURRENT-SHIP
-			<SET CONDITION <GETP ,CURRENT-SHIP ,P?CONDITION>>
-            <COND (.CONDITION
-                <COND (<EQUAL? .CONDITION ,CONDITION-EXCELLENT>
-                    <PUT .PARAMETERS 2 2>
-                )(<EQUAL? .CONDITION ,CONDITION-GOOD>
-                    <PUT .PARAMETERS 2 1>
-                )>
-            )>
-		)>
-	)>>
+	)>
+	>
 
 <ROUTINE TAKE-ITEM (ITEM "OPT" (BUY F) "AUX" QUANTITY)
 	<COND (.ITEM
@@ -2603,7 +2619,11 @@
 		)>
 		<SET ITEM .NEXT>
 	>
-	<COND (<EQUAL? .CONTAINER ,PLAYER> <MOVE ,ALL-MONEY .CONTAINER>)>>
+	<COND (<EQUAL? .CONTAINER ,PLAYER>
+		<MOVE ,ALL-MONEY .CONTAINER>
+		<SETG BEST-WEAPON NONE>
+		<SETG BEST-ARMOUR NONE>
+	)>>
 
 <ROUTINE RESET-MISSIONS ()
 	<PUTP ,MISSION-BOOK-SAGES ,P?COMPLETED F>
@@ -3561,7 +3581,6 @@
 ; Blessings
 ; ---------------------------------------------------------------------------------------------
 
-<OBJECT BLESSING-ALVIR-VALMIR (DESC "Alvir and Valmir")>
 <OBJECT BLESSING-CHARISMA (DESC "CHARISMA")>
 <OBJECT BLESSING-COMBAT (DESC "COMBAT")>
 <OBJECT BLESSING-MAGIC (DESC "MAGIC")>
@@ -3570,6 +3589,7 @@
 <OBJECT BLESSING-THIEVERY (DESC "THIEVERY")>
 <OBJECT BLESSING-LUCK (DESC "LUCK")>
 <OBJECT BLESSING-SAFETY-FROM-STORMS (DESC "Safety from Storms")>
+<OBJECT BLESSING-IMMUNITY-POISON-DISEASE (DESC "Immunity to Disease and Poison")>
 
 ; Ships
 ; ---------------------------------------------------------------------------------------------
@@ -6104,6 +6124,10 @@
 	<PUTP ,STORY393 ,P?DOOM T>
 	<PUTP ,STORY428 ,P?DOOM T>
 	<PUTP ,STORY476 ,P?DOOM T>
+	<PUTP ,STORY479 ,P?DOOM T>
+	<PUTP ,STORY484 ,P?DOOM T>
+	<PUTP ,STORY485 ,P?DOOM T>
+	<PUTP ,STORY486 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -6131,7 +6155,6 @@
 
 <CONSTANT TEXT-STORM-SUBSIDES "Your ship is thrown about like flotsam and jetsam. When the storm subsides, you take stock. Much has been swept overboard.||Also, the ship has been swept way off course and the mate has no idea where you are. \"We're lost at sea, Cap'n,\" he moans.">
 <CONSTANT TEXT-GUILD-INVESTMENTS "You can invest money in multiples of 100 Shards. The guild will buy and sell commodities on your behalf using this money until you return to collect it. \"Don't forget that you can lose money as well,\" mutters a merchant whose investments have not paid off.">
-<CONSTANT TEXT-ALMIR-VALMIR-BLESSING "The blessing of Alvir and Valmir confers safety from storms">
 <CONSTANT TEXT-BLESSING-STORM-SAFETY "Your 'Safety from Storms' blessing protected you">
 
 <CONSTANT TEXT-YOU-CAN-GO "You can go:">
@@ -6168,6 +6191,8 @@
 <CONSTANT TEXT-INITIATE-ELNIR "Becoming an initiate of Elnir gives you the benefit of paying less for blessings and other services the temple can offer. It costs 60 Shards to become an initiate. You cannot become an initiate of Elnir if you are already an initiate of another temple.">
 
 <CONSTANT TEXT-BLESSING-ELNIR "If you are an initiate it costs only 10 Shards to purchase Elnir's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again when you make a failed CHARISMA roll. It is good for only one reroll. You can have only one CHARISMA blessing at any one time. Once it is used up, you can return to any branch of the Temple of Elnir to buy a new one.">
+
+<CONSTANT TEXT-BLESSING-LACUNA "If you are an initiate it costs only 10 Shards to purchase Lacuna's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again on a failed SCOUTING roll. It is good for only one reroll. You can have only one SCOUTING blessing at any one time. Once it is used up, you can return to any branch of the temple of Lacuna to buy a new one.">
 
 <CONSTANT TEXT-TO-BEACH "Go down to the beach">
 <CONSTANT TEXT-TO-TREFOILLE "Take the road to Trefoille">
@@ -7064,12 +7089,9 @@ footing and fall to the ground.">
 <ROUTINE STORY051-DEFEAT ()
 	<LOSE-STAMINA <ROLL-DICE 1> ,DIED-IN-COMBAT ,STORY051-CRUSHING-DEFEAT>>
 
-<CONSTANT TEXT052 "If you are an initiate it costs only 10 Shards to purchase Lacuna's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again on a failed SCOUTING roll. It is good for only one reroll. You can have only one SCOUTING
-blessing at any one time. Once it is used up, you can return to any branch of the temple of Lacuna to buy a new one.">
-
 <ROOM STORY052
 	(DESC "052")
-	(STORY TEXT052)
+	(STORY TEXT-BLESSING-LACUNA)
 	(EVENTS STORY052-EVENTS)
 	(CONTINUE STORY544)
 	(FLAGS LIGHTBIT)>
@@ -10010,7 +10032,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY275-EVENTS ()
-	<PURCHASE-BLESSING 20 5 ,GOD-ALVIR-VALMIR ,BLESSING-ALVIR-VALMIR>>
+	<PURCHASE-BLESSING 20 5 ,GOD-ALVIR-VALMIR ,BLESSING-SAFETY-FROM-STORMS>>
 
 <CONSTANT TEXT276 "You are wandering across the wilderness of north-western Sokara. There is a magnificent castle nearby, with many different pennants flying from its towers.">
 <CONSTANT CHOICES276 <LTABLE "Visit the castle" "Head west to the River Grimm" "Travel north to the mountains" "Head north-east" "Head east into the Bronze Hills" "Go south into the Forest of Larun">>
@@ -12693,195 +12715,139 @@ paste on the ground below.">
 <ROUTINE STORY480-EVENTS ()
 	<UPGRADE-ABILITY ,ABILITY-CHARISMA 1>>
 
+<CONSTANT TEXT481 "If you are an initiate it costs only 10 Shards to purchase Maka's blessing. A non-initiate must pay 20 Shards.||The blessing works by allowing you to ignore any one occasion when you would normally suffer from disease or poison -- for instance, the venomous bite of a snake.||You can have only one 'Immunity to Disease and Poison' blessing at any one time. Once it is used up, you can return to any branch of the temple of Maka to buy a new one.">
+
 <ROOM STORY481
 	(DESC "481")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT481)
+	(EVENTS STORY481-EVENTS)
+	(CONTINUE STORY141)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY481-EVENTS ()
+	<PURCHASE-BLESSING 20 10 ,GOD-MAKA ,BLESSING-IMMUNITY-POISON-DISEASE>>
 
 <ROOM STORY482
 	(DESC "482")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-BLESSING-LACUNA)
+	(EVENTS STORY482-EVENTS)
+	(CONTINUE STORY615)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY482-EVENTS ()
+	<PURCHASE-BLESSING 25 10 ,GOD-LACUNA ,BLESSING-SCOUTING>>
+
+<CONSTANT TEXT483 "The tavern costs you 1 Shard a day. Each day you spend here, you can recover 1 Stamina point if injured, up to the limit of your normal unwounded Stamina score.">
+<CONSTANT CHOICES483 <LTABLE "Spend 3 Shards buying drinks all round at the bar and listening for rumours" OTHERWISE>>
 
 <ROOM STORY483
 	(DESC "483")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(STORY TEXT483)
+	(EVENTS STORY483-EVENTS)
+	(CHOICES CHOICES483)
+	(DESTINATIONS <LTABLE STORY323 STORY510>)
+	(REQUIREMENTS <LTABLE 3 NONE>)
+	(TYPES <LTABLE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY483-EVENTS ()
+	<VISIT-INN ,STORY483 1 1>>
+
+<CONSTANT TEXT484 "You sail for days without sight of land. Soon you have run out of water, and the crew start dying of thirst. Eventually, you find a familiar stretch of coast.">
 
 <ROOM STORY484
 	(DESC "484")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT484)
+	(EVENTS STORY484-EVENTS)
+	(CONTINUE STORY136)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY484-EVENTS ("AUX" ROLL)
+	<LOSE-STAMINA <ROLL-DICE 1> ,DIED-OF-HUNGER ,STORY484>
+	<COND (<IS-ALIVE>
+		<STORY-RESET-CREW ,CONDITION-POOR>
+		<SET ROLL <RANDOM-EVENT 1 0 T>>
+		<COND (<L=? .ROLL 2>
+			<STORY-JUMP ,STORY120>
+		)(<L=? .ROLL 4>
+			<STORY-JUMP ,STORY430>
+		)>
+	)>>
 
 <ROOM STORY485
 	(DESC "485")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-SHIPWRECK)
+	(EVENTS STORY485-EVENTS)
+	(CONTINUE STORY193)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY485-EVENTS ()
+	<STORY-SHIPWRECK ,STORY485>>
+
+<CONSTANT TEXT486 "Everything indicates the cave is empty so you approach carefully, on the look out for attack from behind. Suddenly, something rushes out of the cave, taking you by surprise! It is a gorlock, a beast with legs like a bird, a body like a reptile, with two short forelimbs and a beaked, lizard-like head. You see that its two legs end in backward-pointing feet -- the tracks it leaves will always show the wrong direction of travel!||It bites at you savagely!">
 
 <ROOM STORY486
 	(DESC "486")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT486)
+	(EVENTS STORY486-EVENTS)
+	(CONTINUE STORY315)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY486-EVENTS ()
+	<LOSE-STAMINA 4 ,DIED-FROM-INJURIES ,STORY486>
+	<COND (<IS-ALIVE>
+		<IF-ALIVE "You will have to fight it.">
+		<COMBAT-MONSTER ,MONSTER-GORLOCK 4 6 7>
+		<CHECK-COMBAT ,MONSTER-GORLOCK ,STORY486>
+	)>>
 
 <ROOM STORY487
 	(DESC "487")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES-SCOUTING)
+	(DESTINATIONS <LTABLE <LTABLE STORY348 STORY189>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 11>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT488 "You collapse, close to death. A priest of Tyrnai heals you so that you come round. It is not out of kindness that he has done this. The priests take all your money and possessions and sell you into slavery.">
 
 <ROOM STORY488
 	(DESC "488")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT488)
+	(EVENTS STORY488-EVENTS)
+	(CONTINUE STORY118)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY488-EVENTS ()
+	<SETG STAMINA 1>
+	<RESET-POSSESSIONS>
+	<UPDATE-STATUS-LINE>>
+
+<CONSTANT TEXT489 "Later, in your cabin, you examine the pearls more closely. To your horror, they lose their pearly sheen and return to their natural state -- tiny pebbles. Some enchantment had been laid upon them to make them look like pearls. Cursing the young sea gypsy, you vow to be more careful next time.">
 
 <ROOM STORY489
 	(DESC "489")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT489)
+	(CONTINUE STORY085)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT490 "When you hit the guardian, you tear away great wispy chunks of its smoky essence. Eventually, it dissolves into nothingness.||Inside the sarcophagus you find the moldering bones of a long-dead wizard. In his skeletal hands you find the Book of Excellence. As you scan the pages, you learn all sorts of new tricks.">
+<CONSTANT TEXT490-CONTINUED "Once you have read it, the book disappears with a flash. You thread your way out of the Tomb of the Wizard King, back into the Forest of Larun.">
 
 <ROOM STORY490
 	(DESC "490")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT490)
+	(EVENTS STORY490-EVENTS)
+	(CONTINUE STORY047)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY490-EVENTS ()
+	<UPGRADE-ABILITIES 1>
+	<IF-ALIVE ,TEXT490-CONTINUED>>
 
 <ROOM STORY491
 	(DESC "491")
