@@ -190,7 +190,7 @@
 <GLOBAL STARTING-POINT STORY001>
 <GLOBAL CURRENT-LOCATION LOCATION-SOKARA>
 
-<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "The Trading Post" "The Stinking River" "The Forest of Larun" "The City of Trees" "Caran Baru">>
+<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "The Trading Post" "The Stinking River" "The Forest of Larun" "The City of Trees" "Caran Baru" "Bronze Hills">>
 
 <CONSTANT LOCATION-SOKARA 1>
 <CONSTANT LOCATION-MARLOCK 2>
@@ -207,6 +207,7 @@
 <CONSTANT LOCATION-LARUN 13>
 <CONSTANT LOCATION-TREES 14>
 <CONSTANT LOCATION-CARAN 15>
+<CONSTANT LOCATION-BRONZE 16>
 
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
@@ -228,6 +229,7 @@
 		)>
 		<SETG CURRENT-STORY ,HERE>
 		<GOTO ,HERE>
+		<MARK-LOCATION>
 		<UPDATE-STATUS-LINE>
 		<PRINT-SECTION>
 		<CHECK-EVENTS>
@@ -360,6 +362,13 @@
 
 <ROUTINE ITEM-JUMP (ITEM STORY)
 	<COND (<CHECK-ITEM .ITEM> <STORY-JUMP .STORY>)>>
+
+<ROUTINE MARK-LOCATION ("OPT" SECTION "AUX" LOCATION)
+	<COND (<NOT .SECTION> <SET .SECTION ,HERE>)>
+	<SET LOCATION <GETP .SECTION ,P?LOCATION>>
+	<COND (.LOCATION
+		<SET-LOCATION .LOCATION>
+	)>>
 
 <ROUTINE MARK-VISITS ("OPT" SECTION VISITS)
 	<COND (<NOT .SECTION> <SET .SECTION ,HERE>)>
@@ -6386,6 +6395,7 @@
 <ROOM STORY010
 	(DESC "010")
 	(VISITS 0)
+	(LOCATION LOCATION-YELLOWPORT)
 	(BACKGROUND STORY010-BACKGROUND)
 	(STORY TEXT010)
 	(EVENTS STORY010-EVENTS)
@@ -6396,7 +6406,6 @@
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY010-BACKGROUND ()
-	<SET-LOCATION ,LOCATION-YELLOWPORT>
 	<COND (<CHECK-CODEWORD ,CODEWORD-ASSASSIN>
 		<RETURN ,STORY050>
 	)(<CHECK-VISITS-EQUAL ,STORY010 4>
@@ -6637,16 +6646,13 @@ harbourmaster.">
 
 <ROOM STORY030
 	(DESC "030")
+	(LOCATION LOCATION-YELLOWPORT)
 	(STORY TEXT030)
-	(EVENTS STORY030-EVENTS)
 	(CHOICES CHOICES030)
 	(DESTINATIONS <LTABLE YELLOWPORT-BUY YELLOWPORT-SELL STORY200 STORY010>)
 	(REQUIREMENTS <LTABLE NONE NONE 200 NONE>)
 	(TYPES <LTABLE R-NONE R-NONE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY030-EVENTS ()
-	<SET-LOCATION ,LOCATION-YELLOWPORT>>
 
 <CONSTANT TEXT031 "A dark emptiness surrounds you. Then, as if in your sleep, you see a tiny glimmer of light off in the distance. Suddenly you wake up, coughing and spluttering, up to your neck in water. You look around. You are floundering in the holy waters of Blessed Springs.||Standing at the side of the pool is a tall, slim, mustachioed man who says, \"I am Aklar the Bold. I found you as bottled dust in the lair of Vayss the Sea Dragon. By sprinkling your ashes into the holy waters, I have brought you back to life. I think a reward is in order, don't you?\"||\"As you can see, I have literally nothing to give you.\"||Aklar frowns in annoyance. \"Blast, I knew I should have taken one of the other bottles. Well, you'll just have to owe me a favour. A big favour.\"||\"I can hardly refuse.\"||\"Well, I must be about my business. We shall meet again, count on it.\"||With that he leaves.||You stagger out of the pool.">
 
@@ -6714,15 +6720,12 @@ footing and fall to the ground.">
 
 <ROOM STORY035
 	(DESC "035")
+	(LOCATION LOCATION-SHADAR)
 	(STORY TEXT035)
-	(EVENTS STORY035-EVENTS)
 	(CHOICES CHOICES035)
 	(DESTINATIONS <LTABLE STORY515 STORY097 STORY602 STORY166>)
 	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY035-EVENTS ()
-	<SET-LOCATION ,LOCATION-SHADAR>>
 
 <CONSTANT TEXT036 "Soon you realize you are completely lost in this strange, magical forest. You wander around for days, barely able to find enough food and water.">
 <CONSTANT TEXT036-CONTINUED "You eventually stagger out of the forest to the coast.">
@@ -6889,15 +6892,12 @@ footing and fall to the ground.">
 
 <ROOM STORY047
 	(DESC "047")
+	(LOCATION LOCATION-LARUN)
 	(STORY TEXT047)
-	(EVENTS STORY047-EVENTS)
 	(CHOICES CHOICES047)
 	(DESTINATIONS <LTABLE STORY596 STORY110 STORY333 STORY560 STORY387>)
 	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY047-EVENTS ()
-	<SET-LOCATION LOCATION-LARUN>>
 
 <CONSTANT TEXT048 "The warden is in charge of security. \"We have had an unfortunate, umm... accident,\" he says worriedly. \"In the crypt below the temple we sometimes experiment with the corpses of the dead -- you know, the occasional zombie, part of the rituals in honour of the particular aspect of Nagil we revere here. It seems a ghoul has escaped from the pits and is terrorizing the city at night. We'd rather someone like you sorted the problem out before the city militia got to hear of it. Destroy it and bring me the ghoul's head.\"||\"Search for it at night,\" says the warden as you leave.">
 <CONSTANT CHOICES048 <LTABLE "Take up the mission" IF-NOT>>
@@ -7107,6 +7107,7 @@ is off, you return to the city centre.">
 
 <ROOM STORY060
 	(DESC "060")
+	(LOCATION LOCATION-SOKARA)
 	(STORY TEXT060)
 	(EVENTS STORY060-EVENTS)
 	(CHOICES CHOICES060)
@@ -7116,7 +7117,6 @@ is off, you return to the city centre.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY060-EVENTS ("AUX" ROLL)
-	<SET-LOCATION ,LOCATION-SOKARA>
 	<COND (,RUN-ONCE
 		<SET ROLL <RANDOM-EVENT 1>>
 		<COND (<L=? .ROLL 2>
@@ -7471,6 +7471,7 @@ stink, laden with sulphur as it is.">
 
 <ROOM STORY087
 	(DESC "087")
+	(LOCATION LOCATION-SOKARA)
 	(STORY TEXT087)
 	(EVENTS STORY087-EVENTS)
 	(CHOICES CHOICES087)
@@ -7742,6 +7743,7 @@ harbourmaster.">
 
 <ROOM STORY100
 	(DESC "100")
+	(LOCATION LOCATION-MARLOCK)
 	(STORY TEXT100)
 	(EVENTS STORY100-EVENTS)
 	(CHOICES MARLOCK-CHOICES)
@@ -7751,7 +7753,6 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY100-EVENTS ()
-	<SET-LOCATION ,LOCATION-MARLOCK>
 	<COND (<AND <NOT <CHECK-CODEWORD ,CODEWORD-AEGIS>> <G=? ,MONEY 200>>
 		<CRLF>
 		<TELL "Would you like to buy a townhouse in Marlock City (200 " D ,CURRENCY ")?">
@@ -7876,6 +7877,7 @@ harbourmaster.">
 
 <ROOM STORY110
 	(DESC "110")
+	(LOCATION LOCATION-BRONZE)
 	(STORY TEXT110)
 	(CHOICES CHOICES110)
 	(DESTINATIONS <LTABLE STORY668 STORY400 STORY047 STORY333 STORY276>)
@@ -8254,13 +8256,13 @@ harbourmaster.">
 
 <ROOM STORY142
 	(DESC "142")
+	(LOCATION LOCATION-MARLOCK)
 	(STORY TEXT142)
 	(EVENTS STORY142-EVENTS)
 	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY142-EVENTS ()
-	<SET-LOCATION ,LOCATION-MARLOCK>
 	<HARBOUR-MARLOCK>>
 
 <CONSTANT TEXT143 "To renounce the worship of Elnir, you must pay 40 Shards to the priesthood by way of compensation. A passing noble says disdainfully, \"Ha! Only those born to rule have the fibre to worship the Sky Lord. Those who renounce Elnir never reach the top.\"">
@@ -8372,6 +8374,7 @@ harbourmaster.">
 
 <ROOM STORY152
 	(DESC "152")
+	(LOCATION LOCATION-VENEFAX)
 	(BACKGROUND STORY152-BACKGROUND)
 	(STORY TEXT152)
 	(CHOICES CHOICES152)
@@ -8380,7 +8383,6 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY152-BACKGROUND ()
-	<SET-LOCATION ,LOCATION-VENEFAX>
 	<COND (<CHECK-CODEWORD ,CODEWORD-ATTAR> <RETURN ,STORY623>)>
 	<RETURN ,STORY152>>
 
@@ -8671,6 +8673,7 @@ harbourmaster.">
 <ROOM STORY175
 	(DESC "175")
 	(VISITS 0)
+	(LOCATION LOCATION-CURSTMOOR)
 	(BACKGROUND STORY175-BACKGROUND)
 	(STORY TEXT175)
 	(CHOICES CHOICES175)
@@ -8679,7 +8682,6 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY175-BACKGROUND ()
-	<SET-LOCATION ,LOCATION-CURSTMOOR>
 	<COND (<CHECK-VISITS-MORE ,STORY175 1> <RETURN ,STORY673>)>
 	<RETURN ,STORY175>>
 
@@ -8905,16 +8907,13 @@ harbourmaster.">
 
 <ROOM STORY195
 	(DESC "195")
+	(LOCATION LOCATION-TRADING)
 	(STORY TEXT195)
-	(EVENT STORY195-EVENTS)
 	(CHOICES CHOICES195)
 	(DESTINATIONS <LTABLE STORY544 STORY452 STORY332 STORY181 STORY011 STORY257>)
 	(TYPES SIX-NONES)
 	(CODEWORDS <LTABLE CODEWORD-ASPEN>)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY195-EVENTS ()
-	<SET-LOCATION ,LOCATION-TRADING>>
 
 <CONSTANT TEXT196 "You hack off the hideous head and leave.">
 
@@ -9000,6 +8999,7 @@ harbourmaster.">
 
 <ROOM STORY201
 	(DESC "201")
+	(LOCATION LOCATION-SOKARA)
 	(STORY TEXT201)
 	(CHOICES CHOICES201)
 	(DESTINATIONS <LTABLE STORY271 STORY400 STORY276 STORY060>)
@@ -9390,6 +9390,7 @@ paste on the ground below.">
 <ROOM STORY233
 	(DESC "233")
 	(VISITS 0)
+	(LOCATION LOCATION-SOKARA)
 	(BACKGROUND STORY233-BACKGROUND)
 	(STORY TEXT233)
 	(CHOICES CHOICES233)
@@ -9604,16 +9605,13 @@ paste on the ground below.">
 
 <ROOM STORY250
 	(DESC "250")
+	(LOCATION LOCATION-TREFOILLE)
 	(STORY TEXT250)
-	(EVENTS STORY250-EVENTS)
 	(CHOICES CHOICES250)
 	(DESTINATIONS <LTABLE STORY656 STORY602 STORY377 STORY175 STORY558 STORY233>)
 	(REQUIREMENTS <LTABLE CODEWORD-AMENDS NONE NONE NONE NONE NONE>)
 	(TYPES <LTABLE R-CODEWORD R-NONE R-NONE R-NONE R-NONE R-NONE>)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY250-EVENTS ()
-	<SET-LOCATION ,LOCATION-TREFOILLE>>
 
 <ROOM STORY251
 	(DESC "251")
@@ -9855,13 +9853,13 @@ paste on the ground below.">
 
 <ROOM STORY268
 	(DESC "268")
+	(LOCATION LOCATION-GRIMM)
 	(STORY TEXT268)
 	(EVENTS STORY268-EVENTS)
 	(CONTINUE STORY579)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY268-EVENTS ()
-	<SET-LOCATION ,LOCATION-GRIMM>
 	<SETG STAMINA ,MAX-STAMINA>
 	<STORY-LOSE-EVERYTHING>
 	<TAKE-ITEM ,WOLF-PELT>
@@ -9893,15 +9891,12 @@ paste on the ground below.">
 
 <ROOM STORY271
 	(DESC "271")
+	(LOCATION LOCATION-EAGLES)
 	(STORY TEXT271)
-	(EVENTS STORY271-EVENTS)
 	(CHOICES CHOICES271)
 	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY003 STORY244 STORY201 STORY518>)
 	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY271-EVENTS ()
-	<SET-LOCATION ,LOCATION-EAGLES>>
 
 <ROOM STORY272
 	(DESC "272")
@@ -9960,15 +9955,12 @@ paste on the ground below.">
 
 <ROOM STORY276
 	(DESC "276")
+	(LOCATION LOCATION-SOKARA)
 	(STORY TEXT276)
-	(EVENTS STORY276-EVENTS)
 	(CHOICES CHOICES276)
 	(DESTINATIONS <LTABLE STORY611 STORY123 STORY003 STORY201 STORY110 STORY047>)
 	(TYPES SIX-NONES)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY276-EVENTS ()
-	<SET-LOCATION ,LOCATION-SOKARA>>
 
 <CONSTANT TEXT277 "A patrol of militiamen -- mercenaries in the pay of the dictator, General Grieve Marlock -- stop you in the street.">
 <CONSTANT CHOICES277 <LTABLE HAVE-CODEWORD YOU-ARE-A OTHERWISE>>
@@ -10241,6 +10233,7 @@ paste on the ground below.">
 
 <ROOM STORY299
 	(DESC "299")
+	(LOCATION LOCATION-MERETH)
 	(STORY TEXT299)
 	(EVENTS STORY299-EVENTS)
 	(CHOICES CHOICES299)
@@ -10250,7 +10243,6 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY299-EVENTS ("AUX" ROLL)
-	<SET-LOCATION ,LOCATION-MERETH>
 	<COND (,RUN-ONCE
 		<SET ROLL <RANDOM-EVENT 1 0 T>>
 		<COND (<L=? .ROLL 2>
@@ -10357,6 +10349,7 @@ paste on the ground below.">
 
 <ROOM STORY307
 	(DESC "307")
+	(LOCATION LOCATION-YELLOWPORT)
 	(STORY TEXT307)
 	(EVENTS STORY307-EVENTS)
 	(CONTINUE STORY010)
@@ -10364,7 +10357,6 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY307-EVENTS ()
-	<SET-LOCATION ,LOCATION-YELLOWPORT>
 	<RESET-CONTAINER ,CARGO>
 	<COND (,CURRENT-SHIP
 		<REMOVE ,CURRENT-SHIP>
@@ -10375,13 +10367,13 @@ paste on the ground below.">
 
 <ROOM STORY308
 	(DESC "308")
+	(LOCATION LOCATION-YELLOWPORT)
 	(STORY TEXT308)
 	(EVENTS STORY308-EVENTS)
 	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY308-EVENTS ()
-	<SET-LOCATION ,LOCATION-YELLOWPORT>
 	<STORY-LOSE-EVERYTHING F>
 	<SETG STAMINA 1>
 	<UPDATE-STATUS-LINE>>
@@ -10666,13 +10658,13 @@ paste on the ground below.">
 
 <ROOM STORY332
 	(DESC "332")
+	(LOCATION LOCATION-TRADING)
 	(STORY TEXT332)
 	(EVENTS STORY332-EVENTS)
 	(CONTINUE STORY195)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY332-EVENTS ()
-	<SET-LOCATION ,LOCATION-TRADING>
 	<HARBOUR-TRADING-POST>>
 
 <CONSTANT TEXT333 "You are on the east bank of the River Grimm.">
@@ -10680,6 +10672,7 @@ paste on the ground below.">
 
 <ROOM STORY333
 	(DESC "333")
+	(LOCATION LOCATION-GRIMM)
 	(STORY TEXT333)
 	(EVENTS STORY333-EVENTS)
 	(CHOICES CHOICES333)
@@ -11023,6 +11016,7 @@ paste on the ground below.">
 
 <ROOM STORY358
 	(DESC "358")
+	(LOCATION LOCATION-TREES)
 	(STORY TEXT358)
 	(EVENTS STORY358-EVENTS)
 	(DESTINATIONS <LTABLE CITY-TREES-BUY CITY-TREES-SELL STORY678>)
@@ -11030,7 +11024,6 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY358-EVENTS ()
-	<SET-LOCATION ,LOCATION-TREES>
 	<COND (<CHECK-PROFESSION ,PROFESSION-WAYFARER>
 		<SET-DESTINATION ,STORY358 3 ,STORY645>
 	)(ELSE
@@ -11244,6 +11237,7 @@ paste on the ground below.">
 <ROOM STORY377
 	(DESC "377")
 	(STORY TEXT377)
+	(LOCATION LOCATION-SOKARA)
 	(EVENTS STORY377-EVENTS)
 	(CHOICES CHOICES377)
 	(DESTINATIONS <LTABLE STORY250 STORY100 STORY175>)
@@ -11486,15 +11480,12 @@ paste on the ground below.">
 
 <ROOM STORY396
 	(DESC "396")
+	(LOCATION LOCATION-MARLOCK)
 	(STORY TEXT396)
-	(EVENTS STORY396-EVENTS)
 	(CHOICES CHOICES396)
 	(DESTINATIONS <LTABLE MARLOCK-CITY-BUY MARLOCK-CITY-SELL STORY100>)
 	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY396-EVENTS ()
-	<SET-LOCATION ,LOCATION-MARLOCK>>
 
 <ROOM STORY397
 	(DESC "397")
@@ -11609,6 +11600,7 @@ paste on the ground below.">
 
 <ROOM STORY400
 	(DESC "400")
+	(LOCATION LOCATION-CARAN)
 	(STORY TEXT400)
 	(EVENTS STORY400-EVENTS)
 	(CHOICES CARAN-BARU-CHOICES)
@@ -11618,7 +11610,6 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY400-EVENTS ()
-	<SET-LOCATION ,LOCATION-CARAN>
 	<COND (<CHECK-CODEWORD ,CODEWORD-BARNACLE>
 		<STORY-JUMP ,STORY418>
 	)(<AND <NOT <CHECK-CODEWORD ,CODEWORD-AQUA>> <G=? ,MONEY 200>>
@@ -11689,15 +11680,12 @@ paste on the ground below.">
 
 <ROOM STORY405
 	(DESC "405")
+	(LOCATION LOCATION-YELLOWPORT)
 	(STORY TEXT405)
-	(EVENTS STORY405-EVENTS)
 	(CHOICES CHOICES405)
 	(DESTINATIONS <LTABLE STORY122 STORY046 STORY355 STORY605 STORY010>)
 	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY405-EVENTS ()
-	<SET-LOCATION ,LOCATION-YELLOWPORT>>
 
 <CONSTANT TEXT406 "You know that the Book of the Seven Sages that Pyletes wants lies within the mound.">
 <CONSTANT CHOICES406 <LTABLE "Try and get it" "Leave it for another time">>
@@ -11784,6 +11772,7 @@ paste on the ground below.">
 <ROOM STORY412
 	(DESC "412")
 	(STORY TEXT412)
+	(LOCATION LOCATION-SOKARA)
 	(CHOICES CHOICES412)
 	(DESTINATIONS <LTABLE STORY010 STORY250>)
 	(TYPES TWO-NONES)
@@ -12149,15 +12138,12 @@ paste on the ground below.">
 
 <ROOM STORY442
 	(DESC "442")
+	(LOCATION LOCATION-YELLOWPORT)
 	(STORY TEXT442)
-	(EVENTS STORY442-EVENTS)
 	(CHOICES CHOICES442)
 	(DESTINATIONS <LTABLE STORY021 STORY178 STORY265>)
 	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY442-EVENTS ()
-	<SET-LOCATION ,LOCATION-YELLOWPORT>>
 
 <CONSTANT TEXT443 "You are witness to a major sea battle involving at least forty warships between the Sokaran navy and a pirate fleet. Arrows fill the air and smoking fireballs are launched from catapults mounted on some of the ships. The shrieks of the dying carry across the waves. You decide it would be better not to get involved in such a conflict.">
 
@@ -12236,13 +12222,10 @@ paste on the ground below.">
 
 <ROOM STORY447
 	(DESC "447")
+	(LOCATION LOCATION-SHADAR)
 	(STORY TEXT447)
-	(EVENTS STORY447-EVENTS)
 	(CONTINUE STORY035)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY447-EVENTS ()
-	<SET-LOCATION ,LOCATION-SHADAR>>
 
 <CONSTANT TEXT448 "If you are an initiate it costs only 5 Shards to propitiate the twin gods of the sea. A non-initiate must pay 20 Shards.||The blessing works by allowing you to ignore any one storm at sea. You can only have one 'Safety from Storms' blessing at any one time. Once it is used up, you can return to any branch of the temple of Alvir and Valmir to buy a new one.">
 
@@ -12296,27 +12279,21 @@ paste on the ground below.">
 
 <ROOM STORY452
 	(DESC "452")
+	(LOCATION LOCATION-TRADING)
 	(STORY TEXT452)
-	(EVENTS STORY452-EVENTS)
 	(CHOICES CHOICES452)
 	(DESTINATIONS <LTABLE TRADING-POST-BUY TRADING-POST-SELL STORY195>)
 	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY452-EVENTS ()
-	<SET-LOCATION ,LOCATION-TRADING>>
-
 <CONSTANT TEXT453 "You find yourself washed up on a long, sandy beach, battered and cold, but lucky to be alive. You head inland until you realize you have arrived at the river-mouth delta of the River Grimm.">
 
 <ROOM STORY453
 	(DESC "453")
+	(LOCATION LOCATION-GRIMM)
 	(STORY TEXT453)
-	(EVENTS STORY453-EVENTS)
 	(CONTINUE STORY579)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY453-EVENTS ()
-	<SET-LOCATION ,LOCATION-GRIMM>>
 
 <CONSTANT TEXT454 "You are thrown into a stinking prison cell. Your cellmate, a half-dead old man with long white hair tells you his tale: \"The lair of the gorlock! A hideous beast that has backward-pointing feet -- Krine and I, fleeing with our stolen treasure sought refuge in its cave near Blessed Springs. The tracks led us to believe it had just left its cave, but we didn't know about its feet -- in fact it was at home. It took Krine but I managed to escape with my life, only to be taken by the militia. I will never live to see the treasure but you, forewarned, may defeat the gorlock and take the riches it guards...\"||A few days later, you learn your own fate. You are to be sold into slavery, and taken to Caran Baru to work in the tin mines.">
 
@@ -12375,6 +12352,7 @@ paste on the ground below.">
 <ROOM STORY458
 	(DESC "458")
 	(STORY TEXT458)
+	(LOCATION LOCATION-SOKARA)
 	(CHOICES CHOICES458)
 	(DESTINATIONS <LTABLE STORY060 STORY548 STORY400 STORY299>)
 	(TYPES FOUR-NONES)
@@ -12408,195 +12386,117 @@ paste on the ground below.">
 	(TYPES <LTABLE R-CODEWORD R-ITEM R-NONE>)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT461 "You call out the password 'Rebirth' to the door.||\"The password changes once it has been used.\" says the door smugly. \"I can't open for you even if I wanted to.\"||There is nothing else to do here, so you leave.">
+<CONSTANT CHOICES461 <LTABLE "North to the Bronze Hills" "West to the river Grimm" "South to the country" "East to the road">>
+
 <ROOM STORY461
 	(DESC "461")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT461)
+	(CHOICES CHOICES461)
+	(DESTINATIONS <LTABLE STORY110 STORY333 STORY560 STORY387>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT462 "What service do you seek at the temple of the Twin Gods of the Sea?">
+<CONSTANT CHOICES462 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY462
 	(DESC "462")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT462)
+	(CHOICES CHOICES462)
+	(DESTINATIONS <LTABLE STORY294 STORY624 STORY448 STORY010>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT463 "You remember the words of the old man you shared a prison cell with. This must be the lair of the gorlock that is said to have backward-pointing feet, so that the tracks it leaves will always show the opposite direction of travel. You realize that this means the gorlock must be inside the cave.">
+<CONSTANT CHOICES463 <LTABLE "Challenge the beast to combat" "Wait for it to leave the cave and sneak in">>
 
 <ROOM STORY463
 	(DESC "463")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT463)
+	(CHOICES CHOICES463)
+	(DESTINATIONS <LTABLE STORY174 STORY287>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT464 "The ship, already crippled by a storm, and with only half its crew, is easy meat for your hardy men. The strangely dressed foreigners surrender without much of a fight. You get 100 Shards as booty, and 1 Cargo Unit of spices, if you have room to take it.">
 
 <ROOM STORY464
 	(DESC "464")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT464)
+	(EVENTS STORY464-EVENTS)
+	(CONTINUE STORY559)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY464-EVENTS ()
+	<GAIN-MONEY 100>
+	<STORY-GAIN-CARGO ,CARGO-SPICES>>
+
+<CONSTANT TEXT465 "Several hideous creatures, which resemble giant lobsters, surge out of the water to attack you! You and your crew are taken by surprise, and things look bleak. Some of your men are quickly killed, their bodies torn in two by powerful mandibles. The others begin to panic.">
 
 <ROOM STORY465
 	(DESC "465")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT465)
+	(CHOICES CHOICES-CHARISMA)
+	(DESTINATIONS <LTABLE <LTABLE STORY389 STORY214>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 10>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT466 "The road between Blessed Springs and Fort Brilon is patrolled by troopers of the Sokaran army. The fort is well-supplied from Blessed Springs, and traffic abounds.">
+<CONSTANT CHOICES466 <LTABLE "Visit Fort Brilon" "Head for Blessed Springs" "Set off north into the farmlands">>
 
 <ROOM STORY466
 	(DESC "466")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT466)
+	(CHOICES CHOICES466)
+	(DESTINATIONS <LTABLE STORY259 STORY510 STORY548>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT467 "The heavy wooden gates of the temple of Tyrnai are guarded by a couple of veteran warriors -- the old iron bullmen are gone. Inside, the god is represented by a stone idol of a jaguar-headed warrior. He appears to be naked.||Suddenly, a priest shouts, \"It's the thief! The blasphemous devil had the nerve to return here.\"||A score of warrior priests of Tyrnai boil out of the back rooms of the temple. You had better run for your life.">
 
 <ROOM STORY467
 	(DESC "467")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT467)
+	(EVENTS STORY467-EVENTS)
+	(CONTINUE STORY551)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY467-EVENTS ()
+	<STORY-ROLL-RANK ,STORY395>>
+
+<CONSTANT TEXT468 "You are walking down a side alley when a figure steps out of a doorway to block your path; it is a man with a velvet eyepatch.||His one good eye glitters with evil humour from a face ravaged with the scars of many a fight. \"I hear you are looking for me.\"">
 
 <ROOM STORY468
 	(DESC "468")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT468)
+	(CHOICES CHOICES-THIEVERY)
+	(DESTINATIONS <LTABLE <LTABLE STORY393 STORY014>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 11>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT469 "He tells you of his life-long quest to find the 'Greatest Story Ever Told'. It is said that the god, Sig, in his aspect as the Divine Bard, passed this knowledge to a mystic called Damor the Hermit. He lives alone in a lost cave, awaiting the day when he can pass on the story to the one who finds him.||\"I am too old now to pursue the quest, so I pass it on to you. I believe Damor can be found in the foothills of the Spine of Harkun, the mountains to the north. If you find him, you will become a great troubadour.\"">
 
 <ROOM STORY469
 	(DESC "469")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT469)
+	(CONTINUE STORY100)
+	(CODEWORDS <LTABLE CODEWORD-ANTHEM>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT470 "You grab the woman's wrist and give it a painful twist. You are not being cruel for the sake of it. She was about to steal your money.||\"Let me go,\" she pleads, showing you the little infant son she's carrying in her other arm. \"I need the money for my starving children and my poor crippled husband.\"||Yellowport is full of wretches like this. With a snarl, you push her away, tossing a coin after her for good measure.||Later, strolling down by the canal, you find a small bundle lying on the slick cobblestones. It is a doll wrapped in swaddling clothes to make it look like a baby.">
 
 <ROOM STORY470
 	(DESC "470")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT470)
+	(EVENTS STORY470-EVENTS)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY470-EVENTS ()
+	<COST-MONEY 1 "tossed away">>
 
 <ROOM STORY471
 	(DESC "471")
