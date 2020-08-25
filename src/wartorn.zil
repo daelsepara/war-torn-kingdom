@@ -362,7 +362,7 @@
 	<COND (<CHECK-ITEM .ITEM> <STORY-JUMP .STORY>)>>
 
 <ROUTINE MARK-VISITS ("OPT" SECTION VISITS)
-	<COND (<NOT .SECTION> <SET SECTION ,HERE>)>
+	<COND (<NOT .SECTION> <SET .SECTION ,HERE>)>
 	<SET VISITS <GETP .SECTION ,P?VISITS>>
 	<COND (.VISITS
 		<INC .VISITS>
@@ -852,7 +852,7 @@
 	<COND (<NOT .LOCATION> <SET LOCATION ,HERE>)>
 	<COND (<NOT .COUNTER> <SET .COUNTER 1>)>
 	<SET VISITS <GETP .LOCATION ,P?VISITS>>
-	<COND (.VISITS
+	<COND (<G=? .VISITS 0>
 		<RETURN <EQUAL? .VISITS .COUNTER>>
 	)>
 	<RFALSE>>
@@ -2579,9 +2579,11 @@
 	<COND (<EQUAL? .CONTAINER ,PLAYER> <MOVE ,ALL-MONEY .CONTAINER>)>>
 
 <ROUTINE RESET-MISSIONS ()
-	<PUTP ,MISSION-GHOUL-HEAD ,P?COMPLETED F>
-	<PUTP ,MISSION-NEGRAN-CORIN ,P?COMPLETED F>
+	<PUTP ,MISSION-BOOK-SAGES ,P?COMPLETED F>
 	<PUTP ,MISSION-CITADEL-VELIS ,P?COMPLETED F>
+	<PUTP ,MISSION-GHOUL-HEAD ,P?COMPLETED F>
+	<PUTP ,MISSION-GOLDEN-NET ,P?COMPLETED F>
+	<PUTP ,MISSION-NEGRAN-CORIN ,P?COMPLETED F>
 	<RESET-CONTAINER ,MISSIONS>>
 
 <ROUTINE RESET-PLAYER ()
@@ -3250,6 +3252,10 @@
 ; "other objects"
 ; ---------------------------------------------------------------------------------------------
 
+<OBJECT AMCHAS-HEAD
+	(DESC "Amcha's head")
+	(FLAGS TAKEBIT VOWELBIT)>
+
 <OBJECT AMULET-OF-PROTECTION
 	(DESC "amulet of protection")
 	(FLAGS TAKEBIT VOWELBIT)>
@@ -3738,25 +3744,30 @@
 ; "Missions"
 ; ---------------------------------------------------------------------------------------------
 
-<OBJECT MISSION-GHOUL-HEAD
-	(DESC "Warden: Retrieve ghoul's head")
-	(CODEWORD CODEWORD-AGUE)
-	(COMPLETED F)>
-
-<OBJECT MISSION-NEGRAN-CORIN
-	(DESC "Provost Marshal: Slay Nergan Corin")
-	(CODEWORD CODEWORD-ARTERY)
-	(COMPLETED F)>
+<OBJECT MISSION-BOOK-SAGES
+	(DESC "Pyletes the Sage: Retrieve the Book of the Seven Sages")
+	(CODEWORD CODEWORD-ARTIFACT)
+	(COMPLETE F)>
 
 <OBJECT MISSION-CITADEL-VELIS
 	(DESC "The King: Citadel of Velis")
 	(CODEWORD CODEWORD-ASSAULT)
 	(COMPLETED F)>
 
-<OBJECT MISSION-BOOK-SAGES
-	(DESC "Pyletes the Sage: Retrieve the Book of the Seven Sages")
-	(CODEWORD CODEWORD-ARTIFACT)
-	(COMPLETE F)>
+<OBJECT MISSION-GHOUL-HEAD
+	(DESC "Warden: Retrieve ghoul's head")
+	(CODEWORD CODEWORD-AGUE)
+	(COMPLETED F)>
+
+<OBJECT MISSION-GOLDEN-NET
+	(DESC "High Priest: Retrieve the Golden net")
+	(CODEWORD CODEWORD-ANCHOR)
+	(COMPLETED F)>
+
+<OBJECT MISSION-NEGRAN-CORIN
+	(DESC "Provost Marshal: Slay Nergan Corin")
+	(CODEWORD CODEWORD-ARTERY)
+	(COMPLETED F)>
 
 ; "Titles and Honours for War-Torn Kingdom"
 ; ---------------------------------------------------------------------------------------------
@@ -4440,7 +4451,7 @@
 <CONSTANT MARLOCK-SHIP-BUY <LTABLE 250 450 900>>
 <CONSTANT MARLOCK-SHIP-SELL <LTABLE 125 225 450>>
 <CONSTANT MARLOCK-UPGRADE-PRICES <LTABLE 50 100 150>>
-<CONSTANT MARLOCK-TICKETS <LTABLE 10 15 30 30>>
+<CONSTANT MARLOCK-TICKETS <LTABLE 10 15 30 0>>
 <CONSTANT MARLOCK-TRAVEL <LTABLE STORY372 STORY255 STORY234 STORY424>>
 <CONSTANT MARLOCK-PASSAGES
 	<LTABLE
@@ -4624,9 +4635,15 @@
 				<HLIGHT ,H-BOLD>
 				<TELL <GET .PASSAGES .CHOICE>>
 				<HLIGHT 0>
-				<TELL " for " N <GET .PRICES .CHOICE> " " D ,CURRENCY "?">
+				<COND (<G? <GET .PRICES .CHOICE> 0>
+					<TELL " for " N <GET .PRICES .CHOICE> " " D ,CURRENCY "?">
+				)(ELSE
+					<TELL "?">
+				)>
 				<COND (<YES?>
-					<COST-MONEY <GET .PRICES .CHOICE> ,TEXT-PAID>
+					<COND (<G? <GET .PRICES .CHOICE> 0>
+						<COST-MONEY <GET .PRICES .CHOICE> ,TEXT-PAID>
+					)>
 					<SET DESTINATION <GET .DESTINATIONS .CHOICE>>
 					<RETURN>
 				)>
@@ -5925,6 +5942,7 @@
 	<PUTP ,STORY371 ,P?DOOM T>
 	<PUTP ,STORY389 ,P?DOOM T>
 	<PUTP ,STORY393 ,P?DOOM T>
+	<PUTP ,STORY428 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -11519,574 +11537,368 @@ paste on the ground below.">
 		)>
 	)>>
 
+<CONSTANT TEXT401 "The captain gives you a satisfied smile.||\"Harbour duties all paid up. You may proceed,\" he says mockingly. He and his men leave the ship. Several of your crew curse or spit in disgust.||You sail on.">
+
 <ROOM STORY401
 	(DESC "401")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT401)
+	(EVENTS STORY401-EVENTS)
+	(CONTINUE STORY439)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY401-EVENTS ()
+	<COST-MONEY 60 ,TEXT-PAID>>
+
+<CONSTANT TEXT402 "Your ship draws away, leaving the Sokarans behind. Your crew jeer at them, and you spot the captain shaking his fist at you in rage, before they disappear from sight.">
 
 <ROOM STORY402
 	(DESC "402")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT402)
+	(CONTINUE STORY439)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT403 "You dump the head of Amcha One-eye on the guildmaster\"s desk. He stares at in horror for a moment and then a look of joy crosses his features.||\"At last we are rid of that scourge of commerce. Well done indeed.\"||The guildmaster pays for you to have special training. You can choose which area you would like to improve -- you gain one point on one ability of your choice (for example, +1 COMBAT).">
+<CONSTANT TEXT403-CONTINUED "You return to the city. \"Come back any time,\" yells the guildmaster as you go.">
 
 <ROOM STORY403
 	(DESC "403")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY403-BACKGROUND)
+	(STORY TEXT403)
+	(EVENTS STORY403-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY403-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY403 1> <RETURN ,STORY229>)>
+	<RETURN ,STORY403>>
+
+<ROUTINE STORY403-EVENTS ()
+	<RETURN-ITEM ,AMCHAS-HEAD T>
+	<UPGRADE-ABILITIES 1>
+	<IF-ALIVE ,TEXT403-CONTINUED>>
+
+<CONSTANT TEXT404 "One of the cultists of Badogor the Unspoken is feigning distress in the hope of luring a sacrificial victim for dinner. He sits up when he recognizes you as a member of the cult and says, rather disconsolately, \"Ah, hallo, friend. We were hoping for a big banquet tonight.\"||Two more cultists step from the shadows, holding a net. \"Oh well, perhaps another will come along,\" one of them says optimistically.||They treat you as one of their own, even giving you a share of the cult's recent income.||\"May you never speak his name,\" they intone in parting.||You return to the city centre.">
 
 <ROOM STORY404
 	(DESC "404")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT404)
+	(EVENTS STORY404-EVENTS)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY404-EVENTS ()
+	<GAIN-MONEY 20>>
+
+<CONSTANT TEXT405 "The merchants' guild of Yellowport is a large building of granite, plushly decorated inside to show off its wealth. Here you can bank your money for safe-keeping -- or invest it in guild enterprises in the hope of making a profit. You hear that the guildmaster is looking for adventurers.">
+<CONSTANT CHOICES405 <LTABLE "Visit the guildmaster" "Make an investment" "Check on investments" "Deposit or withdraw money" "Return to the town centre">>
 
 <ROOM STORY405
 	(DESC "405")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT405)
+	(EVENTS STORY405-EVENTS)
+	(CHOICES CHOICES405)
+	(DESTINATIONS <LTABLE STORY122 STORY046 STORY355 STORY605 STORY010>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY405-EVENTS ()
+	<SET-LOCATION ,LOCATION-YELLOWPORT>>
+
+<CONSTANT TEXT406 "You know that the Book of the Seven Sages that Pyletes wants lies within the mound.">
+<CONSTANT CHOICES406 <LTABLE "Try and get it" "Leave it for another time">>
 
 <ROOM STORY406
 	(DESC "406")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT406)
+	(CHOICES CHOICES406)
+	(DESTINATIONS <LTABLE STORY714 STORY492>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT407 "You hide in the kitchen pantry, and then, disguised as a kitchen scullion, sneak out unnoticed. The skill and daring of your exploit will be forever remembered! Long live the rightful king!">
 
 <ROOM STORY407
 	(DESC "407")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT407)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT408 "You decline. They look at you inscrutably, and then sink beneath the waves with the body of their companion.">
 
 <ROOM STORY408
 	(DESC "408")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT408)
+	(CONTINUE STORY507)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT409 "Becoming an initiate of Nagil gives you the benefit of paying less for services the temple can offer. You cannot do this if you are already an initiate of another temple. To become an initiate you have to pass a priestly exam.">
 
 <ROOM STORY409
 	(DESC "409")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 1)
+	(STORY TEXT409)
+	(EVENTS STORY409-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY409-EVENTS ("AUX" (DIFFICULTY 10))
+	<COND (<CHECK-VISITS-MORE ,STORY409 1> <SET DIFFICULTY 15>)>
+	<COND (<NOT ,GOD>
+		<CRLF>
+		<TELL "Face the trial to become an Initiate of Nagil?">
+		<COND (<YES?>
+			<CRLF>
+			<COND (<TEST-ABILITY ,CURRENT-CHARACTER ,ABILITY-SANCTITY .DIFFICULTY>
+				<SETG ,GOD ,GOD-NAGIL>
+				<EMPHASIZE "You have become an Initiate of the God Nagil!">
+				<STORY-JUMP ,STORY071>
+			)>
+		)>
+	)(<CHECK-GOD ,GOD-NAGIL>
+		<EMPHASIZE "You are already and Initiate of the God Nagil!">
+	)(ELSE
+		<EMPHASIZE "You are already and Initiate of another God!">
+	)>>
+
+<CONSTANT TEXT410 "\"Oh, what a load of rotten leaves!\" exclaims the tree, \"Anyone can see you're as bad as the next human. In fact, I'd say you're probably a... a lumberjack! Now, get lost.\"">
+<CONSTANT CHOICES410 <LTABLE "Leave the forest" "Attack the tree">>
 
 <ROOM STORY410
 	(DESC "410")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT410)
+	(CHOICES CHOICES410)
+	(DESTINATIONS <LTABLE STORY678 STORY570>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT411 "The high priest tells you that the golden net of the twin gods has been stolen. The repulsive ones have taken it to their palace beneath the sea in the Sunken City of Ziusudra. The repulsive ones worship the fish-god Oannes, who struggles with Alvir and Valmir for control of the sea.||\"We must have that golden net, or the repulsive ones will use it against us. If you return it to us, we will reward you,\" says the high priest. \"The Sunken City lies under the coastal waters off the Shadar Tor.\"">
+<CONSTANT CHOICES411 <LTABLE "Take up the mission" IF-NOT>>
 
 <ROOM STORY411
 	(DESC "411")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT411)
+	(CHOICES CHOICES411)
+	(DESTINATIONS <LTABLE STORY220 STORY220>)
+	(REQUIREMENTS <LTABLE MISSION-GOLDEN-NET NONE>)
+	(TYPES <LTABLE R-TAKE-MISSION R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT412 "You are on the cobbled road between Yellowport and Trefoille. You meet a few merchants and pilgrims, but all in all it is an uneventful journey.">
+<CONSTANT CHOICES412 <LTABLE "Head for Yellowport" "Head for Trefoille">>
 
 <ROOM STORY412
 	(DESC "412")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT412)
+	(CHOICES CHOICES412)
+	(DESTINATIONS <LTABLE STORY010 STORY250>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT413 "You are so devout that the king's spell cannot affect you for more than a few seconds. The queen, recognizing your faith in the gods, thanks you for entertaining them.||You wake up in the cabin aboard your ship. You are musing about the strange nature of your dream when you realize you have something in your hand. It is a silver flute. It is worth 500 Shards, and you can sell it at any market if you like.">
 
 <ROOM STORY413
 	(DESC "413")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT413)
+	(CONTINUE STORY507)
+	(ITEMS <LTABLE SILVER-FLUTE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT414 "Haylie runs into her mother's arms for a tearful reunion. Lynn, the mother, gives you a suit of chain mail and a sword.||\"These have been in the family for generations. It's all I have to give,\" she says.||Fourze is hauled off to the local magistrate for judgment. He will probably be sold into slavery.">
 
 <ROOM STORY414
 	(DESC "414")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT414)
+	(CONTINUE STORY427)
+	(ITEMS <LTABLE SWORD CHAIN-MAIL>)
+	(CODEWORDS <LTABLE CODEWORD-ATTAR>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT415 "You cannot continue. You sink to your knees, gasping for water and pass out. Death is not long in coming. It is all over.">
 
 <ROOM STORY415
 	(DESC "415")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT415)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT CHOICES416 <LTABLE "Order the crew to sail south west (Over the Blood-Dark Sea)" "Sail south (Over the Blood-Dark Sea)" "Order the crew to sail south east (Over the Blood-Dark Sea)" "Sail south east (Over the Blood-Dark Sea)" "Turn back">>
 
 <ROOM STORY416
 	(DESC "416")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-VIOLET-OCEAN)
+	(CHOICES CHOICES416)
+	(DESTINATIONS <LTABLE STORY-BLOOD-DARK-SEA <LTABLE STORY-BLOOD-DARK-SEA STORY559> STORY-BLOOD-DARK-SEA <LTABLE STORY-BLOOD-DARK-SEA STORY559> STORY559>)
+	(REQUIREMENTS <LTABLE 4 <LTABLE ABILITY-CHARISMA 12> 4 <LTABLE ABILITY-CHARISMA 12> NONE>)
+	(TYPES <LTABLE R-RANK R-TEST-ABILITY R-RANK R-TEST-ABILITY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT417 "The other knights are amazed by your skill, and they seem quite pleased that the Black Dragon Knight is dead.||\"He was an evil man,\" says the Green Dragon Knight.||You take the black dragon shield. As you watch, the rest of your opponent's body dissolves into a foul-smelling smoke, armour and all.||You leave the castle.">
 
 <ROOM STORY417
 	(DESC "417")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT417)
+	(EVENTS STORY417-EVENTS)
+	(CONTINUE STORY276)
+	(ITEMS <LTABLE BLACK-DRAGON-SHIELD>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY417-EVENTS ()
+	<DELETE-CODEWORD ,CODEWORD-AXE>>
+
+<CONSTANT TEXT418 "You have heard that the man with the velvet eyepatch should be in Caran Baru.">
+<CONSTANT CHOICES418 <LTABLE "If you want to search for him now" IF-NOT>>
 
 <ROOM STORY418
 	(DESC "418")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT418)
+	(CHOICES CHOICES418)
+	(DESTINATIONS <LTABLE STORY117 STORY400>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT419 "The trail of gruesome murders, and tales of terror leads you to an old cemetery in a near-deserted part of the old quarter. It is early morning, a few hours from daylight, so you haven't much time before it goes into hiding.||At the gates of the cemetery, you find a small girl, hunched over, sobbing. When she sees you, she backs away, terrified.">
 
 <ROOM STORY419
 	(DESC "419")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT419)
+	(CHOICES CHOICES-CHARISMA)
+	(DESTINATIONS <LTABLE <LTABLE STORY553 STORY045>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 10>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT420 "Your ship is sailing in the coastal waters beside Marlock City. You notice an unusual number of Sokaran warships patrolling the area.||\"The pirates are getting bolder and bolder -- that's why the navy's out in force,\" says the first mate.">
+<CONSTANT CHOICES420 <LTABLE "Sail west (Cities of Gold and Glory)" "Sail into Marlock City" "Sail east along the coast" "Sail south into the Violet Ocean">>
 
 <ROOM STORY420
 	(DESC "420")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT420)
+	(CHOICES CHOICES420)
+	(DESTINATIONS <LTABLE STORY-CITIES-GOLD-GLORY STORY142 STORY120 STORY502>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT421 "The storm demons shrink back with a wailing, mournful cry, like wind in the trees. The power of your faith is enough to repel them. You work free one of the stakes holding down Sul Veneris.">
 
 <ROOM STORY421
 	(DESC "421")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT421)
+	(CONTINUE STORY365)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT422 "The bandits are dead. The man inside the suit surrenders. It is Fourze, the master of the market. He terrified people with the monster disguise, and used a large pair of bellows full of gas to put his victims to sleep. Then he sold them to a slaver from Caran Baru, for work in the slave mines. You find Haylie, and several other villagers in the cellar of an old farm nearby.||\"Don't hurt me,\" begs Fourze, \"I'm only trying to make a few Shards.\"||\"What, by selling your own people into slavery?\" says one of the villagers, giving him a good kick.||You lead them back to Venefax.">
 
 <ROOM STORY422
 	(DESC "422")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT422)
+	(CONTINUE STORY414)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT423 "The ratmen lie defeated at your feet. You find 15 Shards on the bodies, and a note which says: 'Parti! Kitchuns. Tonite. Rank and file rats only. No offsirs and no king allowed!'||The rest of the cavern is bare, so you press on down the tunnels ahead.||After a while you come to a cleaner area of the sewers, a part of the old city now buried under Yellowport. It dates from the period when all of Harkuna was ruled by the Masked Ones of Uttaku, before the people overthrew them.||You come to two rotten wooden doors. Names have been scratched on to them by some half-literate ratman. One says 'Thrown Rum'; the other says 'Kitchuns'. You can hear gravelly rat voices from behind both doors.">
+<CONSTANT CHOICES423 <LTABLE "Enter the 'kitchuns'" "Enter the 'thrown rum'">>
 
 <ROOM STORY423
 	(DESC "423")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT423)
+	(EVENTS STORY423-EVENTS)
+	(CHOICES CHOICES423)
+	(DESTINATIONS <LTABLE STORY572 STORY202>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY423-EVENTS ()
+	<GAIN-MONEY 15>>
+
+<CONSTANT TEXT424 "The ship's captain says, \"I'll take you but you should be warned, it's a dangerous place we're travelling to. You'd better be sure you can handle it. If you're not at least a master of your profession, I'd advise against. But it's up to you.\"">
+<CONSTANT CHOICES424 <LTABLE "If you still want to go (Over the Blood-Dark Sea)" "If you decide not to go to Copper Island">>
 
 <ROOM STORY424
 	(DESC "424")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT424)
+	(CHOICES CHOICES424)
+	(DESTINATIONS <LTABLE STORY-BLOOD-DARK-SEA STORY712>)
+	(REQUIREMENTS <LTABLE 30 NONE>)
+	(TYPES <LTABLE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT425 "The woman tells you her name is Lauria. She leads you stealthily through winding cobblestoned streets to a town house standing at the back of a small tree-lined square.||A yellowish fog is descending with the coming of night. Lauria waits until it is thick enough to shroud your activities from any stray passersby, then jemmies a downstairs window. Within seconds the two of you are inside.||\"The stuff we're after is upstairs.\" she says. \"You've got the easy job. Stay down here and keep watch.\"||She bounds silently up to the next floor.">
+<CONSTANT CHOICES425 <LTABLE "Stay on watch" "Search the ground floor">>
 
 <ROOM STORY425
 	(DESC "425")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT425)
+	(CHOICES CHOICES425)
+	(DESTINATIONS <LTABLE STORY534 STORY270>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT426 "\"I see that you are a student of the arcane arts,\" says Oliphard the Wizardly. \"There is something I need. If you can get it for me I will teach you how to advance as a mage. It was Vayss the Sea Dragon who turned me into powder. He stole my magic chest in which I store all my magical equipment. Without it, I am virtually powerless. Meet me in Trefoille when you have it.\"||\"Where is Vayss?\" you ask.||\"In the Lake of the Sea Dragon, of course.\"||As he leaves, Oliphard gives you an amulet of protection.">
 
 <ROOM STORY426
 	(DESC "426")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT426)
+	(CONTINUE STORY378)
+	(ITEMS <LTABLE AMULET-OF-PROTECTION>)
+	(CODEWORDS <LTABLE CODEWORD-AVENGE>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY427
 	(DESC "427")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY427-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY427-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-ATTAR> <RETURN ,STORY578>)>
+	<RETURN ,STORY711>>
+
+<CONSTANT TEXT428 "With a martial cry you draw your weapon and charge. You manage to cut down two of the ratmen before they can react. The remaining two officers draw their swords while King Skabb ducks down behind his throne.">
 
 <ROOM STORY428
 	(DESC "428")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT428)
+	(EVENTS STORY428-EVENTS)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY428-EVENTS ("AUX" (MODIFIER 0))
+	<COND (<CHECK-ITEM ,RAT-POISON>
+		<CRLF>
+		<TELL "Use the rat poison?">
+		<COND (<YES?>
+			<SET MODIFIER 3>
+			<EMPHASIZE "The rat poison adds +3 to your COMBAT rolls.">
+			<REMOVE-ITEM ,RAT-POISON "used" T T>
+		)>
+	)>
+	<COMBAT-MONSTER ,MONSTER-TWO-RATMEN 8 11 12>
+	<COND (<CHECK-COMBAT ,MONSTER-TWO-RATMEN ,STORY042 .MODIFIER>
+		<STORY-JUMP ,STORY145>
+	)(ELSE
+		<STORY-JUMP ,STORY308>
+	)>>
+
+<CONSTANT TEXT429 "The gloomy wreck is filled with coral-encrusted skeletons of its drowned crew. You find the captain\"s cabin. Inside, a figure still sits in a chair, a chest of gems at its feet. With a thrill of horror, you realize it is a ghost, an undead remnant of a pirate captain, steeped in evil, its nacreous, fish-gnawed flesh still pulsing with a kind of half-life.">
+<CONSTANT CHOICES429 <LTABLE "Swim straight in and grab the chest" "Try to steal it without being seen">>
 
 <ROOM STORY429
 	(DESC "429")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT429)
+	(CHOICES CHOICES429)
+	(DESTINATIONS <LTABLE STORY089 STORY363>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT430 "You are sailing in the waters around Scorpion Bight.||\"I wouldn't want to put into land in these parts,\" says your navigator. \"The scorpion men'll take all we've got, and our lives too, given half a chance.\"">
+<CONSTANT STORY430-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 7 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "A ship of bizarre design" "A floating island">>>>
 
 <ROOM STORY430
 	(DESC "430")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT430)
+	(CHOICES CHOICES-RANDOM)
+	(DESTINATIONS <LTABLE <LTABLE STORY586 STORY085 STORY056 STORY264>>)
+	(REQUIREMENTS STORY430-REQUIREMENTS)
+	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY431
