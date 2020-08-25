@@ -190,7 +190,7 @@
 <GLOBAL STARTING-POINT STORY001>
 <GLOBAL CURRENT-LOCATION LOCATION-SOKARA>
 
-<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "The Trading Post" "The Stinking River" "The Forest of Larun" "The City of Trees" "Caran Baru" "Bronze Hills">>
+<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "The Trading Post" "The Stinking River" "The Forest of Larun" "The City of Trees" "Caran Baru" "Bronze Hills" "Fort Brilon">>
 
 <CONSTANT LOCATION-SOKARA 1>
 <CONSTANT LOCATION-MARLOCK 2>
@@ -208,6 +208,7 @@
 <CONSTANT LOCATION-TREES 14>
 <CONSTANT LOCATION-CARAN 15>
 <CONSTANT LOCATION-BRONZE 16>
+<CONSTANT LOCATION-BRILON 17>
 
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
@@ -2339,6 +2340,23 @@
 		)>
 	>>
 
+<ROUTINE UPGRADE-ABILITY (ABILITY "OPT" UPGRADE "AUX" SCORE PROPERTY)
+	<COND (<NOT ,CURRENT-CHARACTER> <RETURN>)>
+	<COND (<NOT .UPGRADE> <SET UPGRADE 1>)>
+	<SET SCORE <GET-ABILITY-SCORE ,CURRENT-CHARACTER .ABILITY>>
+	<CRLF>
+	<TELL "Your " <GET ,ABILITIES .ABILITY> " score has improved from ">
+	<HLIGHT ,H-BOLD>
+	<TELL N .SCORE>
+	<HLIGHT 0>
+	<SET PROPERTY <GET-ABILITY-PROPERTY .ABILITY>>
+	<COND (.PROPERTY <PUTP ,CURRENT-CHARACTER .PROPERTY .SCORE>)>
+	<TELL " to ">
+	<SET SCORE <+ .SCORE .UPGRADE>>
+	<HLIGHT ,H-BOLD>
+	<TELL N .SCORE ,EXCLAMATION-CR>
+	<HLIGHT 0>>
+
 <ROUTINE UPGRADE-STAMINA ("OPT" UPGRADE)
 	<COND (<NOT .UPGRADE> <SET UPGRADE 1>)>
 	<CRLF>
@@ -3038,6 +3056,7 @@
 <OBJECT CODEWORD-AID (DESC "Aid")>
 <OBJECT CODEWORD-AJAR (DESC "Ajar")>
 <OBJECT CODEWORD-AKLAR (DESC "Aklar")>
+<OBJECT CODEWORD-ALISSIA (DESC "Alissia")>
 <OBJECT CODEWORD-ALMANAC (DESC "Almanac")>
 <OBJECT CODEWORD-ALOFT (DESC "Aloft")>
 <OBJECT CODEWORD-ALTITUDE (DESC "Altitude")>
@@ -3045,6 +3064,7 @@
 <OBJECT CODEWORD-AMCHA (DESC "Amcha")>
 <OBJECT CODEWORD-AMENDS (DESC "Amends")>
 <OBJECT CODEWORD-ANCHOR (DESC "Anchor")>
+<OBJECT CODEWORD-ANIMAL (DESC "Animal")>
 <OBJECT CODEWORD-ANTHEM (DESC "Anthem")>
 <OBJECT CODEWORD-ANVIL (DESC "Anvil")>
 <OBJECT CODEWORD-APACHE (DESC "Apache")>
@@ -3073,6 +3093,7 @@
 <OBJECT CODEWORD-CUTLASS (DESC "Cutlass")>
 <OBJECT CODEWORD-DEFEND (DESC "Defend")>
 <OBJECT CODEWORD-DELIVER (DESC "Deliver")>
+<OBJECT CODEWORD-DOTAGE (DESC "Dotage")>
 <OBJECT CODEWORD-ELDRITCH (DESC "Eldritch")>
 
 ; "Weapons"
@@ -3749,6 +3770,12 @@
 	(DEFENSE 9)
 	(STAMINA 9)
 	(FLAGS PLURALBIT)>
+
+<OBJECT MONSTER-TRICKSTER
+	(DESC "Trickster")
+	(COMBAT 2)
+	(DEFENSE 3)
+	(STAMINA 3)>
 
 <OBJECT MONSTER-WOLF
 	(DESC "Wolf")
@@ -5371,7 +5398,7 @@
 	<COND (<CHECK-GOD .INITIATE> <SET FEE .DISCOUNT>)>
 	<COND (<CHECK-BLESSING .BLESSING>
 		<CRLF>
-		<TELL "You already have the">
+		<TELL "You already have the ">
 		<PRINT-ITEM .BLESSING T>
 		<TELL ,EXCLAMATION-CR>
 	)(<G=? ,MONEY .FEE>
@@ -5383,6 +5410,39 @@
 		)>
 	)(ELSE
 		<EMPHASIZE "You cannot afford this blessing at this time.">
+	)>>
+
+; "TO-DO: Allow cancellation of previous resurrection arrangement"
+<ROUTINE PURCHASE-RESURRECTION (FEE DISCOUNT INITIATE RESURRECTION)
+	<COND (<NOT .RESURRECTION> <RETURN>)>
+	<COND (<NOT .INITIATE> <RETURN>)>
+	<COND (<CHECK-GOD .INITIATE> <SET FEE .DISCOUNT>)>
+	<COND (,RESURRECTION-ARRANGEMENTS
+		<CRLF>
+		<TELL "You already have the resurrection arrangement: ">
+		<PRINT-ITEM ,RESURRECTION-ARRANGEMENTS T>
+		<TELL ,EXCLAMATION-CR>
+		<COND (<G=? ,MONEY .FEE>
+			<CRLF>
+			<TELL "Do you wish to cancel this and make a new arrangement?">
+			<COND (<YES?>
+				<COST-MONEY .FEE ,TEXT-PAID>
+				<SETG RESURRECTION-ARRANGEMENTS .RESURRECTION>
+				<EMPHASIZE "You have made resurrection arrangements at this temple.">
+			)>
+		)(ELSE
+			<EMPHASIZE "... and you cannot afford to make a new arrangement at this time.">
+		)>
+	)(<G=? ,MONEY .FEE>
+		<CRLF>
+		<TELL "Make resurrection arrangements at this temple for " N .FEE " " D ,CURRENCY "?">
+		<COND (<YES?>
+			<COST-MONEY .FEE ,TEXT-PAID>
+			<SETG RESURRECTION-ARRANGEMENTS .RESURRECTION>
+			<EMPHASIZE "You have made resurrection arrangements at this temple.">
+		)>
+	)(ELSE
+		<EMPHASIZE "You cannot afford to make resurrection arrangements at this time.">
 	)>>
 
 <ROUTINE RENOUNCE-WORSHIP (FEE WORSHIP "AUX" RESURRECTION)
@@ -6043,6 +6103,7 @@
 	<PUTP ,STORY389 ,P?DOOM T>
 	<PUTP ,STORY393 ,P?DOOM T>
 	<PUTP ,STORY428 ,P?DOOM T>
+	<PUTP ,STORY476 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -9719,6 +9780,7 @@ paste on the ground below.">
 
 <ROOM STORY259
 	(DESC "259")
+	(LOCATION LOCATION-BRILON)
 	(STORY TEXT259)
 	(EVENTS STORY259-EVENTS)
 	(CHOICES CHOICES259)
@@ -12361,18 +12423,13 @@ paste on the ground below.">
 <CONSTANT TEXT459 "The little mannekyn creature is handed over to you on a leash. Its wings have been tied together to stop it flying away.||\"Who are you, then?\" it pipes in a squeaky voice.||Just then, a palanquin carried by four bearers arrives. A man leans out. \"You there! I've come to buy that flying monkey but I see I am too late. I will give you 75 Shards for it.\"||\"Don't sell me to that popinjay. Free me instead,\" chitters the mannekyn.">
 <CONSTANT CHOICES459 <LTABLE "Free it" "Sell it">>
 
-; "TO-DO: verify if not double payment"
 <ROOM STORY459
 	(DESC "459")
 	(STORY TEXT459)
-	(EVENTS STORY459-EVENTS)
 	(CHOICES CHOICES459)
 	(DESTINATIONS <LTABLE STORY659 STORY186>)
 	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY459-EVENTS ()
-	<COST-MONEY 50 ,TEXT-PAID>>
 
 <CONSTANT TEXT460 "You climb down an old disused well in the poor quarter of Yellowport.">
 <CONSTANT CHOICES460 <LTABLE HAVE-CODEWORD HAVE-A "If you have neither">>
@@ -12498,195 +12555,143 @@ paste on the ground below.">
 <ROUTINE STORY470-EVENTS ()
 	<COST-MONEY 1 "tossed away">>
 
+<CONSTANT TEXT471 "The priestess, dressed in silken robes, and wearing a wreath of oak leaves, says, \"I have need of an adventurer like yourself. For arcane reasons involving the secret mysteries of Lacuna, I need the tusk of a boar. A were-boar, in fact. I believe they can be found in the Forest of the Forsaken, in northern Golnir. Hunt down a were-boar, and bring me a boar's tusk. In return, I will teach you how to be a better scout.\"">
+<CONSTANT CHOICES471 <LTABLE "Accept the mission" IF-NOT>>
+
 <ROOM STORY471
 	(DESC "471")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY471-BACKGROUND)
+	(STORY TEXT471)
+	(CHOICES CHOICES471)
+	(DESTINATIONS <LTABLE STORY544 STORY544>)
+	(REQUIREMENTS <LTABLE CODEWORD-ANIMAL NONE>)
+	(TYPES <LTABLE R-GAIN-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY471-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-ANIMAL> <RETURN ,STORY369>)>
+	<RETURN ,STORY471>>
+
+<CONSTANT TEXT472 "Fort Estgard is one of three forts along the wall that runs right along the border. Their purpose is to defend Sokara against the ravening manbeasts of Nerech, which are constantly trying to break through to raid the interior. The commander of the fort desperately wants to see you.||\"My daughter, Alissia, has been kidnapped by the man-beasts!\" he says. \"They are asking that I let one of their raiding parties through, to attack the farmlands. I'm delaying my response as long as possible, but if I don't do something soon, they will kill her! Please, I need a brave adventurer to rescue her!\"">
+<CONSTANT CHOICES472 <LTABLE "Take up the quest" "Head east into Nerech (The Plains of Howling Darkness)" "North west to Fort Mereth" "South east to Fort Brilon" "West into the farmlands">>
 
 <ROOM STORY472
 	(DESC "472")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY472-BACKGROUND)
+	(STORY TEXT472)
+	(CHOICES CHOICES472)
+	(DESTINATIONS <LTABLE STORY472 STORY-PLAINS-HOWLING-DARKNESS STORY299 STORY259 STORY548>)
+	(REQUIREMENTS <LTABLE CODEWORD-ALISSIA NONE NONE NONE NONE>)
+	(TYPES <LTABLE R-GAIN-CODEWORD R-NONE R-NONE R-NONE R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY472-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-DOTAGE> <RETURN ,STORY667>)>
+	<RETURN ,STORY472>>
+
+<CONSTANT TEXT473 "The slave market is a large, canvas-covered square. The poor unfortunate slaves, people from all over Harkuna -- from the Feathered Lands, Golnir, criminals of Sokara, nomads from the steppes, are paraded in chains on a dais. Merchants and nobles bid for the slaves they want.||An unusual sale has come up: a little, furry, bat-winged humanoid. It is one of the mannekyn people from Sky Mountain in the north and it is going for 50 Shards.">
+<CONSTANT CHOICES473 <LTABLE "Buy it" "If not, you head back into town.">>
 
 <ROOM STORY473
 	(DESC "473")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY473-BACKGROUND)
+	(STORY TEXT473)
+	(CHOICES CHOICES473)
+	(DESTINATIONS <LTABLE STORY459 STORY400>)
+	(REQUIREMENTS <LTABLE 50 NONE>)
+	(TYPES <LTABLE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY473-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY473 1> <RETURN ,STORY610>)>
+	<RETURN ,STORY473>>
+
+<CONSTANT TEXT474 "The Coldbleak Mountains look as inhospitable and forbidding as their name implies, their frozen flanks climbing high into the icy clouds.">
+<CONSTANT CHOICES474 <LTABLE "Climb into the mountains" "Enter Caran Baru" "Go west to the road" "Head into the farmlands" "Go south to the Lake of the Sea Dragon">>
 
 <ROOM STORY474
 	(DESC "474")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT474)
+	(CHOICES CHOICES474)
+	(DESTINATIONS <LTABLE STORY005 STORY400 STORY347 STORY548 STORY135>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT475 "You slip on the rotting scraps of King Skabb's last meal and fall over with a crash. The ratmen turn to stare at you.||\"A human! Get it!\" screams Skabb.||The ratmen charge toward you with a roar. Soon they have been joined by others and you have no choice but to flee for your life! You race down the sewer tunnels, with an army of ratmen in hot pursuit.">
+<CONSTANT CHOICES475 <LTABLE "Lose them in the tunnels" "Try some magic" "Hide">>
 
 <ROOM STORY475
 	(DESC "475")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT475)
+	(CHOICES CHOICES475)
+	(DESTINATIONS <LTABLE STORY079 STORY096 STORY127>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT476 "\"Not bad,\" says the man with the eyepatch. \"But now I'll finish you.\" He draws his sword, and you must fight.">
 
 <ROOM STORY476
 	(DESC "476")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT476)
+	(EVENTS STORY476-EVENTS)
+	(CONTINUE STORY092)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY476-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-MAN-EYEPATCH 4 6 12>
+	<CHECK-COMBAT ,MONSTER-MAN-EYEPATCH ,STORY476>>
+
+<CONSTANT TEXT477 "You cannot get away fast enough. With one gulp Vayss the Sea Dragon gobbles you up.">
 
 <ROOM STORY477
 	(DESC "477")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT477)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT478 "Resurrection costs 200 Shards if you are an initiate, 600 Shards if not. It is the last word in insurance. Once you have arranged for resurrection you need not fear death, as you will be magically restored to life here at the temple.||You can have only one resurrection arranged at any one time.">
 
 <ROOM STORY478
 	(DESC "478")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT478)
+	(EVENTS STORY478-EVENTS)
+	(CONTINUE STORY071)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY478-EVENTS ()
+	<PURCHASE-RESURRECTION 600 200 ,GOD-NAGIL ,RESURRECTION-NAGIL>>
+
+<CONSTANT TEXT479 "They seem quite alarmed to see you charge forward undaunted. As your first blow lands solidly and you hear a satisfying grunt of pain, you know for a fact that these are no ghosts that you are facing, but people of flesh and blood. Fight them one at a time.">
 
 <ROOM STORY479
 	(DESC "479")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT479)
+	(EVENTS STORY479-EVENTS)
+	(CONTINUE STORY171)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY479-EVENTS ("AUX" TRICKSTER-STAMINA)
+	<SET TRICKSTER-STAMINA <LTABLE 3 2 2>>
+	<DO (I 1 3)
+		<PUTP ,STORY479,P?DOOM T>
+		<COMBAT-MONSTER ,MONSTER-TRICKSTER 2 3 <GET .TRICKSTER-STAMINA .I>>
+		<COND (<NOT <CHECK-COMBAT ,MONSTER-TRICKSTER ,STORY479>> <RETURN>)>
+	>>
+
+<CONSTANT TEXT480 "\"Tell you what -- I'll teach you a few tricks, and then you can go away. What do you say?\"||You've got nothing to lose so you accept. Damor was once a Troubadour, and he instructs you in its arts. Gain 1 CHARISMA point permanently. Afterwards, for a few hours, he lifts the curse that soured your water so you can make it down the mountain path safely.">
 
 <ROOM STORY480
 	(DESC "480")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT480)
+	(EVENTS STORY480-EVENTS)
+	(CONTINUE STORY244)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY480-EVENTS ()
+	<UPGRADE-ABILITY ,ABILITY-CHARISMA 1>>
 
 <ROOM STORY481
 	(DESC "481")
