@@ -3747,7 +3747,7 @@
 <OBJECT MISSION-BOOK-SAGES
 	(DESC "Pyletes the Sage: Retrieve the Book of the Seven Sages")
 	(CODEWORD CODEWORD-ARTIFACT)
-	(COMPLETE F)>
+	(COMPLETED F)>
 
 <OBJECT MISSION-CITADEL-VELIS
 	(DESC "The King: Citadel of Velis")
