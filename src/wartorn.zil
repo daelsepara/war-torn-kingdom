@@ -11999,23 +11999,12 @@ paste on the ground below.">
 		<HLIGHT 0>
 	)>>
 
+<CONSTANT TEXT436 "You find yourself washed up on a rocky shore, battered and cold but lucky to be alive. You haul yourself up the beach. You are near the Trading Post on the Isle of Druids.">
+
 <ROOM STORY436
 	(DESC "436")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT436)
+	(CONTINUE STORY195)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY437
