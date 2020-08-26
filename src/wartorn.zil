@@ -157,22 +157,22 @@
 
 <OBJECT TOWNHOUSE-CARAN-BARU
 	(DESC "Townhouse at Caran Baru")
-	(INVESTMENTS 0)
+	(MONEY 0)
 	(FLAGS CONTBIT OPENBIT)>
 
 <OBJECT TOWNHOUSE-YELLOWPORT
 	(DESC "Townhouse at Yellowport")
-	(INVESTMENTS 0)
+	(MONEY 0)
 	(FLAGS CONTBIT OPENBIT)>
 
 <OBJECT TOWNHOUSE-MARLOCK
 	(DESC "Townhouse at Marlock City")
-	(INVESTMENTS 0)
+	(MONEY 0)
 	(FLAGS CONTBIT OPENBIT)>
 
 <OBJECT CACHE-YELLOWPORT
 	(DESC "Cache at Yellowport")
-	(INVESTMENTS 0)
+	(MONEY 0)
 	(FLAGS CONTBIT OPENBIT CACHEBIT)>
 
 ; "NON-PERSON OBJECTS Properties"
@@ -2681,10 +2681,10 @@
 	<RESET-CONTAINER ,TITLES-AND-HONOURS>>
 
 <ROUTINE RESET-TOWNHOUSES ()
-	<PUTP ,TOWNHOUSE-YELLOWPORT ,P?INVESTMENTS 0>
-	<PUTP ,TOWNHOUSE-MARLOCK ,P?INVESTMENTS 0>
-	<PUTP ,TOWNHOUSE-CARAN-BARU ,P?INVESTMENTS 0>
-	<PUTP ,CACHE-YELLOWPORT ,P?INVESTMENTS 0>
+	<PUTP ,TOWNHOUSE-YELLOWPORT ,P?MONEY 0>
+	<PUTP ,TOWNHOUSE-MARLOCK ,P?MONEY 0>
+	<PUTP ,TOWNHOUSE-CARAN-BARU ,P?MONEY 0>
+	<PUTP ,CACHE-YELLOWPORT ,P?MONEY 0>
 	<RESET-CONTAINER ,TOWNHOUSE-YELLOWPORT>
 	<RESET-CONTAINER ,TOWNHOUSE-MARLOCK>
 	<RESET-CONTAINER ,TOWNHOUSE-CARAN-BARU>
@@ -4392,7 +4392,7 @@
 		<EMPHASIZE "You have no investments here!" ,TEXT-GUILD>
 	)>>
 
-<ROUTINE GUILD-INVESTMENTS ("OPT" STORY "AUX" INVESTMENTS KEY INVESTMENT)
+<ROUTINE GUILD-ACTIVITY ("OPT" STORY (INVEST T) "AUX" INVESTMENTS KEY INVESTMENT)
 	<DELETE-CODEWORD ,CODEWORD-ALMANAC>
 	<DELETE-CODEWORD ,CODEWORD-BRUSH>
 	<DELETE-CODEWORD ,CODEWORD-ELDRITCH>
@@ -5078,7 +5078,7 @@
 <CONSTANT TOWNHOUSE-MENU-MONEY <LTABLE "Leave some your money here." "Take the money that was kept here.">>
 <CONSTANT TOWNHOUSE-MENU-POSSESSIONS <LTABLE "Leave some of your possessions here." "Take the  items that are kept here.">>
 
-<ROUTINE TOWNHOUSE-MONEY (STORY TOWNHOUSE "AUX" KEY MONEY INVESTMENTS)
+<ROUTINE TOWNHOUSE-MONEY (STORY TOWNHOUSE "AUX" KEY NUMBER MONEY)
 	<REPEAT ()
 		<CRLF>
 		<HLIGHT ,H-BOLD>
@@ -5086,11 +5086,11 @@
 		<HLIGHT 0>
 		<CRLF>
 		<PRINT-MENU ,TOWNHOUSE-MENU-MONEY F F !\0 "Back">
-		<SET .INVESTMENTS <GETP .TOWNHOUSE ,P?INVESTMENTS>>
-		<COND (<G? .INVESTMENTS 0>
+		<SET .MONEY <GETP .TOWNHOUSE ,P?MONEY>>
+		<COND (<G? .MONEY 0>
 			<TELL "There are ">
 			<HLIGHT ,H-BOLD>
-			<TELL N .INVESTMENTS>
+			<TELL N .MONEY>
 			<HLIGHT 0>
 			<TELL " " D ,CURRENCY " kept here at ">
 			<HLIGHT ,H-BOLD>
@@ -5107,10 +5107,10 @@
 			<RETURN>
 		)(<EQUAL? .KEY !\1>
 			<COND (<G? ,MONEY 0>
-				<SET MONEY <GET-NUMBER "How much will you leave here" 0 ,MONEY>>
-				<COND (<G? .MONEY 0>
-					<PUTP .TOWNHOUSE ,P?INVESTMENTS <+ .INVESTMENTS .MONEY>>
-					<COST-MONEY .MONEY "left">
+				<SET NUMBER <GET-NUMBER "How much will you leave here" 0 ,MONEY>>
+				<COND (<G? .NUMBER 0>
+					<PUTP .TOWNHOUSE ,P?MONEY <+ .MONEY .NUMBER>>
+					<COST-MONEY .NUMBER "left">
 				)>
 			)(ELSE
 				<CRLF>
@@ -5120,11 +5120,11 @@
 				<PRESS-A-KEY>
 			)>
 		)(<EQUAL? .KEY !\2>
-			<COND (<G? .INVESTMENTS 0>
-				<SET MONEY <GET-NUMBER "How much will you withdraw" 0 .INVESTMENTS>>
-				<COND (<G? .MONEY 0>
-					<PUTP .TOWNHOUSE ,P?INVESTMENTS <- .INVESTMENTS .MONEY>>
-					<GAIN-MONEY .MONEY>
+			<COND (<G? .MONEY 0>
+				<SET NUMBER <GET-NUMBER "How much will you withdraw" 0 .MONEY>>
+				<COND (<G? .NUMBER 0>
+					<PUTP .TOWNHOUSE ,P?MONEY <- .MONEY .NUMBER>>
+					<GAIN-MONEY .NUMBER>
 				)>
 			)(ELSE
 				<EMPHASIZE "There is nothing to withdraw here!">
@@ -5262,9 +5262,9 @@
 				<EMPHASIZE ,NOTHING-HAPPENS>
 			)>
 		)(<L=? .ROLL 11>
-			<COND (<G? <GETP .TOWNHOUSE ,P?INVESTMENTS> 0>
+			<COND (<G? <GETP .TOWNHOUSE ,P?MONEY> 0>
 				<EMPHASIZE "A break-in! All the money left here is gone!">
-				<PUTP .TOWNHOUSE ,P?INVESTMENTS 0>
+				<PUTP .TOWNHOUSE ,P?MONEY 0>
 			)(ELSE
 				<EMPHASIZE "Robbers did not find any money here!">
 			)>
@@ -5273,8 +5273,8 @@
 				<EMPHASIZE "Earthquake! You lose all possessions you left here and the townhouse is destroyed.">
 				<COND (.CODEWORD <DELETE-CODEWORD .CODEWORD>)>
 				<RESET-CONTAINER .TOWNHOUSE>
-				<GAIN-MONEY <GETP .TOWNHOUSE ,P?INVESTMENTS>>
-				<PUTP .TOWNHOUSE ,P?INVESTMENTS 0>
+				<GAIN-MONEY <GETP .TOWNHOUSE ,P?MONEY>>
+				<PUTP .TOWNHOUSE ,P?MONEY 0>
 				<RETURN>
 			)(ELSE
 				<COND (<G? <COUNT-CONTAINER .TOWNHOUSE> 0>
@@ -6995,7 +6995,7 @@ footing and fall to the ground.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY046-EVENTS ()
-	<GUILD-INVESTMENTS ,STORY046>>
+	<GUILD-ACTIVITY ,STORY046>>
 
 <CONSTANT TEXT047 "The Forest of Larun is a mighty swathe of densely packed trees, a slice of primordial nature in the middle of busy, industrious Sokara.">
 <CONSTANT CHOICES047 <LTABLE "Venture deeper into the forest" "Venture deeper into the forest" "North to the Bronze Hills" "West to the River Grimm" "South into the countryside" "East to the road">>
@@ -7918,7 +7918,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY104-EVENTS ()
-	<GUILD-INVESTMENTS ,STORY104>>
+	<GUILD-ACTIVITY ,STORY104>>
 
 <CONSTANT TEXT105 "You will have to fight it.">
 
