@@ -103,6 +103,9 @@
 <GLOBAL MAX-STAMINA 9>
 <GLOBAL STAMINA 0>
 
+; "For situations that require ransom"
+<GLOBAL RANSOM 0>
+
 <GLOBAL BEST-WEAPON NONE>
 <GLOBAL BEST-ARMOUR NONE>
 <GLOBAL PREVIOUS-STAMINA 0>
@@ -190,7 +193,7 @@
 <GLOBAL STARTING-POINT STORY001>
 <GLOBAL CURRENT-LOCATION LOCATION-SOKARA>
 
-<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "The Trading Post" "The Stinking River" "The Forest of Larun" "The City of Trees" "Caran Baru" "Bronze Hills" "Fort Brilon" "Scorpion Bight" "Disaster Bay">>
+<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "The Isle of Druids" "The Stinking River" "The Forest of Larun" "The City of Trees" "Caran Baru" "Bronze Hills" "Fort Brilon" "Scorpion Bight" "Disaster Bay" "The Village of Blessed Springs">>
 
 <CONSTANT LOCATION-SOKARA 1>
 <CONSTANT LOCATION-MARLOCK 2>
@@ -211,6 +214,7 @@
 <CONSTANT LOCATION-BRILON 17>
 <CONSTANT LOCATION-SCORPION 18>
 <CONSTANT LOCATION-DISASTER 19>
+<CONSTANT LOCATION-BLESSED 20>
 
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
@@ -272,6 +276,7 @@
 	<DO (I 1 .DIE)
 		<SET RESULT <+ .RESULT <RANDOM 6>>>
 	>
+	<SETG LAST-ROLL .RESULT>
 	<RETURN .RESULT>>
 
 ; "Story Routines - print story, process choices, triggers"
@@ -2649,6 +2654,7 @@
 	<SETG MONEY 0>
 	<SETG RESURRECTION-ARRANGEMENTS NONE>
 	<SETG STAMINA 0>
+	<SETG RANSOM 0>
 	<RESET-AILMENTS>
 	<RESET-BLESSINGS>
 	<RESET-CARGO>
@@ -3079,6 +3085,7 @@
 <OBJECT CODEWORD-ABIDE (DESC "Abide")>
 <OBJECT CODEWORD-ACID (DESC "Acid")>
 <OBJECT CODEWORD-AEGIS (DESC "Aegis")>
+<OBJECT CODEWORD-AFRAID (DESC "Afraid")>
 <OBJECT CODEWORD-AGUE (DESC "Ague")>
 <OBJECT CODEWORD-AID (DESC "Aid")>
 <OBJECT CODEWORD-AJAR (DESC "Ajar")>
@@ -3614,8 +3621,8 @@
 
 <CONSTANT DOCK-YELLOWPORT 1>
 <CONSTANT DOCK-MARLOCK 2>
-<CONSTANT DOCK-TRADING 2>
-<CONSTANT DOCKS <LTABLE "Yellowport" "Marlock City" "Trading Post">>
+<CONSTANT DOCK-TRADING 3>
+<CONSTANT DOCKS <LTABLE "Yellowport" "Marlock City" "Isle of Druids">>
 
 <OBJECT SHIP-BARQUE
 	(DESC "barque")
@@ -6233,6 +6240,7 @@
 
 <CONSTANT TEXT-VIOLET-OCEAN "\"The Violet Ocean's a dangerous place, Cap'n,\" says the first mate. \"The crew won't follow you there if they don't think you're good enough.\"">
 <CONSTANT CHOICES-VIOLET-OCEAN <LTABLE "Demand that the crew follow your orders (Over the Blood-Dark Sea)" TEXT-ROLL-CHARISMA "Turn back">>
+<CONSTANT STORY-VIOLET-REQUIREMENTS <LTABLE 4 <LTABLE ABILITY-CHARISMA 12> NONE>>
 
 <CONSTANT STORY-STORM-REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 3 5 20> <LTABLE "The ship sinks!" "The mast splits!" "You weather the storm!">>>>
 
@@ -6549,7 +6557,7 @@
 	(STORY TEXT-VIOLET-OCEAN)
 	(CHOICES CHOICES-VIOLET-OCEAN)
 	(DESTINATIONS <LTABLE STORY-BLOOD-DARK-SEA <LTABLE STORY-BLOOD-DARK-SEA STORY507> STORY507>)
-	(REQUIREMENTS <LTABLE 4 <LTABLE ABILITY-CHARISMA 12> NONE>)
+	(REQUIREMENTS STORY-VIOLET-REQUIREMENTS)
 	(TYPES TYPE-SAIL)
 	(FLAGS LIGHTBIT)>
 
@@ -9014,6 +9022,8 @@ harbourmaster.">
 	(CODEWORDS <LTABLE CODEWORD-ASPEN>)
 	(FLAGS LIGHTBIT)>
 
+<ROUTINE STORY195-EVENTS ()
+	<COND (,CURRENT-SHIP <PUTP ,CURRENT-SHIP ,P?DOCKED ,DOCK-TRADING>)>>
 <CONSTANT TEXT196 "You hack off the hideous head and leave.">
 
 <ROOM STORY196
@@ -12984,194 +12994,136 @@ paste on the ground below.">
 	(CONTINUE STORY526)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT501 "Your captors take the money and run. You are released into Yellowport">
+
 <ROOM STORY501
 	(DESC "501")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY501-BACKGROUND)
+	(STORY TEXT501)
+	(EVENTS STORY501-EVENTS)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+; "TO-DO: Ensure that ransom is priority (in STORY605)"
+<ROUTINE STORY501-BACKGROUND ()
+	<COND (<L? ,MONEY ,RANSOM> <RETURN ,STORY288>)>
+	<RETURN ,STORY501>>
+
+<ROUTINE STORY501-EVENTS ()
+	<COST-MONEY ,RANSOM "paid">
+	<SETG RANSOM 0>
+	<UPDATE-STATUS-LINE>>
 
 <ROOM STORY502
 	(DESC "502")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-VIOLET-OCEAN)
+	(CHOICES CHOICES-VIOLET-OCEAN)
+	(DESTINATIONS <LTABLE STORY-BLOOD-DARK-SEA <LTABLE STORY-BLOOD-DARK-SEA STORY420> STORY420>)
+	(REQUIREMENTS STORY-VIOLET-REQUIREMENTS)
+	(TYPES TYPE-SAIL)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT503 "Your magical awareness tells you something is wrong. You realize that the scorpion man is an illusion -- a magically created disguise. The illusion falls away under your keen magical sight, and a rather fat little fellow is standing before you, dressed in a dirty, food-stained tunic.||\"Oh,\" he says, realizing his subterfuge has been uncovered. He drops to his knees, pleading, \"Please don't kill me.\"||You manage to calm him down enough to find out his story. His name is Kaimren the Portly, a minor sorcerer. He came here in the guise of a scorpion man, and swiftly rose to power using his magical skills. He had planned to use the scorpion men as an army.||Fearfully, he hands you the Book of the Seven Sages, which he stole to further his campaign of conquest.||Then Kaimren leads you through a secret tunnel, out of the mound, and back to the village of Venefax, where you hand him over to the Venefax authorities for trial.">
 
 <ROOM STORY503
 	(DESC "503")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT503)
+	(CONTINUE STORY427)
+	(ITEMS <LTABLE BOOK-SEVEN-SAGES>)
+	(CODEWORDS <LTABLE CODEWORD-AFRAID>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT504 "The lookout spots a ship, its back broken on some rocks near the shore. The vessel will not last long before it is washed away.">
+<CONSTANT CHOICES504 <LTABLE "Ignore it" "Explore the wreck">>
 
 <ROOM STORY504
 	(DESC "504")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY504-BACKGROUND)
+	(STORY TEXT504)
+	(CHOICES CHOICES504)
+	(DESTINATIONS <LTABLE STORY209 STORY039>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY504-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY504 1> <RETURN ,STORY345>)>
+	<RETURN ,STORY504>>
+
+<CONSTANT TEXT505 "\"Excellent,\" says the dragon, catching the nugget in one of its clawed forelimbs.||With that, it rolls over, and dives down into the lake. At the last second, its tail whips up out of the water, inches from your face. You could reach out and grab it if you want to.">
+<CONSTANT CHOICES505 <LTABLE "Catch the tail" "Leave it well alone">>
 
 <ROOM STORY505
 	(DESC "505")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT505)
+	(EVENTS STORY505-EVENTS)
+	(CHOICES CHOICES505)
+	(DESTINATIONS <LTABLE STORY362 STORY561>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY505-EVENTS ()
+	<REMOVE-ITEM ,SILVER-NUGGET "threw" T>>
+
+<CONSTANT TEXT506 "The Gold Dust Tavern is a plush inn beside the city gates. The tavern costs you 1 Shard a day. Each day you spend here, you can recover 1 Stamina point if injured, up to the limit of your normal unwounded Stamina score.">
+<CONSTANT CHOICES506 <LTABLE "Spend further Shards buying drinks all round at the bar, and listen for rumours" IF-NOT>>
 
 <ROOM STORY506
 	(DESC "506")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(STORY TEXT506)
+	(EVENTS STORY506-VISITS)
+	(CHOICES CHOICES506)
+	(DESTINATIONS <LTABLE STORY331 STORY010>)
+	(REQUIREMENTS <LTABLE 3 NONE>)
+	(TYPES <LTABLE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY506-VISITS ()
+	<VISIT-INN ,STORY506 1 1>>
+
+<CONSTANT TEXT507 "You are sailing across the Sea of Whispers with a clear, blue sky and a salty wind to help you on your way.">
+<CONSTANT CHOICES507 <LTABLE "Dock at the Isle of Druids" "Sail west towards Scorpion Bight" "Sail north west into coastal waters" "Sail north into coastal waters" "Sail south into the Violet Ocean" "Sail east into the Unbounded Ocean">>
 
 <ROOM STORY507
 	(DESC "507")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT507)
+	(CHOICES CHOICES507)
+	(DESTINATIONS <LTABLE STORY195 STORY430 STORY190 STORY312 STORY013 STORY206>)
+	(REQUIREMENTS <LTABLE DOCK-TRADING NONE NONE NONE NONE NONE>)
+	(TYPES <LTABLE R-DOCK R-NONE R-NONE R-NONE R-NONE R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT508 "You come round inside a disused warehouse, enmeshed in the net. You have been stripped of all your possessions -- they are in a tidy pile nearby. Several men surround you. They are dressed in furs and robes that are adorned with hundreds of multi-coloured feathers. Each man wears a necklace of animal skulls and has his teeth sharpened to needle-like points.||\"Hallo,\" the leader says reasonably. \"We are the Unspeakable Ones. It is our way to eat people in sacrifice to our god\".||He points to a squat wooden idol of a grossly fat half-man, half-ape with ivory needles for teeth. You notice the name \"Badogor the Unspoken\" inscribed on a plaque at the base of the idol.||\"Badogor the Unspoken? Who's he?\" you ask. \"Do not speak his name,\" shouts the cannibal, \"or you will be forever cursed!\"||You notice a large cauldron of boiling water into which another cultist is tossing herbs and garlic. He stares at you and licks his lips.">
 
 <ROOM STORY508
 	(DESC "508")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT508)
+	(CONTINUE STORY320)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT509 "You spot a pressure pad at the base of the idol just in time -- who knows what unpleasant trap that would have set off. Hastily you remove the chain mail and sling it over your shoulder. As it is pure gold, it is useless as armour.||The eyes of the jaguar-headed idol seem to turn to look at you.">
 
 <ROOM STORY509
 	(DESC "509")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT509)
+	(CHOICES CHOICES-SANCTITY)
+	(DESTINATIONS <LTABLE <LTABLE STORY625 STORY279>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SANCTITY 10>>)
+	(TYPES ONE-ABILITY)
+	(ITEMS <LTABLE GOLD-CHAIN-MAIL>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT510 "The village of Blessed Springs, nestling at the foot of a tall hill, has grown up around the holy waters, a special spring said to have healing powers. It has been fenced off by the villagers, and a priesthood appointed to supervise the supplicants who come to bathe, or drink of the spring's waters. There is no market, but an alchemist has set up shop here.">
+<CONSTANT CHOICES510 <LTABLE "Visit the Holy Waters" "Visit the alchemist's shop" "Visit the Blessed Ale Tavern" "Explore the hill" "Head north towards Fort Brilon" "South towards Venefax" "West into the countryside" "West into the countryside">>
 
 <ROOM STORY510
 	(DESC "510")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(LOCATION LOCATION-BLESSED)
+	(STORY TEXT510)
+	(CHOICES CHOICES510)
+	(DESTINATIONS <LTABLE STORY450 STORY342 STORY483 STORY398 STORY466 STORY087 STORY278 STORY548>)
+	(TYPES EIGHT-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY511
