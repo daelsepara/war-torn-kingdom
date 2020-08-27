@@ -7465,12 +7465,8 @@ is off, you return to the city centre.">
 <ROOM STORY074
 	(DESC "074")
 	(STORY TEXT074)
-	(EVENTS STORY074-EVENTS)
 	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY074-EVENTS ()
-	<COST-MONEY 15 ,TEXT-PAID>>
 
 <CONSTANT TEXT075 "The high priest takes you to a private chamber. \"You may be just what the temple needs,\" he says, \"a good, old-fashioned thief. There is a suit of armour made entirely from gold -- ceremonial only, of course. Nevertheless, we would like to, er, have it donated to us.\"||\"I see,\" you reply, \"and where is the armour?\"||\"Well, that's the tricky part -- it's in the Temple of Tyrnai, in Caran Baru. In fact, it's worn by the idol of Tyrnai himself in the temple. Can you bring us the gold chain mail of Tyrnai? In return, we will instruct you in the roguish arts.\"">
 <CONSTANT CHOICES075 <LTABLE "Take up the mission for the Temple of Sig" IF-NOT>>
