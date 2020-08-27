@@ -4392,25 +4392,43 @@
 		<EMPHASIZE "You have no investments here!" ,TEXT-GUILD>
 	)>>
 
-<ROUTINE GUILD-ACTIVITY ("OPT" STORY (INVEST T) "AUX" INVESTMENTS KEY INVESTMENT)
+<ROUTINE GUILD-ACTIVITY ("OPT" STORY (INVEST T) "AUX" KEY MONEY NUMBER PROPERTY FEE)
 	<DELETE-CODEWORD ,CODEWORD-ALMANAC>
 	<DELETE-CODEWORD ,CODEWORD-BRUSH>
 	<DELETE-CODEWORD ,CODEWORD-ELDRITCH>
 	<COND (<NOT .STORY> <SET STORY ,HERE>)>
-	<COND (<AND <L? ,MONEY 100> <NOT <GETP .STORY ,P?INVESTMENTS>>> <RETURN>)>
+	<COND (.INVEST
+		<SET PROPERTY ,P?INVESTMENTS>
+	)(ELSE
+		<SET PROPERTY ,P?MONEY>
+	)>
 	<REPEAT ()
-		<SET INVESTMENTS <GETP .STORY ,P?INVESTMENTS>>
+		<SET MONEY <GETP .STORY .PROPERTY>>
 		<CRLF>
-		<TELL "Current investments: " N .INVESTMENTS CR>
+		<TELL "Current ">
+		<COND (.INVEST
+			<TELL "investments: " N .MONEY CR>
+		)(ELSE
+			<TELL "banked money: " N .MONEY CR>
+		)>
 		<CRLF>
 		<HLIGHT ,H-BOLD>
 		<TELL "1">
 		<HLIGHT 0>
-		<TELL " - Invest (in multiples of 100 " D ,CURRENCY ")" CR>
+		<COND (.INVEST
+			<TELL " - Invest (in multiples of 100 " D ,CURRENCY ")" CR>
+		)(ELSE
+			<TELL " - Deposit " D ,CURRENCY CR>
+		)>
 		<HLIGHT ,H-BOLD>
 		<TELL "2">
 		<HLIGHT 0>
-		<TELL " - Withdraw investments" CR>
+		<TELL " - Withdraw ">
+		<COND (.INVEST
+			<TELL "investments" CR>
+		)(ELSE
+			<TELL D ,CURRENCY " (Guild charges 10%)" CR>
+		)>
 		<HLIGHT ,H-BOLD>
 		<TELL "0">
 		<HLIGHT 0>
@@ -4422,20 +4440,24 @@
 			<COND (<EQUAL? .KEY !\0 !\1 !\2> <RETURN>)>
 		>
 		<COND (<EQUAL? .KEY !\1>
-			<COND (<G=? ,MONEY 100>
-				<CRLF>
+			<CRLF>
+			<COND (<OR <AND .INVEST <G=? ,MONEY 100>> <NOT .INVEST>>
 				<REPEAT ()
-					<SET INVESTMENT <GET-NUMBER "How much will you invest" 0 ,MONEY>>
-					<COND (<G? .INVESTMENT 0>
-						<COND (<OR <L? .INVESTMENT 100> <G? <MOD .INVESTMENT 100> 0>>
+					<COND (.INVEST
+						<SET NUMBER <GET-NUMBER "How much will you invest" 0 ,MONEY>>
+					)(ELSE
+						<SET NUMBER <GET-NUMBER "How much will you deposit" 0 ,MONEY>>
+					)>
+					<COND (<G? .NUMBER 0>
+						<COND (<AND .INVEST <OR <L? .NUMBER 100> <G? <MOD .NUMBER 100> 0>>>
 							<EMPHASIZE "Only amounts that are multiples of 100 are accepted!">
 							<PRESS-A-KEY>
 						)(ELSE
 							<CRLF>
 							<TELL ,TEXT-SURE>
 							<COND (<YES?>
-								<PUTP .STORY ,P?INVESTMENTS <+ .INVESTMENTS .INVESTMENT>>
-								<SETG MONEY <- ,MONEY .INVESTMENT>>
+								<PUTP .STORY .PROPERTY <+ .MONEY .NUMBER>>
+								<SETG MONEY <- ,MONEY .NUMBER>>
 								<EMPHASIZE ,TEXT-EXCELLENT ,TEXT-GUILD>
 								<UPDATE-STATUS-LINE>
 								<PRESS-A-KEY>
@@ -4446,22 +4468,31 @@
 						<RETURN>
 					)>
 				>
-			)(ELSE
+			)(.INVEST
 				<CRLF>
 				<EMPHASIZE ,TEXT-GUILD-BROKE ,TEXT-GUILD>
 			)>
 		)(<EQUAL? .KEY !\2>
-			<COND (<G? .INVESTMENTS 0>
+			<COND (<G? .MONEY 0>
 				<CRLF>
 				<REPEAT ()
-					<SET INVESTMENT <GET-NUMBER "How much will you withdraw" 0 .INVESTMENTS>>
-					<COND (<G? .INVESTMENT 0>
+					<SET NUMBER <GET-NUMBER "How much will you withdraw" 0 .MONEY>>
+					<COND (<G? .NUMBER 0>
 						<CRLF>
 						<TELL ,TEXT-SURE>
 						<COND (<YES?>
-							<PUTP .STORY ,P?INVESTMENTS <- .INVESTMENTS .INVESTMENT>>
-							<SETG MONEY <+ ,MONEY .INVESTMENT>>
-							<EMPHASIZE "Please consider investing again in the future!" ,TEXT-GUILD>
+							<PUTP .STORY .PROPERTY <- .MONEY .NUMBER>>
+							<SETG MONEY <+ ,MONEY .NUMBER>>
+							<COND (<NOT .INVEST>
+								<SET FEE </ .NUMBER 10>>
+								<COND (<L? .FEE 0> <SET FEE 1>)>
+								<COST-MONEY .FEE>
+							)>
+							<COND (.INVEST
+								<EMPHASIZE "Please consider investing again in the future!" ,TEXT-GUILD>
+							)(ELSE
+								<EMPHASIZE "Please consider banking with us again in the future!" ,TEXT-GUILD>
+							)>
 							<UPDATE-STATUS-LINE>
 							<PRESS-A-KEY>
 						)>
