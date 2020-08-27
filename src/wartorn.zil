@@ -3649,6 +3649,19 @@
 ; "Disease/Poison EFFECTS (CHARISMA COMBAT MAGIC SANCTITY SCOUTING THIEVERY)"
 ; ---------------------------------------------------------------------------------------------
 
+<OBJECT CURSE-TYRNAI
+	(DESC "Tyrnai's Curse")
+	(EFFECTS <LTABLE 0 -1 0 0 0 0>)
+	(FLAGS CURSEBIT)>
+
+<OBJECT DISADVANTAGE-COMBAT1
+	(DESC "COMBAT disadvantage")
+	(EFFECTS <LTABLE 0 -1 0 0 0 0>)>
+
+<OBJECT DISADVANTAGE-COMBAT2
+	(DESC "COMBAT disadvantage")
+	(EFFECTS <LTABLE 0 -2 0 0 0 0>)>
+
 <OBJECT DISEASE-GHOULBITE
 	(DESC "ghoulbite")
 	(EFFECTS <LTABLE -1 -1 0 -1 0 0>)
@@ -3659,18 +3672,10 @@
 	(EFFECTS <LTABLE 0 -1 0 0 0 0>)
 	(FLAGS POISONBIT)>
 
-<OBJECT DISADVANTAGE-COMBAT1
-	(DESC "COMBAT disadvantage")
-	(EFFECTS <LTABLE 0 -1 0 0 0 0>)>
-
-<OBJECT DISADVANTAGE-COMBAT2
-	(DESC "COMBAT disadvantage")
-	(EFFECTS <LTABLE 0 -2 0 0 0 0>)>
-
-<OBJECT CURSE-TYRNAI
-	(DESC "Tyrnai's Curse")
-	(EFFECTS <LTABLE 0 -1 0 0 0 0>)
-	(FLAGS CURSEBIT)>
+<OBJECT POISON-SCORPION
+	(DESC "scorpion's venom")
+	(EFFECTS <LTABLE 0 -1 0 0 -1 -1>)
+	(FLAGS POISONBIT)>
 
 ; "Monsters"
 ; ---------------------------------------------------------------------------------------------
@@ -7973,9 +7978,13 @@ harbourmaster.">
 	(DOOM T)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY105-EVENTS ()
+<ROUTINE STORY105-EVENTS ("AUX" INITIAL-STAMINA)
+	<SET INITIAL-STAMINA ,STAMINA>
 	<COMBAT-MONSTER ,MONSTER-SCORPION-SHAMAN 5 8 9>
-	<CHECK-COMBAT ,MONSTER-SCORPION-SHAMAN ,STORY105>>
+	<CHECK-COMBAT ,MONSTER-SCORPION-SHAMAN ,STORY105>
+	<COND (<AND <IS-ALIVE> <L? ,STAMINA .INITIAL-STAMINA>>
+		<POISONED-WITH ,POISON-SCORPION>
+	)>>
 
 <CONSTANT TEXT106 "The young man smiles ingratiatingly, and hands you the pearls.">
 
@@ -13439,192 +13448,115 @@ paste on the ground below.">
 
 <ROOM STORY531
 	(DESC "531")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY531-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY531-BACKGROUND ()
+	<COND (<CHECK-ITEM ,GOLDEN-NET> <RETURN ,STORY004>)>
+	<RETURN ,STORY462>>
+
+<CONSTANT TEXT532 "The scorpion men's shaman falls dead with an uncannily human cry.">
+<CONSTANT TEXT532-POISONED "You have been poisoned by the scorpion man's venom and are severely weakened. If you have some scorpion antidote, it will cure the poison immediately.">
+<CONSTANT TEXT532-CONTINUED "A quick search reveals what you were looking for: the Book of the Seven Sages. You steal out of the mound unnoticed and make it safely back to the village of Venefax, to the north.">
 
 <ROOM STORY532
 	(DESC "532")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT532)
+	(EVENTS STORY532-EVENTS)
+	(CONTINUE STORY427)
+	(ITEMS <LTABLE BOOK-SEVEN-SAGES>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY532-EVENTS ()
+	<COND (<CHECK-AILMENT ,POISON-SCORPION> <IF-ALIVE ,TEXT532-POISONED>)>
+	<IF-ALIVE ,TEXT532-CONTINUED>>
+
+<CONSTANT TEXT533 "The man takes the money, bites a coin and spits. Satisfied, he says, \"The Witches' Cauldron, that's where you'll find him.\"||Later, you find the Witches' Cauldron tavern in a maze of backstreets. Looking through a window, you spot a man with a velvet eyepatch sitting at a table eating a meal.">
+<CONSTANT CHOICES533 <LTABLE "Walk in and challenge him" "Ambush him when he leaves">>
 
 <ROOM STORY533
 	(DESC "533")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT533)
+	(CHOICES CHOICES533)
+	(DESTINATIONS <LTABLE STORY589 STORY211>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT534 "A long time passes. After a while, you risk calling up to Lauria in a whisper.||Your voice sounds thick, rasping, choked with growing fear. Lauria does not reply.||Each second you remain in the house increases the risk of discovery.">
+<CONSTANT CHOICES534 <LTABLE "Wait a little longer" "Go upstairs to find Lauria" "Leave at once">>
 
 <ROOM STORY534
 	(DESC "534")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT534)
+	(CHOICES CHOICES534)
+	(DESTINATIONS <LTABLE STORY119 STORY386 STORY010>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT535 "The house of priests is an impressive building, a roundhouse of multi-coloured bricks. The myriad colours give it a bizarre and garish look, calculated to unsettle the visitor. Inside, a hundred offices teem with the administrators of the polytheistic religion of Sokara and Golnir.">
+<CONSTANT CHOICES535 <LTABLE YOU-ARE-A "If not, there is little for you here">>
 
 <ROOM STORY535
 	(DESC "535")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT535)
+	(CHOICES CHOICES535)
+	(DESTINATIONS <LTABLE STORY009 STORY100>)
+	(REQUIREMENTS <LTABLE PROFESSION-PRIEST NONE>)
+	(TYPES <LTABLE R-PROFESSION R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY536
 	(DESC "536")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY536-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY536-BACKGROUND ()
+	<COND (<CHECK-ITEM ,CLIMBING-GEAR> <RETURN ,STORY628>)>
+	<RETURN ,STORY700>>
+
+<CONSTANT TEXT537 "You find out that they call themselves the gypsies of the sea, wandering nomads of the waves, who find their islands naturally occurring in the Sea of Weeds. They make their homes upon them, and live a life of aimless drifting.||A tanned young man, full of wit and charm, explains that he makes his living from pearl diving, and selling what he finds to people like yourself. He offers you a bag of pearls for 25 Shards.">
+<CONSTANT CHOICES537 <LTABLE "Buy the pearls" "Leave and resume your journey">>
 
 <ROOM STORY537
 	(DESC "537")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT537)
+	(CHOICES CHOICES537)
+	(DESTINATIONS <LTABLE STORY106 STORY085>)
+	(REQUIREMENTS <LTABLE 25 NONE>)
+	(TYPES <LTABLE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT538 "\"Refusing to pay your taxes, eh?\" says their leader. \"That's a crime for sure.\"||They close in around you. You'll have to think fast.">
 
 <ROOM STORY538
 	(DESC "538")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT538)
+	(CHOICES CHOICES-CHARISMA)
+	(DESTINATIONS <LTABLE <LTABLE STORY018 STORY157>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 11>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT539 "You roll across the eaves of the gate, and reach down to pull the plug on the other golem in one deft movement. It ceases to function before it can give the alarm. It is an easy matter to get into the temple by way of the roof.||Inside, it is cool and dark, filled with an unearthly stillness. You reach forward to strip the armour off the idol of Tyrnai.">
 
 <ROOM STORY539
 	(DESC "539")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT539)
+	(CHOICES CHOICES-THIEVERY)
+	(DESTINATIONS <LTABLE <LTABLE STORY509 STORY228>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 12>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT540 "Sure enough, when the scholar leaves, purse bulging with Shards, the two ruffians go too. You follow at a slight distance. As you suspected, the ruffians wait for a suitable moment and then set about the scholar.||\"Help! Thieves!\" cries the scholar in a thin, reedy voice.">
+<CONSTANT CHOICES540 <LTABLE "Return to the city centre" "Chase the muggers off">>
 
 <ROOM STORY540
 	(DESC "540")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT540)
+	(CHOICES CHOICES540)
+	(DESTINATIONS <LTABLE STORY100 STORY433>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY541
