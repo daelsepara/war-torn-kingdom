@@ -6213,6 +6213,7 @@
 	<PUTP ,STORY486 ,P?DOOM T>
 	<PUTP ,STORY514 ,P?DOOM T>
 	<PUTP ,STORY520 ,P?DOOM T>
+	<PUTP ,STORY529 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -13335,194 +13336,105 @@ paste on the ground below.">
 		<TELL ,PERIOD-CR>
 	)>>
 
+<CONSTANT TEXT521 "You are looking for the Black Dragon Knight on a quest that was set for you by Yanryt the Son. You ask the knights if he is here.||\"The Black Dragon Knight? Yes, he is,\" replies one of them. \"But he fights only to the death. For him there is no wager save the greatest of all. That is to say, life itself.\"">
+<CONSTANT CHOICES521 <LTABLE "Fight the Black Dragon Knight" "Don't fight and leave instead">>
+
 <ROOM STORY521
 	(DESC "521")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT521)
+	(CHOICES CHOICES521)
+	(DESTINATIONS <LTABLE STORY321 STORY276>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT522 "That night several sea centaurs emerge from the waters, their spiny skins glittering with phosphorescent flashes of light.||One of them speaks in a burbling voice. \"Where is our brother, whom you caught in your cruel nets, this day?\"||\"He is dead, I'm afraid\", you reply, readying yourself for a fight.||The sea centaurs remain silent for a few moments, then the leader says, \"His destiny was always bleak. We would be grateful if you were to return his body to us.\"||You cannot think of a reason not to, so you pass the body down to them.||\"We thank you,\" burbles the sea centaur. \"If you wish, we will give you the power to breathe the waters, so that you may swim down to the wreck that lies below, and take its treasures, those things that the surface-dwellers hold dear.\"">
+<CONSTANT CHOICES522 <LTABLE "Accept the offer" "Refuse the offer">>
 
 <ROOM STORY522
 	(DESC "522")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT522)
+	(CHOICES CHOICES522)
+	(DESTINATIONS <LTABLE STORY513 STORY408>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY523
 	(DESC "523")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY523-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY523-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-ASSASSIN>
+		<RETURN ,STORY027>
+	)(<CHECK-TITLE ,TITLE-PROTECTOR-SOKARA>
+		<RETURN ,STORY095>
+	)>
+	<RETURN ,STORY705>>
+
+<CONSTANT TEXT524 "You struggle on. Only your iron will and hardiness keep you alive. Eventually, the path leads to a bubbling well of spring water in the rocks, just at the opening of a cave. You drink your fill, and soon you feel much better.">
 
 <ROOM STORY524
 	(DESC "524")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT524)
+	(CONTINUE STORY232)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT525 "\"They're vicious, evil devils,\" says an old peasant. \"Like huge scorpions they are, save they have the head and shoulders of a man. Intelligent too, forever seeking to pillage our town, but they can't climb up the ladders.\"||A soldier in the local militia speaks up, \"They hate fire. All we have to do is sit atop the town and pepper them with flaming arrows. They can't stand that for long. Mind you, things are getting bad. They've got a sorcerer now.\"||A young man, blind in one eye and paralysed down one side, says, \"They got a terrible sting as well -- their venom did this to me.\"||There's not much else to hear, so you leave.">
 
 <ROOM STORY525
 	(DESC "525")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT525)
+	(CONTINUE STORY427)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT526 "The temple of Tyrnai, the God of War, is built in the shape of a spear with a long, pillared nave, and an altar at the far end. Two massive stone warriors guard its gates.||Tyrnai is depicted here as the insensate spirit of war: a blood-drenched warrior with the head of a maddened jaguar.">
+<CONSTANT CHOICES526 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-RESURRECTION-ARRANGEMENTS TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY526
 	(DESC "526")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT526)
+	(CHOICES CHOICES526)
+	(DESTINATIONS <LTABLE STORY435 STORY069 STORY373 STORY599 STORY010>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT527 "You run off, leaving the terrible Gob-gobbler behind. The villagers of Venefax greet you with snorts of derision and contempt, and the young boy, Mikail, looks away, disappointed. It would be prudent to leave Venefax for a while.">
+<CONSTANT CHOICES527 <LTABLE "South into Scorpion Bight" "North east towards Blessed Springs" "South west on the road to Yellowport" "North into open countryside">>
 
 <ROOM STORY527
 	(DESC "527")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT527)
+	(CHOICES CHOICES527)
+	(DESTINATIONS <LTABLE STORY492 STORY087 STORY621 STORY278>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY528
 	(DESC "528")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES-THIEVERY)
+	(DESTINATIONS <LTABLE <LTABLE STORY445 STORY284>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 11>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT529 "You lose your footing, and fall. Fortunately, some bushes break your fall.">
 
 <ROOM STORY529
 	(DESC "529")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT529)
+	(EVENTS STORY529-EVENTS)
+	(CONTINUE STORY474)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY529-EVENTS ()
+	<LOSE-STAMINA 4 ,DIED-FROM-INJURIES ,STORY529>>
 
 <ROOM STORY530
 	(DESC "530")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-STORM-SUBSIDES)
+	(EVENTS STORY-LOSE-CARGO)
+	(CONTINUE STORY090)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY531
