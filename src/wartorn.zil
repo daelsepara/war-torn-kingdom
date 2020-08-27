@@ -1367,6 +1367,18 @@
 				)>
 			)>
 		)>
+		<COND (<AND <EQUAL? .DISEASE ,POISON-SCORPION> <CHECK-ITEM ,SCORPION-ANTIDOTE>>
+			<CRLF>
+			<TELL "Use the ">
+			<PRINT-ITEM ,SCORPION-ANTIDOTE T>
+			<TELL " to counter the">
+			<PRINT-ITEM .DISEASE T>
+			<TELL "?">
+			<COND (<YES?>
+				<REMOVE-ITEM ,SCORPION-ANTIDOTE "used" T T>
+				<RETURN>
+			)>
+		)>
 		<CRLF>
 		<TELL "You are " .EFFECT " with the ">
 		<PRINT-ITEM .DISEASE T>
@@ -3424,6 +3436,10 @@
 	(DESC "map")
 	(FLAGS TAKEBIT)>
 
+<OBJECT MOONSTONE-OF-TELEPORTATION
+	(DESC "moonstone of teleportation")
+	(FLAGS TAKEBIT)>
+
 <OBJECT OAK-STAFF
 	(DESC "oak staff")
 	(FLAGS TAKEBIT VOWELBIT)>
@@ -4087,6 +4103,20 @@
 	<COND (<L=? .STAMINA-PLAYER 0> <HAS-PREVAILED .MONSTER> <RETURN>)>
 	<SET DEFENSE-PLAYER <CALCULATE-DEFENSE ,CURRENT-CHARACTER>>
 	<SET COMBAT-PLAYER <CALCULATE-COMBAT ,CURRENT-CHARACTER>>
+	<COND (<CHECK-ITEM ,POTION-OF-STRENGTH>
+		<CRLF>
+		<TELL "Use the ">
+		<PRINT-ITEM ,POTION-OF-STRENGTH T>
+		<TELL " in this fight (Current COMBAT score: ">
+		<HLIGHT ,H-BOLD>
+		<TELL N .COMBAT-PLAYER>
+		<HLIGHT 0>
+		<TELL ")?">
+		<COND (<YES?>
+			<REMOVE-ITEM ,POTION-OF-STRENGTH "used" F T>
+			<INC .COMBAT-PLAYER>
+		)>
+	)>
 	<COND (<G? .COMBAT-PLAYER 12> <SET .COMBAT-PLAYER 12>)>
 	<SET STAMINA-MONSTER <GETP .MONSTER ,P?STAMINA>>
 	<SET DEFENSE-MONSTER <GETP .MONSTER ,P?DEFENSE>>
@@ -4289,7 +4319,7 @@
 		<PRINT-ITEM .POTION T>
 		<TELL " to add to the roll?">
 		<COND (<YES?>
-			<REMOVE-ITEM .POTION "used" F T>
+			<REMOVE-ITEM .POTION "used" T T>
 			<SET RESULT 1>
 		)>
 	)>
@@ -6231,7 +6261,9 @@
 <ROUTINE SPECIAL-INTERRUPT-ROUTINE (KEY)
 	; "TO-DO: Implement potion-of-healing"
 	; "TO-DO: Implement Forest of the Forsaken Map"
-	; "TO-DO: View Ship Manifest"
+	; "TO-DO: Implement Moonstone of Teleportation"
+	; "TO-DO: View Ship Manifest (partially implemented in Harbour routines)"
+	; "TO-DO: Implement use of antidotes"
 	<RFALSE>>
 
 <CONSTANT DIED-IN-COMBAT "You died in combat">
@@ -10463,7 +10495,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY303-EVENTS ()
-	<REMOVE-ITEM ,SALT-IRON-FILINGS "used" T>
+	<REMOVE-ITEM ,SALT-IRON-FILINGS "used" T T>
 	<COMPLETE-MISSION ,MISSION-GHOUL-HEAD>>
 
 <CONSTANT TEXT304 "He spots you before you can get the jump on him. \"Stinking assassin!\" he yells, drawing his sword. You must fight him.">
@@ -10969,7 +11001,7 @@ paste on the ground below.">
 		<PRINT-ITEM ,POTION-OF-RESTORATION T>
 		<TELL "?">
 		<COND (<YES?>
-			<REMOVE-ITEM ,INK-SAC "gave">
+			<REMOVE-ITEM ,INK-SAC "gave" T T>
 			<COST-MONEY 250 ,TEXT-PAID>
 			<TAKE-ITEM ,POTION-OF-RESTORATION>
 		)>
@@ -13111,7 +13143,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY505-EVENTS ()
-	<REMOVE-ITEM ,SILVER-NUGGET "threw" T>>
+	<REMOVE-ITEM ,SILVER-NUGGET "threw" T T>>
 
 <CONSTANT TEXT506 "The Gold Dust Tavern is a plush inn beside the city gates. The tavern costs you 1 Shard a day. Each day you spend here, you can recover 1 Stamina point if injured, up to the limit of your normal unwounded Stamina score.">
 <CONSTANT CHOICES506 <LTABLE "Spend further Shards buying drinks all round at the bar, and listen for rumours" IF-NOT>>
@@ -13555,195 +13587,133 @@ paste on the ground below.">
 	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT541 "Burdened by the heavy chest full of coins, the three figures have left deep footprints in the grass.">
+
 <ROOM STORY541
 	(DESC "541")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT541)
+	(CHOICES CHOICES-SCOUTING)
+	(DESTINATIONS <LTABLE <LTABLE STORY326 STORY245>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT542 "\"By Tyrnai, it's the one who killed that pretender to the throne, Nergan Corin,\" says one of them. They line up and give you a drunken salute, and then fall to slapping you on the back and offering to buy you beers all night.||They also give you a present: a potion of strength (COMBAT +1). When used it will add 1 to your COMBAT rating for the duration of one fight only, after which it will wear off.">
 
 <ROOM STORY542
 	(DESC "542")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY542-BACKGROUND)
+	(STORY TEXT542)
+	(CONTINUE STORY100)
+	(ITEMS <LTABLE POTION-OF-STRENGTH>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY542-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY542 1> <RETURN ,STORY520>)>
+	<RETURN ,STORY542>>
+
+<CONSTANT TEXT543 "Guildmaster Vernon is too busy to see you. It seems he doesn't want to know you, now that he doesn't need you anymore. Such is life.">
 
 <ROOM STORY543
 	(DESC "543")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT543)
+	(CONTINUE STORY405)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT544 "The shrine is set in a wooded grove. Birds twitter in the trees, and a deer darts away into the forest at your approach. A priestess is tending a low altar, where food and drink has been laid out in honour of Lacuna, the Goddess of the Wilderness. She is the patron of hunters, trappers, woodsman, and all those who seek oneness with nature.">
+<CONSTANT CHOICES544 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING "Talk to the priestess" TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY544
 	(DESC "544")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT544)
+	(CHOICES CHOICES544)
+	(DESTINATIONS <LTABLE STORY618 STORY334 STORY052 STORY471 STORY195>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT545 "You are given the cage. The trau speaks to you so quickly that you can barely distinguish the syllables.||\"Let me out of here, and I'll reward you,\" it says.">
+<CONSTANT CHOICES545 <LTABLE "Free it" "Sell it to the mines in the Bronze Hills">>
 
 <ROOM STORY545
 	(DESC "545")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT545)
+	(CHOICES CHOICES545)
+	(DESTINATIONS <LTABLE STORY642 STORY651>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT546 "With an heroic effort, you manage to get to the woman. Gathering her up, you run for the door, and stagger out into the cool night air, smoke and flames licking at your heels. The townsfolk give you a rousing cheer and the girl thanks you effusively for saving her mother.||Later, it transpires that the woman is actually a powerful sorceress whose experiments in fire magic went slightly wrong. Her name is Elissia the Traveller and she gives you a gift: a pale moonstone.||Elissia tells that you can use the moonstone by rubbing it, and you will be instantly teleported to the vicinity of the sunstone -- which she carries on a necklace. \"I will be here in Marlock City. Whenever you are desperate, at the end of your tether, or just want to get here fast, use the moonstone and you will appear beside me. I will do everything in my power to aid you, and then my debt to you will be repaid.\"">
 
 <ROOM STORY546
 	(DESC "546")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT546)
+	(CONTINUE STORY100)
+	(ITEMS <LTABLE MOONSTONE-OF-TELEPORTATION>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT547 "Your instinct was correct. The sea bed suddenly drops away, to reveal the ruins of the Sunken City of Ziusudra. Crumbling towers climb out of the hazy green depths, and shoals of flashing silverfish dart through the abandoned windows and doors of coral-encrusted buildings.||The creature you are following arrows down towards a large dome-like structure covered in waving tendrils of seaweed. It disappears through a hole in the roof of the dome.||Carefully, you swim down to the hole and look through, into the palace of the repulsive ones.">
 
 <ROOM STORY547
 	(DESC "547")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT547)
+	(CONTINUE STORY041)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT548 "You are crossing an area of fertile farmland, where much of the food is grown to feed the army. Little farmsteads dot the landscape, and the ploughed fields have the appearance of a patchwork quilt.">
+<CONSTANT CHOICES548 <LTABLE "East to Fort Estgard" "North to the road" "South to Blessed Springs" "To the Coldbleak Mountains" "To the Lake of the Sea Dragon">>
 
 <ROOM STORY548
 	(DESC "548")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(LOCATION LOCATION-SOKARA)
+	(STORY TEXT548)
+	(EVENTS STORY548-EVENTS)
+	(CHOICES CHOICES548)
+	(DESTINATIONS <LTABLE STORY472 STORY458 STORY510 STORY474 STORY135>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY548-EVENTS ("AUX" ROLL)
+	<COND (,RUN-ONCE
+		<SET ROLL <RANDOM-EVENT 1 0 T>>
+		<COND (<L=? .ROLL 2>
+			<EMPHASIZE "You were mistaken for a murderer! You flee into the mountains!">
+			<STORY-JUMP ,STORY474>
+			<RETURN>
+		)(<L=? .ROLL 4>
+			<EMPHASIZE ,NOTHING-HAPPENS>
+		)(ELSE
+			<EMPHASIZE "You find some leather armour (DEFENSE + 1)">
+			<TAKE-ITEM ,LEATHER-ARMOUR>
+		)>
+	)>
+	<IF-ALIVE ,TEXT-YOU-CAN-GO>>
+
+<CONSTANT TEXT549 "The priestess, dressed in a cloak made entirely of the leaves of trees, with her face smeared with moss, greets you. \"A tusk!\" she exclaims. \"But I have no need of another.\"||You ask if she might need it for the next time. \"Next time? Hmm, maybe you have a point.\"||She offers you 15 Shards.">
 
 <ROOM STORY549
 	(DESC "549")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT549)
+	(EVENTS STORY549-EVENTS)
+	(CONTINUE STORY195)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY549-EVENTS ()
+	<CRLF>
+	<TELL "Accept her offer (15 Shards for the boar's tusk)?">
+	<COND (<YES?>
+		<REMOVE-ITEM ,BOARS-TUSK "sold" T T>
+		<GAIN-MONEY 15>
+	)>>
 
 <ROOM STORY550
 	(DESC "550")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY550-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY550-BACKGROUND ()
+	<COND (<CHECK-ITEM ,GOLD-CHAIN-MAIL> <RETURN ,STORY380>)>
+	<RETURN ,STORY134>>
 
 <ROOM STORY551
 	(DESC "551")
