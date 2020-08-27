@@ -66,13 +66,13 @@
 <CONSTANT R-LOSE-ITEM 20> ; "lose item"
 
 ; "No requirements"
-<CONSTANT TWO-NONES <LTABLE R-NONE R-NONE>>
-<CONSTANT THREE-NONES <LTABLE R-NONE R-NONE R-NONE>>
-<CONSTANT FOUR-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE>>
-<CONSTANT FIVE-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE>>
-<CONSTANT SIX-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE>>
-<CONSTANT SEVEN-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE>>
-<CONSTANT EIGHT-NONES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE>>
+<CONSTANT TWO-CHOICES <LTABLE R-NONE R-NONE>>
+<CONSTANT THREE-CHOICES <LTABLE R-NONE R-NONE R-NONE>>
+<CONSTANT FOUR-CHOICES <LTABLE R-NONE R-NONE R-NONE R-NONE>>
+<CONSTANT FIVE-CHOICES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE>>
+<CONSTANT SIX-CHOICES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE>>
+<CONSTANT SEVEN-CHOICES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE>>
+<CONSTANT EIGHT-CHOICES <LTABLE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE R-NONE>>
 
 ; "ABILITIES"
 ; ---------------------------------------------------------------------------------------------
@@ -3829,18 +3829,25 @@
 	(DEFENSE 8)
 	(STAMINA 12)>
 
+<OBJECT MONSTER-TRICKSTER
+	(DESC "Trickster")
+	(COMBAT 2)
+	(DEFENSE 3)
+	(STAMINA 3)>
+
+<OBJECT MONSTER-TREE-GUARD
+	(DESC "Tree Guard")
+	(COMBAT 3)
+	(DEFENSE 7)
+	(STAMINA 10)
+	(FLAGS PLURALBIT)>
+
 <OBJECT MONSTER-TWO-RATMEN
 	(DESC "Two Ratmen")
 	(COMBAT 6)
 	(DEFENSE 9)
 	(STAMINA 9)
 	(FLAGS PLURALBIT)>
-
-<OBJECT MONSTER-TRICKSTER
-	(DESC "Trickster")
-	(COMBAT 2)
-	(DEFENSE 3)
-	(STAMINA 3)>
 
 <OBJECT MONSTER-WOLF
 	(DESC "Wolf")
@@ -4065,9 +4072,9 @@
 	<RETURN .RESULT>>
 
 ; "Wrapper for combat. Sets DOOM on result"
-<ROUTINE CHECK-COMBAT (MONSTER "OPT" STORY (MODIFIER 0) (LOOT NONE))
+<ROUTINE CHECK-COMBAT (MONSTER "OPT" STORY (MODIFIER 0) (LOOT NONE) (THRESHOLD 0))
 	<COND (<NOT .STORY> <SET STORY ,HERE>)>
-	<COND (<FIGHT .MONSTER .MODIFIER>
+	<COND (<FIGHT .MONSTER .MODIFIER .THRESHOLD>
 		<PREVENT-DOOM .STORY>
 		<COND (.LOOT <TAKE-ITEM .LOOT>)>
 		<RTRUE>
@@ -4099,7 +4106,7 @@
 	<TELL ,PERIOD-CR>
 	<UPDATE-STATUS-LINE>>
 
-<ROUTINE FIGHT (MONSTER "OPT" (MODIFIER 0) "AUX" RESULT ATTACK STAMINA-PLAYER COMBAT-PLAYER DEFENSE-PLAYER STAMINA-MONSTER COMBAT-MONSTER DEFENSE-MONSTER (ROUND 0))
+<ROUTINE FIGHT (MONSTER "OPT" (MODIFIER 0) (THRESHOLD 0) "AUX" RESULT ATTACK STAMINA-PLAYER COMBAT-PLAYER DEFENSE-PLAYER STAMINA-MONSTER COMBAT-MONSTER DEFENSE-MONSTER (ROUND 0))
 	<SET STAMINA-PLAYER ,STAMINA>
 	<COND (<L=? .STAMINA-PLAYER 0> <HAS-PREVAILED .MONSTER> <RETURN>)>
 	<SET DEFENSE-PLAYER <CALCULATE-DEFENSE ,CURRENT-CHARACTER>>
@@ -4147,7 +4154,7 @@
 		<COND (<G? .RESULT 0>
 			<ATTACK-MESSAGE ,CURRENT-CHARACTER .MONSTER .ATTACK .RESULT>
 			<SET STAMINA-MONSTER <- .STAMINA-MONSTER .RESULT>>
-			<COND (<L? .STAMINA-MONSTER 1> <RETURN>)>
+			<COND (<L=? .STAMINA-MONSTER .THRESHOLD> <RETURN>)>
 		)(ELSE
 			<ATTACK-INEFFECTIVE ,CURRENT-CHARACTER>
 		)>
@@ -4167,7 +4174,7 @@
 	<COND (<L? .STAMINA-PLAYER 0> <SET .STAMINA-PLAYER 0>)>
 	<SETG STAMINA .STAMINA-PLAYER>
 	<UPDATE-STATUS-LINE>
-	<COND (<L=? .STAMINA-MONSTER 0>
+	<COND (<L=? .STAMINA-MONSTER .THRESHOLD>
 		<HAS-PREVAILED ,CURRENT-CHARACTER>
 		<RTRUE>
 	)>
@@ -5725,7 +5732,7 @@
 	(DESC "030 Merchant - Selling")
 	(CHOICES YELLOWPORT-BUY-MENU)
 	(DESTINATIONS <LTABLE YELLOWPORT-BUY-ARMOUR YELLOWPORT-BUY-WEAPONS YELLOWPORT-BUY-MAGIC YELLOWPORT-BUY-OTHER STORY030>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM YELLOWPORT-BUY-ARMOUR
@@ -5770,7 +5777,7 @@
 	(DESC "030 Merchant - Buying")
 	(CHOICES YELLOWPORT-SELL-MENU)
 	(DESTINATIONS <LTABLE YELLOWPORT-SELL-ARMOUR YELLOWPORT-SELL-WEAPONS YELLOWPORT-SELL-WEAPONS1 YELLOWPORT-SELL-WEAPONS2 YELLOWPORT-SELL-WEAPONS3 YELLOWPORT-SELL-MAGIC YELLOWPORT-SELL-OTHER STORY030>)
-	(TYPES EIGHT-NONES)
+	(TYPES EIGHT-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM YELLOWPORT-SELL-ARMOUR
@@ -5846,7 +5853,7 @@
 	(DESC "152 Merchant - Selling")
 	(CHOICES VENEFAX-BUY-MENU)
 	(DESTINATIONS <LTABLE VENEFAX-BUY-GEAR VENEFAX-BUY-OTHER STORY152>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM VENEFAX-BUY-GEAR
@@ -5865,7 +5872,7 @@
 	(DESC "152 Merchant - Buying")
 	(CHOICES VENEFAX-SELL-MENU)
 	(DESTINATIONS <LTABLE VENEFAX-SELL-GEAR VENEFAX-SELL-OTHER STORY152>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM VENEFAX-SELL-GEAR
@@ -5902,7 +5909,7 @@
 	(DESC "215 Merchant - Selling")
 	(CHOICES CARAN-BUY-MENU)
 	(DESTINATIONS <LTABLE CARAN-BUY-ARMOUR CARAN-BUY-WEAPONS CARAN-BUY-WEAPONS1 CARAN-BUY-WEAPONS2 CARAN-BUY-OTHER STORY215>)
-	(TYPES SIX-NONES)
+	(TYPES SIX-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM CARAN-BUY-ARMOUR
@@ -5954,7 +5961,7 @@
 	(DESC "215 Merchant - Buying")
 	(CHOICES CARAN-SELL-MENU)
 	(DESTINATIONS <LTABLE CARAN-SELL-ARMOUR CARAN-SELL-WEAPONS CARAN-SELL-WEAPONS1 CARAN-SELL-WEAPONS2 CARAN-SELL-WEAPONS3 CARAN-SELL-MAGIC CARAN-SELL-OTHER STORY215>)
-	(TYPES EIGHT-NONES)
+	(TYPES EIGHT-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM CARAN-SELL-ARMOUR
@@ -6051,7 +6058,7 @@
 	(DESC "358 Merchant - Selling")
 	(CHOICES CARAN-BUY-MENU)
 	(DESTINATIONS <LTABLE TREES-BUY-GEAR TREES-BUY-OTHER STORY358>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM TREES-BUY-GEAR
@@ -6070,7 +6077,7 @@
 	(DESC "358 Merchant - Buying")
 	(CHOICES CARAN-BUY-MENU)
 	(DESTINATIONS <LTABLE TREES-SELL-GEAR TREES-SELL-OTHER STORY358>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM TREES-SELL-GEAR
@@ -6106,7 +6113,7 @@
 	(DESC "396 Merchant - Selling")
 	(CHOICES MARLOCK-BUY-MENU)
 	(DESTINATIONS <LTABLE MARLOCK-BUY-ARMOUR MARLOCK-BUY-WEAPONS MARLOCK-BUY-OTHER STORY396>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM MARLOCK-BUY-ARMOUR
@@ -6142,7 +6149,7 @@
 	(DESC "396 Merchant - Buying")
 	(CHOICES MARLOCK-SELL-MENU)
 	(DESTINATIONS <LTABLE MARLOCK-SELL-ARMOUR MARLOCK-SELL-WEAPONS1 MARLOCK-SELL-WEAPONS2 MARLOCK-SELL-MAGIC MARLOCK-SELL-OTHER STORY396>)
-	(TYPES SIX-NONES)
+	(TYPES SIX-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM MARLOCK-SELL-ARMOUR
@@ -6199,7 +6206,7 @@
 	(DESC "452 Merchant - Selling")
 	(CHOICES TRADING-BUY-MENU)
 	(DESTINATIONS <LTABLE TRADING-BUY-GEAR TRADING-BUY-OTHER STORY452>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM TRADING-BUY-GEAR
@@ -6226,7 +6233,7 @@
 	(DESC "452 Merchant - Buying")
 	(CHOICES TRADING-SELL-MENU)
 	(DESTINATIONS <LTABLE TRADING-SELL-ARMOUR TRADING-SELL-WEAPON TRADING-SELL-OTHER STORY452>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM TRADING-SELL-ARMOUR
@@ -6350,6 +6357,8 @@
 	<PUTP ,STORY514 ,P?DOOM T>
 	<PUTP ,STORY520 ,P?DOOM T>
 	<PUTP ,STORY529 ,P?DOOM T>
+	<PUTP ,STORY569 ,P?DOOM T>
+	<PUTP ,STORY570 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -6409,6 +6418,7 @@
 <CONSTANT TEXT-RENOUNCE-WORSHIP "Renounce worship">
 <CONSTANT TEXT-RESURRECTION-ARRANGEMENTS "Make Resurrection Arrangements">
 <CONSTANT TEXT-SEEK-BLESSING "Seek a blessing">
+<CONSTANT CHOICES-STANDARD-TEMPLE <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-LEAVE-TEMPLE>>
 
 <CONSTANT TEXT-INITIATE-ALMIR-VALMIR "Becoming an initiate of Alvir and Valmir gives you the benefit of paying less for blessings and other services the temple can offer. It costs 40 Shards to become an initiate. You cannot do this if you are already an initiate of another temple.">
 
@@ -6522,7 +6532,7 @@
 	(STORY TEXT001)
 	(CHOICES CHOICES001)
 	(DESTINATIONS <LTABLE STORY736 STORY020>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT002 "You are face to face with a soldier. But is he friend -- or foe?">
@@ -6545,7 +6555,7 @@
 	(STORY TEXT003)
 	(CHOICES CHOICES003)
 	(DESTINATIONS <LTABLE STORY665 STORY271 STORY276>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT004 "The priests of Alvir and Valmir are overjoyed that you have returned the golden net. The high priest rewards you with 100 Shards and a rune-engraved magic weapon.">
@@ -6853,7 +6863,7 @@
 	(STORY TEXT020)
 	(CHOICES CHOICES020)
 	(DESTINATIONS <LTABLE STORY192 STORY128 STORY257>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(CODEWORDS <LTABLE CODEWORD-AURIC>)
 	(FLAGS LIGHTBIT)>
 
@@ -6865,7 +6875,7 @@
 	(STORY TEXT021)
 	(CHOICES CHOICES021)
 	(DESTINATIONS <LTABLE STORY689 STORY690>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT022 "You reach down and deftly pull out the ceramic plug. A gush of foul-smelling emerald green liquid spills on to the floor, and the golem twitches once before collapsing. The other golem is coming to life, however. You'll have to be quick to get it in time.">
@@ -6887,7 +6897,7 @@
 	(STORY TEXT023)
 	(CHOICES CHOICES023)
 	(DESTINATIONS <LTABLE STORY479 STORY520>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT024 "You will need to subdue the king and his henchmen with a spell.">
@@ -6938,7 +6948,7 @@
 	(STORY TEXT028)
 	(CHOICES CHOICES028)
 	(DESTINATIONS <LTABLE STORY560 STORY558 STORY250 STORY100 STORY099>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT029 "Your ship is sailing in the coastal waters beside Yellowport. There are a number of other ships, mostly merchantmen, but there are also a few warships of the Sokaran Imperial Navy. \"At least we won't be plagued by pirates with the navy around,\" says the first mate.">
@@ -7038,7 +7048,7 @@ footing and fall to the ground.">
 	(STORY TEXT035)
 	(CHOICES CHOICES035)
 	(DESTINATIONS <LTABLE STORY515 STORY097 STORY602 STORY166>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT036 "Soon you realize you are completely lost in this strange, magical forest. You wander around for days, barely able to find enough food and water.">
@@ -7115,7 +7125,7 @@ footing and fall to the ground.">
 	(STORY TEXT041)
 	(CHOICES CHOICES041)
 	(DESTINATIONS <LTABLE STORY035 STORY121 STORY592 STORY487>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT042 "Two hulking shapes appear out of the shadows as if from nowhere. They are hideous creatures: manlike, standing on two legs, but with the tail and hairy features of a gigantic rat. Their yellowing teeth snap at you as they lunge for you; the ratmen also wield wicked-looking shortswords in their hands. \"Gut the human!\" yells one of them in a bestial voice. You must fight them, both at once, as if they were one opponent.">
@@ -7210,7 +7220,7 @@ footing and fall to the ground.">
 	(STORY TEXT047)
 	(CHOICES CHOICES047)
 	(DESTINATIONS <LTABLE STORY596 STORY110 STORY333 STORY560 STORY387>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT048 "The warden is in charge of security. \"We have had an unfortunate, umm... accident,\" he says worriedly. \"In the crypt below the temple we sometimes experiment with the corpses of the dead -- you know, the occasional zombie, part of the rituals in honour of the particular aspect of Nagil we revere here. It seems a ghoul has escaped from the pits and is terrorizing the city at night. We'd rather someone like you sorted the problem out before the city militia got to hear of it. Destroy it and bring me the ghoul's head.\"||\"Search for it at night,\" says the warden as you leave.">
@@ -7336,7 +7346,7 @@ footing and fall to the ground.">
 	(EVENTS STORY053-EVENTS)
 	(CHOICES CHOICES053)
 	(DESTINATIONS <LTABLE STORY602 STORY166>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY053-EVENTS ()
@@ -7373,7 +7383,7 @@ footing and fall to the ground.">
 	(STORY TEXT056)
 	(CHOICES CHOICES056)
 	(DESTINATIONS <LTABLE STORY496 STORY085>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT057 "You manage to lose them amid the back streets of Yellowport. Once the heat
@@ -7407,7 +7417,7 @@ is off, you return to the city centre.">
 	(STORY TEXT059)
 	(CHOICES CHOICES059)
 	(DESTINATIONS <LTABLE STORY010 STORY386 STORY584>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(ITEMS <LTABLE VERDIGRIS-KEY>)
 	(FLAGS LIGHTBIT)>
 
@@ -7423,7 +7433,7 @@ is off, you return to the city centre.">
 	(EVENTS STORY060-EVENTS)
 	(CHOICES CHOICES060)
 	(DESTINATIONS <LTABLE STORY518 STORY458 STORY201>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(DOOM T)
 	(FLAGS LIGHTBIT)>
 
@@ -7503,7 +7513,7 @@ is off, you return to the city centre.">
 	(STORY TEXT065)
 	(CHOICES CHOICES065)
 	(DESTINATIONS <LTABLE STORY128 STORY257 STORY008 STORY180 STORY330>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT066 "You stand your ground. The ghostly horses stream past you on either side, neighing wildly at the sky. Nimbly, you leap at one, and manage to wrap your arms around its neck, and swing on to its back. The horse feels quite solid, but appears to be a luminous, pale-green colour. You look up through a cloud of sparks emanating from the horse's mane just in time to see a rocky wall of a low hill looming up out of the evening mist. Your horse is galloping full tilt right into it!">
@@ -7514,7 +7524,7 @@ is off, you return to the city centre.">
 	(STORY TEXT066)
 	(CHOICES CHOICES066)
 	(DESTINATIONS <LTABLE STORY017 STORY028>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY067
@@ -7565,7 +7575,7 @@ is off, you return to the city centre.">
 	(STORY TEXT071)
 	(CHOICES CHOICES071)
 	(DESTINATIONS <LTABLE STORY409 STORY187 STORY478 STORY048 STORY100>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY071-BACKGROUND ()
@@ -7580,7 +7590,7 @@ is off, you return to the city centre.">
 	(STORY TEXT072)
 	(CHOICES CHOICES072)
 	(DESTINATIONS <LTABLE STORY371 STORY527>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY073
@@ -7665,7 +7675,7 @@ is off, you return to the city centre.">
 	(STORY TEXT080)
 	(CHOICES CHOICES080)
 	(DESTINATIONS <LTABLE STORY425 STORY010>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT081 "This could be a tough fight.">
@@ -7692,7 +7702,7 @@ stink, laden with sulphur as it is.">
 	(EVENTS STORY082-EVENTS)
 	(CHOICES CHOICES082)
 	(DESTINATIONS <LTABLE STORY310 STORY010 STORY558 STORY278>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY082-EVENTS ("AUX" ROLL)
@@ -7723,7 +7733,7 @@ stink, laden with sulphur as it is.">
 	(EVENTS STORY-RESET-CREW)
 	(CHOICES CHOICES084)
 	(DESTINATIONS <LTABLE STORY142 STORY222>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT085 "You are sailing around Scorpion Bight.">
@@ -7734,18 +7744,17 @@ stink, laden with sulphur as it is.">
 	(STORY TEXT085)
 	(CHOICES CHOICES085)
 	(DESTINATIONS <LTABLE STORY190 STORY029 STORY136 STORY416 STORY176>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT086 "The temple of the Three Fortunes is a squat, square building. A frieze above the door depicts three women weaving a tapestry. \"That's the Tapestry of Fate, wherein our destiny is woven,\" comments a priest.">
-<CONSTANT CHOICES086 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY086
 	(DESC "086")
 	(STORY TEXT086)
-	(CHOICES CHOICES086)
+	(CHOICES CHOICES-STANDARD-TEMPLE)
 	(DESTINATIONS <LTABLE STORY258 STORY573 STORY603 STORY400>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT087 "You are on the road between Blessed Springs and Venefax. Pilgrims, the sick and the injured travel this route to the holy waters of Blessed Springs to find salvation.">
@@ -7760,7 +7769,7 @@ stink, laden with sulphur as it is.">
 	(EVENTS STORY087-EVENTS)
 	(CHOICES CHOICES087)
 	(DESTINATIONS <LTABLE STORY510 STORY427 STORY548>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(DOOM T)
 	(FLAGS LIGHTBIT)>
 
@@ -7934,7 +7943,7 @@ stink, laden with sulphur as it is.">
 	(STORY TEXT099)
 	(CHOICES CHOICES099)
 	(DESTINATIONS <LTABLE STORY-CITIES-GOLD-GLORY STORY-CITIES-GOLD-GLORY STORY333 STORY175 STORY560 STORY579 STORY100>)
-	(TYPES SEVEN-NONES)
+	(TYPES SEVEN-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT100 "Marlock City is a huge sprawling metropolis, enclosed in a fortified wall said to have been built one thousand years ago by the ancient Shadar empire. It is the capital city of Sokara. Marlock City was once known as Sokar, until General Grieve Marlock led the army in bloody revolt against the old king, Corin VII, and had him executed. The general renamed the city after himself. It is now a crime to call it Sokar.||The general lives in the old king's palace, and calls himself the Protector-General of all Sokara. Whereas the old king was corrupt, the general rules with a fist of iron. Some people like the new regime; others are royalists, still loyal to Nergan, the heir to the throne, who has gone into hiding somewhere.||Outside the city gates hang the bodies of many dead people. Labels around their necks read: \"Rebels, executed by the state for the good of the people.\"||\"You'd best behave yourself if you don't want to end up like one of them,\" grates a guardsman, nodding toward the swinging corpses, as you pass through the great eagle-headed gates of Marlock City.||You can buy a townhouse in Marlock City for 200 Shards. Owning a townhouse gives you a place to rest, and to store equipment.||To leave Marlock City by sea, or to buy or sell ships and cargo, go to the
@@ -8157,7 +8166,7 @@ harbourmaster.">
 	(STORY TEXT109)
 	(CHOICES CHOICES109)
 	(DESTINATIONS <LTABLE STORY540 STORY100>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT110 "You are walking through the Bronze Hills. Virtually the whole area has been given over to mining. Everywhere, quarries and mine shafts abound. It is a horrible expanse of torn-up earth -- hardly any areas of green are left. Great heaps of excavated rock, leeched of their useful minerals, mar the landscape. You find a quarry that is open to the public. That is to say, if you pay 50 Shards, you can dig for an hour in a silver mine.">
@@ -8181,7 +8190,7 @@ harbourmaster.">
 	(STORY TEXT111)
 	(CHOICES CHOICES111)
 	(DESTINATIONS <LTABLE STORY111 STORY035>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT112 "The merchants' guild is comparatively small here. Most of its work involves financial services for the army. Here you can bank your money for safe-keeping, but there are no facilities for investment.">
@@ -8192,7 +8201,7 @@ harbourmaster.">
 	(STORY TEXT112)
 	(CHOICES CHOICES112)
 	(DESTINATIONS <LTABLE STORY605 STORY400>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT CHOICES113 <LTABLE HAVE-CODEWORD YOU-ARE-A "Otherwise, the high priest has little to say; your is cut short.">>
@@ -8328,9 +8337,7 @@ harbourmaster.">
 		<PUTP ,STORY121 ,P?DOOM T>
 		<COMBAT-MONSTER ,MONSTER-REPULSIVE-ONE <GET .REPULSIVE-COMBAT .I> <GET .REPULSIVE-DEFENSE .I> 10>
 		<CHECK-COMBAT ,MONSTER-REPULSIVE-ONE ,STORY121>
-		<COND (<IS-ALIVE>
-			<PREVENT-DOOM ,STORY121>
-		)(ELSE
+		<COND (<NOT <IS-ALIVE>>
 			<RETURN>
 		)>
 	>
@@ -8419,7 +8426,7 @@ harbourmaster.">
 	(STORY TEXT129)
 	(CHOICES CHOICES129)
 	(DESTINATIONS <LTABLE STORY641 STORY100>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT130 "You are greeted by several of the knights.||\"We'll not fight you anymore,\" says the Blue Dragon Knight.||\"We keep losing,\" says the Green Dragon Knight.||\"And it's costing us a fortune in armour, not to say a lot of bruises,\" says the Red Dragon Knight.">
@@ -8477,7 +8484,7 @@ harbourmaster.">
 	(STORY TEXT135)
 	(CHOICES CHOICES135)
 	(DESTINATIONS <LTABLE STORY382 STORY292 STORY203 STORY474 STORY548 STORY278 STORY576 STORY387>)
-	(TYPES EIGHT-NONES)
+	(TYPES EIGHT-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT136 "The Sea of Whispers. Under a grey-blue sky, the sea is uncannily quiet and flat as a pane of glass. At night, however, the waters seem to come alive with an eerie whispering. One of your crew tells you that the sounds you heard at night are the sea centaurs speaking to one another across the waves.">
@@ -8537,7 +8544,7 @@ harbourmaster.">
 	(STORY TEXT141)
 	(CHOICES CHOICES141)
 	(DESTINATIONS <LTABLE STORY368 STORY261 STORY481 STORY077 STORY010>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT142 "All shipping in and out of Marlock City must come through the offices of the harbourmaster. Here you can buy passage to far lands, or even a ship of your own, to fill with cargo and crew.||You can buy a one-way passage on a ship to the following destinations: Yellowport, Wishport, Sorcerers' Isle, Copper Island.||If you buy a ship, you are the captain, and can take it wherever you wish, exploring or trading. You also get to name it. There are three types of ship, and four quality levels of crew. You can also buy cargo for your ship to sell in other ports.||The quality of the ship's crew is average unless you pay to upgrade it. If you already own a ship, you can sell it to the harbourmaster at half the listed prices.||It costs 50 Shards to upgrade a poor crew to average, 100 Shards to upgrade an average crew to good, and 150 Shards to upgrade a good crew to excellent.||Cargo can be bought at Marlock City and sold at other ports for profit. If you own a ship you may buy as many Cargo Units as it has room for. You may also sell cargo, if you have any. Prices quoted are for entire Cargo Units.">
@@ -8667,7 +8674,7 @@ harbourmaster.">
 	(STORY TEXT152)
 	(CHOICES CHOICES152)
 	(DESTINATIONS <LTABLE VENEFAX-BUY VENEFAX-SELL STORY427>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY152-BACKGROUND ()
@@ -8683,14 +8690,13 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT154 "The temple of Alvir and Valmir, Divine Rulers of the House of the Sea, is right on the teeming harbour of Marlock City. Its sea-green marbled porticos are draped in a hundred silver nets. Brother and sister, Alvir and Valmir rule below the waves. Alvir brings the souls of the drowned in his nets before his sister, Valmir, for judgment.||A swaggering ship's captain emerges from the temple, saying to you in passing, \"Never, I mean never go to sea without paying your respects to the twin gods -- unless ye want to sail through a world of storms.\"">
-<CONSTANT CHOICES154 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY154
 	(DESC "154")
 	(STORY TEXT154)
-	(CHOICES CHOICES154)
+	(CHOICES CHOICES-STANDARD-TEMPLE)
 	(DESTINATIONS <LTABLE STORY343 STORY068 STORY275 STORY100>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT155 "One of the Trading Post sailors rows you out to your ship anchored in the bay. The sky is clear and the smell of the sea fills your heart with wanderlust. \"Welcome aboard, Cap'n,\" says the mate.">
@@ -8701,7 +8707,7 @@ harbourmaster.">
 	(STORY TEXT155)
 	(CHOICES CHOICES155)
 	(DESTINATIONS <LTABLE STORY136 STORY195>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT156 "The priest looks you over. \"I'm afraid we have no one skilled enough to cure you. However, I believe the temple of Maka in Yellowport might be able to help. And the holy waters at Blessed Springs are known to be efficacious in this kind of case.\"">
@@ -8737,7 +8743,7 @@ harbourmaster.">
 	(CHOICES CHOICES158)
 	(DESTINATIONS <LTABLE STORY158-SHARDS STORY100>)
 	(REQUIREMENTS <LTABLE 3 NONE>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY158-EVENTS ()
@@ -8834,7 +8840,7 @@ harbourmaster.">
 	(STORY TEXT165)
 	(CHOICES CHOICES165)
 	(DESTINATIONS <LTABLE STORY552 STORY444>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT166 "You are on the road between Marlock City and the Shadar Tor. Along most of the length of the road, a thin sliver of a shanty town has grown up. Tents and lean-tos line the way. You find out that the people living here are refugees from Trefoille. The city was burnt to the ground during the recent civil war, in which the old king was overthrown.">
@@ -8848,7 +8854,7 @@ harbourmaster.">
 	(EVENTS STORY166-EVENTS)
 	(CHOICES CHOICES166)
 	(DESTINATIONS <LTABLE STORY100 STORY035>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY166-EVENTS ("AUX" ROLL)
@@ -8895,7 +8901,7 @@ harbourmaster.">
 	(STORY TEXT169)
 	(CHOICES CHOICES169)
 	(DESTINATIONS <LTABLE STORY286 STORY394 STORY443>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY169-BACKGROUND ()
@@ -8966,7 +8972,7 @@ harbourmaster.">
 	(STORY TEXT175)
 	(CHOICES CHOICES175)
 	(DESTINATIONS <LTABLE STORY390 STORY066>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY175-BACKGROUND ()
@@ -9123,7 +9129,7 @@ harbourmaster.">
 	(STORY TEXT189)
 	(CHOICES CHOICES189)
 	(DESTINATIONS <LTABLE STORY035 STORY121 STORY592>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT190 "You are sailing along the coast off Blessed Springs and Fort Brilon. Gulls cluster around the ship, looking for food. Their cries echo across the vasty seas.">
@@ -9199,7 +9205,7 @@ harbourmaster.">
 	(STORY TEXT195)
 	(CHOICES CHOICES195)
 	(DESTINATIONS <LTABLE STORY544 STORY452 STORY332 STORY181 STORY011 STORY257>)
-	(TYPES SIX-NONES)
+	(TYPES SIX-CHOICES)
 	(CODEWORDS <LTABLE CODEWORD-ASPEN>)
 	(FLAGS LIGHTBIT)>
 
@@ -9293,7 +9299,7 @@ harbourmaster.">
 	(STORY TEXT201)
 	(CHOICES CHOICES201)
 	(DESTINATIONS <LTABLE STORY271 STORY400 STORY276 STORY060>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT202 "Gingerly, you open the door. It leads to a curtained alcove, through which you observe the room beyond. It is a long, low hall -- clearly an ancient Uttakin temple, from a time when the Masked Lords of Uttaku ruled all of Harkuna, but now part of the sewers of Yellowport.||A cheap wooden chair has been placed on the altar to act as a throne. On it sits a large and extremely ugly ratman. He has a tawdry amulet around his neck, and a rusty iron hoop for a crown. Several ratmen are kneeling before him, engaged in conversation.||\"But, Skabb...\" one of the rat men is saying.||\"That's Great King Skabb to you, dung-breath!!\" bellows the rat on the throne.">
@@ -9304,7 +9310,7 @@ harbourmaster.">
 	(STORY TEXT202)
 	(CHOICES CHOICES202)
 	(DESTINATIONS <LTABLE STORY428 STORY595 STORY024 STORY336>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT203 "You can hire a fishing boat for 15 Shards a day. It comes with a fishing net.">
@@ -9315,7 +9321,7 @@ harbourmaster.">
 	(STORY TEXT203)
 	(CHOICES CHOICES203)
 	(DESTINATIONS <LTABLE STORY267 STORY135>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT204 "There are simply too many of them, and you are beaten into submission. Your end is grisly indeed -- killed, boiled with herbs and garlic, and eaten by the cannibal cultists of Badogor the Unspoken.">
@@ -9334,7 +9340,7 @@ harbourmaster.">
 	(STORY TEXT205)
 	(CHOICES CHOICES205)
 	(DESTINATIONS <LTABLE STORY493 STORY097 STORY602 STORY166>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT206 "The crew absolutely refuses to sail into the Unbounded Ocean. \"There's no land out there, and the seas are infested with Demons of the Deep. If we go too far, we'll fall off the edge of the world!\" says the first mate.||You have no choice but to reconsider your destination.">
@@ -9355,7 +9361,7 @@ harbourmaster.">
 	(STORY TEXT207)
 	(CHOICES CHOICES207)
 	(DESTINATIONS <LTABLE STORY293 STORY464>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY207-BACKGROUND ()
@@ -9378,7 +9384,7 @@ harbourmaster.">
 	(STORY TEXT209)
 	(CHOICES CHOICES209)
 	(DESTINATIONS <LTABLE STORY249 STORY430 STORY136>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT210 "They fall back for a moment, but your invocation fails to take hold, and they close in. You must fight them one at a time.">
@@ -9433,7 +9439,7 @@ paste on the ground below.">
 	(EVENTS STORY213-EVENTS)
 	(CHOICES CHOICES213)
 	(DESTINATIONS <LTABLE STORY602 STORY166>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY213-EVENTS ()
@@ -9458,7 +9464,7 @@ paste on the ground below.">
 	(STORY TEXT215)
 	(CHOICES CHOICES215)
 	(DESTINATIONS <LTABLE CARAN-BARU-BUY CARAN-BARU-SELL STORY400>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT216 "The cry goes up throughout the palace, \"Murder! Assassin!\" and the hunt is on -- for you. You will need all your skill to get out of the palace alive.">
@@ -9581,7 +9587,7 @@ paste on the ground below.">
 	(STORY TEXT226)
 	(CHOICES CHOICES226)
 	(DESTINATIONS <LTABLE STORY015 STORY129 STORY619>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT227 "The mad beggar takes the money and swallows the lot in one gulp. \"A gourmet meal!\" he babbles.">
@@ -9593,7 +9599,7 @@ paste on the ground below.">
 	(EVENTS STORY227-EVENTS)
 	(CHOICES CHOICES227)
 	(DESTINATIONS <LTABLE STORY632 STORY010>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY227-EVENTS ()
@@ -9653,7 +9659,7 @@ paste on the ground below.">
 	(STORY TEXT231)
 	(CHOICES CHOICES231)
 	(DESTINATIONS <LTABLE STORY023 STORY541>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT232 "The interior of the cave is cool and refreshing, a paradise compared with the savage heat of your gruelling climb. You find a man, floating cross-legged in the middle of the air! He is dressed only in a loincloth, and is painfully thin. His face is shrouded in a great luxuriant growth of glossy black hair, a beard like no other you have ever seen.||At the sight of you, he gives an exasperated sigh. \"I am Damor the Hermit. You know what a hermit is? That means I like to live alone. So go away!\"||\"I nearly died getting here, old man.\"||\"I guess you would have to be pretty tough to get through the curse I put on the path,\" he says apologetically.">
@@ -9713,7 +9719,7 @@ paste on the ground below.">
 	(STORY TEXT235)
 	(CHOICES CHOICES235)
 	(DESTINATIONS <LTABLE STORY113 STORY437 STORY563 STORY197 STORY100>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT236 "You find Fourze inside, desperately trying to get out of his suit and run off. At the sight of a hardened adventurer rather than a timid villager, he surrenders and confesses all. He terrified people with the monster disguise to keep them away from the farm. He and his men were kidnapping villagers, chaining them in the cellar below and selling them to a slaver from Caran Baru, for work in the slave mines. You find Haylie and several other villagers down below in the cellar.||\"Don't hurt me,\" begs Fourze, \"I'm only trying to make a few Shards.\"||\"By selling your own people into slavery,\" says one of the villagers, giving him a good kick.||You lead them back to Venefax.">
@@ -9807,7 +9813,7 @@ paste on the ground below.">
 	(STORY TEXT243)
 	(CHOICES CHOICES243)
 	(DESTINATIONS <LTABLE STORY386 STORY534>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT244 "You have come to the foothills of the Spine of Harkun. The great mountains rise up majestically before you, their snowcapped peaks wreathed in clouds. You find a clear, cold stream, where you drink your fill and replenish your water supply.">
@@ -9818,7 +9824,7 @@ paste on the ground below.">
 	(STORY TEXT244)
 	(CHOICES CHOICES244)
 	(DESTINATIONS <LTABLE STORY536 STORY518 STORY495 STORY271>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT245 "The footprints cross a stream, and there you lose them. After an hour's fruitless searching by moonlight, you are forced to give up and go back to the village. There you are admonished for being reckless.||\"What if the ghosts had taken you with them back to their graves?\" says one man grimly.||The next day you are ready to resume your journey.">
@@ -9829,7 +9835,7 @@ paste on the ground below.">
 	(STORY TEXT245)
 	(CHOICES CHOICES245)
 	(DESTINATIONS <LTABLE STORY576 STORY082 STORY278 STORY558>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT246 "Have you already successfully stolen the gold chain mail of Tyrnai for the Temple of Sig?">
@@ -9929,7 +9935,7 @@ paste on the ground below.">
 	(STORY TEXT253)
 	(CHOICES CHOICES253)
 	(DESTINATIONS <LTABLE STORY313 STORY615>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT254 "You ask for a kiss. \"A kiss is not so easily won,\" says one of the merfolk. \"Tell us a tale to stir our hearts, then we may reward you.\"">
@@ -10014,7 +10020,7 @@ paste on the ground below.">
 	(EVENTS STORY259-EVENTS)
 	(CHOICES CHOICES259)
 	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY472 STORY548 STORY466>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY259-EVENTS ("AUX" ROLL COUNT)
@@ -10186,7 +10192,7 @@ paste on the ground below.">
 	(STORY TEXT271)
 	(CHOICES CHOICES271)
 	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY003 STORY244 STORY201 STORY518>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY272
@@ -10250,7 +10256,7 @@ paste on the ground below.">
 	(STORY TEXT276)
 	(CHOICES CHOICES276)
 	(DESTINATIONS <LTABLE STORY611 STORY123 STORY003 STORY201 STORY110 STORY047>)
-	(TYPES SIX-NONES)
+	(TYPES SIX-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT277 "A patrol of militiamen -- mercenaries in the pay of the dictator, General Grieve Marlock -- stop you in the street.">
@@ -10274,7 +10280,7 @@ paste on the ground below.">
 	(EVENTS STORY278-EVENTS)
 	(CHOICES CHOICES278)
 	(DESTINATIONS <LTABLE STORY427 STORY310 STORY135 STORY087>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY278-EVENTS ("AUX" ROLL)
@@ -10319,7 +10325,7 @@ paste on the ground below.">
 	(STORY TEXT281)
 	(CHOICES CHOICES281)
 	(DESTINATIONS <LTABLE STORY602 STORY166>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT282 "The Temple of Tyrnai, the God of Battle, Chaos and Strife, is built like a small fortress in one corner of the city, near the barracks. Its heavy wooden gates are flanked by iron statues of bull-headed men wielding clubs. The workmanship is uncannily lifelike. Inside the temple, the god is represented by a stone idol of a jaguar-headed warrior. A beautiful suit of gold chain mail adorns the idol.">
@@ -10331,7 +10337,7 @@ paste on the ground below.">
 	(STORY TEXT282)
 	(CHOICES CHOICES282)
 	(DESTINATIONS <LTABLE STORY636 STORY514 STORY107 STORY033 STORY400>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY282-BACKGROUND ()
@@ -10346,7 +10352,7 @@ paste on the ground below.">
 	(STORY TEXT283)
 	(CHOICES CHOICES283)
 	(DESTINATIONS <LTABLE STORY590 STORY576 STORY082 STORY278 STORY558>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT284 "You find an open window and squeeze through into a long hall. Your foot, however, snags on a thin wire stretched across the floor. The wire triggers a loud bell-like gonging that alerts the temple. You have little choice but to run for your life as warrior priests swarm out of the temple and the iron statues at its gates come to life to join in the chase.">
@@ -10444,7 +10450,7 @@ paste on the ground below.">
 	(STORY TEXT292)
 	(CHOICES CHOICES292)
 	(DESTINATIONS <LTABLE LOCAL-MARKET-BUY LOCAL-MARKET-SELL STORY135>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT293 "The merchantman has suffered a lot of damage, and the remaining crewmen are half dead with thirst. You give them water and help to repair the ship. The captain, a woman dressed in multi-coloured feather robes and an ornate headdress, is most grateful. She tells you her name is Moon of Evening and that she comes from Smogmaw, the city at the Misty Estuary, in far off Ankon-konu. She tells you to visit her, if you are ever in Smogmaw, so that she can repay the debt.||You sail on.">
@@ -10529,7 +10535,7 @@ paste on the ground below.">
 	(EVENTS STORY299-EVENTS)
 	(CHOICES CHOICES299)
 	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY472 STORY548 STORY458 STORY518>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(DOOM T)
 	(FLAGS LIGHTBIT)>
 
@@ -10548,9 +10554,11 @@ paste on the ground below.">
 			<PREVENT-DOOM ,STORY299>
 		)>
 	)>
-	<CRLF>
-	<TELL ,TEXT-YOU-CAN-GO>
-	<CRLF>>
+	<COND (<IS-ALIVE>
+		<CRLF>
+		<TELL ,TEXT-YOU-CAN-GO>
+		<CRLF>
+	)>>
 
 <ROOM STORY300
 	(DESC "300")
@@ -10578,7 +10586,7 @@ paste on the ground below.">
 	(STORY TEXT302)
 	(CHOICES CHOICES302)
 	(DESTINATIONS <LTABLE STORY093 STORY587 STORY277>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT303 "As fast as you can, you lay out a line of the powder in front of you. The ghoul gives a moaning wail and shrinks back, unable to cross the line of salt and iron filings. Quickly you run around the ghoul, encircling it with the powder. The creature lunges for you but it cannot cross the line -- you keep it at bay at every turn. Soon it is completely trapped. Casually, you sit on a tombstone, and wait for sunrise. With the first rays of dawn the ghoul is burnt to a crisp. You take the charred head and make your way back to town.">
@@ -10745,7 +10753,7 @@ paste on the ground below.">
 	(STORY TEXT314)
 	(CHOICES CHOICES314)
 	(DESTINATIONS <LTABLE STORY097 STORY602 STORY166>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT315 "With the gorlock out of the way, you are free to investigate its lair. Inside the cave, you find 500 Shards, a mace and a silver nugget.">
@@ -10762,14 +10770,13 @@ paste on the ground below.">
 	<GAIN-MONEY 500>>
 
 <CONSTANT TEXT316 "The temple of Elnir is an imposing edifice of grey stone, inlaid with yellow marbling. Elnir is the god of the sky and of kingship. He is the ruler of the gods.||\"His dreams are the clouds before a storm,\" says a passing priest.">
-<CONSTANT CHOICES316 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY316
 	(DESC "316")
 	(STORY TEXT316)
-	(CHOICES CHOICES316)
+	(CHOICES CHOICES-STANDARD-TEMPLE)
 	(DESTINATIONS <LTABLE STORY291 STORY143 STORY388 STORY010>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT317 "It is the same craft you got the magic spear from, with the silver-skinned demon inside -- still dead, you presume. You examine it again, but there is nothing else of interest on board. The figure still lies there unmoving. You sail on">
@@ -10817,7 +10824,7 @@ paste on the ground below.">
 	(STORY TEXT320)
 	(CHOICES CHOICES320)
 	(DESTINATIONS <LTABLE STORY204 STORY101 STORY061>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT321 "The Black Dragon Knight comes out to meet you. His armour is of black steel, and you think you can see glowing red eyes through the slits in his full-face helm. You must fight him.">
@@ -10921,7 +10928,7 @@ paste on the ground below.">
 	(DESC "330")
 	(CHOICES CHOICES330)
 	(DESTINATIONS <LTABLE STORY719 STORY065>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT331 "You fall into conversation with Pyletes, a kindly old scholar priest of Molhern, the God of Knowledge.||\"Many years ago, the Book of the Seven Sages was stolen from us,\" he says. \"News suggests that the scorpion men are in possession of it. I need a young adventurer like yourself to travel to Scorpion Bight and return the book to me. In return I can show you how to improve the skill of your choice.\"">
@@ -10965,7 +10972,7 @@ paste on the ground below.">
 	(EVENTS STORY333-EVENTS)
 	(CHOICES CHOICES333)
 	(DESTINATIONS <LTABLE STORY-CITIES-GOLD-GLORY STORY047 STORY123 STORY099>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY333-EVENTS ("AUX" ROLL COUNT)
@@ -11019,7 +11026,7 @@ paste on the ground below.">
 	(STORY TEXT336)
 	(CHOICES CHOICES336)
 	(DESTINATIONS <LTABLE STORY079 STORY296 STORY127>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT337 "The crew have been using a net to catch fish. This time they have caught a sea centaur, a strange-looking creature with a top half like a man and a bottom half like a sea horse. It struggles feebly, clutching at the net with webbed fingers, trying to saw it apart with a long, serrated dagger made of sea shell.||The first mate looks at you with his hand on his cutlass. \"We'll have to put it to the sword, Cap'n. They're terrible bad luck to have on board.\"">
@@ -11032,7 +11039,7 @@ paste on the ground below.">
 	(STORY TEXT337)
 	(CHOICES CHOICES337)
 	(DESTINATIONS <LTABLE STORY522 STORY604>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY337-BACKGROUND ()
@@ -11153,7 +11160,7 @@ paste on the ground below.">
 	(EVENTS STORY347-EVENTS)
 	(CHOICES CHOICES347)
 	(DESTINATIONS <LTABLE STORY400 STORY474 STORY387 STORY047>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(DOOM T)
 	(FLAGS LIGHTBIT)>
 
@@ -11182,7 +11189,7 @@ paste on the ground below.">
 	(STORY TEXT348)
 	(CHOICES CHOICES348)
 	(DESTINATIONS <LTABLE STORY602 STORY166>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(ITEMS <LTABLE GOLDEN-NET>)
 	(FLAGS LIGHTBIT)>
 
@@ -11210,7 +11217,7 @@ paste on the ground below.">
 	(STORY TEXT351)
 	(CHOICES CHOICES351)
 	(DESTINATIONS <LTABLE STORY662 STORY565>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT352 "You mutter an enchantment that is intended to give you the appearance of a ratman but you get some of the intricate syllables wrong, and take on the appearance of a particularly wealthy merchant! At the sight of you, the ratmen redouble their efforts, and you are overwhelmed by sheer numbers.">
@@ -11296,7 +11303,7 @@ paste on the ground below.">
 	(STORY TEXT357)
 	(CHOICES CHOICES357)
 	(DESTINATIONS <LTABLE STORY023 STORY541>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT358 "\"Welcome to the City of Trees,\" says a passing woman dressed in the garb of a druid.||The city has been built amid the branches of several mighty oaks. Ladders run up and down the trees to houses that perch like nests in the branches. You are not allowed into any houses, but the druids allow you to barter at the market.">
@@ -11308,7 +11315,7 @@ paste on the ground below.">
 	(STORY TEXT358)
 	(EVENTS STORY358-EVENTS)
 	(DESTINATIONS <LTABLE CITY-TREES-BUY CITY-TREES-SELL STORY678>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY358-EVENTS ()
@@ -11423,15 +11430,14 @@ paste on the ground below.">
 	<BECOME-INITIATE 50 ,GOD-MAKA>>
 
 <CONSTANT TEXT369 "The priestess, dressed in ceremonial leather armour, and carrying a silver bow, recognizes you, and welcomes you. She offers you the usual services.">
-<CONSTANT CHOICES369 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY369
 	(DESC "369")
 	(BACKGROUND STORY369-BACKGROUND)
 	(STORY TEXT369)
-	(CHOICES CHOICES369)
+	(CHOICES CHOICES-STANDARD-TEMPLE)
 	(DESTINATIONS <LTABLE STORY618 STORY334 STORY052 STORY195>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY369-BACKGROUND ()
@@ -11508,7 +11514,7 @@ paste on the ground below.">
 	(STORY TEXT375)
 	(CHOICES CHOICES375)
 	(DESTINATIONS <LTABLE STORY344 STORY010>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT376 "You manage to slip out of your chains, and sneak off into the tunnels. You make it to the outside, but a troop of guards and a pack of dogs finally track you down. The fate of all escaped slaves is death.">
@@ -11529,7 +11535,7 @@ paste on the ground below.">
 	(EVENTS STORY377-EVENTS)
 	(CHOICES CHOICES377)
 	(DESTINATIONS <LTABLE STORY250 STORY100 STORY175>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY377-EVENTS ("AUX" ROLL COUNT)
@@ -11707,7 +11713,7 @@ paste on the ground below.">
 	(STORY TEXT390)
 	(CHOICES CHOICES390)
 	(DESTINATIONS <LTABLE STORY560 STORY558 STORY250 STORY100>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT391 "\"Umm, well, I suppose I could let one such as you through,\" says the tree thoughtfully. Then it uproots itself with a great tearing sound, and shuffles out of the way. \"There you go. You may pass.\"||You walk through the thorn bush gate. Beyond, you find several huge oak trees whose branches are so big that they are able to support the homes of many people.">
@@ -11772,7 +11778,7 @@ paste on the ground below.">
 	(STORY TEXT396)
 	(CHOICES CHOICES396)
 	(DESTINATIONS <LTABLE MARLOCK-CITY-BUY MARLOCK-CITY-SELL STORY100>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY397
@@ -11808,7 +11814,7 @@ paste on the ground below.">
 	(STORY TEXT399)
 	(CHOICES CHOICES399)
 	(DESTINATIONS <LTABLE STORY715 STORY716>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT400 "Caran Baru is a medium-sized town, that acts as a way-station between the citadel to the north, and the rich towns of the south. It is a garrison town; many supplies, arms and soldiers move through Caran Baru on the north-south trail. Shops, traders, temples and the like have sprung up here to serve the needs of the military. There is also a sizeable mining community, for the mines of Sokara lie in the Bronze Hills just outside town, and a slave market where poor unfortunates, sold into slavery, are bought for work in the mines.||You can buy a townhouse in Caran Baru for 200 Shards. Owning a townhouse gives you a place to rest and store equipment.">
@@ -11968,7 +11974,7 @@ paste on the ground below.">
 	(STORY TEXT405)
 	(CHOICES CHOICES405)
 	(DESTINATIONS <LTABLE STORY122 STORY046 STORY355 STORY605 STORY010>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT406 "You know that the Book of the Seven Sages that Pyletes wants lies within the mound.">
@@ -11980,7 +11986,7 @@ paste on the ground below.">
 	(STORY TEXT406)
 	(CHOICES CHOICES406)
 	(DESTINATIONS <LTABLE STORY714 STORY492>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT407 "You hide in the kitchen pantry, and then, disguised as a kitchen scullion, sneak out unnoticed. The skill and daring of your exploit will be forever remembered! Long live the rightful king!">
@@ -12036,7 +12042,7 @@ paste on the ground below.">
 	(STORY TEXT410)
 	(CHOICES CHOICES410)
 	(DESTINATIONS <LTABLE STORY678 STORY570>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT411 "The high priest tells you that the golden net of the twin gods has been stolen. The repulsive ones have taken it to their palace beneath the sea in the Sunken City of Ziusudra. The repulsive ones worship the fish-god Oannes, who struggles with Alvir and Valmir for control of the sea.||\"We must have that golden net, or the repulsive ones will use it against us. If you return it to us, we will reward you,\" says the high priest. \"The Sunken City lies under the coastal waters off the Shadar Tor.\"">
@@ -12060,7 +12066,7 @@ paste on the ground below.">
 	(LOCATION LOCATION-SOKARA)
 	(CHOICES CHOICES412)
 	(DESTINATIONS <LTABLE STORY010 STORY250>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT413 "You are so devout that the king's spell cannot affect you for more than a few seconds. The queen, recognizing your faith in the gods, thanks you for entertaining them.||You wake up in the cabin aboard your ship. You are musing about the strange nature of your dream when you realize you have something in your hand. It is a silver flute. It is worth 500 Shards, and you can sell it at any market if you like.">
@@ -12122,7 +12128,7 @@ paste on the ground below.">
 	(STORY TEXT418)
 	(CHOICES CHOICES418)
 	(DESTINATIONS <LTABLE STORY117 STORY400>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT419 "The trail of gruesome murders, and tales of terror leads you to an old cemetery in a near-deserted part of the old quarter. It is early morning, a few hours from daylight, so you haven't much time before it goes into hiding.||At the gates of the cemetery, you find a small girl, hunched over, sobbing. When she sees you, she backs away, terrified.">
@@ -12144,7 +12150,7 @@ paste on the ground below.">
 	(STORY TEXT420)
 	(CHOICES CHOICES420)
 	(DESTINATIONS <LTABLE STORY-CITIES-GOLD-GLORY STORY142 STORY120 STORY502>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT421 "The storm demons shrink back with a wailing, mournful cry, like wind in the trees. The power of your faith is enough to repel them. You work free one of the stakes holding down Sul Veneris.">
@@ -12172,7 +12178,7 @@ paste on the ground below.">
 	(EVENTS STORY423-EVENTS)
 	(CHOICES CHOICES423)
 	(DESTINATIONS <LTABLE STORY572 STORY202>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY423-EVENTS ()
@@ -12198,7 +12204,7 @@ paste on the ground below.">
 	(STORY TEXT425)
 	(CHOICES CHOICES425)
 	(DESTINATIONS <LTABLE STORY534 STORY270>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT426 "\"I see that you are a student of the arcane arts,\" says Oliphard the Wizardly. \"There is something I need. If you can get it for me I will teach you how to advance as a mage. It was Vayss the Sea Dragon who turned me into powder. He stole my magic chest in which I store all my magical equipment. Without it, I am virtually powerless. Meet me in Trefoille when you have it.\"||\"Where is Vayss?\" you ask.||\"In the Lake of the Sea Dragon, of course.\"||As he leaves, Oliphard gives you an amulet of protection.">
@@ -12255,7 +12261,7 @@ paste on the ground below.">
 	(STORY TEXT429)
 	(CHOICES CHOICES429)
 	(DESTINATIONS <LTABLE STORY089 STORY363>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT430 "You are sailing in the waters around Scorpion Bight.||\"I wouldn't want to put into land in these parts,\" says your navigator. \"The scorpion men'll take all we've got, and our lives too, given half a chance.\"">
@@ -12278,7 +12284,7 @@ paste on the ground below.">
 	(STORY TEXT431)
 	(CHOICES CHOICES431)
 	(DESTINATIONS <LTABLE STORY-CITIES-GOLD-GLORY STORY-PLAINS-HOWLING-DARKNESS STORY-BLOOD-DARK-SEA STORY656>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT432 "The militiamen are down. The tall gentleman watches you like a snake with its eyes on a mongoose. You have no time to bother with him now.||\"We'll meet again, perhaps,\" he says in a voice like slithering murder.||\"Remember my name: Talanexor the Fireweaver.\"||\"Remember my name,\" you call back as you lope off, \"Lauria the Housebreaker.\"||Let the conniving vixen get into trouble. She nearly played you for her patsy, after all.">
@@ -12297,7 +12303,7 @@ paste on the ground below.">
 	(STORY TEXT433)
 	(CHOICES CHOICES433)
 	(DESTINATIONS <LTABLE STORY172 STORY379>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY434
@@ -12395,7 +12401,7 @@ paste on the ground below.">
 	(STORY TEXT439)
 	(CHOICES CHOICES439)
 	(DESTINATIONS <LTABLE STORY555 STORY430 STORY120 STORY366>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY440
@@ -12428,7 +12434,7 @@ paste on the ground below.">
 	(STORY TEXT442)
 	(CHOICES CHOICES442)
 	(DESTINATIONS <LTABLE STORY021 STORY178 STORY265>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT443 "You are witness to a major sea battle involving at least forty warships between the Sokaran navy and a pirate fleet. Arrows fill the air and smoking fireballs are launched from catapults mounted on some of the ships. The shrieks of the dying carry across the waves. You decide it would be better not to get involved in such a conflict.">
@@ -12484,7 +12490,7 @@ paste on the ground below.">
 	(STORY TEXT445)
 	(CHOICES CHOICES445)
 	(DESTINATIONS <LTABLE STORY349 STORY569>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT446 "You set out that night on your quest.">
@@ -12569,7 +12575,7 @@ paste on the ground below.">
 	(STORY TEXT452)
 	(CHOICES CHOICES452)
 	(DESTINATIONS <LTABLE TRADING-POST-BUY TRADING-POST-SELL STORY195>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT453 "You find yourself washed up on a long, sandy beach, battered and cold, but lucky to be alive. You head inland until you realize you have arrived at the river-mouth delta of the River Grimm.">
@@ -12641,7 +12647,7 @@ paste on the ground below.">
 	(LOCATION LOCATION-SOKARA)
 	(CHOICES CHOICES458)
 	(DESTINATIONS <LTABLE STORY060 STORY548 STORY400 STORY299>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT459 "The little mannekyn creature is handed over to you on a leash. Its wings have been tied together to stop it flying away.||\"Who are you, then?\" it pipes in a squeaky voice.||Just then, a palanquin carried by four bearers arrives. A man leans out. \"You there! I've come to buy that flying monkey but I see I am too late. I will give you 75 Shards for it.\"||\"Don't sell me to that popinjay. Free me instead,\" chitters the mannekyn.">
@@ -12652,7 +12658,7 @@ paste on the ground below.">
 	(STORY TEXT459)
 	(CHOICES CHOICES459)
 	(DESTINATIONS <LTABLE STORY659 STORY186>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT460 "You climb down an old disused well in the poor quarter of Yellowport.">
@@ -12675,18 +12681,17 @@ paste on the ground below.">
 	(STORY TEXT461)
 	(CHOICES CHOICES461)
 	(DESTINATIONS <LTABLE STORY110 STORY333 STORY560 STORY387>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT462 "What service do you seek at the temple of the Twin Gods of the Sea?">
-<CONSTANT CHOICES462 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY462
 	(DESC "462")
 	(STORY TEXT462)
-	(CHOICES CHOICES462)
+	(CHOICES CHOICES-STANDARD-TEMPLE)
 	(DESTINATIONS <LTABLE STORY294 STORY624 STORY448 STORY010>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT463 "You remember the words of the old man you shared a prison cell with. This must be the lair of the gorlock that is said to have backward-pointing feet, so that the tracks it leaves will always show the opposite direction of travel. You realize that this means the gorlock must be inside the cave.">
@@ -12697,7 +12702,7 @@ paste on the ground below.">
 	(STORY TEXT463)
 	(CHOICES CHOICES463)
 	(DESTINATIONS <LTABLE STORY174 STORY287>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT464 "The ship, already crippled by a storm, and with only half its crew, is easy meat for your hardy men. The strangely dressed foreigners surrender without much of a fight. You get 100 Shards as booty, and 1 Cargo Unit of spices, if you have room to take it.">
@@ -12732,7 +12737,7 @@ paste on the ground below.">
 	(STORY TEXT466)
 	(CHOICES CHOICES466)
 	(DESTINATIONS <LTABLE STORY259 STORY510 STORY548>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT467 "The heavy wooden gates of the temple of Tyrnai are guarded by a couple of veteran warriors -- the old iron bullmen are gone. Inside, the god is represented by a stone idol of a jaguar-headed warrior. He appears to be naked.||Suddenly, a priest shouts, \"It's the thief! The blasphemous devil had the nerve to return here.\"||A score of warrior priests of Tyrnai boil out of the back rooms of the temple. You had better run for your life.">
@@ -12839,7 +12844,7 @@ paste on the ground below.">
 	(STORY TEXT474)
 	(CHOICES CHOICES474)
 	(DESTINATIONS <LTABLE STORY005 STORY400 STORY347 STORY548 STORY135>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT475 "You slip on the rotting scraps of King Skabb's last meal and fall over with a crash. The ratmen turn to stare at you.||\"A human! Get it!\" screams Skabb.||The ratmen charge toward you with a roar. Soon they have been joined by others and you have no choice but to flee for your life! You race down the sewer tunnels, with an army of ratmen in hot pursuit.">
@@ -12850,7 +12855,7 @@ paste on the ground below.">
 	(STORY TEXT475)
 	(CHOICES CHOICES475)
 	(DESTINATIONS <LTABLE STORY079 STORY096 STORY127>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT476 "\"Not bad,\" says the man with the eyepatch. \"But now I'll finish you.\" He draws his sword, and you must fight.">
@@ -13067,7 +13072,7 @@ paste on the ground below.">
 	(STORY TEXT492)
 	(CHOICES CHOICES492)
 	(DESTINATIONS <LTABLE STORY427 STORY318>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT493 "Gills grow out of your cheeks as soon as you have read the runes aloud! You make your way down a track to the beach, and swim out to sea. The gills work perfectly, and you find yourself swimming in the eerie silence of a submarine world.||Suddenly, a hideous form looms out of the murk. It is rather like a giant squid, but it carries a spear in one of its many tentacles and wears rudimentary armour. Great black eyes shine with an implacable alien intelligence.">
@@ -13156,7 +13161,7 @@ paste on the ground below.">
 	(STORY TEXT499)
 	(CHOICES CHOICES499)
 	(DESTINATIONS <LTABLE STORY555 STORY029>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT500 "You are restored to life at the war-god's temple in Yellowport. Your Stamina is back to its normal score. The possessions and cash you were carrying at the time of your death are lost.||The high priest, pale and wan after the effort of interceding with the god to bring you back to life says, \"You have returned from beyond the dark mirror of death. Tyrnai has granted you another chance. Strive to seek battle in his name.\"">
@@ -13216,7 +13221,7 @@ paste on the ground below.">
 	(STORY TEXT504)
 	(CHOICES CHOICES504)
 	(DESTINATIONS <LTABLE STORY209 STORY039>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY504-BACKGROUND ()
@@ -13232,7 +13237,7 @@ paste on the ground below.">
 	(EVENTS STORY505-EVENTS)
 	(CHOICES CHOICES505)
 	(DESTINATIONS <LTABLE STORY362 STORY561>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY505-EVENTS ()
@@ -13296,7 +13301,7 @@ paste on the ground below.">
 	(STORY TEXT510)
 	(CHOICES CHOICES510)
 	(DESTINATIONS <LTABLE STORY450 STORY342 STORY483 STORY398 STORY466 STORY087 STORY278 STORY548>)
-	(TYPES EIGHT-NONES)
+	(TYPES EIGHT-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT511 "Your arcane knowledge tells you much about the undead. Ghouls are known to eat the flesh of the dead as well as the living. They like to make their homes in crypts and graveyards and they never venture out during the day, as sunlight burns their pallid, undead flesh. Also, they cannot abide a powder of salt and iron filings mixed together.||You can purchase these ingredients for 15 Shards at many a market stall.">
@@ -13344,7 +13349,7 @@ paste on the ground below.">
 	(STORY TEXT513)
 	(CHOICES CHOICES513)
 	(DESTINATIONS <LTABLE STORY429 STORY616>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT514 "To renounce the worship of Tyrnai, you must pay 50 Shards to the warrior priests, and suffer the 'Wrathful Blow'.">
@@ -13376,7 +13381,7 @@ paste on the ground below.">
 	(STORY TEXT516)
 	(CHOICES CHOICES516)
 	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY003>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT517 "A priest asks which service you require.">
@@ -13388,7 +13393,7 @@ paste on the ground below.">
 	(STORY TEXT517)
 	(CHOICES CHOICES517)
 	(DESTINATIONS <LTABLE STORY409 STORY187 STORY478 STORY100>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY517-BACKGROUND ()
@@ -13404,7 +13409,7 @@ paste on the ground below.">
 	(EVENTS STORY518-EVENTS)
 	(CHOICES CHOICES518)
 	(DESTINATIONS <LTABLE STORY495 STORY271 STORY299 STORY060>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY518-EVENTS ("AUX" ROLL)
@@ -13452,7 +13457,7 @@ paste on the ground below.">
 	(EVENTS STORY520-EVENTS)
 	(CHOICES CHOICES520)
 	(DESTINATIONS <LTABLE STORY541 STORY576 STORY082 STORY278 STORY558>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(DOOM T)
 	(FLAGS LIGHTBIT)>
 
@@ -13474,7 +13479,7 @@ paste on the ground below.">
 	(STORY TEXT521)
 	(CHOICES CHOICES521)
 	(DESTINATIONS <LTABLE STORY321 STORY276>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT522 "That night several sea centaurs emerge from the waters, their spiny skins glittering with phosphorescent flashes of light.||One of them speaks in a burbling voice. \"Where is our brother, whom you caught in your cruel nets, this day?\"||\"He is dead, I'm afraid\", you reply, readying yourself for a fight.||The sea centaurs remain silent for a few moments, then the leader says, \"His destiny was always bleak. We would be grateful if you were to return his body to us.\"||You cannot think of a reason not to, so you pass the body down to them.||\"We thank you,\" burbles the sea centaur. \"If you wish, we will give you the power to breathe the waters, so that you may swim down to the wreck that lies below, and take its treasures, those things that the surface-dwellers hold dear.\"">
@@ -13485,7 +13490,7 @@ paste on the ground below.">
 	(STORY TEXT522)
 	(CHOICES CHOICES522)
 	(DESTINATIONS <LTABLE STORY513 STORY408>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY523
@@ -13525,7 +13530,7 @@ paste on the ground below.">
 	(STORY TEXT526)
 	(CHOICES CHOICES526)
 	(DESTINATIONS <LTABLE STORY435 STORY069 STORY373 STORY599 STORY010>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT527 "You run off, leaving the terrible Gob-gobbler behind. The villagers of Venefax greet you with snorts of derision and contempt, and the young boy, Mikail, looks away, disappointed. It would be prudent to leave Venefax for a while.">
@@ -13536,7 +13541,7 @@ paste on the ground below.">
 	(STORY TEXT527)
 	(CHOICES CHOICES527)
 	(DESTINATIONS <LTABLE STORY492 STORY087 STORY621 STORY278>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY528
@@ -13600,7 +13605,7 @@ paste on the ground below.">
 	(STORY TEXT533)
 	(CHOICES CHOICES533)
 	(DESTINATIONS <LTABLE STORY589 STORY211>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT534 "A long time passes. After a while, you risk calling up to Lauria in a whisper.||Your voice sounds thick, rasping, choked with growing fear. Lauria does not reply.||Each second you remain in the house increases the risk of discovery.">
@@ -13611,7 +13616,7 @@ paste on the ground below.">
 	(STORY TEXT534)
 	(CHOICES CHOICES534)
 	(DESTINATIONS <LTABLE STORY119 STORY386 STORY010>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT535 "The house of priests is an impressive building, a roundhouse of multi-coloured bricks. The myriad colours give it a bizarre and garish look, calculated to unsettle the visitor. Inside, a hundred offices teem with the administrators of the polytheistic religion of Sokara and Golnir.">
@@ -13677,7 +13682,7 @@ paste on the ground below.">
 	(STORY TEXT540)
 	(CHOICES CHOICES540)
 	(DESTINATIONS <LTABLE STORY100 STORY433>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT541 "Burdened by the heavy chest full of coins, the three figures have left deep footprints in the grass.">
@@ -13722,7 +13727,7 @@ paste on the ground below.">
 	(STORY TEXT544)
 	(CHOICES CHOICES544)
 	(DESTINATIONS <LTABLE STORY618 STORY334 STORY052 STORY471 STORY195>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT545 "You are given the cage. The trau speaks to you so quickly that you can barely distinguish the syllables.||\"Let me out of here, and I'll reward you,\" it says.">
@@ -13733,7 +13738,7 @@ paste on the ground below.">
 	(STORY TEXT545)
 	(CHOICES CHOICES545)
 	(DESTINATIONS <LTABLE STORY642 STORY651>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT546 "With an heroic effort, you manage to get to the woman. Gathering her up, you run for the door, and stagger out into the cool night air, smoke and flames licking at your heels. The townsfolk give you a rousing cheer and the girl thanks you effusively for saving her mother.||Later, it transpires that the woman is actually a powerful sorceress whose experiments in fire magic went slightly wrong. Her name is Elissia the Traveller and she gives you a gift: a pale moonstone.||Elissia tells that you can use the moonstone by rubbing it, and you will be instantly teleported to the vicinity of the sunstone -- which she carries on a necklace. \"I will be here in Marlock City. Whenever you are desperate, at the end of your tether, or just want to get here fast, use the moonstone and you will appear beside me. I will do everything in my power to aid you, and then my debt to you will be repaid.\"">
@@ -13763,7 +13768,7 @@ paste on the ground below.">
 	(EVENTS STORY548-EVENTS)
 	(CHOICES CHOICES548)
 	(DESTINATIONS <LTABLE STORY472 STORY458 STORY510 STORY474 STORY135>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY548-EVENTS ("AUX" ROLL)
@@ -13899,7 +13904,7 @@ paste on the ground below.">
 	(STORY TEXT557)
 	(CHOICES CHOICES557)
 	(DESTINATIONS <LTABLE STORY631 STORY664>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT558 "You join the much-travelled road that connects Trefoille and Caran Baru. The traffic mostly consists of convoys of troops and supplies.">
@@ -13910,7 +13915,7 @@ paste on the ground below.">
 	(STORY TEXT558)
 	(CHOICES CHOICES558)
 	(DESTINATIONS <LTABLE STORY250 STORY387 STORY175 STORY310>)
-	(TYPES FOUR-NONES)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT559 "Your ship is sailing in the coastal waters off the Shadar Tor.">
@@ -13921,7 +13926,7 @@ paste on the ground below.">
 	(STORY TEXT559)
 	(CHOICES CHOICES559)
 	(DESTINATIONS <LTABLE STORY222 STORY029 STORY416>)
-	(TYPES THREE-NONES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT560 "You are crossing the western wilderness, an expanse of wild, sparsely-populated countryside. A few trappers and woodsman make a living from the natural resources of the area.||A tall spire of rock, a towering anomaly of geology, rises up into the clouds, dominating the horizon. A local hunter tells you it is known as Devil's Peak and that the summit is infested with demons.">
@@ -13932,198 +13937,140 @@ paste on the ground below.">
 	(STORY TEXT560)
 	(CHOICES CHOICES560)
 	(DESTINATIONS <LTABLE STORY658 STORY099 STORY047 STORY175 STORY558>)
-	(TYPES FIVE-NONES)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT561 "You are left alone, free to trawl for smolder fish.">
 
 <ROOM STORY561
 	(DESC "561")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT561)
+	(EVENTS STORY561-EVENTS)
+	(CONTINUE STORY135)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY561-EVENTS ("AUX" ROLL)
+	<SET ROLL <RANDOM-EVENT 1 0 T>>
+	<DO (I 1 .ROLL)
+		<TAKE-ITEM ,SMOLDER-FISH>
+	>>
+
+<CONSTANT TEXT562 "After a gruelling climb of some hours, you are halfway up the side of a mountain when you discover a thin, precarious path, leading up. You take a swig of water from your canteen and proceed up the path.||After a while you have to stop to take more water. To your horror, your water supply has turned sour and undrinkable.">
 
 <ROOM STORY562
 	(DESC "562")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT562)
+	(CHOICES CHOICES-MAGIC)
+	(DESTINATIONS <LTABLE <LTABLE STORY374 STORY643>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-MAGIC 10>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT563 "To renounce the worship of Sig, you must pay 50 Shards in compensation to the priesthood.||\"Sig will no longer watch over you!\" says a priest.">
+<CONSTANT TEXT563-CONTINUED "\"The dungeons are full of would-be rogues who renounced the faith!\" yells a priest as you leave.">
 
 <ROOM STORY563
 	(DESC "563")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT563)
+	(EVENTS STORY563-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY563-EVENTS ()
+	<COND (<CHECK-GOD ,GOD-SIG>
+		<RENOUNCE-WORSHIP 50 ,GOD-SIG>
+		<COND (<NOT ,GOD>
+			<IF-ALIVE ,TEXT563-CONTINUED>
+		)>
+	)>>
+
+<CONSTANT TEXT564 "You tell the priest about the curse of Tyrnai.||\"Ah, I see. Well, you have to appease the god. You need a weapon (COMBAT +1), which you can buy in most markets, or acquire by some other means. Throw the weapon into the holy waters at the village of Blessed Springs, and ask for his forgiveness.\"">
 
 <ROOM STORY564
 	(DESC "564")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT564)
+	(CONTINUE STORY100)
+	(CODEWORDS <LTABLE CODEWORD-APPEASE>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY565
 	(DESC "565")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES-THIEVERY)
+	(DESTINATIONS <LTABLE <LTABLE STORY654 STORY376>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 10>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT566 "You are discovered hiding in the kitchen pantry. You are hauled off and thrown into the dungeons to await judgment.">
 
 <ROOM STORY566
 	(DESC "566")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT566)
+	(EVENTS STORY-LOSE-EVERYTHING)
+	(CONTINUE STORY454)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT567 "\"You are not worthy,\" he says gruffly, and walks on without a backward glance. You sense it would not be wise to press him further.">
 
 <ROOM STORY567
 	(DESC "567")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT567)
+	(CONTINUE STORY412)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT568 "The temple of Elnir is a single spire reaching skyward. Eagles roost in its lofty belfry -- they are sacred to the priests of the Skylord. Elnir is the Divine Ruler of the Heavens, patron of statesman and kings, and his sons are the storm lords.||\"Thunder is the sound of the Sons of Elnir smiting the cloud demons,\" says a passing peasant.">
 
 <ROOM STORY568
 	(DESC "568")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT568)
+	(CHOICES CHOICES-STANDARD-TEMPLE)
+	(DESTINATIONS <LTABLE STORY440 STORY241 STORY073 STORY100>)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT569 "You will have to fight them one at a time. They are tough opponents because their skin is made of iron.">
 
 <ROOM STORY569
 	(DESC "569")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT569)
+	(EVENTS STORY569-EVENTS)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY569-EVENTS ()
+	<DO (I 1 2)
+		<PUTP ,STORY569 ,P?DOOM T>
+		<COMBAT-MONSTER ,MONSTER-GOLEM 5 11 10>
+		<COND (<NOT <CHECK-COMBAT ,MONSTER-GOLEM ,STORY569>>
+			<STORY-JUMP ,STORY488>
+			<RETURN>
+		)>
+	>
+	<COND (<IS-ALIVE>
+		<STORY-JUMP ,STORY162>
+	)(ELSE
+		<STORY-JUMP ,STORY488>
+	)>>
+
+<CONSTANT TEXT570 "\"Aargh, you sapling of soft and treacherous flesh!\" roars the tree, flailing its branches at you. You must fight.">
+<CONSTANT TEXT570-LOSE "You are battered into unconsciousness and wake up in the trading post and all your money gone">
 
 <ROOM STORY570
 	(DESC "570")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT570)
+	(EVENTS STORY570-EVENTS)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY570-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-TREE-GUARD 3 7 10>
+	<COND (<CHECK-COMBAT ,MONSTER-TREE-GUARD ,STORY570 0 NONE 5>
+		<STORY-JUMP ,STORY148>
+	)(ELSE
+		<SETG MONEY 0>
+		<EMPHASIZE TEXT570-LOSE>
+		<STORY-JUMP ,STORY195>
+	)>>
 
 <ROOM STORY571
 	(DESC "571")
@@ -15047,7 +14994,7 @@ paste on the ground below.">
 	(STORY TEXT619)
 	(CHOICES CHOICES619)
 	(DESTINATIONS <LTABLE STORY262 STORY100>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY619-BACKGROUND ()
@@ -17255,7 +17202,7 @@ paste on the ground below.">
 	(STORY TEXT736)
 	(CHOICES CHOICES736)
 	(DESTINATIONS <LTABLE STORY128 STORY257>)
-	(TYPES TWO-NONES)
+	(TYPES TWO-CHOICES)
 	(CODEWORDS <LTABLE CODEWORD-AURIC>)
 	(FLAGS LIGHTBIT)>
 
