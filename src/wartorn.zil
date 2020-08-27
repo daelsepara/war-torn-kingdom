@@ -6360,6 +6360,9 @@
 	<PUTP ,STORY569 ,P?DOOM T>
 	<PUTP ,STORY570 ,P?DOOM T>
 	<PUTP ,STORY573 ,P?DOOM T>
+	<PUTP ,STORY579 ,P?DOOM T>
+	<PUTP ,STORY585 ,P?DOOM T>
+	<PUTP ,STORY589 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -14247,194 +14250,113 @@ paste on the ground below.">
 	(CONTINUE STORY202)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT581 "You try to cut the king down, but at the last moment, he catches your wrist. His face is a mask of hate and rage. \"Traitorous viper!\" he hisses, before shouting for the guards. You are forced to flee for your life.||Although you make it out of the stockade, you are caught in a narrow defile and seized by many men. You are hauled before Captain Vorkung, who looks sick and ashen-faced. He let you in to see the king in the first place.||You are sentenced to be hanged; the sentence is carried out immediately.">
+
 <ROOM STORY581
 	(DESC "581")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT581)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT582 "Before you have time to react, the dragon's massive tail smashes into the keel of your boat, lifting it out of the water, and breaking it in two. You are pitched into the sulphurous lake, with a rabid sea dragon closing in, intent on swallowing you whole!">
 
 <ROOM STORY582
 	(DESC "582")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT582)
+	(EVENTS STORY582-EVENTS)
+	(CONTINUE STORY477)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY582-EVENTS ("AUX" ROLL (RANK 1))
+	<SET ROLL <RANDOM-EVENT 1 0 T>>
+	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
+	<COND (<L=? .ROLL .RANK> <STORY-JUMP ,STORY637>)>>
 
 <ROOM STORY583
 	(DESC "583")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-STORM-SUBSIDES)
+	(EVENTS STORY-LOSE-CARGO)
+	(CONTINUE STORY090)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT584 "\"How can I come out to you? I would drown in the sea! Is that what you plan?\" you ask angrily.||\"Don't you know?\" sighs one of them, \"the kiss of the merfolk gives the power to breathe the waters to one of your kind for a short time!\"||The others laugh mischievously.">
+<CONSTANT CHOICES584 <LTABLE "Be kissed by the merfolk" "Return to the clifftop tor">>
 
 <ROOM STORY584
 	(DESC "584")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT584)
+	(CHOICES CHOICES584)
+	(DESTINATIONS <LTABLE STORY254 STORY035>)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT585 "You trail Fourze to the old farm. He goes inside, and you creep to see what he is doing.||Two rough-looking thugs are helping Fourze get into what is obviously a monster suit! It's a bit like a giant hairy toad, made of the hide of some animal stretched over a wooden framework. So much for the dreaded Gob-gobbler!||You wait by the door. As the thugs emerge, you club one to the ground, but you will have to fight the other one.">
 
 <ROOM STORY585
 	(DESC "585")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT585)
+	(EVENTS STORY585-EVENTS)
+	(CONTINUE STORY236)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY585-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-BANDIT 4 6 6>
+	<CHECK-COMBAT ,MONSTER-BANDIT ,STORY585>>
 
 <ROOM STORY586
 	(DESC "586")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-STORM-SEA)
+	(EVENTS STORY586-EVENTS)
+	(CHOICES CHOICES-STORM-FURY)
+	(DESTINATIONS <LTABLE <LTABLE STORY182 STORY530 STORY085>>)
+	(REQUIREMENTS STORY-STORM-REQUIREMENTS)
+	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY586-EVENTS ()
+	<STORM-AT-SEA ,STORY586 ,STORY085>>
+
+<CONSTANT TEXT587 "While taking a stroll through the busy harbour area, you overhear a conversation between two merchants and learn the most profitable trading routes between Sokara and Golnir.">
 
 <ROOM STORY587
 	(DESC "587")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT587)
+	(CONTINUE STORY010)
+	(CODEWORDS <LTABLE CODEWORD-ALMANAC>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT588 "You break past the militia, leap over a table and rush out of the door. From behind you can hear muffled curses and then a fiery blast which sizzles wetly in the damp yellow fog, but you don't look back and you don't stop running until you are well clear of the house.">
 
 <ROOM STORY588
 	(DESC "588")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT588)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT589 "Striding purposefully into the tavern, you walk straight up to him and say, \"I want what you've got under that eyepatch.\"||His one good eye widens in surprise, and he jumps back, drawing his sword. \"We'll see about that, by Sig!\"||The other people in the tavern draw back to give you room and start taking bets on the outcome of the fight.">
 
 <ROOM STORY589
 	(DESC "589")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT589)
+	(EVENTS STORY589-EVENTS)
+	(CONTINUE STORY092)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY589-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-MAN-EYEPATCH 5 8 12>
+	<CHECK-COMBAT ,MONSTER-MAN-EYEPATCH ,STORY589>>
+
+<CONSTANT TEXT590 "From the cover of a hedge you wait until dusk. By now all the villagers are safely indoors with their shutters tightly barred.||As the sky is turning from velvet indigo to the starlit blackness of night, you see three pale figures come loping across the green from the direction of the millpond. They must be the ghosts.||Seeing the banquet, they utter gleeful cries and start to devour what has been set out for them.">
 
 <ROOM STORY590
 	(DESC "590")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT590)
+	(CHOICES CHOICES-MAGIC)
+	(DESTINATIONS <LTABLE <LTABLE STORY231 STORY357>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-MAGIC 11>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY591
