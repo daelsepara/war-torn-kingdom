@@ -4601,24 +4601,11 @@
 <CONSTANT CARGO-LIST <LTABLE CARGO-FURS CARGO-GRAINS CARGO-METALS CARGO-MINERALS CARGO-SPICES CARGO-TEXTILES CARGO-TIMBER>>
 
 <CONSTANT DESTINATION-COPPER-ISLAND "Copper Island (Over the Blood-Dark Sea)">
+<CONSTANT DESTINATION-ISLE-DRUIDS "Isle of Druids (War-Torn Kingdom)">
+<CONSTANT DESTINATION-MARLOCK "Marlock City (War-Torn Kingdom)">
 <CONSTANT DESTINATION-SORCERERS-ISLE "Sorcerer's Isle (Over the Blood-Dark Sea)">
 <CONSTANT DESTINATION-WISHPORT "Wishport (Cities of Gold and Glory)">
 <CONSTANT DESTINATION-YELLOWPORT "Yellowport (War-Torn Kingdom)">
-
-<CONSTANT MARLOCK-CARGO-BUY <LTABLE 190 190 700 500 820 325 190>>
-<CONSTANT MARLOCK-CARGO-SELL <LTABLE 180 180 635 460 760 285 180>>
-<CONSTANT MARLOCK-SHIP-BUY <LTABLE 250 450 900>>
-<CONSTANT MARLOCK-SHIP-SELL <LTABLE 125 225 450>>
-<CONSTANT MARLOCK-UPGRADE-PRICES <LTABLE 50 100 150>>
-<CONSTANT MARLOCK-TICKETS <LTABLE 10 0 0 0>>
-<CONSTANT MARLOCK-TRAVEL <LTABLE STORY372 STORY455 STORY234 STORY424>>
-<CONSTANT MARLOCK-PASSAGES
-	<LTABLE
-		DESTINATION-YELLOWPORT
-		DESTINATION-WISHPORT
-		DESTINATION-SORCERERS-ISLE
-		DESTINATION-COPPER-ISLAND
-	>>
 
 <CONSTANT BUY-SELL-CARGO-MENU <LTABLE "Buy goods" "Sell goods">>
 <CONSTANT BUY-SELL-UPGRADE-MENU <LTABLE "Buy ship" "Sell ship" "Upgrade ship">>
@@ -4628,147 +4615,6 @@
 
 <CONSTANT HARBOUR-MASTER-MENU <LTABLE "Go to the shipyard" "Book a passage" "View ship manifest" "Visit the market" "Set sail">>
 <CONSTANT TEXT-HARBOUR-MASTER "Harbour Master">
-
-<ROUTINE HARBOUR-MARLOCK ("AUX" KEY CHOICE ITEMS DESTINATION)
-	<COND (,CURRENT-SHIP <PUTP ,CURRENT-SHIP ,P?DOCKED ,DOCK-MARLOCK>)>
-	<DO (I 1 3)
-		<COND (<NOT <IN? <GET ,SHIPS-LIST .I> ,SHIPS>>
-			<STORY-RESET-CREW ,CONDITION-AVERAGE>
-		)>
-	>
-	<SET ITEMS <GET ,HARBOUR-MASTER-MENU 0>>
-	<REPEAT ()
-		<EMPHASIZE ,TEXT-HARBOUR-MASTER>
-		<PRINT-MENU ,HARBOUR-MASTER-MENU F F>
-		<HLIGHT ,H-BOLD>
-		<TELL "C">
-		<HLIGHT 0>
-		<TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
-		<HLIGHT ,H-BOLD>
-		<TELL "0">
-		<HLIGHT 0>
-		<TELL " - Go to the city centre" CR>
-		<TELL "What do you wish to do next?">
-		<REPEAT ()
-			<SET .KEY <INPUT 1>>
-			<COND (<OR <EQUAL? .KEY !\C !\c !\P !\p> <AND <G=? .KEY !\0> <L=? .KEY <+ .ITEMS !\0>>>> <RETURN>)>
-		>
-		<CRLF>
-		<SET .CHOICE <- .KEY !\0>>
-		<COND (<EQUAL? .KEY !\C !\c !\P !\p>
-			<DESCRIBE-PLAYER>
-			<PRESS-A-KEY>
-		)(<EQUAL? .CHOICE 0>
-			<CRLF>
-			<TELL ,TEXT-SURE>
-			<COND (<YES?> <RETURN>)>
-		)(<EQUAL? .CHOICE 1>
-			<BUY-SELL-UPGRADE-SHIP ,MARLOCK-SHIP-BUY ,MARLOCK-SHIP-SELL ,MARLOCK-UPGRADE-PRICES ,MARLOCK-CARGO-SELL ,DOCK-MARLOCK>
-		)(<EQUAL? .CHOICE 2>
-			<SET DESTINATION <BOOK-PASSAGE ,MARLOCK-PASSAGES ,MARLOCK-TICKETS ,MARLOCK-TRAVEL>>
-			<COND (.DESTINATION
-				<STORY-JUMP .DESTINATION>
-				<RETURN>
-			)>
-		)(<EQUAL? .CHOICE 3>
-			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
-				<EMPHASIZE "You have not designated a primary ship!">
-				<VIEW-SHIP-MANIFEST>
-			)(ELSE
-				<EMPHASIZE ,TEXT-NO-SHIPS>
-			)>
-		)(<EQUAL? .CHOICE 4>
-			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
-				<BUY-SELL-CARGO ,MARLOCK-CARGO-BUY ,MARLOCK-CARGO-SELL>
-			)(ELSE
-				<EMPHASIZE ,TEXT-NO-SHIPS>
-			)>
-		)(<EQUAL? .CHOICE 5>
-			<COND (,CURRENT-SHIP
-				<COND (<VALIDATE-CARGO ,MARLOCK-CARGO-SELL>
-					<STORY-JUMP ,STORY084>
-					<RETURN>
-				)>
-			)(ELSE
-				<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
-					<VIEW-SHIP-MANIFEST>
-				)(ELSE
-					<EMPHASIZE ,TEXT-NO-SHIPS>
-				)>
-			)>
-		)>
-	>>
-
-<CONSTANT HARBOUR-TRADING-MENU <LTABLE "Book a passage" "View ship manifest" "Visit the market" "Set sail">>
-<CONSTANT TRADING-POST-PASSAGES	<LTABLE	DESTINATION-YELLOWPORT>>
-<CONSTANT TRADING-POST-TICKETS	<LTABLE	15>>
-<CONSTANT TRADING-POST-TRAVEL	<LTABLE	STORY074>>
-
-<CONSTANT TRADING-POST-CARGO-BUY <LTABLE 135 220 600 400 900 325 120>>
-<CONSTANT TRADING-POST-CARGO-SELL <LTABLE 130 210 570 310 820 285 100>>
-
-<ROUTINE HARBOUR-TRADING-POST ("AUX" KEY CHOICE ITEMS DESTINATION)
-	<COND (,CURRENT-SHIP <PUTP ,CURRENT-SHIP ,P?DOCKED ,DOCK-TRADING>)>
-	<SET ITEMS <GET ,HARBOUR-TRADING-MENU 0>>
-	<REPEAT ()
-		<EMPHASIZE ,TEXT-HARBOUR-MASTER>
-		<PRINT-MENU ,HARBOUR-TRADING-MENU F F>
-		<HLIGHT ,H-BOLD>
-		<TELL "C">
-		<HLIGHT 0>
-		<TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
-		<HLIGHT ,H-BOLD>
-		<TELL "0">
-		<HLIGHT 0>
-		<TELL " - Go back to the village" CR>
-		<TELL "What do you wish to do next?">
-		<REPEAT ()
-			<SET .KEY <INPUT 1>>
-			<COND (<OR <EQUAL? .KEY !\C !\c !\P !\p> <AND <G=? .KEY !\0> <L=? .KEY <+ .ITEMS !\0>>>> <RETURN>)>
-		>
-		<CRLF>
-		<SET .CHOICE <- .KEY !\0>>
-		<COND (<EQUAL? .KEY !\C !\c !\P !\p>
-			<DESCRIBE-PLAYER>
-			<PRESS-A-KEY>
-		)(<EQUAL? .CHOICE 0>
-			<CRLF>
-			<TELL ,TEXT-SURE>
-			<COND (<YES?> <RETURN>)>
-		)(<EQUAL? .CHOICE 1>
-			<SET DESTINATION <BOOK-PASSAGE ,TRADING-POST-PASSAGES ,TRADING-POST-TICKETS ,TRADING-POST-TRAVEL>>
-			<COND (.DESTINATION
-				<STORY-JUMP .DESTINATION>
-				<RETURN>
-			)>
-		)(<EQUAL? .CHOICE 2>
-			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
-				<EMPHASIZE "You have not designated a primary ship!">
-				<VIEW-SHIP-MANIFEST>
-			)(ELSE
-				<EMPHASIZE ,TEXT-NO-SHIPS>
-			)>
-		)(<EQUAL? .CHOICE 3>
-			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
-				<BUY-SELL-CARGO ,TRADING-POST-CARGO-BUY ,TRADING-POST-CARGO-SELL>
-			)(ELSE
-				<EMPHASIZE ,TEXT-NO-SHIPS>
-			)>
-		)(<EQUAL? .CHOICE 4>
-			<COND (,CURRENT-SHIP
-				<COND (<VALIDATE-CARGO ,TRADING-POST-CARGO-SELL>
-					<STORY-JUMP ,STORY155>
-					<RETURN>
-				)>
-			)(ELSE
-				<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
-					<VIEW-SHIP-MANIFEST>
-				)(ELSE
-					<EMPHASIZE ,TEXT-NO-SHIPS>
-				)>
-			)>
-		)>
-	>>
 
 <ROUTINE BOOK-PASSAGE (PASSAGES PRICES DESTINATIONS "AUX" KEY COUNT CHOICE DESTINATION)
 	<SET COUNT <GET .PASSAGES 0>>
@@ -5002,7 +4848,11 @@
 			<COND (<IN? <GET ,SHIPS-LIST .I> ,SHIPS>
 				<SET CONDITION <GETP <GET ,SHIPS-LIST .I> ,P?CONDITION>>
 				<COND (<N=? .CONDITION ,CONDITION-EXCELLENT>
-					<PUT .UPGRADES .I <GET .UPGRADE-PRICES <+ .CONDITION 1>>>
+					<COND (<L=? .CONDITION <GET .UPGRADE-PRICES 0>>
+						<PUT .UPGRADES .I <GET .UPGRADE-PRICES <+ .CONDITION 1>>>
+					)(ELSE
+						<PUT .UPGRADES .I 0>
+					)>
 				)(ELSE
 					<PUT .UPGRADES .I 0>
 				)>
@@ -5137,6 +4987,256 @@
 			)>
 		)>
 		<UPDATE-STATUS-LINE>
+	>>
+
+; "Harbour - Marlock City"
+; ---------------------------------------------------------------------------------------------
+
+<CONSTANT MARLOCK-CARGO-BUY <LTABLE 190 190 700 500 820 325 190>>
+<CONSTANT MARLOCK-CARGO-SELL <LTABLE 180 180 635 460 760 285 180>>
+<CONSTANT MARLOCK-SHIP-BUY <LTABLE 250 450 900>>
+<CONSTANT MARLOCK-SHIP-SELL <LTABLE 125 225 450>>
+<CONSTANT MARLOCK-UPGRADE-PRICES <LTABLE 50 100 150>>
+<CONSTANT MARLOCK-TICKETS <LTABLE 10 0 0 0>>
+<CONSTANT MARLOCK-TRAVEL <LTABLE STORY372 STORY455 STORY234 STORY424>>
+<CONSTANT MARLOCK-PASSAGES
+	<LTABLE
+		DESTINATION-YELLOWPORT
+		DESTINATION-WISHPORT
+		DESTINATION-SORCERERS-ISLE
+		DESTINATION-COPPER-ISLAND
+	>>
+
+<ROUTINE HARBOUR-MARLOCK ("AUX" KEY CHOICE ITEMS DESTINATION)
+	<COND (,CURRENT-SHIP <PUTP ,CURRENT-SHIP ,P?DOCKED ,DOCK-MARLOCK>)>
+	<DO (I 1 3)
+		<COND (<NOT <IN? <GET ,SHIPS-LIST .I> ,SHIPS>>
+			<STORY-RESET-CREW ,CONDITION-AVERAGE>
+		)>
+	>
+	<SET ITEMS <GET ,HARBOUR-MASTER-MENU 0>>
+	<REPEAT ()
+		<EMPHASIZE ,TEXT-HARBOUR-MASTER>
+		<PRINT-MENU ,HARBOUR-MASTER-MENU F F>
+		<HLIGHT ,H-BOLD>
+		<TELL "C">
+		<HLIGHT 0>
+		<TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
+		<HLIGHT ,H-BOLD>
+		<TELL "0">
+		<HLIGHT 0>
+		<TELL " - Go to the city centre" CR>
+		<TELL "What do you wish to do next?">
+		<REPEAT ()
+			<SET .KEY <INPUT 1>>
+			<COND (<OR <EQUAL? .KEY !\C !\c !\P !\p> <AND <G=? .KEY !\0> <L=? .KEY <+ .ITEMS !\0>>>> <RETURN>)>
+		>
+		<CRLF>
+		<SET .CHOICE <- .KEY !\0>>
+		<COND (<EQUAL? .KEY !\C !\c !\P !\p>
+			<DESCRIBE-PLAYER>
+			<PRESS-A-KEY>
+		)(<EQUAL? .CHOICE 0>
+			<CRLF>
+			<TELL ,TEXT-SURE>
+			<COND (<YES?> <RETURN>)>
+		)(<EQUAL? .CHOICE 1>
+			<BUY-SELL-UPGRADE-SHIP ,MARLOCK-SHIP-BUY ,MARLOCK-SHIP-SELL ,MARLOCK-UPGRADE-PRICES ,MARLOCK-CARGO-SELL ,DOCK-MARLOCK>
+		)(<EQUAL? .CHOICE 2>
+			<SET DESTINATION <BOOK-PASSAGE ,MARLOCK-PASSAGES ,MARLOCK-TICKETS ,MARLOCK-TRAVEL>>
+			<COND (.DESTINATION
+				<STORY-JUMP .DESTINATION>
+				<RETURN>
+			)>
+		)(<EQUAL? .CHOICE 3>
+			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+				<EMPHASIZE "You have not designated a primary ship!">
+				<VIEW-SHIP-MANIFEST>
+			)(ELSE
+				<EMPHASIZE ,TEXT-NO-SHIPS>
+			)>
+		)(<EQUAL? .CHOICE 4>
+			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+				<BUY-SELL-CARGO ,MARLOCK-CARGO-BUY ,MARLOCK-CARGO-SELL>
+			)(ELSE
+				<EMPHASIZE ,TEXT-NO-SHIPS>
+			)>
+		)(<EQUAL? .CHOICE 5>
+			<COND (,CURRENT-SHIP
+				<COND (<VALIDATE-CARGO ,MARLOCK-CARGO-SELL>
+					<STORY-JUMP ,STORY084>
+					<RETURN>
+				)>
+			)(ELSE
+				<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+					<VIEW-SHIP-MANIFEST>
+				)(ELSE
+					<EMPHASIZE ,TEXT-NO-SHIPS>
+				)>
+			)>
+		)>
+	>>
+
+; "Harbour - Trading Post"
+; ---------------------------------------------------------------------------------------------
+
+<CONSTANT HARBOUR-TRADING-MENU <LTABLE "Book a passage" "View ship manifest" "Visit the market" "Set sail">>
+<CONSTANT TRADING-POST-PASSAGES	<LTABLE	DESTINATION-YELLOWPORT>>
+<CONSTANT TRADING-POST-TICKETS	<LTABLE	15>>
+<CONSTANT TRADING-POST-TRAVEL	<LTABLE	STORY074>>
+
+<CONSTANT TRADING-POST-CARGO-BUY <LTABLE 135 220 600 400 900 325 120>>
+<CONSTANT TRADING-POST-CARGO-SELL <LTABLE 130 210 570 310 820 285 100>>
+
+<ROUTINE HARBOUR-TRADING-POST ("AUX" KEY CHOICE ITEMS DESTINATION)
+	<COND (,CURRENT-SHIP <PUTP ,CURRENT-SHIP ,P?DOCKED ,DOCK-TRADING>)>
+	<SET ITEMS <GET ,HARBOUR-TRADING-MENU 0>>
+	<REPEAT ()
+		<EMPHASIZE ,TEXT-HARBOUR-MASTER>
+		<PRINT-MENU ,HARBOUR-TRADING-MENU F F>
+		<HLIGHT ,H-BOLD>
+		<TELL "C">
+		<HLIGHT 0>
+		<TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
+		<HLIGHT ,H-BOLD>
+		<TELL "0">
+		<HLIGHT 0>
+		<TELL " - Go back to the village" CR>
+		<TELL "What do you wish to do next?">
+		<REPEAT ()
+			<SET .KEY <INPUT 1>>
+			<COND (<OR <EQUAL? .KEY !\C !\c !\P !\p> <AND <G=? .KEY !\0> <L=? .KEY <+ .ITEMS !\0>>>> <RETURN>)>
+		>
+		<CRLF>
+		<SET .CHOICE <- .KEY !\0>>
+		<COND (<EQUAL? .KEY !\C !\c !\P !\p>
+			<DESCRIBE-PLAYER>
+			<PRESS-A-KEY>
+		)(<EQUAL? .CHOICE 0>
+			<CRLF>
+			<TELL ,TEXT-SURE>
+			<COND (<YES?> <RETURN>)>
+		)(<EQUAL? .CHOICE 1>
+			<SET DESTINATION <BOOK-PASSAGE ,TRADING-POST-PASSAGES ,TRADING-POST-TICKETS ,TRADING-POST-TRAVEL>>
+			<COND (.DESTINATION
+				<STORY-JUMP .DESTINATION>
+				<RETURN>
+			)>
+		)(<EQUAL? .CHOICE 2>
+			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+				<EMPHASIZE "You have not designated a primary ship!">
+				<VIEW-SHIP-MANIFEST>
+			)(ELSE
+				<EMPHASIZE ,TEXT-NO-SHIPS>
+			)>
+		)(<EQUAL? .CHOICE 3>
+			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+				<BUY-SELL-CARGO ,TRADING-POST-CARGO-BUY ,TRADING-POST-CARGO-SELL>
+			)(ELSE
+				<EMPHASIZE ,TEXT-NO-SHIPS>
+			)>
+		)(<EQUAL? .CHOICE 4>
+			<COND (,CURRENT-SHIP
+				<COND (<VALIDATE-CARGO ,TRADING-POST-CARGO-SELL>
+					<STORY-JUMP ,STORY155>
+					<RETURN>
+				)>
+			)(ELSE
+				<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+					<VIEW-SHIP-MANIFEST>
+				)(ELSE
+					<EMPHASIZE ,TEXT-NO-SHIPS>
+				)>
+			)>
+		)>
+	>>
+
+; "Harbour - Yellowport"
+; ---------------------------------------------------------------------------------------------
+
+<CONSTANT YELLOWPORT-CARGO-BUY <LTABLE 190 200 600 350 900 350 180>>
+<CONSTANT YELLOWPORT-CARGO-SELL <LTABLE 170 180 500 250 810 300 160>>
+<CONSTANT YELLOWPORT-SHIP-BUY <LTABLE 250 450 900>>
+<CONSTANT YELLOWPORT-SHIP-SELL <LTABLE 125 225 450>>
+<CONSTANT YELLOWPORT-UPGRADE-PRICES <LTABLE 50 100>>
+<CONSTANT YELLOWPORT-TICKETS <LTABLE 10 15 0 0>>
+<CONSTANT YELLOWPORT-TRAVEL <LTABLE STORY150 STORY301 STORY234 STORY424>>
+<CONSTANT YELLOWPORT-PASSAGES
+	<LTABLE
+		DESTINATION-MARLOCK
+		DESTINATION-ISLE-DRUIDS
+		DESTINATION-SORCERERS-ISLE
+		DESTINATION-COPPER-ISLAND
+	>>
+
+<ROUTINE HARBOUR-YELLOWPORT ("AUX" KEY CHOICE ITEMS DESTINATION)
+	<COND (,CURRENT-SHIP <PUTP ,CURRENT-SHIP ,P?DOCKED ,DOCK-YELLOWPORT>)>
+	<DO (I 1 3)
+		<COND (<NOT <IN? <GET ,SHIPS-LIST .I> ,SHIPS>>
+			<STORY-RESET-CREW ,CONDITION-POOR>
+		)>
+	>
+	<SET ITEMS <GET ,HARBOUR-MASTER-MENU 0>>
+	<REPEAT ()
+		<EMPHASIZE ,TEXT-HARBOUR-MASTER>
+		<PRINT-MENU ,HARBOUR-MASTER-MENU F F>
+		<HLIGHT ,H-BOLD>
+		<TELL "C">
+		<HLIGHT 0>
+		<TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
+		<HLIGHT ,H-BOLD>
+		<TELL "0">
+		<HLIGHT 0>
+		<TELL " - Go to the city centre" CR>
+		<TELL "What do you wish to do next?">
+		<REPEAT ()
+			<SET .KEY <INPUT 1>>
+			<COND (<OR <EQUAL? .KEY !\C !\c !\P !\p> <AND <G=? .KEY !\0> <L=? .KEY <+ .ITEMS !\0>>>> <RETURN>)>
+		>
+		<CRLF>
+		<SET .CHOICE <- .KEY !\0>>
+		<COND (<EQUAL? .KEY !\C !\c !\P !\p>
+			<DESCRIBE-PLAYER>
+			<PRESS-A-KEY>
+		)(<EQUAL? .CHOICE 0>
+			<CRLF>
+			<TELL ,TEXT-SURE>
+			<COND (<YES?> <RETURN>)>
+		)(<EQUAL? .CHOICE 1>
+			<BUY-SELL-UPGRADE-SHIP ,YELLOWPORT-SHIP-BUY ,YELLOWPORT-SHIP-SELL ,YELLOWPORT-UPGRADE-PRICES ,YELLOWPORT-CARGO-SELL ,DOCK-YELLOWPORT>
+		)(<EQUAL? .CHOICE 2>
+			<SET DESTINATION <BOOK-PASSAGE ,YELLOWPORT-PASSAGES ,YELLOWPORT-TICKETS ,YELLOWPORT-TRAVEL>>
+			<COND (.DESTINATION
+				<STORY-JUMP .DESTINATION>
+				<RETURN>
+			)>
+		)(<EQUAL? .CHOICE 3>
+			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+				<EMPHASIZE "You have not designated a primary ship!">
+				<VIEW-SHIP-MANIFEST>
+			)(ELSE
+				<EMPHASIZE ,TEXT-NO-SHIPS>
+			)>
+		)(<EQUAL? .CHOICE 4>
+			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+				<BUY-SELL-CARGO ,YELLOWPORT-CARGO-BUY ,YELLOWPORT-CARGO-SELL>
+			)(ELSE
+				<EMPHASIZE ,TEXT-NO-SHIPS>
+			)>
+		)(<EQUAL? .CHOICE 5>
+			<COND (,CURRENT-SHIP
+				<COND (<VALIDATE-CARGO ,YELLOWPORT-CARGO-SELL>
+					<STORY-JUMP ,STORY499>
+					<RETURN>
+				)>
+			)(ELSE
+				<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+					<VIEW-SHIP-MANIFEST>
+				)(ELSE
+					<EMPHASIZE ,TEXT-NO-SHIPS>
+				)>
+			)>
+		)>
 	>>
 
 ; "Townhouse routines"
@@ -10466,12 +10566,8 @@ paste on the ground below.">
 <ROOM STORY301
 	(DESC "301")
 	(STORY TEXT301)
-	(EVENTS STORY301-EVENTS)
 	(CONTINUE STORY195)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY301-EVENTS ()
-	<COST-MONEY 15 ,TEXT-PAID>>
 
 <CONSTANT TEXT302 "You can explore:">
 <CONSTANT CHOICES302 <LTABLE "The poor quarter" "The harbour district" "The area around the palace">>
@@ -11818,12 +11914,8 @@ paste on the ground below.">
 <ROOM STORY401
 	(DESC "401")
 	(STORY TEXT401)
-	(EVENTS STORY401-EVENTS)
 	(CONTINUE STORY439)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY401-EVENTS ()
-	<COST-MONEY 60 ,TEXT-PAID>>
 
 <CONSTANT TEXT402 "Your ship draws away, leaving the Sokarans behind. Your crew jeer at them, and you spot the captain shaking his fist at you in rage, before they disappear from sight.">
 
@@ -13715,194 +13807,131 @@ paste on the ground below.">
 	<COND (<CHECK-ITEM ,GOLD-CHAIN-MAIL> <RETURN ,STORY380>)>
 	<RETURN ,STORY134>>
 
+<CONSTANT TEXT551 "You cannot escape. There are too many of them and all of them are seasoned warriors of Tyrnai. You are overpowered and given a savage beating. They take all your money and possessions.||The priests do not have you sacrificed to Tyrnai -- instead you are sold into slavery and set to work in the tin mines outside the city.">
+
 <ROOM STORY551
 	(DESC "551")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT551)
+	(EVENTS STORY551-EVENTS)
+	(CONTINUE STORY118)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY551-EVENTS ()
+	<SETG STAMINA 1>
+	<STORY-LOSE-EVERYTHING F>
+	<UPDATE-STATUS-LINE>>
+
+<CONSTANT TEXT552 "A swaggering Sokaran captain marches on board with a complement of marines.||\"I don't think you've paid your harbour duties,\" he says.||\"Harbour duties? We're in the middle of the sea.\"||He smiles smugly at you. \"You'd better cough up fifty Shards, or I'll impound your ship and its cargo.\"||\"That's no better than common piracy,\" says your first mate, outraged.||\"The duty will be sixty Shards now, for calling a captain in the Sokaran Imperial Navy a pirate.\"||Several of his men burst into laughter.">
+<CONSTANT CHOICES552 <LTABLE YOU-ARE-A "Hand over the money" "Refuse outright">>
 
 <ROOM STORY552
 	(DESC "552")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT552)
+	(CHOICES CHOICES552)
+	(DESTINATIONS <LTABLE STORY185 STORY401 STORY311>)
+	(REQUIREMENTS <LTABLE TITLE-PROTECTOR-SOKARA 60 NONE>)
+	(TYPES <LTABLE R-TITLE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT553 "You convince her that you mean no harm. The little girl tells you that she was placing flowers at the grave of her father, when a horrible monster came for her.Fortunately, she was able to run away. She points to a large tomb behind which the thing was hiding.||You tell the girl to go home and then you set out warily for the tomb. Suddenly, a foul stench fills your nostrils, and a figure rises up out of the shadows! Yellow eyes glow with feral blood-lust, and the creature's talons, encrusted with dried blood, reach for you hungrily. You've found the ghoul!">
+<CONSTANT CHOICES553 <LTABLE "Fight it" "Invoke the power of the gods" "Use some">>
 
 <ROOM STORY553
 	(DESC "553")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT553)
+	(CHOICES CHOICES553)
+	(DESTINATIONS <LTABLE STORY617 STORY144 STORY303>)
+	(REQUIREMENTS <LTABLE NONE NONE SALT-IRON-FILINGS>)
+	(TYPES <LTABLE R-NONE R-NONE R-ITEM>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT554 "King Skabb's rusty iron crown shattered when he fell, so you take the copper amulet from around his neck. You also find a chest in the corner of the room but it is clearly booby-trapped. You can open it using either magic or your skills as a thief.">
+<CONSTANT CHOICES554 <LTABLE TEXT-ROLL-MAGIC TEXT-ROLL-THIEVERY "Leave the chest and return to the surface">>
 
 <ROOM STORY554
 	(DESC "554")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT554)
+	(CHOICES CHOICES554)
+	(DESTINATIONS <LTABLE <LTABLE STORY006 STORY064> <LTABLE STORY006 STORY064> STORY010>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-MAGIC 9> <LTABLE ABILITY-THIEVERY 9> NONE>)
+	(TYPES <LTABLE R-TEST-ABILITY R-TEST-ABILITY R-NONE>)
+	(ITEMS <LTABLE COPPER-AMULET>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT555 "All shipping in and out of Yellowport must come through the offices of the harbourmaster. Here you can buy passage to far lands, or even a ship of your own, to fill with cargo and crew. ||Alternatively, if you buy a ship, you are the captain and can take it where you wish, exploring or trading.||The quality of the ship's crew is poor, unless you upgrade it. If you already own a ship, you can sell it back to the harbourmaster. It costs 50 Shards to upgrade a poor crew to average, and 100 Shards to upgrade an average crew to good. Excellent quality is not available in Yellowport.||If you own a ship, you can buy as many Cargo Units as it has room for. You may also sell cargo, if you have any. Prices are for single Cargo Units.">
 
 <ROOM STORY555
 	(DESC "555")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT555)
+	(EVENTS STORY555-EVENTS)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY555-EVENTS ()
+	<HARBOUR-YELLOWPORT>>
+
+<CONSTANT TEXT556 "You scatter the powder on the surface of the waters.||There is a flash, and a cloud of yellow smoke billows up out of the pond. When it clears, you find yourself face to face with a white-bearded bespectacled old man, floating a few feet off the water. He is dressed in long, flowing ornate robes.||He blinks at you for a moment before saying, \"Oh, that worthless apprentice of mine. Can you imagine -- I told him to throw the dust into the holy waters but the idiot couldn't even be trusted to do that.\"||The old man's name is Oliphard the Wizardly. As a reward for restoring his physical form, he casts a spell that enhances your skill.">
+<CONSTANT CHOICES556 <LTABLE YOU-ARE-A IF-NOT>>
 
 <ROOM STORY556
 	(DESC "556")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT556)
+	(EVENTS STORY556-EVENTS)
+	(CHOICES CHOICES556)
+	(DESTINATIONS <LTABLE STORY426 STORY699>)
+	(REQUIREMENTS <LTABLE PROFESSION-MAGE NONE>)
+	(TYPES <LTABLE R-PROFESSION R-NONE>)
+	(CODEWORDS <LTABLE CODEWORD-AMENDS>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY556-EVENTS ()
+	<COND (,RUN-ONCE
+		<REMOVE-ITEM ,VIAL-YELLOW-DUST "scattered" T T>
+		<UPGRADE-ABILITIES 1>
+	)>>
+
+<CONSTANT TEXT557 "\"Who is rightful ruler of Sokara -- General Grieve Marlock, or the son of the old king, Nergan Corin?\" asks the soldier.">
+<CONSTANT CHOICES557 <LTABLE "Grieve Marlock" "Nergan Corin">>
 
 <ROOM STORY557
 	(DESC "557")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT557)
+	(CHOICES CHOICES557)
+	(DESTINATIONS <LTABLE STORY631 STORY664>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT558 "You join the much-travelled road that connects Trefoille and Caran Baru. The traffic mostly consists of convoys of troops and supplies.">
+<CONSTANT CHOICES558 <LTABLE "Go to Trefoille" "Follow the road north" "Go north into the Curstmoor" "Go east to the river">>
 
 <ROOM STORY558
 	(DESC "558")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT558)
+	(CHOICES CHOICES558)
+	(DESTINATIONS <LTABLE STORY250 STORY387 STORY175 STORY310>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT559 "Your ship is sailing in the coastal waters off the Shadar Tor.">
+<CONSTANT CHOICES559 <LTABLE "Sail north west towards Marlock City" "Sail north east towards Yellowport" "Sail south into the Violet Ocean">>
 
 <ROOM STORY559
 	(DESC "559")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT559)
+	(CHOICES CHOICES559)
+	(DESTINATIONS <LTABLE STORY222 STORY029 STORY416>)
+	(TYPES THREE-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT560 "You are crossing the western wilderness, an expanse of wild, sparsely-populated countryside. A few trappers and woodsman make a living from the natural resources of the area.||A tall spire of rock, a towering anomaly of geology, rises up into the clouds, dominating the horizon. A local hunter tells you it is known as Devil's Peak and that the summit is infested with demons.">
+<CONSTANT CHOICES560 <LTABLE "Climb the peak" "Head west to the river" "Head north into the Forest of Larun" "Go south to the Curstmoor" "Travel east to the road">>
 
 <ROOM STORY560
 	(DESC "560")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT560)
+	(CHOICES CHOICES560)
+	(DESTINATIONS <LTABLE STORY658 STORY099 STORY047 STORY175 STORY558>)
+	(TYPES FIVE-NONES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY561
