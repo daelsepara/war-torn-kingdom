@@ -3436,6 +3436,10 @@
 	(DESC "pickaxe")
 	(FLAGS TAKEBIT)>
 
+<OBJECT PIRATE-CAPTAINS-HEAD
+	(DESC "pirate captain's head")
+	(FLAGS TAKEBIT)>
+
 <OBJECT PLATINUM-EARRING
 	(DESC "platinum earring")
 	(FLAGS TAKEBIT)>
@@ -5516,6 +5520,32 @@
 		<EMPHASIZE "You cannot afford to make resurrection arrangements at this time.">
 	)>>
 
+<ROUTINE RENOUNCE-TYRNAI ("OPT" STORY)
+	<COND (<NOT .STORY> <SET STORY ,HERE>)>
+	<COND (,GOD
+		<COND (<CHECK-GOD ,GOD-TYRNAI>
+			<RENOUNCE-WORSHIP 50 ,GOD-TYRNAI>
+			<COND (,GOD
+				<PREVENT-DOOM .STORY>
+			)(ELSE
+				<CRLF>
+				<TELL ,TEXT-WRATHFUL-BLOW>
+				<CRLF>
+				<LOSE-STAMINA 1 ,DIED-FROM-INJURIES .STORY>
+				<COND (<IS-ALIVE>
+					<COND (<EQUAL? ,RESURRECTION-ARRANGEMENTS ,RESURRECTION-TYRNAI>
+						<SETG ,RESURRECTION-ARRANGEMENTS NONE>
+						<EMPHASIZE "Your resurrection arrangements are forfeit!">
+					)>
+				)>
+			)>
+		)(ELSE
+			<PREVENT-DOOM .STORY>
+		)>
+	)(ELSE
+		<PREVENT-DOOM .STORY>
+	)>>
+
 <ROUTINE RENOUNCE-WORSHIP (FEE WORSHIP "AUX" RESURRECTION)
 	<COND (,GOD
 		<COND (<CHECK-GOD .WORSHIP>
@@ -6181,6 +6211,8 @@
 	<PUTP ,STORY484 ,P?DOOM T>
 	<PUTP ,STORY485 ,P?DOOM T>
 	<PUTP ,STORY486 ,P?DOOM T>
+	<PUTP ,STORY514 ,P?DOOM T>
+	<PUTP ,STORY520 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -6246,6 +6278,8 @@
 <CONSTANT TEXT-BLESSING-ELNIR "If you are an initiate it costs only 10 Shards to purchase Elnir's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again when you make a failed CHARISMA roll. It is good for only one reroll. You can have only one CHARISMA blessing at any one time. Once it is used up, you can return to any branch of the Temple of Elnir to buy a new one.">
 
 <CONSTANT TEXT-BLESSING-LACUNA "If you are an initiate it costs only 10 Shards to purchase Lacuna's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again on a failed SCOUTING roll. It is good for only one reroll. You can have only one SCOUTING blessing at any one time. Once it is used up, you can return to any branch of the temple of Lacuna to buy a new one.">
+
+<CONSTANT TEXT-WRATHFUL-BLOW "The High Priest smashes you across the jaw, saying, \"I'm doing you a favour, believe me.\"">
 
 <CONSTANT TEXT-TO-BEACH "Go down to the beach">
 <CONSTANT TEXT-TO-TREFOILLE "Take the road to Trefoille">
@@ -7364,7 +7398,6 @@ is off, you return to the city centre.">
 	<RENOUNCE-WORSHIP 30 ,GOD-ALVIR-VALMIR>>
 
 <CONSTANT TEXT069 "To renounce the worship of Tyrnai, you must pay 50 Shards to the warrior priests, and suffer the Ceremony of the Wrathful Blow. A priest will strike you once, on the doctrinal grounds that it is better to be struck by a priest than by Tyrnai himself.">
-<CONSTANT TEXT069-WRATH "The High Priest smashes you across the jaw, saying, \"I'm doing you a favour, believe me.\"">
 
 <ROOM STORY069
 	(DESC "069")
@@ -7375,29 +7408,7 @@ is off, you return to the city centre.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY069-EVENTS ()
-	<COND (,GOD
-		<COND (<CHECK-GOD ,GOD-TYRNAI>
-			<RENOUNCE-WORSHIP 50 ,GOD-TYRNAI>
-			<COND (,GOD
-				<PREVENT-DOOM ,STORY069>
-			)(ELSE
-				<CRLF>
-				<TELL ,TEXT069-WRATH>
-				<CRLF>
-				<LOSE-STAMINA 1 ,DIED-FROM-INJURIES ,STORY069>
-				<COND (<IS-ALIVE>
-					<COND (<EQUAL? ,RESURRECTION-ARRANGEMENTS ,RESURRECTION-TYRNAI>
-						<SETG ,RESURRECTION-ARRANGEMENTS NONE>
-						<EMPHASIZE "Your resurrection arrangements are forfeit!">
-					)>
-				)>
-			)>
-		)(ELSE
-			<PREVENT-DOOM ,STORY069>
-		)>
-	)(ELSE
-		<PREVENT-DOOM ,STORY069>
-	)>>
+	<RENOUNCE-TYRNAI ,STORY069>>
 
 <ROOM STORY070
 	(DESC "070")
@@ -13157,195 +13168,172 @@ paste on the ground below.">
 	(TYPES EIGHT-NONES)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT511 "Your arcane knowledge tells you much about the undead. Ghouls are known to eat the flesh of the dead as well as the living. They like to make their homes in crypts and graveyards and they never venture out during the day, as sunlight burns their pallid, undead flesh. Also, they cannot abide a powder of salt and iron filings mixed together.||You can purchase these ingredients for 15 Shards at many a market stall.">
+
 <ROOM STORY511
 	(DESC "511")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(LOCATION LOCATION-MARLOCK)
+	(STORY TEXT511)
+	(EVENTS STORY511-EVENTS)
+	(CHOICES CHOICES-SCOUTING)
+	(DESTINATIONS <LTABLE <LTABLE STORY419 STORY360>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 9>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY511-EVENTS ()
+	<COND (,RUN-ONCE
+		<COND (<AND <G=? ,MONEY 15> <NOT <CHECK-ITEM ,SALT-IRON-FILINGS>>>
+			<CRLF>
+			<TELL "Purchase ">
+			<PRINT-ITEM ,SALT-IRON-FILINGS T>
+			<TELL "?">
+			<COND (<YES?>
+				<COST-MONEY 15 "paid">
+				<TAKE-ITEM ,SALT-IRON-FILINGS T>
+			)>
+		)>
+	)>>
+
+<CONSTANT CHOICES512 <LTABLE "You have it and want to give it to the guildmaster" IF-NOT>>
 
 <ROOM STORY512
 	(DESC "512")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES512)
+	(DESTINATIONS <LTABLE STORY163 STORY706>)
+	(REQUIREMENTS <LTABLE PIRATE-CAPTAINS-HEAD NONE>)
+	(TYPES <LTABLE R-ITEM R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT513 "One of them gives you a conch shell full of a greenish liquid. You drink it, and dive into the sea. Miraculously, you can breathe underwater. You follow the sea centaurs down into the depths until you arrive at a sunken ship, which is encrusted in barnacles and seaweed.||Suddenly, the sea centaurs swim away, leaving you alone. You notice that you are giving off a glow like the sea centaurs. Looking down, you see that the lower half of your body has turned into that of a sea centaur! You have been taken and transformed to replace their lost companion.">
+<CONSTANT CHOICES513 <LTABLE "Explore the sunken wreck" "Swim back up to your ship">>
 
 <ROOM STORY513
 	(DESC "513")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT513)
+	(CHOICES CHOICES513)
+	(DESTINATIONS <LTABLE STORY429 STORY616>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT514 "To renounce the worship of Tyrnai, you must pay 50 Shards to the warrior priests, and suffer the 'Wrathful Blow'.">
 
 <ROOM STORY514
 	(DESC "514")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT514)
+	(EVENTS STORY514-EVENTS)
+	(CONTINUE STORY282)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY514-EVENTS ()
+	<RENOUNCE-TYRNAI ,STORY514>>
 
 <ROOM STORY515
 	(DESC "515")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES-MAGIC)
+	(DESTINATIONS <LTABLE <LTABLE STORY205 STORY314>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-MAGIC 11>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT516 "You pull the wolf pelt over you, and drop to all fours. Gingerly, you crawl in.||In the dark, you now look and smell like a wolf. At the back of the cave, you find a hole in the roof. An iron ladder leads up to it.">
+<CONSTANT CHOICES516 <LTABLE "Climb the ladder (The Plains of Howling Darkness)" "Leave the cave">>
 
 <ROOM STORY516
 	(DESC "516")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT516)
+	(CHOICES CHOICES516)
+	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY003>)
+	(TYPES TWO-NONES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT517 "A priest asks which service you require.">
+<CONSTANT CHOICES517 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-RESURRECTION-ARRANGEMENTS TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY517
 	(DESC "517")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY517-BACKGROUND)
+	(STORY TEXT517)
+	(CHOICES CHOICES517)
+	(DESTINATIONS <LTABLE STORY409 STORY187 STORY478 STORY100>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY517-BACKGROUND ()
+	<COND (<CHECK-ITEM ,GHOULS-HEAD> <RETURN ,STORY597>)>
+	<RETURN ,STORY517>>
+
+<CONSTANT TEXT518 "You are on the road between the Citadel of Velis Corin and Fort Mereth. This is quite rarely travelled -- the military guard posts are few and far between.">
+<CONSTANT CHOICES518 <LTABLE "Go to Disaster Bay" "Head for the Citadel of Velis Corin" "Travel to Fort Mereth" "Go south west into wild country">>
 
 <ROOM STORY518
 	(DESC "518")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT518)
+	(EVENTS STORY518-EVENTS)
+	(CHOICES CHOICES518)
+	(DESTINATIONS <LTABLE STORY495 STORY271 STORY299 STORY060>)
+	(TYPES FOUR-NONES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY518-EVENTS ("AUX" ROLL)
+	<COND (,RUN-ONCE
+		<SET ROLL <RANDOM-EVENT 1 0 T>>
+		<COND (<L=? .ROLL 2>
+			<COND (<G=? ,MONEY 10>
+				<EMPHASIZE "You lose 10 shards gambling">
+				<COST-MONEY 10 "lost">
+			)(ELSE
+				<EMPHASIZE ,NOTHING-HAPPENS>
+			)>
+		)(<L=? .ROLL 4>
+			<EMPHASIZE ,NOTHING-HAPPENS>
+		)(ELSE
+			<COND (<L? ,STAMINA ,MAX-STAMINA>
+				<EMPHASIZE "A sweet spring heals you.">
+				<GAIN-STAMINA 3>
+			)(ELSE
+				<EMPHASIZE ,NOTHING-HAPPENS>
+			)>
+		)>
+	)>
+	<IF-ALIVE ,TEXT-YOU-CAN>>
+
+<CONSTANT TEXT519 "Your crew have driven off the other ker'ilk, which dive into the sea. The ship was carrying 1 Cargo Unit of furs, which you can take if your ship has room. You clean up the dead sailors, and give them a proper burial at sea. There is nothing else of interest, so you sail on.">
 
 <ROOM STORY519
 	(DESC "519")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT519)
+	(EVENTS STORY519-EVENTS)
+	(CONTINUE STORY209)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY519-EVENTS ()
+	<STORY-GAIN-CARGO ,CARGO-FURS>>
+
+<CONSTANT TEXT520 "You hold up your arms and utter the mightiest prayer that you know. It has no effect.||The three white figures pelt you with a barrage of plates and knives. Something heavy hits you on the side of the head and you fall with a groan. The ghosts take advantage of this to snatch up the casket of silver and run off.">
+<CONSTANT TEXT520-CONTINUED "You recover your wits to find that the three figures have vanished. But you are sure now that they were not ghosts">
+<CONSTANT CHOICES520 <LTABLE "Try to track them down" "Follow the river north" "Follow the river south" "Head east into the countryside" "West to the main road">>
 
 <ROOM STORY520
 	(DESC "520")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT520)
+	(EVENTS STORY520-EVENTS)
+	(CHOICES CHOICES520)
+	(DESTINATIONS <LTABLE STORY541 STORY576 STORY082 STORY278 STORY558>)
+	(TYPES FIVE-NONES)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY520-EVENTS ()
+	<COND (,RUN-ONCE
+		<LOSE-STAMINA 2 ,DIED-FROM-INJURIES ,STORY520>
+	)>
+	<COND (<IS-ALIVE>
+		<CRLF>
+		<TELL ,TEXT520-CONTINUED>
+		<TELL ,PERIOD-CR>
+	)>>
 
 <ROOM STORY521
 	(DESC "521")
