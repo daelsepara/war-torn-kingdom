@@ -300,9 +300,9 @@
 				<EMPHASIZE "Through a quirk of magical fate, somehow the royal ring has travelled with you through the lands of the dead.">
 				<MOVE ,ROYAL-RING ,PLAYER>
 			)>
-			<SETG ,STAMINA ,MAX-STAMINA>
+			<SETG STAMINA ,MAX-STAMINA>
 			<STORY-JUMP <GETP ,RESURRECTION-ARRANGEMENTS ,P?CONTINUE>>
-			<SETG ,RESURRECTION-ARRANGEMENTS NONE>
+			<SETG RESURRECTION-ARRANGEMENTS NONE>
 		)(ELSE
 			<PRINT-ENDING BAD-ENDING 3>
 		)>
@@ -720,7 +720,7 @@
 		)>
 		<COND (<NOT <PROCESS-RANDOM-BLESSING>> <RETURN>)>
 	>
-	<SETG ,LAST-ROLL .ROLL>
+	<SETG LAST-ROLL .ROLL>
 	<RETURN .ROLL>>
 
 <ROUTINE STORY-JUMP (STORY)
@@ -1873,7 +1873,7 @@
 		<MOVE .OBJECT .CONTAINER>
 	)>>
 
-<ROUTINE GAIN-RANK ("OPT" (GAIN 1) RANK)
+<ROUTINE GAIN-RANK ("OPT" (GAIN 1) "AUX" RANK)
 	<COND (,CURRENT-CHARACTER
 		<CRLF>
 		<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
@@ -4765,7 +4765,7 @@
 					<COST-MONEY <GET .BUY-PRICES .ITEM> ,TEXT-PAID>
 					<MOVE <GET ,SHIPS-LIST .ITEM> ,SHIPS>
 					<PUTP <GET ,SHIPS-LIST .ITEM> ,P?DOCKED .DOCK>
-					<COND (<NOT ,CURRENT-SHIP> <SETG ,CURRENT-SHIP <GET ,SHIPS-LIST .ITEM>>)>
+					<COND (<NOT ,CURRENT-SHIP> <SETG CURRENT-SHIP <GET ,SHIPS-LIST .ITEM>>)>
 					<CRLF>
 					<TELL "You bought a ">
 					<PRINT-ITEM <GET ,SHIPS-LIST .ITEM> T>
@@ -4834,7 +4834,7 @@
 				<COND (<YES?>
 					<REMOVE <GET ,SHIPS-LIST .ITEM>>
 					<COND (<EQUAL? ,CURRENT-SHIP <GET ,SHIPS-LIST .ITEM>>
-						<SETG ,CURRENT-SHIP NONE>
+						<SETG CURRENT-SHIP NONE>
 					)>
 					<CRLF>
 					<TELL "You sold the ">
@@ -4991,7 +4991,7 @@
 			<COND (<EQUAL? ,CURRENT-SHIP <GET .LIST .KEY>>
 				<SETG CURRENT-SHIP NONE>
 			)(ELSE
-				<SETG ,CURRENT-SHIP <GET .LIST .KEY>>
+				<SETG CURRENT-SHIP <GET .LIST .KEY>>
 			)>
 		)>
 		<UPDATE-STATUS-LINE>
@@ -5589,7 +5589,7 @@
 			<TELL " of " D .WORSHIP "?">
 			<COND (<YES?>
 				<COST-MONEY .FEE ,TEXT-PAID>
-				<SETG ,GOD .WORSHIP>
+				<SETG GOD .WORSHIP>
 				<UPDATE-STATUS-LINE>
 			)>
 		)(ELSE
@@ -5677,7 +5677,7 @@
 				<LOSE-STAMINA 1 ,DIED-FROM-INJURIES .STORY>
 				<COND (<IS-ALIVE>
 					<COND (<EQUAL? ,RESURRECTION-ARRANGEMENTS ,RESURRECTION-TYRNAI>
-						<SETG ,RESURRECTION-ARRANGEMENTS NONE>
+						<SETG RESURRECTION-ARRANGEMENTS NONE>
 						<EMPHASIZE "Your resurrection arrangements are forfeit!">
 					)>
 				)>
@@ -5697,7 +5697,7 @@
 				<TELL "Renounce the worship of " D .WORSHIP "?">
 				<COND (<YES?>
 					<COND (<G? .FEE 0> <COST-MONEY .FEE ,TEXT-PAID>)>
-					<SETG ,GOD NONE>
+					<SETG GOD NONE>
 					<SET RESURRECTION <GETP .WORSHIP ,P?RESURRECTION>>
 					<COND (.RESURRECTION
 						<COND (<EQUAL? .RESURRECTION ,RESURRECTION-ANY>
@@ -6359,6 +6359,7 @@
 	<PUTP ,STORY529 ,P?DOOM T>
 	<PUTP ,STORY569 ,P?DOOM T>
 	<PUTP ,STORY570 ,P?DOOM T>
+	<PUTP ,STORY573 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -6499,7 +6500,7 @@
 	)(ELSE
 		<RESET-CONTAINER ,CARGO>
 		<REMOVE ,CURRENT-SHIP>
-		<SETG ,CURRENT-SHIP NONE>
+		<SETG CURRENT-SHIP NONE>
 		<CRLF>
 		<TELL ,TEXT-DRIFTWOOD>
 		<TELL ,PERIOD-CR>
@@ -8225,7 +8226,7 @@ harbourmaster.">
 
 <ROUTINE STORY114-EVENTS ()
 	<COND (<OR <L? ,STAMINA ,MAX-STAMINA> <G? <COUNT-CONTAINER ,AILMENTS ,DISEASEBIT> 0> <G? <COUNT-CONTAINER ,AILMENTS ,POISONBIT> 0>>
-		<SETG ,STAMINA ,MAX-STAMINA>
+		<SETG STAMINA ,MAX-STAMINA>
 		<CURE-AILMENTS 0 ,DISEASEBIT ,POISONBIT>
 	)>>
 
@@ -8728,7 +8729,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY157-EVENTS ()
-	<COND (<G? ,STAMINA 3> <SETG ,STAMINA 3>)>
+	<COND (<G? ,STAMINA 3> <SETG STAMINA 3>)>
 	<SETG MONEY 0>
 	<UPDATE-STATUS-LINE>>
 
@@ -12023,7 +12024,7 @@ paste on the ground below.">
 		<COND (<YES?>
 			<CRLF>
 			<COND (<TEST-ABILITY ,CURRENT-CHARACTER ,ABILITY-SANCTITY .DIFFICULTY>
-				<SETG ,GOD ,GOD-NAGIL>
+				<SETG GOD ,GOD-NAGIL>
 				<EMPHASIZE "You have become an Initiate of the God Nagil!">
 				<STORY-JUMP ,STORY071>
 			)>
@@ -14072,194 +14073,178 @@ paste on the ground below.">
 		<STORY-JUMP ,STORY195>
 	)>>
 
+<CONSTANT TEXT571 "The merchants' guild of Marlock City is a large, many-storeyed building of marble. Inside, many clerks and scribes are at work. Here you can bank your money for safekeeping, or invest it in guild enterprises in the hope of making a profit. A sign on the guildmaster's door reads 'Help wanted'.">
+<CONSTANT CHOICES571 <LTABLE "Visit the guildmaster" "Make an investment" "Check on investments" "Deposit or withdraw money" "Return to the town centre">>
+
 <ROOM STORY571
 	(DESC "571")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT571)
+	(CHOICES CHOICES571)
+	(DESTINATIONS <LTABLE STORY290 STORY104 STORY088 STORY605 STORY100>)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT572 "You open the door on to a large dining hall and kitchen. About thirty ratmen are standing around, eating and drinking. Everything goes quiet as they turn to stare at you with their black beady eyes.||\"Er, I do have an invitation,\" you stutter, holding up the note.||\"And we'd love to have you for dinner,\" one of them snarls.||Yelling noisily, they charge toward you. You have little choice but to turn and flee for your life! You race down the sewer tunnels, with the ratmen in hot pursuit.">
+<CONSTANT CHOICES572 <LTABLE "Lose them in the tunnels" "Try some magic" "Hide">>
 
 <ROOM STORY572
 	(DESC "572")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT572)
+	(CHOICES CHOICES572)
+	(DESTINATIONS <LTABLE STORY079 STORY296 STORY127>)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT573 "To renounce the worship of the Three Fortunes, you will have to undergo a ritual.||\"We must determine what the Three Fortunes have to say about the matter,\" says the high priest.||Do you want to reconsider?">
 
 <ROOM STORY573
 	(DESC "573")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT573)
+	(EVENTS STORY573-EVENTS)
+	(CONTINUE STORY086)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY573-EVENTS ("AUX" ROLL)
+	<PUTP ,STORY573 ,P?DOOM T>
+	<COND (<CHECK-GOD ,GOD-THREE-FORTUNES>
+		<SET ROLL <RANDOM-EVENT 1 0 T>>
+		<COND (<L=? .ROLL 2>
+			<PREVENT-DOOM ,STORY573>
+			<EMPHASIZE "You renounced the worship of the Three Fortunes and are free to go.">
+			<SETG GOD NONE>
+		)(<L=? .ROLL 4>
+			<PREVENT-DOOM ,STORY573>
+			<COND (<G=? ,MONEY 25>
+				<CRLF>
+				<TELL "Renounce the worship of ">
+				<PRINT-ITEM ,GOD-THREE-FORTUNES T>
+				<TELL "?">
+				<COND (<YES?>
+					<COST-MONEY 25 "paid">
+					<SETG GOD NONE>
+				)>
+			)(ELSE
+				<EMPHASIZE "You cannot afford to renounce the worship of Three Fortunes at this time!">
+			)>
+		)(ELSE
+			<EMPHASIZE "They demand a sacrifice of some of your blood">
+			<LOSE-STAMINA 1 ,DIED-GREW-WEAKER ,STORY573>
+		)>
+	)(ELSE
+		<EMPHASIZE "You are not an initiate of Three Fortunes!">
+		<PREVENT-DOOM ,STORY573>
+	)>>
+
+<CONSTANT TEXT574 "\"Ah, the saviour of the citadel. What can I do for you?\" asks the general.||He can arrange for you to be healed of all your wounds, cured of poison, disease, and madness (but his court sorcerer cannot lift a curse).||\"Any time you're in real need, just come to me,\" he adds.">
+<CONSTANT CHOICES574 <LTABLE HAVE-A OTHERWISE>>
 
 <ROOM STORY574
 	(DESC "574")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT574)
+	(EVENTS STORY574-EVENTS)
+	(CHOICES CHOICES574)
+	(DESTINATIONS <LTABLE STORY677 STORY100>)
+	(REQUIREMENTS <LTABLE CODED-MISSIVE NONE>)
+	(TYPES <LTABLE R-ITEM R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+; "TO-DO: search for money in townhouses, caches, banks, and investment houses"
+; "TO-DO: search for weapons and armours in townhouses, caches"
+<ROUTINE STORY574-EVENTS ()
+	<COND (,RUN-ONCE
+		<COND (<L? ,STAMINA ,MAX-STAMINA> <SETG STAMINA ,MAX-STAMINA>)>
+		<COND (<OR <G? <COUNT-CONTAINER ,AILMENTS ,DISEASEBIT> 0> <G? <COUNT-CONTAINER ,AILMENTS ,POISONBIT> 0>> <CURE-AILMENTS 0 ,DISEASEBIT ,POISONBIT>)>
+		<FIND-BEST-GEAR>
+		<COND (<NOT ,BEST-WEAPON> <TAKE-ITEM ,SWORD>)>
+		<COND (<NOT ,BEST-ARMOUR> <TAKE-ITEM ,CHAIN-MAIL>)>
+		<COND (<L=? ,MONEY 0> <GAIN-MONEY 200>)>
+	)>>
+
+<CONSTANT TEXT575 "\"You are indeed worthy,\" he says.||\"And will you teach me your fighting arts?\" you ask.||\"You have already learned all I can teach you,\" he says.||You realize that what he says is true. Your defeat of the Black Dragon Knight has taught you much.||You look up, but Yanryt the Son has gone.">
 
 <ROOM STORY575
 	(DESC "575")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT575)
+	(EVENTS STORY575-EVENTS)
+	(CONTINUE STORY400)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY575-EVENTS ()
+	<RETURN-ITEM ,BLACK-DRAGON-SHIELD T>
+	<DELETE-CODEWORD ,CODEWORD-AXE>
+	<GAIN-RANK 1>
+	<UPGRADE-STAMINA <ROLL-DICE 1>>>
+
+<CONSTANT TEXT576 "You are up the Stinking River near its source: the Lake of the Sea Dragon. From here, the yellow waters rush down to the sea. The smell of the bubbling, sulphur-laden water is abominable.">
+<CONSTANT CHOICES576 <LTABLE "Go to the Lake of the Sea Dragon" "Follow the river south" "Go west to the road" "East into the countryside">>
 
 <ROOM STORY576
 	(DESC "576")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(LOCATION LOCATION-STINKING)
+	(STORY TEXT576)
+	(CHOICES CHOICES576)
+	(DESTINATIONS <LTABLE STORY135 STORY310 STORY558 STORY278>)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT577 "You recognize the tracks as those of the legendary gorlock. You remember that it is said to have backward-pointing feet, so that the tracks it leaves will always show the opposite direction of travel! This means that the gorlock is currently inside the cave.">
+<CONSTANT CHOICES577 <LTABLE "Challenge the beast to combat" "Wait for it to leave the cave">>
 
 <ROOM STORY577
 	(DESC "577")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT577)
+	(CHOICES CHOICES577)
+	(DESTINATIONS <LTABLE STORY174 STORY287>)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT578 "The villagers welcome you as the one who brought Fourze to justice, and saved their people from slavery.">
 
 <ROOM STORY578
 	(DESC "578")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT578)
+	(CONTINUE STORY527)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT579 "You are travelling across flatlands. The River Grimm splits into a delta here, spilling its waters into the sea. Long, sandy beaches stretch out to sea.">
+<CONSTANT CHOICES579 <LTABLE "Go to Marlock City" "Follow the river north" "Travel west into Golnir (Cities of Gold and Glory)">>
 
 <ROOM STORY579
 	(DESC "579")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(LOCATION LOCATION-GRIMM)
+	(STORY TEXT579)
+	(EVENTS STORY579-EVENTS)
+	(CHOICES CHOICES579)
+	(DESTINATIONS <LTABLE STORY100 STORY099 STORY-CITIES-GOLD-GLORY>)
+	(TYPES THREE-CHOICES)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY579-EVENTS ("AUX" ROLL)
+	<COND (,RUN-ONCE
+		<PUTP ,STORY579 ,P?DOOM T>
+		<SET ROLL <RANDOM-EVENT 1 0 T>>
+		<COND (<L=? .ROLL 2>
+			<EMPHASIZE "You were bitten by a crab.">
+			<LOSE-STAMINA 1 ,DIED-FROM-INJURIES ,STORY579>
+		)(<L=? .ROLL 4>
+			<EMPHASIZE ,NOTHING-HAPPENS>
+			<PREVENT-DOOM ,STORY579>
+		)(ELSE
+			<EMPHASIZE "You find an ink sac washed up on the shore.">
+			<KEEP-ITEM ,INK-SAC>
+			<PREVENT-DOOM ,STORY579>
+		)>
+	)>
+	<IF-ALIVE ,TEXT-YOU-CAN>>
+
+<CONSTANT TEXT580 "You wait for things to die down, and make your way back to the door marked 'Thrown Rum'. Ignoring the kitchens, you go through.">
 
 <ROOM STORY580
 	(DESC "580")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT580)
+	(CONTINUE STORY202)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY581
