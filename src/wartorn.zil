@@ -60,11 +60,10 @@
 <CONSTANT R-RANK 14> ; "check if location was visited multiple times"
 <CONSTANT R-GAIN-CODEWORD 15> ; "gain codeword (s)"
 <CONSTANT R-PROFESSION 16> ; "check profession"
-<CONSTANT R-TAKE-MISSION 17> ; "take mission"
-<CONSTANT R-DOCK 18> ; "dock at port"
-<CONSTANT R-LOCATION 19> ; "test current location"
-<CONSTANT R-LOSE-ITEM 20> ; "lose item"
-<CONSTANT R-WEAPON 21> ; "you have a weapon of a specific combat score"
+<CONSTANT R-DOCK 17> ; "dock at port"
+<CONSTANT R-LOCATION 18> ; "test current location"
+<CONSTANT R-LOSE-ITEM 19> ; "lose item"
+<CONSTANT R-WEAPON 20> ; "you have a weapon of a specific combat score"
 
 ; "No requirements"
 <CONSTANT TWO-CHOICES <LTABLE R-NONE R-NONE>>
@@ -140,9 +139,6 @@
 
 ; "lost stuff"
 <OBJECT LOST-STUFF (DESC "things lost") (FLAGS CONTBIT OPENBIT)>
-
-; "missions"
-<OBJECT MISSIONS (DESC "missions") (FLAGS CONTBIT OPENBIT)>
 
 ; "container for titles and honours acquired"
 <OBJECT TITLES-AND-HONOURS (DESC "Titles and Honours") (FLAGS CONTBIT OPENBIT)>
@@ -541,11 +537,6 @@
 							<TELL "You are not a " D .LIST ,EXCLAMATION-CR>
 							<HLIGHT 0>
 						)>
-					)(<AND <EQUAL? .TYPE ,R-TAKE-MISSION> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
-						<CRLF>
-						<TAKE-MISSION .LIST>
-						<PRESS-A-KEY>
-						<SETG HERE <GET .DESTINATIONS .CHOICE>>
 					)(<AND <EQUAL? .TYPE ,R-DOCK> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
 						<CRLF>
 						<COND (,CURRENT-SHIP
@@ -651,7 +642,7 @@
 				<HLIGHT 0>
 				<TELL <GET .CHOICES .I>>
 				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-TEST-ABILITY> .REQUIREMENTS> <TELL " (Difficulty: "> <HLIGHT ,H-BOLD> <TELL N <GET .LIST 2>> <HLIGHT 0> <TELL")">)>
-				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-ITEM ,R-CODEWORD ,R-DISCHARGE ,R-TAKE-MISSION ,R-TITLE> .REQUIREMENTS> <TELL " ("> <COND (<EQUAL? .CHOICE-TYPE ,R-ITEM ,R-DISCHARGE> <HLIGHT ,H-BOLD>)(ELSE <HLIGHT ,H-ITALIC>)> <TELL D .LIST> <HLIGHT 0> <TELL ")">)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-ITEM ,R-CODEWORD ,R-DISCHARGE ,R-TITLE> .REQUIREMENTS> <TELL " ("> <COND (<EQUAL? .CHOICE-TYPE ,R-ITEM ,R-DISCHARGE> <HLIGHT ,H-BOLD>)(ELSE <HLIGHT ,H-ITALIC>)> <TELL D .LIST> <HLIGHT 0> <TELL ")">)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-CODEWORD-ITEM> .REQUIREMENTS> <TELL " Codeword "> <HLIGHT ,H-ITALIC> <TELL D <GET .LIST 1>> <HLIGHT 0> <TELL " and "> <COND (<FSET? <GET .LIST 2> ,NARTICLEBIT> <TELL "the">)(<FSET? <GET .LIST 2> ,VOWELBIT> <TELL "an">)(ELSE TELL "a")> <TELL " "> <PRINT-ITEM <GET .LIST 2> T>)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-MONEY> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (" N .LIST " " D ,CURRENCY ")">)>)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-RANK> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (Rank "> <HLIGHT ,H-BOLD> <TELL N .LIST> <HLIGHT 0> <TELL ")">)>)>
@@ -815,10 +806,6 @@
 	)>
 	<RTRUE>>
 
-<ROUTINE CHECK-MISSION (MISSION)
-	<COND (<NOT .MISSION> <RTRUE>)>
-	<RETURN <IN? .MISSION ,MISSIONS>>>
-
 <ROUTINE CHECK-RANK (LEVEL "OPT" CHARACTER "AUX" RANK)
 	<COND (<NOT .CHARACTER> <SET CHARACTER ,CURRENT-CHARACTER>)>
 	<SET RANK <GET-RANK .CHARACTER>>
@@ -879,13 +866,6 @@
 	<COND (.VISITS <RETURN <G? .VISITS .COUNTER>>)>
 	<RFALSE>>
 
-<ROUTINE COMPLETE-MISSION (MISSION "AUX" CODEWORD)
-	<COND (<NOT .MISSION> <RETURN>)>
-	<SET CODEWORD <GETP .MISSION ,P?CODEWORD>>
-	<COND (<OR <CHECK-CODEWORD .CODEWORD> <CHECK-MISSION .MISSION>>
-		<PUTP .MISSION ,P?COMPLETED T>
-	)>>
-
 <ROUTINE GET-DIFFICULTY (STORY INDEX "AUX" ODDS)
 	<SET ODDS <GET <GETP .STORY ,P?REQUIREMENTS> .INDEX>>
 	<RETURN <GET .ODDS 2>>>
@@ -894,12 +874,6 @@
 	<COND (<NOT .CHARACTER> <SET CHARACTER ,CURRENT-CHARACTER>)>
 	<COND (.CHARACTER <SET RANK <GETP .CHARACTER ,P?RANK>>)>
 	<RETURN .RANK>>
-
-<ROUTINE MISSION-COMPLETED (MISSION "AUX" COMPLETED)
-	<COND (<NOT .MISSION> <RTRUE>)>
-	<SET COMPLETED <GETP .MISSION ,P?COMPLETED>>
-	<COND (.COMPLETED <RTRUE>)>
-	<RFALSE>>
 
 <ROUTINE NOT-ALL-ANY (TYPE LIST "OPT" CONTAINER "AUX" COUNT)
 	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
@@ -1589,7 +1563,6 @@
 		<DESCRIBE-PLAYER-WORSHIP>
 		<DESCRIBE-PLAYER-RESURRECTIONS>
 		<DESCRIBE-PLAYER-AILMENTS>
-		<DESCRIBE-PLAYER-MISSIONS>
 		<DESCRIBE-PLAYER-CURRENCY>
 	)>>
 
@@ -1643,15 +1616,6 @@
 	<TELL "Current Location: ">
 	<HLIGHT 0>
 	<TELL "Somewhere in " <GET-LOCATION ,CURRENT-LOCATION> CR>>
-
-<ROUTINE DESCRIBE-PLAYER-MISSIONS ()
-	<COND (<G? <COUNT-CONTAINER ,MISSIONS> 0>
-		<HLIGHT ,H-BOLD>
-		<PRINT-CAP-OBJ ,MISSIONS>
-		<TELL ": ">
-		<HLIGHT 0>
-		<PRINT-CONTAINER ,MISSIONS>
-	)>>
 
 <ROUTINE DESCRIBE-PLAYER-POSSESSIONS ()
 	<COND (<L=? <COUNT-CONTAINER ,TOWNHOUSES> 0> <CRLF>)>
@@ -2260,7 +2224,17 @@
 <ROUTINE STORM-AT-SEA (STORY JUMP "AUX" (DICE 1) (ODDS NONE) (PARAMETERS NONE) (CONDITION 0))
 	<COND (<NOT .STORY> <SET STORY ,HERE>)>
 	<RESET-ODDS 1 0 .STORY>
-	<COND (<CHECK-BLESSING ,BLESSING-SAFETY-FROM-STORMS>
+	<COND (<AND <CHECK-ITEM ,CONCH-OF-SAFETY> <CHECK-CHARGES ,CONCH-OF-SAFETY>>
+		<CRLF>
+		<TELL "Blow the ">
+		<PRINT-ITEM ,CONCH-OF-SAFETY>
+		<PRINT " for safe passage?">
+		<COND (<YES?>
+			<TELL ,TEXT-BLESSING-STORM-SAFETY>
+			<TELL ,PERIOD-CR>
+			<DISCHARGE-ITEM ,CONCH-OF-SAFETY>
+		)>
+	)(<CHECK-BLESSING ,BLESSING-SAFETY-FROM-STORMS>
 		<CRLF>
 		<TELL "Use the blessing ">
 		<PRINT-ITEM ,BLESSING-SAFETY-FROM-STORMS T>
@@ -2268,8 +2242,8 @@
 		<COND (<YES?>
 			<CRLF>
 			<TELL ,TEXT-BLESSING-STORM-SAFETY>
-			<DELETE-BLESSING ,BLESSING-SAFETY-FROM-STORMS>
 			<TELL ,PERIOD-CR>
+			<DELETE-BLESSING ,BLESSING-SAFETY-FROM-STORMS>
 			<STORY-JUMP .JUMP>
 			<RETURN>
 		)>
@@ -2332,11 +2306,6 @@
 	)>
 	<WEAR-BEST>
 	<FIND-BEST-GEAR>>
-
-<ROUTINE TAKE-MISSION (MISSION "OPT" CODEWORD)
-	<GAIN-OBJECT .MISSION ,MISSIONS "mission" CHECK-MISSION>
-	<SET CODEWORD <GETP .MISSION ,P?CODEWORD>>
-	<COND (.CODEWORD <GAIN-CODEWORD .CODEWORD>)>>
 
 <ROUTINE TAKE-QUANTITIES (OBJECT PLURAL MESSAGE "OPT" AMOUNT)
 	<CRLF>
@@ -2771,14 +2740,6 @@
 		<SETG BEST-ARMOUR NONE>
 	)>>
 
-<ROUTINE RESET-MISSIONS ()
-	<PUTP ,MISSION-BOOK-SAGES ,P?COMPLETED F>
-	<PUTP ,MISSION-CITADEL-VELIS ,P?COMPLETED F>
-	<PUTP ,MISSION-GHOUL-HEAD ,P?COMPLETED F>
-	<PUTP ,MISSION-GOLDEN-NET ,P?COMPLETED F>
-	<PUTP ,MISSION-NEGRAN-CORIN ,P?COMPLETED F>
-	<RESET-CONTAINER ,MISSIONS>>
-
 <ROUTINE RESET-PLAYER ()
 	<SETG LAST-ROLL 0>
 	<SETG CURRENT-CHARACTER NONE>
@@ -2793,7 +2754,6 @@
 	<RESET-BLESSINGS>
 	<RESET-CARGO>
 	<RESET-CODEWORDS>
-	<RESET-MISSIONS>
 	<RESET-POSSESSIONS>
 	<RESET-TITLES>
 	<RESET-TOWNHOUSES>
@@ -3524,7 +3484,7 @@
 ; "TO-DO: Implement in storm routines"
 <OBJECT CONCH-OF-SAFETY
 	(DESC "conch of safety from storms")
-	(QUANTITY 3)
+	(CHARGES 3)
 	(FLAGS TAKEBIT)>
 
 <OBJECT COPPER-AMULET
@@ -4084,34 +4044,6 @@
 	(COMBAT 3)
 	(DEFENSE 5)
 	(STAMINA 7)>
-
-; "Missions"
-; ---------------------------------------------------------------------------------------------
-
-<OBJECT MISSION-BOOK-SAGES
-	(DESC "Pyletes the Sage: Retrieve the Book of the Seven Sages")
-	(CODEWORD CODEWORD-ARTIFACT)
-	(COMPLETED F)>
-
-<OBJECT MISSION-CITADEL-VELIS
-	(DESC "The King: Citadel of Velis")
-	(CODEWORD CODEWORD-ASSAULT)
-	(COMPLETED F)>
-
-<OBJECT MISSION-GHOUL-HEAD
-	(DESC "Warden: Retrieve ghoul's head")
-	(CODEWORD CODEWORD-AGUE)
-	(COMPLETED F)>
-
-<OBJECT MISSION-GOLDEN-NET
-	(DESC "High Priest: Retrieve the Golden net")
-	(CODEWORD CODEWORD-ANCHOR)
-	(COMPLETED F)>
-
-<OBJECT MISSION-NEGRAN-CORIN
-	(DESC "Provost Marshal: Slay Nergan Corin")
-	(CODEWORD CODEWORD-ARTERY)
-	(COMPLETED F)>
 
 ; "Titles and Honours for War-Torn Kingdom"
 ; ---------------------------------------------------------------------------------------------
@@ -6622,7 +6554,7 @@
 ; "reset routines"
 <ROUTINE RESET-OBJECTS ()
 	<FSET ,LEATHER-JERKIN ,WORNBIT>
-	<PUTP ,CONCH-OF-SAFETY ,P?QUANTITY 3>
+	<PUTP ,CONCH-OF-SAFETY ,P?CHARGES 3>
 	<PUTP ,RESURRECTION-NAGIL ,P?CONTINUE ,STORY350>
 	<PUTP ,RESURRECTION-TYRNAI ,P?CONTINUE ,STORY640>>
 
@@ -6772,14 +6704,17 @@
 
 <CONSTANT TEXT-NORTH-ACROSS "Go north across country">
 <CONSTANT TEXT-EAST-ROAD "Head east to the road">
+<CONSTANT TEXT-SOUTH-COUNTRY "South to the country">
 <CONSTANT TEXT-WEST-GRIMM "Head west towards the River Grimm">
 
 <CONSTANT TEXT-GO-TREFOILLE "Go to Trefoille">
 <CONSTANT TEXT-GO-MARLOCK "Go to Marlock City">
 
-<CONSTANT TEXT-TO-BEACH "Go down to the beach">
-<CONSTANT TEXT-TO-TREFOILLE "Take the road to Trefoille">
-<CONSTANT TEXT-TO-MARLOCK "Take the road to Marlock City">
+<CONSTANT TEXT-DOWN-BEACH "Go down to the beach">
+<CONSTANT TEXT-ROAD-TREFOILLE "Take the road to Trefoille">
+<CONSTANT TEXT-ROAD-MARLOCK "Take the road to Marlock City">
+<CONSTANT TEXT-TO-MARLOCK "To Marlock City">
+<CONSTANT TEXT-TO-TREFOILLE "To Trefoille">
 
 <CONSTANT TEXT-SMOLDER-FISH "You caught a smolder fish while fishing.">
 
@@ -7294,7 +7229,7 @@
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT028 "You jump into the air and hit the ground rolling. You come up, bruised but alive, in time to see the horses ride straight into the rocky wall of a low hill. To your amazement, they pass straight through the rock and disappear. Silence falls across the land like a blanket. There is no sign of them, not even tracks. You camp for the night and the next day set off once more.">
-<CONSTANT CHOICES028 <LTABLE "North across country" "East to the road" "To Trefoille" "To Marlock City" "West towards the River Grimm">>
+<CONSTANT CHOICES028 <LTABLE "North across country" TEXT-EAST-ROAD TEXT-TO-TREFOILLE TEXT-TO-MARLOCK TEXT-WEST-GRIMM>>
 
 <ROOM STORY028
 	(DESC "028")
@@ -7393,7 +7328,7 @@ footing and fall to the ground.">
 	<CONTINUE-TEXT ,TEXT034-CONTINUED>>
 
 <CONSTANT TEXT035 "You come to the top of a windswept cliff. An ancient pillar of jumbled rock, pitted and weather-beaten, stands at the cliff's edge, like a broken finger pointing at the sky. Seagulls sing their song of desolation in the air.||Judging by the runes etched into the rock, the tor dates back to the time of the Shadar, a race that ruled Harkuna so long ago, they are lost in myth and legend.">
-<CONSTANT CHOICES035 <LTABLE "Examine the runes" TEXT-TO-BEACH TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
+<CONSTANT CHOICES035 <LTABLE "Examine the runes" TEXT-DOWN-BEACH TEXT-ROAD-TREFOILLE TEXT-ROAD-MARLOCK>>
 
 <ROOM STORY035
 	(DESC "035")
@@ -7467,11 +7402,10 @@ footing and fall to the ground.">
 <ROUTINE STORY040-EVENTS ()
 	<UPGRADE-ABILITIES 1>
 	<DELETE-CODEWORD ,CODEWORD-ARTIFACT>
-	<RETURN-ITEM ,BOOK-SEVEN-SAGES T>
-	<COMPLETE-MISSION ,MISSION-BOOK-SAGES>>
+	<RETURN-ITEM ,BOOK-SEVEN-SAGES T>>
 
 <CONSTANT TEXT041 "The inside of the dome is lit with an eerie yellowish glow that comes from the sea-moss that carpets the ceiling. At the far end, a grotto in the wall contains an idol made from sea shells and coral, presumably of Oannes, the god of the repulsive ones. At its feet lies the golden net of Alvir and Valmir, the object of your quest. Between you and the idol swim several of the giant squid-creatures, carrying out various undersea chores.">
-<CONSTANT CHOICES041 <LTABLE "Swim back to Shadar Tor" "Fight your way to the golden net" "Trust to your magical prowess" "Rack your memory for a solution">>
+<CONSTANT CHOICES041 <LTABLE "Swim back to Shadar Tor" "Fight your way to the golden net" "Trust your magical prowess" "Rack your memory for a solution">>
 
 <ROOM STORY041
 	(DESC "041")
@@ -7565,7 +7499,7 @@ footing and fall to the ground.">
 	<GUILD-ACTIVITY ,STORY046>>
 
 <CONSTANT TEXT047 "The Forest of Larun is a mighty swathe of densely packed trees, a slice of primordial nature in the middle of busy, industrious Sokara.">
-<CONSTANT CHOICES047 <LTABLE "Venture deeper into the forest" "North to the Bronze Hills" "West to the River Grimm" "South into the countryside" "East to the road">>
+<CONSTANT CHOICES047 <LTABLE "Venture deeper into the forest" "North to the Bronze Hills" TEXT-WEST-GRIMM "South into the countryside" TEXT-EAST-ROAD>>
 
 <ROOM STORY047
 	(DESC "047")
@@ -7584,8 +7518,8 @@ footing and fall to the ground.">
 	(STORY TEXT048)
 	(CHOICES CHOICES048)
 	(DESTINATIONS <LTABLE STORY100 STORY100>)
-	(REQUIREMENTS <LTABLE MISSION-GHOUL-HEAD NONE>)
-	(TYPES <LTABLE R-TAKE-MISSION R-NONE>)
+	(REQUIREMENTS <LTABLE CODEWORD-AGUE NONE>)
+	(TYPES <LTABLE R-GAIN-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT049 "Not taking any chances, you charge the soldier, yelling a war cry. He starts back in astonishment. Just then, several archers pop up from behind the rocks above, and let loose a volley of arrows. One takes you in the leg.">
@@ -7691,7 +7625,7 @@ footing and fall to the ground.">
 	<PURCHASE-BLESSING 25 10 ,GOD-LACUNA ,BLESSING-SCOUTING>>
 
 <CONSTANT TEXT053 "The creature bursts open in death, spilling a black inky cloud into the water. The sac in which this ink is kept falls free from its body. You can take the ink sac if you wish. You also find coral jewellery worth about 15 Shards.||Nothing else occurs during your foray into the depths, so you return to land. You climb back up the path that leads to the clifftop tor without incident.">
-<CONSTANT CHOICES053 <LTABLE TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
+<CONSTANT CHOICES053 <LTABLE TEXT-ROAD-TREFOILLE TEXT-ROAD-MARLOCK>>
 
 <ROOM STORY053
 	(DESC "053")
@@ -7967,7 +7901,7 @@ is off, you return to the city centre.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT075 "The high priest takes you to a private chamber. \"You may be just what the temple needs,\" he says, \"a good, old-fashioned thief. There is a suit of armour made entirely from gold -- ceremonial only, of course. Nevertheless, we would like to, er, have it donated to us.\"||\"I see,\" you reply, \"and where is the armour?\"||\"Well, that's the tricky part -- it's in the Temple of Tyrnai, in Caran Baru. In fact, it's worn by the idol of Tyrnai himself in the temple. Can you bring us the gold chain mail of Tyrnai? In return, we will instruct you in the roguish arts.\"">
-<CONSTANT CHOICES075 <LTABLE "Take up the mission for the Temple of Sig" IF-NOT>>
+<CONSTANT CHOICES075 <LTABLE TEXT-TAKE-MISSION IF-NOT>>
 
 <ROOM STORY075
 	(DESC "075")
@@ -8525,7 +8459,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT110 "You are walking through the Bronze Hills. Virtually the whole area has been given over to mining. Everywhere, quarries and mine shafts abound. It is a horrible expanse of torn-up earth -- hardly any areas of green are left. Great heaps of excavated rock, leeched of their useful minerals, mar the landscape. You find a quarry that is open to the public. That is to say, if you pay 50 Shards, you can dig for an hour in a silver mine.">
-<CONSTANT CHOICES110 <LTABLE "Pay 50 Shards and mine for silver" "Go to Caran Baru" "South into the Forest of Larun" "West to the River Grimm" "North west into the Western Wilderness">>
+<CONSTANT CHOICES110 <LTABLE "Pay 50 Shards and mine for silver" "Go to Caran Baru" "South into the Forest of Larun" TEXT-WEST-GRIMM "North west into the Western Wilderness">>
 
 <ROOM STORY110
 	(DESC "110")
@@ -8549,7 +8483,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT112 "The merchants' guild is comparatively small here. Most of its work involves financial services for the army. Here you can bank your money for safe-keeping, but there are no facilities for investment.">
-<CONSTANT CHOICES112 <LTABLE "To deposit or withdraw money in Caran Baru" "Return to the town centre">>
+<CONSTANT CHOICES112 <LTABLE "Deposit or withdraw money in Caran Baru" "Return to the town centre">>
 
 <ROOM STORY112
 	(DESC "112")
@@ -8585,34 +8519,16 @@ harbourmaster.">
 		<CURE-AILMENTS 0 ,DISEASEBIT ,POISONBIT>
 	)>>
 
-<CONSTANT TEXT115 "You are exploring Marlock City.">
+<CONSTANT CHOICES115 <LTABLE "If you are on a quest for the temple of Nagil to bring it the head of the escaped ghoul" "If you do not want to look for the ghoul yet, or have already done so">>
 
 <ROOM STORY115
 	(DESC "115")
-	(BACKGROUND STORY115-BACKGROUND)
-	(STORY TEXT115)
-	(EVENTS STORY115-EVENTS)
+	(CHOICES CHOICES115)
+	(DESTINATIONS <LTABLE STORY446 STORY226>)
+	(REQUIREMENTS <LTABLE CODEWORD-AGUE NONE>)
+	(TYPES ONE-CODEWORD)
 	(CONTINUE STORY226)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY115-BACKGROUND ()
-	<COND (<MISSION-COMPLETED ,MISSION-GHOUL-HEAD> <RETURN ,STORY226>)>
-	<RETURN ,STORY115>>
-
-<ROUTINE STORY115-EVENTS ()
-	<COND (<AND <CHECK-MISSION ,MISSION-GHOUL-HEAD> <NOT <MISSION-COMPLETED ,MISSION-GHOUL-HEAD>>>
-		<CRLF>
-		<TELL "Do you want to pursue the quest for the Temple of Nagil and bring it the head of the escaped ghoul?">
-		<COND (<YES?> <STORY-JUMP STORY446>)>
-	)(<MISSION-COMPLETED ,MISSION-GHOUL-HEAD>
-		<CRLF>
-		<COND (<CHECK-ITEM ,GHOULS-HEAD>
-			<TELL "Perhaps you should go back to the Temple of Nagil to claim your reward">
-		)(ELSE
-			<TELL "The escaped ghoul has already been dealt with">
-		)>
-		<TELL ,PERIOD-CR>
-	)>>
 
 <CONSTANT TEXT116 "You realize the creature is one of the legendary repulsive ones. It is swimming past you, intent on its own business, so you follow it, in the hope it will lead you to the sunken city of Ziusudra.">
 
@@ -9513,10 +9429,10 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY191-EVENTS ()
-	<COND (<AND <NOT <CHECK-MISSION ,MISSION-NEGRAN-CORIN>> <NOT <MISSION-COMPLETED ,MISSION-NEGRAN-CORIN>>>
+	<COND (<NOT <CHECK-CODEWORD ,CODEWORD-ARTERY>>
 		<CRLF>
-		<TELL "Take up the mission " D ,MISSION-NEGRAN-CORIN "?">
-		<COND (<YES?> <TAKE-MISSION ,MISSION-NEGRAN-CORIN>)>
+		<TELL "Take up the mission?">
+		<COND (<YES?> <GAIN-CODEWORD ,CODEWORD-ARTERY>)>
 	)>>
 
 <CONSTANT TEXT192 "You reach a hill crowned with a circle of large obsidian standing stones. Despite the bitter wind that blows across these hills, the stones are unweathered and seem almost newly cut. The stones are laid in such a way that they form three archways, each carven with mystic symbols and runes of power.||\"The Gates of the World.\" says the old man. \"Each gate will take you to a part of the world of Harkuna, though I know not to where.\"||Abruptly he turns around and sets off down the hill, leaving you alone with the brooding stones and the howling wind.">
@@ -9571,13 +9487,9 @@ harbourmaster.">
 <ROOM STORY196
 	(DESC "196")
 	(STORY TEXT196)
-	(EVENTS STORY196-EVENTS)
 	(CONTINUE STORY100)
+	(ITEMS <LTABLE GHOULS-HEAD>)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY196-EVENTS ()
-	<COMPLETE-MISSION ,MISSION-GHOUL-HEAD>
-	<TAKE-ITEM ,GHOULS-HEAD>>
 
 <CONSTANT TEXT197 "The blessing of Sig costs 10 Shards if you are an initiate, 30 Shards otherwise.||The blessing works by allowing you to reroll any failed THIEVERY attempt once. You can have only one blessing for each ability at any one time. Once your THIEVERY blessing is used up, you can return to any branch of the Temple of Sig to buy a new one.">
 
@@ -9688,7 +9600,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT205 "The runes are written in Old Shadar, an ancient language from thousands of years ago. You realize that the runes form a spell that will give you the power to breathe underwater for a few hours.">
-<CONSTANT CHOICES205 <LTABLE "Use the spell and swim out to sea" TEXT-TO-BEACH TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
+<CONSTANT CHOICES205 <LTABLE "Use the spell and swim out to sea" TEXT-DOWN-BEACH TEXT-ROAD-TREFOILLE TEXT-ROAD-MARLOCK>>
 
 <ROOM STORY205
 	(DESC "205")
@@ -9786,7 +9698,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT213 "Each creature bursts open in death, spilling a black inky cloud into the water. The sac in which this ink is kept falls free from its body. You also find coral jewellery worth about 45 Shards. You swim down and take the golden net and strike out for the Shadar Tor as fast as you can.">
-<CONSTANT CHOICES213 <LTABLE TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
+<CONSTANT CHOICES213 <LTABLE TEXT-ROAD-TREFOILLE TEXT-ROAD-MARLOCK>>
 
 <ROOM STORY213
 	(DESC "213")
@@ -10249,7 +10161,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT250 "The city of Trefoille is a terrifying vision of apocalyptic destruction. It had once been a thriving crossroads town, but now it is a burnt-out hulk. It was almost razed to the ground when it declared for the king, and tried to hold out against the army of Grieve Marlock during the recent civil war. It was sacked by the general's mercenaries. General Marlock is now trying to rebuild it. Craftsmen are hard at work everywhere.||There is nothing here but ashes and rubble.">
-<CONSTANT CHOICES250 <LTABLE "Visit Oliphard the Wizardly" "Take the road to the Shadar Tor" TEXT-TO-MARLOCK "Head into the Curstmoor" "Take the road north" "Take the road to Yellowport">>
+<CONSTANT CHOICES250 <LTABLE "Visit Oliphard the Wizardly" "Take the road to the Shadar Tor" TEXT-ROAD-MARLOCK "Head into the Curstmoor" "Take the road north" "Take the road to Yellowport">>
 
 <ROOM STORY250
 	(DESC "250")
@@ -10326,8 +10238,8 @@ paste on the ground below.">
 	(EVENTS STORY256-EVENTS)
 	(CHOICES CHOICES256)
 	(DESTINATIONS <LTABLE STORY474 STORY474>)
-	(REQUIREMENTS <LTABLE MISSION-CITADEL-VELIS NONE>)
-	(TYPES <LTABLE R-TAKE-MISSION R-NONE>)
+	(REQUIREMENTS <LTABLE CODEWORD-ASSAULT NONE>)
+	(TYPES <LTABLE R-GAIN-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY256-EVENTS ()
@@ -10600,7 +10512,7 @@ paste on the ground below.">
 	<PURCHASE-BLESSING 20 5 ,GOD-ALVIR-VALMIR ,BLESSING-SAFETY-FROM-STORMS>>
 
 <CONSTANT TEXT276 "You are wandering across the wilderness of north-western Sokara. There is a magnificent castle nearby, with many different pennants flying from its towers.">
-<CONSTANT CHOICES276 <LTABLE "Visit the castle" "Head west to the River Grimm" "Travel north to the mountains" "Head north-east" "Head east into the Bronze Hills" "Go south into the Forest of Larun">>
+<CONSTANT CHOICES276 <LTABLE "Visit the castle" TEXT-WEST-GRIMM "Travel north to the mountains" "Head north-east" "Head east into the Bronze Hills" "Go south into the Forest of Larun">>
 
 <ROOM STORY276
 	(DESC "276")
@@ -10670,7 +10582,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT281 "Your tale of valour and derring-do falls on an unappreciative audience. The merfolk slip beneath the waves with snorts of derision, leaving you alone on the desolate beach. There is nothing for you to do but return to the clifftop tor.">
-<CONSTANT CHOICES281 <LTABLE TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
+<CONSTANT CHOICES281 <LTABLE TEXT-ROAD-TREFOILLE TEXT-ROAD-MARLOCK>>
 
 <ROOM STORY281
 	(DESC "281")
@@ -10952,8 +10864,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY303-EVENTS ()
-	<REMOVE-ITEM ,SALT-IRON-FILINGS ,TEXT-USED T T>
-	<COMPLETE-MISSION ,MISSION-GHOUL-HEAD>>
+	<REMOVE-ITEM ,SALT-IRON-FILINGS ,TEXT-USED T T>>
 
 <CONSTANT TEXT304 "He spots you before you can get the jump on him. \"Stinking assassin!\" he yells, drawing his sword. You must fight him.">
 
@@ -11098,7 +11009,7 @@ paste on the ground below.">
 	<COND (<IS-ALIVE> <SETG GOD NONE>)>>
 
 <CONSTANT TEXT314 "The runes mean nothing to you.">
-<CONSTANT CHOICES314 <LTABLE TEXT-TO-BEACH TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
+<CONSTANT CHOICES314 <LTABLE TEXT-DOWN-BEACH TEXT-ROAD-TREFOILLE TEXT-ROAD-MARLOCK>>
 
 <ROOM STORY314
 	(DESC "314")
@@ -11297,8 +11208,8 @@ paste on the ground below.">
 	(STORY TEXT331)
 	(CHOICES CHOICES331)
 	(DESTINATIONS <LTABLE STORY010 STORY010>)
-	(REQUIREMENTS <LTABLE MISSION-BOOK-SAGES NONE>)
-	(TYPES <LTABLE R-TAKE-MISSION R-NONE>)
+	(REQUIREMENTS <LTABLE CODEWORD-ARTIFACT NONE>)
+	(TYPES <LTABLE R-GAIN-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY331-BACKGROUND ()
@@ -11538,7 +11449,7 @@ paste on the ground below.">
 	<CONTINUE-TEXT ,TEXT-YOU-CAN-GO>>
 
 <CONSTANT TEXT348 "You remember what the fishermen say: the root of a certain seaweed, when crushed, gives off a cloud of toxic fluid. This sap is harmless to humans but is known to paralyse marine creatures for a short while. Fortunately, the seaweed grows in abundance here. You swim down with a handful of the roots, squeezing its sap into the waters. The hideous creatures shoot towards you, but are paralysed the instant they enter the cloud of reddish fluid that billows around you.||You take the golden net and swim back to the Shadar Tor as fast as you can.">
-<CONSTANT CHOICES348 <LTABLE TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
+<CONSTANT CHOICES348 <LTABLE TEXT-ROAD-TREFOILLE TEXT-ROAD-MARLOCK>>
 
 <ROOM STORY348
 	(DESC "348")
@@ -11883,7 +11794,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT377 "The road between Marlock and Trefoille is well maintained with regular guard posts. The Sokarans are nothing if not efficient.">
-<CONSTANT CHOICES377 <LTABLE TEXT-TO-TREFOILLE TEXT-TO-MARLOCK "North into Curstmoor">>
+<CONSTANT CHOICES377 <LTABLE TEXT-ROAD-TREFOILLE TEXT-ROAD-MARLOCK "North into Curstmoor">>
 
 <ROOM STORY377
 	(DESC "377")
@@ -12063,7 +11974,7 @@ paste on the ground below.">
 	<CHECK-COMBAT ,MONSTER-KER-ILK ,STORY389>>
 
 <CONSTANT TEXT390 "The horses rush past you. They seem to gallop through the air, whinnying and neighing, bellowing at the twilight sky. Soon they disappear from your sight. You make camp, and the next day continue your journey.">
-<CONSTANT CHOICES390 <LTABLE TEXT-NORTH-ACROSS TEXT-EAST-ROAD TEXT-GO-TREFOILLE TEXT-TO-MARLOCK TEXT-WEST-GRIMM>>
+<CONSTANT CHOICES390 <LTABLE TEXT-NORTH-ACROSS TEXT-EAST-ROAD TEXT-GO-TREFOILLE TEXT-ROAD-MARLOCK TEXT-WEST-GRIMM>>
 
 <ROOM STORY390
 	(DESC "390")
@@ -12408,8 +12319,8 @@ paste on the ground below.">
 	(STORY TEXT411)
 	(CHOICES CHOICES411)
 	(DESTINATIONS <LTABLE STORY220 STORY220>)
-	(REQUIREMENTS <LTABLE MISSION-GOLDEN-NET NONE>)
-	(TYPES <LTABLE R-TAKE-MISSION R-NONE>)
+	(REQUIREMENTS <LTABLE CODEWORD-ANCHOR NONE>)
+	(TYPES <LTABLE R-GAIN-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT412 "You are on the cobbled road between Yellowport and Trefoille. You meet a few merchants and pilgrims, but all in all it is an uneventful journey.">
@@ -12990,7 +12901,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT461 "You call out the password 'Rebirth' to the door.||\"The password changes once it has been used.\" says the door smugly. \"I can't open for you even if I wanted to.\"||There is nothing else to do here, so you leave.">
-<CONSTANT CHOICES461 <LTABLE "North to the Bronze Hills" "West to the river Grimm" "South to the country" "East to the road">>
+<CONSTANT CHOICES461 <LTABLE "North to the Bronze Hills" TEXT-WEST-GRIMM TEXT-SOUTH-COUNTRY TEXT-EAST-ROAD>>
 
 <ROOM STORY461
 	(DESC "461")
@@ -13101,7 +13012,7 @@ paste on the ground below.">
 	<COST-MONEY 1 "tossed away">>
 
 <CONSTANT TEXT471 "The priestess, dressed in silken robes, and wearing a wreath of oak leaves, says, \"I have need of an adventurer like yourself. For arcane reasons involving the secret mysteries of Lacuna, I need the tusk of a boar. A were-boar, in fact. I believe they can be found in the Forest of the Forsaken, in northern Golnir. Hunt down a were-boar, and bring me a boar's tusk. In return, I will teach you how to be a better scout.\"">
-<CONSTANT CHOICES471 <LTABLE "Accept the mission" IF-NOT>>
+<CONSTANT CHOICES471 <LTABLE TEXT-TAKE-MISSION IF-NOT>>
 
 <ROOM STORY471
 	(DESC "471")
@@ -15298,7 +15209,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT638 "You know from ancient texts of arcane lore that the repulsive ones cannot stand bright light. Using all your magical power, you cause the glowing moss to emit a dazzling flash of yellow light. Blinded for a few seconds, the repulsive ones mill about helplessly, and you dart in and seize the golden net.||You swim for the Shadar Tor as fast as you can.">
-<CONSTANT CHOICES638 <LTABLE TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
+<CONSTANT CHOICES638 <LTABLE TEXT-ROAD-TREFOILLE TEXT-ROAD-MARLOCK>>
 
 <ROOM STORY638
 	(DESC "638")
@@ -15699,7 +15610,7 @@ paste on the ground below.">
 
 <CONSTANT TEXT668 "You are led to a rockface in the mine. You start digging.">
 <CONSTANT TEXT668-CONTINUED "You leave the Bronze Hills.||You can go:">
-<CONSTANT CHOICES668 <LTABLE "To Caran Baru" "South into the Forest of Larun" "West to the River Grimm" "North into the Western Wilderness">>
+<CONSTANT CHOICES668 <LTABLE "To Caran Baru" "South into the Forest of Larun" TEXT-WEST-GRIMM "North into the Western Wilderness">>
 
 <ROOM STORY668
 	(DESC "668")
@@ -15777,7 +15688,7 @@ paste on the ground below.">
 	<UPGRADE-ABILITY ,ABILITY-MAGIC 1>>
 
 <CONSTANT TEXT673 "You are trekking across the aptly named Curstmoor. A great rolling expanse of blasted heath stretches before you. Grey clouds hang over a mournful, dirty-water coloured plain, studded with rocky outcrops and low hills.">
-<CONSTANT CHOICES673 <LTABLE "North across the country" "East to the road" "To Trefoille" "To Marlock City" "West towards the River Grimm">>
+<CONSTANT CHOICES673 <LTABLE "North across the country" TEXT-EAST-ROAD TEXT-TO-TREFOILLE TEXT-TO-MARLOCK TEXT-WEST-GRIMM>>
 
 <ROOM STORY673
 	(DESC "673")
@@ -16072,7 +15983,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT697 "\"How do I learn the password?\" you ask.||\"Astrallus was the Wizard King, so why don't you ask some wizards?\"||\"Where would I find them?\"||\"How would I know?\" replies the door testily. \"I've been stuck here for a thousand years.\"||You decide it is time to leave.">
-<CONSTANT CHOICES697 <LTABLE "North to the Bronze Hills" "West to the River Grimm" "South to the country" "East to the road">>
+<CONSTANT CHOICES697 <LTABLE "North to the Bronze Hills" TEXT-WEST-GRIMM TEXT-SOUTH-COUNTRY TEXT-EAST-ROAD>>
 
 <ROOM STORY697
 	(DESC "697")
