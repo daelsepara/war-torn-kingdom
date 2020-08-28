@@ -37,29 +37,31 @@ First Edition
 
 ## Notes about ZIL version
 
-- No in-game illustrations or graphics (also excludes map from the book. Refer to the maps above)
+- No in-game illustrations or graphics (Refer to the maps above)
 - Dice rolls handled by the Random Number Generator (but of course!)
-- Character selection and inventory of items and codewords are implemented
+- Character selection and inventory (items, codewords)
 - Items with bonuses to abilities, e.g. +1 COMBAT (weapons), +1 DEFENSE (armours)
-- Combat, Random events, and Ability tests
+- Monster Combat, Random events, and Ability tests
+- Level-up in ranking, stamina or abilities
 - Titles and honours, Blessings, and Worship of a God
-- Diseases, Afflictions, Curses and Poisons
-- Resurrection arrangements
-- Merchants (weapons, armours, magic, maps (!?) and other items)
-- Guilds (investments)
-- Townhouses (store/withdraw money and possessions)
-- Harbour and Ports (Buy/Sell/Upgrade ships, Buy/Sell Cargo, own up to 3 ships)
+- Missions given by various parties
+- Status ailments like: diseases, curses and poisons
+- Temples: Seek cures, purchase blessings, Resurrection arrangements, worship/renounce a god
+- Markets and Merchants (buying and selling weapons, armours, magic, maps (!?) and other items)
+- Guilds: invest or bank money
+- Townhouses/Secret caches (store/withdraw money and possessions)
+- Harbour and Ports (Buy/Sell/Upgrade ships, Book passages to far lands, Buy/Sell Cargo, Own up to 3 ships)
 
 ## Available key commands in the game
 
 - Select an action by pressing the number keys that correspond to the option (**1** - **9**).
 - In some situations, if there are more than 9 options, items 10-19 map to the keys **A** (or **a**) - **J** (or **j**)
 - Press **q** or **Q** to quit or terminate the program
-- Press **c** or **C** to view character (items, skills, codewords)
-- Press **i** or **I** to view inventory (items)
+- Press **p** or **P** to view character (items, skills, codewords, etc.)
 - Press **r** or **R** to restore progress from a save file
 - Press **s** or **S** to save current progress to a file
-- Press **h** or **H** or **?** lists the commands **C**/**I**/**S**/**R**/**Q** and what each does 
+- Press **u** or **U** Use/drop an item from your inventory
+- Press **?** to list the commands **P**/**S**/**R**/**U**/**Q** and what each does 
 
 ## Additional Notes
 
