@@ -16360,194 +16360,109 @@ buildings.||\"It's built that way for defence,\" says a passing farmer. \"The sc
 		<STORY-JUMP ,STORY062>
 	)>>
 
+<CONSTANT TEXT721 "The guildmaster -- a tall, gaunt man -- welcomes you.||\"The guild, in Golnir and Sokara, is plagued by privateers on the high seas. Among all these lawless dogs, Amcha One-eye is the worst. He has cost us thousands of Shards. Bring me the head of Amcha One-eye and I will reward you.\"||\"Where would I find him?\"||\"He and his cut-throat crew operate from the Unnumbered Isles -- now called the Kingdom of the Reavers because of the pirates who have made their base there. The isles lie to the south.\"">
+<CONSTANT CHOICES721 <LTABLE TEXT-TAKE-MISSION IF-NOT>>
+
 <ROOM STORY721
 	(DESC "721")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT721)
+	(CHOICES CHOICES721)
+	(DESTINATIONS <LTABLE STORY100 STORY100>)
+	(REQUIREMENTS <LTABLE CODEWORD-AMCHA NONE>)
+	(TYPES <LTABLE R-GAIN-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT722 "They greet you with smart salutes. You return to the city centre without incident">
 
 <ROOM STORY722
 	(DESC "722")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT722)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT723 "They say that you will be arrested unless you pay 15 Shards as 'thoroughfare tax'.">
+<CONSTANT CHOICES723 <LTABLE "If you refuse, or don't have 15 Shards" "If you hand over the money, and the militiamen leave you alone">>
 
 <ROOM STORY723
 	(DESC "723")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT723)
+	(CHOICES CHOICES723)
+	(DESTINATIONS <LTABLE STORY538 STORY010>)
+	(REQUIREMENTS <LTABLE NONE 15>)
+	(TYPES <LTABLE R-NONE R-MONEY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT724 "The chief administrator is not happy to see you.||\"What are you doing here?\" he demands. \"You should be at Devil's Peak, north of here. The storm demons still threaten our city. Come back when you have succeeded.\"">
 
 <ROOM STORY724
 	(DESC "724")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT724)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT725 "You hear a muffled cry of distress from a dark alley.">
+<CONSTANT CHOICES725 <LTABLE "Investigate" "Walk on">>
 
 <ROOM STORY725
 	(DESC "725")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT725)
+	(CHOICES CHOICES725)
+	(DESTINATIONS <LTABLE STORY361 STORY010>)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT726 "The last time you were here, you only had a few minutes to grab some loot. This time, the sea dragon returns almost straight away, and you are forced to climb out of the hole in the roof without getting anything except a pouch of 50 Shards. You crawl out on to the island in the middle of the lake and hitch a boat ride back to Cadmium.">
 
 <ROOM STORY726
 	(DESC "726")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT726)
+	(EVENTS STORY726-EVENTS)
+	(CONTINUE STORY135)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY726-EVENTS ()
+	<GAIN-MONEY 50>>
+
+<CONSTANT TEXT727 "The Oak Druid, who asked you to take the oak staff to the Willow Druid, has nothing more to say to you.||You head back to the Trading Post.">
 
 <ROOM STORY727
 	(DESC "727")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT727)
+	(CONTINUE STORY195)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT728 "The Temple of Tyrnai, the God of Battle, Chaos and Strife, is built like a small fortress in one corner of the city, near the barracks. Its heavy wooden gates are flanked by iron statues of bull-headed men wielding clubs. The workmanship is uncannily lifelike. Inside, the god is represented by a stone idol of a jaguar-headed warrior. A beautiful suit of gold chain mail adorns the idol.">
+<CONSTANT CHOICES728 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-RESURRECTION-ARRANGEMENTS "Try to steal the chain mail" TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY728
 	(DESC "728")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT728)
+	(CHOICES CHOICES728)
+	(DESTINATIONS <LTABLE STORY636 STORY514 STORY107 STORY033 STORY305 STORY400>)
+	(TYPES SIX-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT729 "You notice a sign on the door, which says: 'Wanted: brave adventurer. Apply to the high priest.'">
+<CONSTANT CHOICES729 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING "Talk to the high priest" TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY729
 	(DESC "729")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT729)
+	(CHOICES CHOICES729)
+	(DESTINATIONS <LTABLE STORY294 STORY624 STORY448 STORY411 STORY010>)
+	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT730 "You take a stroll through the streets. Marlock City is teeming with people.">
+<CONSTANT CHOICES730 <LTABLE "Explore the Barracks area" "Visit the Street of Entertainers" "Enter the residential quarter">>
 
 <ROOM STORY730
 	(DESC "730")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(LOCATION LOCATION-MARLOCK)
+	(STORY TEXT730)
+	(CHOICES CHOICES730)
+	(DESTINATIONS <LTABLE STORY015 STORY129 STORY619>)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY731
