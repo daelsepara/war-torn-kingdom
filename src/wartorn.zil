@@ -6706,7 +6706,8 @@
 	<PUTP ,STORY646 ,P?DOOM T>
 	<PUTP ,STORY668 ,P?DOOM T>
 	<PUTP ,STORY673 ,P?DOOM T>
-	<PUTP ,STORY690 ,P?DOOM T>>
+	<PUTP ,STORY690 ,P?DOOM T>
+	<PUTP ,STORY720 ,P?DOOM T>>
 
 ; "endings"
 <CONSTANT BAD-ENDING "Your adventure ends here.|">
@@ -16225,195 +16226,139 @@ your loyalty to Sokara.">
 	(TYPES TWO-ABILITY)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT711 "Venefax is a strange-looking village. It looks like a single gigantic building. All the houses are joined together to form a jumbled mass, and none of the houses have doors. The only way in is through holes in the rooftop. Ladders lead up to the roof, which in effect forms a network of streets that the inhabitants travel across to get to certain 
+buildings.||\"It's built that way for defence,\" says a passing farmer. \"The scorpion men from the south can't climb, so they can't get inside the town.\"">
+<CONSTANT CHOICES711 <LTABLE "Visit the market" "Visit the Scorpion's Sting tavern" "Visit the village healer" "Chat to villagers on the rooftop" "Go south into Scorpion Bight" "Take the road north to Blessed Springs" "South west on the road to Yellowport" "North into open countryside">>
+
 <ROOM STORY711
 	(DESC "711")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(LOCATION LOCATION-VENEFAX)
+	(STORY TEXT711)
+	(CHOICES CHOICES711)
+	(DESTINATIONS <LTABLE STORY152 STORY497 STORY338 STORY063 STORY492 STORY087 STORY621 STORY278>)
+	(TYPES EIGHT-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY712
 	(DESC "712")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY712-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY712-BACKGROUND ()
+	<COND (<CHECK-LOCATION ,LOCATION-MARLOCK> <RETURN ,STORY142>)>
+	<RETURN ,STORY555>>
+
+<CONSTANT TEXT713 "Grieve Marlock is a tall, hook-nosed man with cold, penetrating green eyes.||\"You come highly recommended by my brother, the Governor of Yellowport,\" he says in commanding tones. \"I was hoping you would turn up. You did me a great service by getting rid of that pompous fool, Nergan. Now there is one more thing I need you for. The Citadel of Velis Corin, which sits astride the Pass of Eagles in the far north, is under imminent attack from an army of the steppes. The attackers are a rag-tag bunch of malcontents: nomads, mannekyn people, some trau even, and of course, the usual traitorous dogs still loyal to the old king, may his soul burn in the hells. I need you to go to the citadel, discuss the situation with Commandant Orin Telana, and do all you can to make sure that the citadel doesn't fall. I'm relying on you.\"">
+<CONSTANT CHOICES713 <LTABLE HAVE-A "If not, you are escorted out">>
 
 <ROOM STORY713
 	(DESC "713")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT713)
+	(CHOICES CHOICES713)
+	(DESTINATIONS <LTABLE STORY677 STORY100>)
+	(REQUIREMENTS <LTABLE CODED-MISSIVE NONE>)
+	(TYPES <LTABLE R-ITEM R-NONE>)
+	(ITEMS <LTABLE CODEWORD-ASSIST>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT714 "You wait until nightfall, then creep towards the mound.">
 
 <ROOM STORY714
 	(DESC "714")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT714)
+	(CHOICES CHOICES-THIEVERY)
+	(DESTINATIONS <LTABLE <LTABLE STORY449 STORY139>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 9>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT CHOICES715 <LTABLE TEXT-ROLL-COMBAT TEXT-ROLL-THIEVERY>>
 
 <ROOM STORY715
 	(DESC "715")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES715)
+	(DESTINATIONS <LTABLE <LTABLE STORY385 STORY581> <LTABLE STORY385 STORY581>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-COMBAT 12> <LTABLE ABILITY-THIEVERY 12>>)
+	(TYPES TWO-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT716 "The king wishes you good luck in your mission. You are led out of the stockade and back down to the foothills of the Coldbleak Mountains.">
 
 <ROOM STORY716
 	(DESC "716")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT716)
+	(CONTINUE STORY474)
+	(CODEWORDS <LTABLE CODEWORD-AMBUSCADE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT717 "The sacred waters glisten like the azure light of highest heaven.">
+<CONSTANT CHOICES717 <LTABLE "Bathe in the waters" "Leave">>
 
 <ROOM STORY717
 	(DESC "717")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT717)
+	(CHOICES CHOICES717)
+	(DESTINATIONS <LTABLE STORY598 STORY510>)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT718 "You cut him down, or enchant him so that he obeys your every command and falls on his own sword.||Hurriedly, you flee the palace.">
 
 <ROOM STORY718
 	(DESC "718")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT718)
+	(CONTINUE STORY216)
+	(CODEWORDS <LTABLE CODEWORD-ASSASSIN>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT719 "You step through the archway. Immediately the symbols on the stone begin to glow with red-hot energy, your hair stands on end and your body tingles. A crackling nimbus of blue-white force engulfs you, the sky darkens and rumbles, thunder and lightning crash and leap across the heavens. Suddenly everything goes black.||Your sight returns moments later. You are at the gates of Wishport. You join the throng of merchants and peasants making their way into the city">
 
 <ROOM STORY719
 	(DESC "719")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT719)
+	(CONTINUE STORY-CITIES-GOLD-GLORY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT720 "\"In that case you leave me no choice but to seize your ship.\"||More of his men swarm on to your ship, and a battle ensues.">
 
 <ROOM STORY720
 	(DESC "720")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT720)
+	(EVENTS STORY720-EVENTS)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY720-EVENTS ("AUX" ROLL CONDITION MODIFIER (DICE 2) (RANK 1) (QUALITY -2))
+	<COND (<CHECK-PROFESSION ,PROFESSION-WARRIOR> <SET DICE 3>)>
+	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
+	<COND (,CURRENT-SHIP
+		<SET CONDITION <GETP ,CURRENT-SHIP ,P?CONDITION>>
+		<COND (<EQUAL? .CONDITION ,CONDITION-AVERAGE>
+			<SET QUALITY 0>
+		)(<EQUAL? .CONDITION ,CONDITION-GOOD>
+			<SET QUALITY 2>
+		)(<EQUAL? .CONDITION ,CONDITION-EXCELLENT>
+			<SET QUALITY 3>
+		)(ELSE
+			<SET QUALITY -2>
+		)>
+	)>
+	<SET MODIFIER <+ .RANK .QUALITY>>
+	<SET ROLL <RANDOM-EVENT .DICE .MODIFIER T>>
+	<COND (<L=? .ROLL 4>
+		<EMPHASIZE "Calamity! You are killed.">
+	)(<L=? .ROLL 9>
+		<EMPHASIZE "You suffered a crushing defeat!">
+		<LOSE-STAMINA <ROLL-DICE 1> ,DIED-FROM-INJURIES ,STORY720>
+		<COND (<IS-ALIVE> <STORY-JUMP ,STORY153>)>
+	)(<L=? .ROLL 13>
+		<EMPHASIZE "You fought to a draw!">
+		<PREVENT-DOOM ,STORY720>
+		<STORY-JUMP ,STORY242>
+	)(ELSE
+		<PREVENT-DOOM ,STORY720>
+		<STORY-JUMP ,STORY062>
+	)>>
 
 <ROOM STORY721
 	(DESC "721")
