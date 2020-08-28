@@ -297,6 +297,10 @@
 		<COND (,RESURRECTION-ARRANGEMENTS
 			<SET HAS-ROYAL-RING <CHECK-ITEM ,ROYAL-RING>>
 			<STORY-LOSE-EVERYTHING F>
+			<COND (,CURRENT-SHIP
+				<REMOVE ,CURRENT-SHIP>
+				<SETG ,CURRENT-SHIP NONE>
+			)>
 			<COND (.HAS-ROYAL-RING
 				<EMPHASIZE "Through a quirk of magical fate, somehow the royal ring has travelled with you through the lands of the dead.">
 				<MOVE ,ROYAL-RING ,PLAYER>
@@ -2257,6 +2261,7 @@
 
 <ROUTINE STORM-AT-SEA (STORY JUMP "AUX" (DICE 1) (ODDS NONE) (PARAMETERS NONE) (CONDITION 0))
 	<COND (<NOT .STORY> <SET STORY ,HERE>)>
+	<RESET-ODDS 1 0 .STORY>
 	<COND (<CHECK-BLESSING ,BLESSING-SAFETY-FROM-STORMS>
 		<CRLF>
 		<TELL "Use the blessing ">
@@ -5666,7 +5671,6 @@
 		<EMPHASIZE "You cannot afford this blessing at this time.">
 	)>>
 
-; "TO-DO: Allow cancellation of previous resurrection arrangement"
 <ROUTINE PURCHASE-RESURRECTION (FEE DISCOUNT INITIATE RESURRECTION "OPT" STORY)
 	<COND (<NOT .RESURRECTION> <RETURN>)>
 	<COND (<NOT .INITIATE> <RETURN>)>
@@ -6341,7 +6345,10 @@
 	<RESET-ODDS 1 0 ,STORY049>
 	<RESET-ODDS 2 0 ,STORY051>
 	<RESET-ODDS 1 0 ,STORY124>
+	<RESET-ODDS 1 0 ,STORY324>
 	<RESET-ODDS 2 0 ,STORY444>
+	<RESET-ODDS 1 0 ,STORY586>
+	<RESET-ODDS 1 0 ,STORY613>
 	<SET-DESTINATION ,STORY358 3 ,STORY678>
 	<RESET-DIFFICULTY ,STORY237 1 10>
 	<PUTP ,STORY014 ,P?DOOM T>
@@ -14685,116 +14692,76 @@ paste on the ground below.">
 
 <ROOM STORY611
 	(DESC "611")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY611-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY611-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-ANVIL> <RETURN ,STORY130>)>
+	<RETURN ,STORY682>>
+
+<CONSTANT TEXT612 "The priestess, who is wearing the skin of a wolf, and is covered in red paint, welcomes you gleefully.||\"At last, the tusk of a were-boar! Now the ceremony can go ahead.\"||The priestess rewards you with knowledge.">
 
 <ROOM STORY612
 	(DESC "612")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY612-BACKGROUND)
+	(STORY TEXT612)
+	(EVENTS STORY612-EVENTS)
+	(CONTINUE STORY195)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY612-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY612 1> <RETURN ,STORY549>)>
+	<RETURN ,STORY612>>
+
+<ROUTINE STORY612-EVENTS ()
+	<RETURN-ITEM ,BOARS-TUSK T>
+	<UPGRADE-ABILITY ,ABILITY-SCOUTING 1>>
 
 <ROOM STORY613
 	(DESC "613")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-STORM-SEA)
+	(EVENTS STORY613-EVENTS)
+	(CHOICES CHOICES-STORM-FURY)
+	(DESTINATIONS <LTABLE <LTABLE STORY485 STORY070 STORY439>>)
+	(REQUIREMENTS STORY-STORM-REQUIREMENTS)
+	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY613-EVENTS ()
+	<STORM-AT-SEA ,STORY613 ,STORY439>>
+
+<CONSTANT TEXT614 "The Stinking River has cuts its way through the high ground here. On the edge of the chasm that overlooks the river below, lies the village of High Therys.||Just outside of town, three bodies hang on a gallows, slowly rotting. Out on the streets beyond, the villagers are having a fete. They welcome you. You can get some rest and recuperation here.">
+<CONSTANT CHOICES614 <LTABLE "Follow the river north" "Follow the river south" "Head east into the countryside" "Go west to the main road">>
 
 <ROOM STORY614
 	(DESC "614")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT614)
+	(EVENTS STORY614-EVENTS)
+	(CHOICES CHOICES614)
+	(DESTINATIONS <LTABLE STORY576 STORY082 STORY278 STORY558>)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY614-EVENTS ()
+	<COND (<L? ,STAMINA ,MAX-STAMINA> <GAIN-STAMINA 5>)>>
+
+<CONSTANT TEXT615 "Lacuna is the Goddess of the Moon, and of the Wilderness. She aids hunters, and woodsmen, and travellers in the lost places of the world. Her temple here is a long hall of oak, covered in vines and plants of all kinds. Inside, flowers fill the air with a pure and clean scent.">
 
 <ROOM STORY615
 	(DESC "615")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT615)
+	(CHOICES CHOICES-STANDARD-TEMPLE)
+	(DESTINATIONS <LTABLE STORY170 STORY253 STORY482 STORY400>)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT616 "You swim up to your ship, and haul yourself on board. The crew is astonished to see you.||\"Another one of the sea devils,\" says the first mate.||\"We don't want any more bad luck,\" says a crew member.||\"Aye, we'll have to kill this one as well,\" says the first mate.||You try to protest but your words come out as a bubbling, fishy warble. The first mate finishes you with his spear. As far as they are concerned, you never came back from the depths.">
 
 <ROOM STORY616
 	(DESC "616")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT616)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT617 "A desperate battle ensues.">
@@ -14816,24 +14783,17 @@ paste on the ground below.">
 		<AFFLICTED-WITH ,DISEASE-GHOULBITE>
 	)>>
 
+<CONSTANT TEXT618 "Becoming an initiate of Lacuna gives you the benefit of paying less for blessings and other services the temple can offer. It costs 30 Shards to become an initiate. You cannot do this if you are already an initiate of another temple.">
+
 <ROOM STORY618
 	(DESC "618")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT618)
+	(EVENTS STORY618-EVENTS)
+	(CONTINUE STORY544)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY618-EVENTS ()
+	<BECOME-INITIATE 30 ,GOD-LACUNA>>
 
 <CONSTANT TEXT619 "You come across a blazing house in the poorer area of town. A crowd has gathered, watching the flames impassively. A young girl runs up to you, in tears. \"My mother is inside! Please help her,\" she begs.||The fire is raging hard, and you are not sure whether anyone could be left alive inside.">
 <CONSTANT CHOICES619 <LTABLE "Attempt a rescue" "Walk on">>
@@ -14852,23 +14812,12 @@ paste on the ground below.">
 	<COND (<CHECK-VISITS-MORE ,STORY619 1> <RETURN ,STORY339>)>
 	<RETURN ,STORY619>>
 
+<CONSTANT TEXT620 "Some local militiamen approach you with ill intent, presumably with a view to extorting a few Shards. They recognize you as a favourite of General Marlock, however, and leave you well alone, bowing and scraping to avoid your anger. Nothing else occurs tonight.">
+
 <ROOM STORY620
 	(DESC "620")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT620)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY621
