@@ -7565,7 +7565,7 @@ footing and fall to the ground.">
 	<GUILD-ACTIVITY ,STORY046>>
 
 <CONSTANT TEXT047 "The Forest of Larun is a mighty swathe of densely packed trees, a slice of primordial nature in the middle of busy, industrious Sokara.">
-<CONSTANT CHOICES047 <LTABLE "Venture deeper into the forest" "Venture deeper into the forest" "North to the Bronze Hills" "West to the River Grimm" "South into the countryside" "East to the road">>
+<CONSTANT CHOICES047 <LTABLE "Venture deeper into the forest" "North to the Bronze Hills" "West to the River Grimm" "South into the countryside" "East to the road">>
 
 <ROOM STORY047
 	(DESC "047")
