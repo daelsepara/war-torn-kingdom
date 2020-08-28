@@ -183,6 +183,7 @@
 <PROPDEF CHARGES -1>
 <PROPDEF STARS -1>
 <PROPDEF CONDITION -1>
+<PROPDEF ACTION NONE>
 
 ; "STORY"
 ; ---------------------------------------------------------------------------------------------
@@ -253,13 +254,12 @@
 		)>
 		<COND (,CONTINUE-TO-CHOICES
 			<SET KEY <PROCESS-STORY>>
-			<COND (<EQUAL? .KEY !\c !\C> <DESCRIBE-PLAYER> <PRESS-A-KEY> <SET KEY NONE>)>
 			<COND (<EQUAL? .KEY !\h !\H !\?> <DISPLAY-HELP> <PRESS-A-KEY> <SET KEY NONE>)>
-			<COND (<EQUAL? .KEY !\i !\I> <DESCRIBE-INVENTORY> <PRESS-A-KEY> <SET KEY NONE>)>
 			<COND (<EQUAL? .KEY !\p !\P> <DESCRIBE-PLAYER> <PRESS-A-KEY> <SET KEY NONE>)>
 			<COND (<EQUAL? .KEY !\q !\Q> <CRLF> <TELL "Are you sure you want to quit the game?"> <COND(<YES?> <RETURN>)>)>
 			<COND (<EQUAL? .KEY !\r !\R> <CRLF> <TELL "Restore from a previous save?"> <COND (<YES?> <COND (<NOT <RESTORE>> <EMPHASIZE "Restore failed."> <PRESS-A-KEY>)>)>)>
 			<COND (<EQUAL? .KEY !\s !\S> <CRLF> <TELL "Save current progress?"> <COND (<YES?> <COND (<NOT <SAVE>> <EMPHASIZE "Save failed."> <PRESS-A-KEY>)>)>)>
+			<COND (<EQUAL? .KEY !\u !\U> <USE-INVENTORY> <SET KEY NONE>)>
 			<COND (<EQUAL? .KEY !\x !\X> <RETURN>)>
 		)>
 		<UPDATE-STATUS-LINE>
@@ -299,7 +299,7 @@
 			<STORY-LOSE-EVERYTHING F>
 			<COND (,CURRENT-SHIP
 				<REMOVE ,CURRENT-SHIP>
-				<SETG ,CURRENT-SHIP NONE>
+				<SETG CURRENT-SHIP NONE>
 			)>
 			<COND (.HAS-ROYAL-RING
 				<EMPHASIZE "Through a quirk of magical fate, somehow the royal ring has travelled with you through the lands of the dead.">
@@ -417,9 +417,8 @@
 					<AND <G=? .KEY !\1> <L=? .KEY !\9>>
 					<AND <G=? .KEY !\A> <L=? .KEY !\J> <G? <GET .CHOICES 0> 9>>
 					<AND <G=? .KEY !\a> <L=? .KEY !\j> <G? <GET .CHOICES 0> 9>>
-					<AND <EQUAL? .KEY !\C !\c> <L? <GET .CHOICES 0> 12>>
 					<AND <EQUAL? .KEY !\H !\h> <L? <GET .CHOICES 0> 17>>
-					<AND <EQUAL? .KEY !\I !\i> <L? <GET .CHOICES 0> 18>> <EQUAL? .KEY !\? !\Q !\q !\P !\p !\R !\r !\S !\s>
+					<EQUAL? .KEY !\? !\Q !\q !\P !\p !\R !\r !\S !\s !\U !\u>
 				>
 				<RETURN>
 			)>
@@ -626,23 +625,7 @@
 				)>
 			)>
 		)>
-		<COND (
-			<OR
-				<AND <G=? .KEY !\A> <L=? .KEY !\Z>>
-				<AND <G=? .KEY !\a> <L=? .KEY !\z>>
-			>
-			<COND (<AND <G=? .KEY !\A> <L=? .KEY !\Z> <G=? <GET .CHOICES 0> <+ <- .KEY !\A> 10>>
-				<SPECIAL-INTERRUPT-ROUTINE .KEY>>
-				<RETURN>
-			)(<AND <G=? .KEY !\a> <L=? .KEY !\z> <G=? <GET .CHOICES 0> <+ <- .KEY !\a> 10>>
-				<SPECIAL-INTERRUPT-ROUTINE .KEY>>
-				<RETURN>
-			)>
-		)>
-		<COND (<EQUAL? .KEY !\? !\P !\p !\q !\Q !\r !\R !\s !\S> <CRLF> <RETURN>)>
-		<COND (<AND <EQUAL? .KEY !\c !\C> <L? <GET .CHOICES 0> 12>> <CRLF> <RETURN>)>
-		<COND (<AND <EQUAL? .KEY !\h !\H> <L? <GET .CHOICES 0> 17>> <CRLF> <RETURN>)>
-		<COND (<AND <EQUAL? .KEY !\i !\I> <L? <GET .CHOICES 0> 18>> <CRLF> <RETURN>)>
+		<COND (<EQUAL? .KEY !\? !\P !\p !\q !\Q !\r !\R !\s !\S !\U !\u> <CRLF> <RETURN>)>
 	>
 	<RETURN .KEY>>
 
@@ -1392,7 +1375,7 @@
 			<PRINT-ITEM .DISEASE T>
 			<TELL "?">
 			<COND (<YES?>
-				<REMOVE-ITEM ,SCORPION-ANTIDOTE "used" T T>
+				<REMOVE-ITEM ,SCORPION-ANTIDOTE ,TEXT-USED T T>
 				<RETURN>
 			)>
 		)>
@@ -2104,8 +2087,8 @@
 	<COND (.EFFECTS
 		<DO (I 1 6)
 			<SET EFFECT <GET .EFFECTS .I>>
-			<COND (<AND <G? .MODIFIERS 0> <G? .EFFECT 0>> <TELL ", ">)>
 			<COND (<N=? .EFFECT 0>
+				<COND (<G? .MODIFIERS 0> <TELL ", ">)>
 				<COND (<G? .EFFECT 0> <TELL "+">)>
 				<TELL N .EFFECT " " <GET ,ABILITIES .I>>
 				<INC .MODIFIERS>
@@ -2175,12 +2158,10 @@
 			<PRINT-ITEM <GET .LIST .I> T>
 			<CRLF>
 		>
-		<COND (<AND <OR <EQUAL? .CONTAINER ,PLAYER>> <L? .ITEMS 12>>
-			<HLIGHT ,H-BOLD>
-			<TELL "C">
-			<HLIGHT 0>
-			<TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
-		)>
+		<HLIGHT ,H-BOLD>
+		<TELL "P">
+		<HLIGHT 0>
+		<TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
 		<HLIGHT ,H-BOLD>
 		<TELL "0">
 		<HLIGHT 0>
@@ -2192,13 +2173,10 @@
 			<SET KEY <INPUT 1>>
 			<COND (
 				<OR
-					<AND <EQUAL? .CONTAINER ,PLAYER> <L? .ITEMS 12> <EQUAL? .KEY !\c !\C>>
-					<AND <EQUAL? .CONTAINER ,PLAYER> <L? .ITEMS 18> <EQUAL? .KEY !\i !\I>>
 					<AND <G=? .KEY !\A> <L=? .KEY !\F> <L=? <+ <- .KEY !\A> 10> .ITEMS>>
 					<AND <G=? .KEY !\a> <L=? .KEY !\f> <L=? <+ <- .KEY !\a> 10> .ITEMS>>
 					<AND <G=? .KEY !\1> <L=? .KEY !\9> <L=? <- .KEY !\0> .ITEMS>>
-					<AND <EQUAL? .KEY !\h !\H> <L? .ITEMS 17>>
-					<EQUAL? .KEY !\0 !\?>
+					<EQUAL? .KEY !\P !\p !\0 !\?>
 				>
 				<RETURN>
 			)>
@@ -2212,9 +2190,8 @@
 				<RETURN>
 			)>
 		)>
-		<COND (<AND <EQUAL? .CONTAINER ,PLAYER> <L? .ITEMS 12> <EQUAL? .KEY !\c !\C>> <DESCRIBE-PLAYER> <PRESS-A-KEY>)>
-		<COND (<AND <EQUAL? .CONTAINER ,PLAYER> <L? .ITEMS 18> <EQUAL? .KEY !\i !\I>> <DESCRIBE-INVENTORY> <PRESS-A-KEY>)>
-		<COND (<OR <EQUAL? .KEY !\?> <AND <EQUAL? .KEY !\h !\H> <L? .ITEMS 17>>> <DISPLAY-HELP> <PRESS-A-KEY>)>
+		<COND (<EQUAL? .KEY !\p !\P> <DESCRIBE-PLAYER> <PRESS-A-KEY>)>
+		<COND (<EQUAL? .KEY !\?> <DISPLAY-HELP> <PRESS-A-KEY>)>
 		<COND (<OR <AND <G=? .KEY !\1> <L=? .KEY !\9>> <AND <G=? .KEY !\a> <L=? .KEY !\f>> <AND <G=? .KEY !\A> <L=? .KEY !\F>>>
 			<COND (<AND <G=? .KEY !\a> <L=? .KEY !\f>>
 				<SET CHOICE <+ <- .KEY !\a> 10>>
@@ -2473,23 +2450,21 @@
 		)>
 		<CRLF>
 		<PRINT-MENU .WARES T T NONE NONE .PRICELIST T>
-		<COND (<L? .ITEMS 12>
+		<COND (<AND <L? .ITEMS 12> <EQUAL? .CONTAINER ,CARGO>>
 			<HLIGHT ,H-BOLD>
 			<TELL "C">
 			<HLIGHT 0>
-			<COND (<EQUAL? .CONTAINER ,PLAYER>
-				<TELL " - View your character (" D ,CURRENT-CHARACTER ")">
-			)(<EQUAL? .CONTAINER ,CARGO>
-				<TELL " - View cargo">
-				<COND (,CURRENT-SHIP <TELL " (" D ,CURRENT-SHIP ")">)>
-			)>
+			<TELL " - View cargo">
+			<COND (,CURRENT-SHIP <TELL " (" D ,CURRENT-SHIP ")">)>
 			<CRLF>
 		)>
-		<COND (<AND <EQUAL? .CONTAINER ,PLAYER> <L? .ITEMS 18>>
+		<COND (<EQUAL? .CONTAINER ,PLAYER>
 			<HLIGHT ,H-BOLD>
-			<TELL "I">
+			<TELL "P">
 			<HLIGHT 0>
-			<TELL " - Display inventory" CR>
+			<TELL " - View character">
+			<COND (,CURRENT-CHARACTER <TELL " (" D ,CURRENT-CHARACTER ")">)>
+			<CRLF>
 		)>
 		<HLIGHT ,H-BOLD>
 		<TELL "0">
@@ -2500,32 +2475,26 @@
 			<SET KEY <INPUT 1>>
 			<COND (
 				<OR
-					<AND <EQUAL? .KEY !\c !\C> <L? .ITEMS 12> <EQUAL? .CONTAINER ,PLAYER ,CARGO>>
-					<AND <EQUAL? .KEY !\i !\I> <L? .ITEMS 18> <EQUAL? .CONTAINER ,PLAYER>>
-					<AND <EQUAL? .KEY !\h !\H> <L? .ITEMS 17>>
+					<AND <EQUAL? .KEY !\c !\C> <L? .ITEMS 12> <EQUAL? .CONTAINER ,CARGO>>
 					<AND <G=? .KEY !\1> <L=? .KEY !\9> <L=? <- .KEY !\0> .ITEMS>>
 					<AND <G=? .KEY !\A> <L=? .KEY !\J> <G? .ITEMS 9> <L=? <+ <- .KEY !\A> 10> .ITEMS>>
 					<AND <G=? .KEY !\a> <L=? .KEY !\j> <G? .ITEMS 9> <L=? <+ <- .KEY !\a> 10> .ITEMS>>
+					<AND <EQUAL? .KEY !\p !\P> <EQUAL? .CONTAINER ,PLAYER>>
 					<EQUAL? .KEY !\? !\0>
 				>
 				<RETURN>
 			)>
 		>
 		<CRLF>
-		<COND (<AND <EQUAL? .KEY !\c !\C> <EQUAL? .CONTAINER ,PLAYER ,CARGO> <L? .ITEMS 12>>
-			<COND (<EQUAL? .CONTAINER ,PLAYER>
-				<DESCRIBE-PLAYER>
-			)(ELSE
-				<TELL CR "Current designated ship: ">
-				<COND (,CURRENT-SHIP <PRINT-ITEM ,CURRENT-SHIP T>)(ELSE <TELL "None">)>
-				<CRLF>
-				<TELL "Cargo: ">
-				<PRINT-CONTAINER ,CARGO>
-			)>
+		<COND (<AND <EQUAL? .KEY !\c !\C> <EQUAL? .CONTAINER ,CARGO> <L? .ITEMS 12>>
+			<TELL CR "Current designated ship: ">
+			<COND (,CURRENT-SHIP <PRINT-ITEM ,CURRENT-SHIP T>)(ELSE <TELL "None">)>
+			<CRLF>
+			<TELL "Cargo: ">
+			<PRINT-CONTAINER ,CARGO>
 			<PRESS-A-KEY>
 		)>
-		<COND (<AND <EQUAL? .KEY !\i !\I> <EQUAL? .CONTAINER ,PLAYER> <L? .ITEMS 18>> <DESCRIBE-INVENTORY> <PRESS-A-KEY>)>
-		<COND (<AND <EQUAL? .KEY !\h !\H> <L? .ITEMS 17>> <DISPLAY-HELP> <PRESS-A-KEY>)>
+		<COND (<AND <EQUAL? .KEY !\p !\P> <EQUAL? .CONTAINER ,PLAYER>> <DESCRIBE-PLAYER> <PRESS-A-KEY>)>
 		<COND (<EQUAL? .KEY !\?> <DISPLAY-HELP> <PRESS-A-KEY>)>
 		<COND (
 			<OR
@@ -2628,6 +2597,103 @@
 			<CRLF>
 			<TELL ,TEXT-SURE>
 			<COND (<YES?> <RTRUE>)>
+		)>
+	>>
+
+; "Use Item - (Player inventory)"
+; ---------------------------------------------------------------------------------------------
+
+<ROUTINE USE-ANTIDOTE (ANTIDOTE DISEASE DELETE-ROUTINE)
+	<COND (<AND <CHECK-ITEM .ANTIDOTE> <CHECK-AILMENT .DISEASE>>
+		<CRLF>
+		<TELL "Use the ">
+		<PRINT-ITEM .ANTIDOTE T>
+		<TELL " to ">
+		<COND (<FSET? .DISEASE ,POISONBIT>
+			<TELL "counter">
+		)(<FSET? .DISEASE ,CURSEBIT>
+			<TELL "lift">
+		)(ELSE
+			<TELL "cure">
+		)>
+		<TELL " the ">
+		<PRINT-ITEM .DISEASE T>
+		<TELL "?">
+		<COND (<YES?>
+			<REMOVE-ITEM .ANTIDOTE ,TEXT-USED T T>
+			<APPLY .DELETE-ROUTINE .DISEASE>
+		)>
+	)(<CHECK-ITEM .ANTIDOTE>
+		<CRLF>
+		<HLIGHT ,H-BOLD>
+		<TELL "You are not ">
+		<COND (<FSET? .DISEASE ,POISONBIT>
+			<TELL "poisoned">
+		)(<FSET? .DISEASE ,CURSEBIT>
+			<TELL "cursed">
+		)(ELSE
+			<TELL "afflicted">
+		)>
+		<TELL " with the " D .DISEASE>
+		<TELL ,EXCLAMATION-CR>
+		<HLIGHT 0>
+		<CRLF>
+		<TELL "Do you want to drop it instead?">
+		<COND (<YES?> <REMOVE-ITEM .ANTIDOTE "dropped" T T>)>
+	)(ELSE
+		<CRLF>
+		<HLIGHT ,H-BOLD>
+		<TELL "You do not have the ">
+		<HLIGHT 0>
+		<PRINT-ITEM .ANTIDOTE>
+		<HLIGHT ,H-BOLD>
+		<TELL ,EXCLAMATION-CR>
+		<HLIGHT 0>
+		<PRESS-A-KEY>
+	)>>
+
+<ROUTINE USE-INVENTORY ("AUX" KEY CHOICE ITEM COUNT ACTION)
+	<REPEAT ()
+		<EMPHASIZE "You are carrying the following items:">
+		<SET COUNT <PRINT-CONTAINER-MENU ,PLAYER !\0 "Back">>
+		<TELL "Select an item to use:">
+		<REPEAT ()
+			<SET KEY <INPUT 1>>
+			<COND (
+				<OR
+					<AND <G=? .KEY !\1> <L=? .KEY !\9> <L=?  <- .KEY !\0>.COUNT>>
+					<AND <G=? .KEY !\A> <L=? .KEY !\J> <G? .COUNT 9> <L=? <+ <- .KEY !\A> 10> .COUNT>>
+					<AND <G=? .KEY !\a> <L=? .KEY !\j> <G? .COUNT 9> <L=? <+ <- .KEY !\a> 10> .COUNT>>
+					<EQUAL? .KEY !\0>
+				>
+				<RETURN>
+			)>
+		>
+		<COND (<EQUAL? .KEY !\0>
+			<CRLF>
+			<RETURN>
+		)(<OR <AND <G=? .KEY !\1> <L=? .KEY !\9> <L=?  <- .KEY !\0>.COUNT>> <AND <G=? .KEY !\A> <L=? .KEY !\J> <G? .COUNT 9> <L=? <+ <- .KEY !\A> 10> .COUNT>> <AND <G=? .KEY !\a> <L=? .KEY !\j> <G? .COUNT 9> <L=? <+ <- .KEY !\a> 10> .COUNT>>>
+			<COND (<AND <G=? .KEY !\1> <L=? .KEY !\9> <L=?  <- .KEY !\0>.COUNT>>
+				<SET CHOICE <- .KEY !\0>>
+			)(<AND <G=? .KEY !\A> <L=? .KEY !\J> <G? .COUNT 9> <L=? <+ <- .KEY !\A> 10> .COUNT>>
+				<SET CHOICE <+ <- .KEY !\A> 10>>
+			)(<AND <G=? .KEY !\a> <L=? .KEY !\j> <G? .COUNT 9> <L=? <+ <- .KEY !\a> 10> .COUNT>>
+				<SET CHOICE <+ <- .KEY !\a> 10>>
+			)>
+			<SET ITEM <GET-ITEM .CHOICE ,PLAYER>>
+			<COND (.ITEM
+				<SET ACTION <GETP .ITEM ,P?ACTION>>
+				<COND (.ACTION
+					<CRLF>
+					<APPLY .ACTION>
+				)(ELSE
+					<CRLF>
+					<TELL CR "Drop the ">
+					<PRINT-ITEM .ITEM T>
+					<TELL "?">
+					<COND (<YES?> <REMOVE-ITEM .ITEM "dropped" T T>)>
+				)>
+			)>
 		)>
 	>>
 
@@ -2774,6 +2840,37 @@
 	<TELL CR "[Press a key to continue]" CR>
 	<INPUT 1>>
 
+<ROUTINE PRINT-CONTAINER-MENU ("OPT" CONTAINER EXIT-KEY EXIT-TEXT "AUX" ITEMS COUNT)
+	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
+	<COND (<L=? <COUNT-CONTAINER .CONTAINER> 0> <RETURN>)>
+	<SET ITEMS <FIRST? .CONTAINER>>
+	<SET COUNT 0>
+	<REPEAT ()
+		<COND (<NOT .ITEMS> <RETURN>)>
+		<COND (<NOT <FSET? .ITEMS ,NDESCBIT>>
+			<INC .COUNT>
+			<HLIGHT ,H-BOLD>
+			<COND (<L? .COUNT 10>
+				<TELL N .COUNT>
+			)(ELSE
+				<TELL C <+ !\A <- .COUNT 10>>>
+			)>
+			<HLIGHT 0>
+			<TELL " - ">
+			<PRINT-ITEM .ITEMS>
+			<CRLF>
+		)>
+		<SET .ITEMS <NEXT? .ITEMS>>
+	>
+	<COND (<AND .EXIT-KEY .EXIT-TEXT>
+		<HLIGHT ,H-BOLD>
+		<TELL C .EXIT-KEY>
+		<HLIGHT 0>
+		<TELL " - " .EXIT-TEXT>
+		<CRLF>
+	)>
+	<RETURN .COUNT>>
+
 <ROUTINE PRINT-MENU (CHOICES ITEM-MENU SHOW-STATS "OPT" EXIT-KEY EXIT-TEXT PRICES (NO-QUANTITY F)"AUX" ITEMS)
 	<COND (<NOT .CHOICES> <RETURN>)>
 	<SET ITEMS <GET .CHOICES 0>>
@@ -2805,36 +2902,6 @@
 			)>
 		)>
 		<CRLF>
-	>
-	<COND (<AND .EXIT-KEY .EXIT-TEXT>
-		<HLIGHT ,H-BOLD>
-		<TELL C .EXIT-KEY>
-		<HLIGHT 0>
-		<TELL " - " .EXIT-TEXT>
-		<CRLF>
-	)>>
-
-<ROUTINE PRINT-CONTAINER-MENU ("OPT" CONTAINER EXIT-KEY EXIT-TEXT "AUX" ITEMS COUNT)
-	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
-	<COND (<L=? <COUNT-CONTAINER .CONTAINER> 0> <RETURN>)>
-	<SET ITEMS <FIRST? .CONTAINER>>
-	<SET COUNT 0>
-	<REPEAT ()
-		<COND (<NOT .ITEMS> <RETURN>)>
-		<COND (<NOT <FSET? .ITEMS ,NDESCBIT>>
-			<INC .COUNT>
-			<HLIGHT ,H-BOLD>
-			<COND (<L? .COUNT 10>
-				<TELL N .COUNT>
-			)(ELSE
-				<TELL C <+ !\A <- .COUNT 10>>>
-			)>
-			<HLIGHT 0>
-			<TELL " - ">
-			<PRINT-ITEM .ITEMS>
-			<CRLF>
-		)>
-		<SET .ITEMS <NEXT? .ITEMS>>
 	>
 	<COND (<AND .EXIT-KEY .EXIT-TEXT>
 		<HLIGHT ,H-BOLD>
@@ -3355,6 +3422,9 @@
 
 ; "other objects"
 ; ---------------------------------------------------------------------------------------------
+; "TO-DO: Implement Forest of the Forsaken Map"
+; "TO-DO: Implement Moonstone of Teleportation"
+; "TO-DO: View Ship Manifest (partially implemented in Harbour routines)"
 
 <OBJECT AMCHAS-HEAD
 	(DESC "Amcha's head")
@@ -3511,7 +3581,34 @@
 
 <OBJECT POTION-OF-HEALING
 	(DESC "potion of healing")
+	(ACTION POTION-OF-HEALING-F)
 	(FLAGS TAKEBIT)>
+
+<ROUTINE POTION-OF-HEALING-F ()
+	<COND (<CHECK-ITEM ,POTION-OF-HEALING>
+		<COND (<L? ,STAMINA ,MAX-STAMINA>
+			<CRLF>
+			<TELL "Use the ">
+			<PRINT-ITEM ,POTION-OF-HEALING T>
+			<TELL " to heal up to ">
+			<HLIGHT ,H-BOLD>
+			<TELL "5">
+			<HLIGHT 0>
+			<TELL " stamina points?">
+			<COND (<YES?>
+				<GAIN-STAMINA 5>
+				<REMOVE-ITEM ,POTION-OF-HEALING ,TEXT-USED T T>
+				<UPDATE-STATUS-LINE>
+			)>
+		)(ELSE
+			<EMPHASIZE "You are not injured!">
+			<CRLF>
+			<TELL "Do you want to drop this instead?">
+			<COND (<YES?> <REMOVE-ITEM ,POTION-OF-HEALING "dropped" T T>)>
+		)>
+	)(ELSE
+		<EMPHASIZE "You do not have a potion of healing?">
+	)>>
 
 <OBJECT POTION-OF-INTELLECT
 	(DESC "potion of intellect")
@@ -3560,7 +3657,11 @@
 
 <OBJECT SCORPION-ANTIDOTE
 	(DESC "scorpion antidote")
+	(ACTION SCORPION-ANTIDOTE-F)
 	(FLAGS TAKEBIT)>
+
+<ROUTINE SCORPION-ANTIDOTE-F ()
+	<USE-ANTIDOTE ,SCORPION-ANTIDOTE ,POISON-SCORPION ,DELETE-POISON>>
 
 <OBJECT SCROLL-OF-EBRON
 	(DESC "scroll of Ebron")
@@ -4182,7 +4283,7 @@
 		<HLIGHT 0>
 		<TELL ")?">
 		<COND (<YES?>
-			<REMOVE-ITEM ,POTION-OF-STRENGTH "used" F T>
+			<REMOVE-ITEM ,POTION-OF-STRENGTH ,TEXT-USED F T>
 			<INC .COMBAT-PLAYER>
 		)>
 	)>
@@ -4388,7 +4489,7 @@
 		<PRINT-ITEM .POTION T>
 		<TELL " to add to the roll?">
 		<COND (<YES?>
-			<REMOVE-ITEM .POTION "used" T T>
+			<REMOVE-ITEM .POTION ,TEXT-USED T T>
 			<SET RESULT 1>
 		)>
 	)>
@@ -5088,7 +5189,7 @@
 		<EMPHASIZE ,TEXT-HARBOUR-MASTER>
 		<PRINT-MENU ,HARBOUR-MASTER-MENU F F>
 		<HLIGHT ,H-BOLD>
-		<TELL "C">
+		<TELL "P">
 		<HLIGHT 0>
 		<TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
 		<HLIGHT ,H-BOLD>
@@ -5098,11 +5199,11 @@
 		<TELL "What do you wish to do next?">
 		<REPEAT ()
 			<SET .KEY <INPUT 1>>
-			<COND (<OR <EQUAL? .KEY !\C !\c !\P !\p> <AND <G=? .KEY !\0> <L=? .KEY <+ .ITEMS !\0>>>> <RETURN>)>
+			<COND (<OR <EQUAL? .KEY !\P !\p> <AND <G=? .KEY !\0> <L=? .KEY <+ .ITEMS !\0>>>> <RETURN>)>
 		>
 		<CRLF>
 		<SET .CHOICE <- .KEY !\0>>
-		<COND (<EQUAL? .KEY !\C !\c !\P !\p>
+		<COND (<EQUAL? .KEY !\P !\p>
 			<DESCRIBE-PLAYER>
 			<PRESS-A-KEY>
 		)(<EQUAL? .CHOICE 0>
@@ -5164,7 +5265,7 @@
 		<EMPHASIZE ,TEXT-HARBOUR-MASTER>
 		<PRINT-MENU ,HARBOUR-TRADING-MENU F F>
 		<HLIGHT ,H-BOLD>
-		<TELL "C">
+		<TELL "P">
 		<HLIGHT 0>
 		<TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
 		<HLIGHT ,H-BOLD>
@@ -5174,11 +5275,11 @@
 		<TELL "What do you wish to do next?">
 		<REPEAT ()
 			<SET .KEY <INPUT 1>>
-			<COND (<OR <EQUAL? .KEY !\C !\c !\P !\p> <AND <G=? .KEY !\0> <L=? .KEY <+ .ITEMS !\0>>>> <RETURN>)>
+			<COND (<OR <EQUAL? .KEY !\P !\p> <AND <G=? .KEY !\0> <L=? .KEY <+ .ITEMS !\0>>>> <RETURN>)>
 		>
 		<CRLF>
 		<SET .CHOICE <- .KEY !\0>>
-		<COND (<EQUAL? .KEY !\C !\c !\P !\p>
+		<COND (<EQUAL? .KEY !\P !\p>
 			<DESCRIBE-PLAYER>
 			<PRESS-A-KEY>
 		)(<EQUAL? .CHOICE 0>
@@ -5250,7 +5351,7 @@
 		<EMPHASIZE ,TEXT-HARBOUR-MASTER>
 		<PRINT-MENU ,HARBOUR-MASTER-MENU F F>
 		<HLIGHT ,H-BOLD>
-		<TELL "C">
+		<TELL "P">
 		<HLIGHT 0>
 		<TELL " - View your character (" D ,CURRENT-CHARACTER ")" CR>
 		<HLIGHT ,H-BOLD>
@@ -5260,11 +5361,11 @@
 		<TELL "What do you wish to do next?">
 		<REPEAT ()
 			<SET .KEY <INPUT 1>>
-			<COND (<OR <EQUAL? .KEY !\C !\c !\P !\p> <AND <G=? .KEY !\0> <L=? .KEY <+ .ITEMS !\0>>>> <RETURN>)>
+			<COND (<OR <EQUAL? .KEY !\P !\p> <AND <G=? .KEY !\0> <L=? .KEY <+ .ITEMS !\0>>>> <RETURN>)>
 		>
 		<CRLF>
 		<SET .CHOICE <- .KEY !\0>>
-		<COND (<EQUAL? .KEY !\C !\c !\P !\p>
+		<COND (<EQUAL? .KEY !\P !\p>
 			<DESCRIBE-PLAYER>
 			<PRESS-A-KEY>
 		)(<EQUAL? .CHOICE 0>
@@ -6407,7 +6508,7 @@
 ; ---------------------------------------------------------------------------------------------
 
 <CONSTANT INSTRUCTIONS-HEADER "|HOW TO USE THIS E-ADVENTURE|">
-<CONSTANT INSTRUCTIONS-TEXT "Fabled Lands: War-Torn Kingdom is a digital gamebook -- an interactive game where the choices that you make correspond to numbered sections in the game. In moving through these sections you are creating a unique story for your adventuring persona.||You will begin your adventure by choosing a pre-generated character or a profession (see below)with the ability scores and Stamina that correspond to that profession at 1st Rank.||ABILITIES|---------||You have six abilities. Your initial score in each ability is decided by your choice of profession. Ability scores range from 1 (low ability) to 6 (a high level of ability). Ability scores will change during your adventure but can never be lower than 1 or higher than 12.||CHARISMA the knack of befriending people|COMBAT the skill of fighting|MAGIC the art of casting spells|SANCTITY the gift of divine power and wisdom|SCOUTING the techniques of tracking and wilderness lore|THIEVERY the talent for stealth and lock picking||STAMINA|-------||Stamina is lost when you get hurt. Keep track of your Stamina score throughout your travels and adventures. You must guard against your Stamina score dropping to zero, because if it does you are dead.||Lost Stamina can be recovered by various means, but your Stamina cannot go above its initial score until you advance in Rank.||You start with 9 Stamina points.||RANK|----||You start at 1st Rank. By completing quests and overcoming enemies, you will have the chance to go up in Rank.||You will be told during the course of your adventures when you are entitled to advance in Rank. Characters of higher Rank are tougher, luckier and generally better able to deal with trouble.||POSSESSIONS|-----------||You can carry up to twelve possessions on your person. All characters begin with 16 Shards in cash and the following possessions:||* sword|* leather jerkin (Defence +1)||Remember that you are limited to carrying a total of 12 items, so if you get more than this you'll have to cross something off your inventory or find somewhere to store extra items. There is no limit to how much money you can carry.||DEFENCE|-------||Your Defence score is equal to:||* your COMBAT score|* plus your RANK|* plus the bonus for the armour you're wearing (if any)||Every suit of armour you find will have a Defence bonus listed for it. The higher the bonus, the better the armour. You can carry several suits of armour if you wish -- but because you can wear only one at a time, you only get the Defence bonus of the best armour you are carrying.||To start with, it is just your COMBAT score plus 2 (because you are 1st Rank and have +1 DEFENSE).||It will be updated if you get better armour or increase in Rank or COMBAT ability.||ADDITIONAL HELP|---------------||During action selection and in other parts of the game, pressing 'H' or '?' brings up a list of additional command keys.">
+<CONSTANT INSTRUCTIONS-TEXT "Fabled Lands: War-Torn Kingdom is a digital gamebook -- an interactive game where the choices that you make correspond to numbered sections in the game. In moving through these sections you are creating a unique story for your adventuring persona.||You will begin your adventure by choosing a pre-generated character or a profession (see below)with the ability scores and Stamina that correspond to that profession at 1st Rank.||ABILITIES|---------||You have six abilities. Your initial score in each ability is decided by your choice of profession. Ability scores range from 1 (low ability) to 6 (a high level of ability). Ability scores will change during your adventure but can never be lower than 1 or higher than 12.||CHARISMA the knack of befriending people|COMBAT the skill of fighting|MAGIC the art of casting spells|SANCTITY the gift of divine power and wisdom|SCOUTING the techniques of tracking and wilderness lore|THIEVERY the talent for stealth and lock picking||STAMINA|-------||Stamina is lost when you get hurt. Keep track of your Stamina score throughout your travels and adventures. You must guard against your Stamina score dropping to zero, because if it does you are dead.||Lost Stamina can be recovered by various means, but your Stamina cannot go above its initial score until you advance in Rank.||You start with 9 Stamina points.||RANK|----||You start at 1st Rank. By completing quests and overcoming enemies, you will have the chance to go up in Rank.||You will be told during the course of your adventures when you are entitled to advance in Rank. Characters of higher Rank are tougher, luckier and generally better able to deal with trouble.||POSSESSIONS|-----------||You can carry up to twelve possessions on your person. All characters begin with 16 Shards in cash and the following possessions:||* sword|* leather jerkin (Defence +1)||Remember that you are limited to carrying a total of 12 items, so if you get more than this you'll have to cross something off your inventory or find somewhere to store extra items. There is no limit to how much money you can carry.||DEFENCE|-------||Your Defence score is equal to:||* your COMBAT score|* plus your RANK|* plus the bonus for the armour you're wearing (if any)||Every suit of armour you find will have a Defence bonus listed for it. The higher the bonus, the better the armour. You can carry several suits of armour if you wish -- but because you can wear only one at a time, you only get the Defence bonus of the best armour you are carrying.||To start with, it is just your COMBAT score plus 2 (because you are 1st Rank and have +1 DEFENSE).||It will be updated if you get better armour or increase in Rank or COMBAT ability.||ADDITIONAL HELP|---------------||During action selection and in other parts of the game, pressing '?' brings up a list of additional command keys.">
 <CONSTANT INSTRUCTIONS-PROFESSIONS "PROFESSIONS||Every adventurer has some strengths and some weaknesses. Your choice of profession determines your initial scores in the six abilities.">
 
 <ROUTINE INSTRUCTIONS ()
@@ -6418,7 +6519,7 @@
 	<TELL ,INSTRUCTIONS-TEXT>
 	<CRLF>>
 
-<CONSTANT HELP-TEXT "C - Display player information (abilities, items, codewords)|I - Display inventory (items)|R - Restore progress from a saved file|S - Save current progress to a file|Q - quit the game">
+<CONSTANT HELP-TEXT "P - Display player information (abilities, items, codewords)|U - Use or drop an item from your inventory|R - Restore progress from a saved file|S - Save current progress to a file|Q - quit the game">
 
 <ROUTINE DISPLAY-HELP ()
 	<CRLF>
@@ -6518,14 +6619,6 @@
 <CONSTANT ENDING-CITIES-GOLD-GLORY "Further adventures await at Fabled Lands 2: Cities of Gold and Glory.|">
 <CONSTANT ENDING-PLAINS-HOWLING-DARKNESS "Further adventures await at Fabled Lands 4: The Plains of Howling Darkness.|">
 
-<ROUTINE SPECIAL-INTERRUPT-ROUTINE (KEY)
-	; "TO-DO: Implement potion-of-healing"
-	; "TO-DO: Implement Forest of the Forsaken Map"
-	; "TO-DO: Implement Moonstone of Teleportation"
-	; "TO-DO: View Ship Manifest (partially implemented in Harbour routines)"
-	; "TO-DO: Implement use of antidotes"
-	<RFALSE>>
-
 <CONSTANT DIED-IN-COMBAT "You died in combat">
 <CONSTANT DIED-OF-HUNGER "You starved to death">
 <CONSTANT DIED-GREW-WEAKER "You grew weaker and eventually died">
@@ -6560,6 +6653,8 @@
 <CONSTANT TEXT-ROLL-THIEVERY "Make a THIEVERY roll">
 
 <CONSTANT TEXT-PAID "paid">
+<CONSTANT TEXT-USED "used">
+
 <CONSTANT TEXT-STORM "Storm">
 <CONSTANT TEXT-UNEVENTFUL "An uneventful voyage">
 
@@ -7306,7 +7401,7 @@ footing and fall to the ground.">
 		<COND (<YES?>
 			<SET MODIFIER 3>
 			<EMPHASIZE "The rat poison adds +3 to your COMBAT rolls.">
-			<REMOVE-ITEM ,RAT-POISON "used" T T>
+			<REMOVE-ITEM ,RAT-POISON ,TEXT-USED T T>
 		)>
 	)>
 	<COMBAT-MONSTER ,MONSTER-TWO-RATMEN 6 9 9>
@@ -8762,7 +8857,7 @@ harbourmaster.">
 		<COND (<YES?>
 			<SET MODIFIER 3>
 			<EMPHASIZE "The rat poison adds +3 to your COMBAT rolls.">
-			<REMOVE-ITEM ,RAT-POISON "used" T T>
+			<REMOVE-ITEM ,RAT-POISON ,TEXT-USED T T>
 		)>
 	)>
 	<COMBAT-MONSTER ,MONSTER-KING-SKABB 5 7 10>
@@ -10024,7 +10119,7 @@ paste on the ground below.">
 		<COND (<YES?>
 			<SET MODIFIER 3>
 			<EMPHASIZE "The rat poison adds +3 to your COMBAT rolls.">
-			<REMOVE-ITEM ,RAT-POISON "used" T T>
+			<REMOVE-ITEM ,RAT-POISON ,TEXT-USED T T>
 		)>
 	)>
 	<COMBAT-MONSTER ,MONSTER-TWO-RATMEN 3 6 6>
@@ -10758,7 +10853,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY303-EVENTS ()
-	<REMOVE-ITEM ,SALT-IRON-FILINGS "used" T T>
+	<REMOVE-ITEM ,SALT-IRON-FILINGS ,TEXT-USED T T>
 	<COMPLETE-MISSION ,MISSION-GHOUL-HEAD>>
 
 <CONSTANT TEXT304 "He spots you before you can get the jump on him. \"Stinking assassin!\" he yells, drawing his sword. You must fight him.">
@@ -12401,7 +12496,7 @@ paste on the ground below.">
 		<COND (<YES?>
 			<SET MODIFIER 3>
 			<EMPHASIZE "The rat poison adds +3 to your COMBAT rolls.">
-			<REMOVE-ITEM ,RAT-POISON "used" T T>
+			<REMOVE-ITEM ,RAT-POISON ,TEXT-USED T T>
 		)>
 	)>
 	<COMBAT-MONSTER ,MONSTER-TWO-RATMEN 8 11 12>
