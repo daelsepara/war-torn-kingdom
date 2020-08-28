@@ -14450,7 +14450,7 @@ paste on the ground below.">
 	(TYPES <LTABLE R-ITEM R-NONE>)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT597 "\"You did it!\" exclaims the warden happily, taking the ghoul's head and placing it in a jar.||You can have a choice of reward: an amber wand (+1 MAGIC), 500 Shards, or a free resurrection deal, if you do not already have one already. You can choose only one of these three rewards.">
+<CONSTANT TEXT597 "\"You did it!\" exclaims the warden happily, taking the ghoul's head and placing it in a jar.||You can have a choice of reward: an amber wand (+1 MAGIC), 500 Shards, or a free resurrection deal, if you do not have one already. You can choose only one of these three rewards.">
 
 <ROOM STORY597
 	(DESC "597")
