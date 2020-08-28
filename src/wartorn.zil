@@ -217,6 +217,10 @@
 <CONSTANT LOCATION-DISASTER 19>
 <CONSTANT LOCATION-BLESSED 20>
 
+<CONSTANT LOCATIONS2 <LTABLE "Cadmium Village">>
+
+<CONSTANT LOCATION-CADMIUM 21>
+
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
 
@@ -1933,6 +1937,8 @@
 <ROUTINE GET-LOCATION (LOCATION)
 	<COND (<L=? .LOCATION 20>
 		<RETURN <GET ,LOCATIONS .LOCATION>>
+	)(<L=? .LOCATION 40>
+		<RETURN <GET ,LOCATIONS2 <- .LOCATION 20>>>
 	)>>
 
 <ROUTINE GIVE-ITEM (ITEM "OPT" (SILENT F))
@@ -6692,7 +6698,8 @@
 	<PUTP ,STORY631 ,P?DOOM T>
 	<PUTP ,STORY634 ,P?DOOM T>
 	<PUTP ,STORY646 ,P?DOOM T>
-	<PUTP ,STORY668 ,P?DOOM T>>
+	<PUTP ,STORY668 ,P?DOOM T>
+	<PUTP ,STORY673 ,P?DOOM T>>
 
 ; "endings"
 <CONSTANT BAD-ENDING "Your adventure ends here.|">
@@ -6798,6 +6805,8 @@
 <CONSTANT CHOICES-CODEWORD <LTABLE HAVE-CODEWORD IF-NOT>>
 <CONSTANT ONE-CODEWORD <LTABLE R-CODEWORD R-NONE>>
 <CONSTANT ONE-ITEM <LTABLE R-ITEM R-NONE>>
+
+<CONSTANT TEXT-TAKE-MISSION "Take up the mission">
 
 <ROUTINE STORY-GAIN-CARGO (CARGO "OPT" CAPACITY COUNT)
 	<COND (,CURRENT-SHIP
@@ -7565,7 +7574,7 @@ footing and fall to the ground.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT048 "The warden is in charge of security. \"We have had an unfortunate, umm... accident,\" he says worriedly. \"In the crypt below the temple we sometimes experiment with the corpses of the dead -- you know, the occasional zombie, part of the rituals in honour of the particular aspect of Nagil we revere here. It seems a ghoul has escaped from the pits and is terrorizing the city at night. We'd rather someone like you sorted the problem out before the city militia got to hear of it. Destroy it and bring me the ghoul's head.\"||\"Search for it at night,\" says the warden as you leave.">
-<CONSTANT CHOICES048 <LTABLE "Take up the mission" IF-NOT>>
+<CONSTANT CHOICES048 <LTABLE TEXT-TAKE-MISSION IF-NOT>>
 
 <ROOM STORY048
 	(DESC "048")
@@ -8824,6 +8833,7 @@ harbourmaster.">
 
 <ROOM STORY135
 	(DESC "135")
+	(LOCATION LOCATION-CADMIUM)
 	(STORY TEXT135)
 	(CHOICES CHOICES135)
 	(DESTINATIONS <LTABLE STORY382 STORY292 STORY203 STORY474 STORY548 STORY278 STORY576 STORY387>)
@@ -10305,7 +10315,7 @@ paste on the ground below.">
 	<UPGRADE-STAMINA <ROLL-DICE 1>>>
 
 <CONSTANT TEXT256 "The king is overjoyed with the news. \"Excellent! At this rate, I will soon be able to take my rightful place in the throne room of Old Sokar.\"||He rewards you with the title King's Champion. The title comes with a cash gift of 500 Shards as well.||The king has another mission for you. He explains that an army of steppe nomads, trau, mannekyn people, and Sokaran troops still loyal to Nergan, have gathered on the steppes and are moving to besiege the Citadel of Velis Corin, which guards the Pass of Eagles through the Spine of Harkun. Nergan tells you that an alliance of northern nations has declared war on the new Sokaran regime. A certain General Beladai leads the Northern Alliance, and King Nergan has joined forces with him. He asks you to travel to the Steppes and talk to General Beladai.||\"An adventurer like yourself might be able to steal into the citadel, and bring about its downfall from within, or some such. If the citadel falls, we will have Sokara at our mercy.\"">
-<CONSTANT CHOICES256 <LTABLE "Take up the mission" "Go back down to the foothills of the mountains">>
+<CONSTANT CHOICES256 <LTABLE TEXT-TAKE-MISSION "Go back down to the foothills of the mountains">>
 
 <ROOM STORY256
 	(DESC "256")
@@ -12389,7 +12399,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT411 "The high priest tells you that the golden net of the twin gods has been stolen. The repulsive ones have taken it to their palace beneath the sea in the Sunken City of Ziusudra. The repulsive ones worship the fish-god Oannes, who struggles with Alvir and Valmir for control of the sea.||\"We must have that golden net, or the repulsive ones will use it against us. If you return it to us, we will reward you,\" says the high priest. \"The Sunken City lies under the coastal waters off the Shadar Tor.\"">
-<CONSTANT CHOICES411 <LTABLE "Take up the mission" IF-NOT>>
+<CONSTANT CHOICES411 <LTABLE TEXT-TAKE-MISSION IF-NOT>>
 
 <ROOM STORY411
 	(DESC "411")
@@ -15399,7 +15409,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT648 "You remain as quiet as a mouse, behind a pile of coins. After a long wait, the sea dragon slithers into the water, and swims out on some errand.||You have time to loot the hoard. You scrabble about for the chest that Oliphard the Wizardly wanted you to obtain for him. You find a rune-carved box which is positively glowing with magic.">
-<CONSTANT TEXT648-CONTINUED "After you have taken the third treasure, you hear the sea dragon returning. You climb up through the hole in the roof, on to an island in the middle of the lake. From there, you manage to get a lift on a passing boat, and make it safely to Cadmium village.||During the journey, you examine the magic chest, but it is guarded by great sorcery and is impossible to open.">
+<CONSTANT TEXT648-CONTINUED "After you have taken the treasures, you hear the sea dragon returning. You climb up through the hole in the roof, on to an island in the middle of the lake. From there, you manage to get a lift on a passing boat, and make it safely to Cadmium village.||During the journey, you examine the magic chest, but it is guarded by great sorcery and is impossible to open.">
 
 <ROOM STORY648
 	(DESC "648")
@@ -15879,176 +15889,124 @@ paste on the ground below.">
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT682 "As you draw nearer, you see that the pennants all represent different coloured dragons: the red dragon, black dragon, green dragon and so on. Outside the gates, a jousting list has been set up, and a few warriors are trying their hand against some knights who have dragon symbols on their shields.||A knight, in full plate armour, rides up and says, \"Welcome to the Castle of the Dragon Knights. It is our custom to joust against all who would come here -- for a wager, of course.\"||He explains that you must bet the weapon and the suit of armour that you will use for the joust. If you lose, you forfeit the weapon and armour. If you win, you get the armour and weapon of the knight you defeat. Most of your potential opponents, you note, would be using a sword and plate armour.">
+
 <ROOM STORY682
 	(DESC "682")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT682)
+	(CHOICES CHOICES-CODEWORD)
+	(DESTINATIONS <LTABLE STORY521 STORY683>)
+	(REQUIREMENTS <LTABLE CODEWORD-AXE NONE>)
+	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT CHOICES683 <LTABLE "If you have a weapon and armour, you can take the wager and joust" "Or you can leave">>
 
 <ROOM STORY683
 	(DESC "683")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY683-BACKGROUND)
+	(CHOICES CHOICES683)
+	(DESTINATIONS <LTABLE STORY297 STORY276>)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY683-BACKGROUND ()
+	<FIND-BEST-GEAR>
+	<COND (<AND ,BEST-WEAPON ,BEST-ARMOUR> <RETURN ,STORY683>)>
+	<RETURN ,STORY276>>
+
+<CONSTANT TEXT684 "The journey through the trees proves as difficult as when you first ventured into the forest.">
 
 <ROOM STORY684
 	(DESC "684")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT684)
+	(CHOICES CHOICES-SCOUTING)
+	(DESTINATIONS <LTABLE <LTABLE STORY679 STORY036>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 10>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT685 "A notice has been pinned up in the foyer: \"Adventurer priest wanted. See the chief administrator.\"||Naturally, you present yourself, and the chief administrator, a grey-whiskered priest of Elnir, takes you into his office. He shows you a special crystal ball that displays an aerial view of Marlock City. You notice several strange-looking clouds hanging over the city. They are shaped like gigantic demons, reaching down to claw at the city laid out below them.||\"The crystal ball shows things as they are in the spirit world,\" explains the priest. \"These storm demons cannot be seen under normal circumstances, but they are there, almost ready to destroy the city.\"||He goes on to tell you that Sul Veneris, the divine Lord of Thunder is one of the sons of Elnir, the Sky God, chief among the gods. He is responsible for keeping the storm demons under control, and thunder is thought to be the sound of Sul Veneris smiting the demons in his wrath.||\"Unfortunately, the storm demons have found a way to put Sul Veneris into an enchanted sleep. He lies at the very top of Devil\"s Peak, a single spire of volcanic rock, reaching up into the clouds. The peak lies north of Marlock City, and west of Curstmoor. We need an enterprising priest to get to the top of the peak and free Sul Veneris from his sleep. But I must warn you that several priests have already tried, and we never saw them again.\"">
+<CONSTANT CHOICES685 <LTABLE TEXT-TAKE-MISSION IF-NOT>>
 
 <ROOM STORY685
 	(DESC "685")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT685)
+	(CHOICES CHOICES685)
+	(DESTINATIONS <LTABLE STORY100 STORY100>)
+	(REQUIREMENTS <LTABLE CODEWORD-ALTITUDE NONE>)
+	(TYPES <LTABLE R-GAIN-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT686 "\"So, what have we... hic... here?\" sneers one of them drunkenly.||\"Out of the way, you shtinking dog!\" says another, shoving you in the chest.">
+<CONSTANT CHOICES686 <LTABLE "Step out of the way" "Return the insult">>
 
 <ROOM STORY686
 	(DESC "686")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT686)
+	(CHOICES CHOICES686)
+	(DESTINATIONS <LTABLE STORY044 STORY266>)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT687 "You remain as quiet as a mouse behind a pile of coins. After a long wait, the sea dragon slithers into the water, and swims out on some errand. You have some time to loot the hoard.">
+<CONSTANT TEXT687-CONTINUED "After you have taken the treasures, you hear the sea dragon returning. Quickly you climb up through the hole in the roof on to an island in the middle of the lake. From there you manage to get a lift on a passing boat, and make it safely to Cadmium village.">
 
 <ROOM STORY687
 	(DESC "687")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT687)
+	(EVENTS STORY687-EVENTS)
+	(CONTINUE STORY135)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY687-EVENTS ()
+	<PUTP ,MONEY-BAG ,P?MONEY 500>
+	<SELECT-FROM-LIST <LTABLE ENCHANTED-SWORD PLATE-ARMOUR EBONY-WAND MONEY-BAG MAGIC-MANDOLIN GOLD-COMPASS MAGIC-LOCKPICKS SILVER-HOLY-SYMBOL> 8 3>
+	<CONTINUE-TEXT ,TEXT687-CONTINUED>
+	<UPDATE-STATUS-LINE>>
 
 <ROOM STORY688
 	(DESC "688")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY688-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY688-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-AVENGE> <RETURN ,STORY648>)>
+	<RETURN ,STORY687>>
+
+<CONSTANT TEXT689 "To talk your way out of this unpleasant situation:">
 
 <ROOM STORY689
 	(DESC "689")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT689)
+	(CHOICES CHOICES-CHARISMA)
+	(DESTINATIONS <LTABLE <LTABLE STORY010 STORY690>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 8>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT690 "The thug means to take your money -- and possibly your life. You must fight.">
 
 <ROOM STORY690
 	(DESC "690")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT690)
+	(EVENTS STORY690-EVENTS)
+	(CONTINUE STORY010)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY690-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-THUG 4 7 6>
+	<COND (<CHECK-COMBAT ,MONSTER-THUG ,STORY690>
+		<EMPHASIZE "You find 15 Shards on his body.">
+		<GAIN-MONEY 15>
+	)(ELSE
+		<PREVENT-DOOM ,STORY690>
+		<SETG STAMINA 1>
+		<EMPHASIZE "You are stunned into unconsciousness. You come round with but he has robbed you of 50 Shards">
+		<COST-MONEY 50 "lost">
+		<UPDATE-STATUS-LINE>
+	)>>
 
 <ROOM STORY691
 	(DESC "691")
