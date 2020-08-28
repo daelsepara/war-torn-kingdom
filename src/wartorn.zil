@@ -183,7 +183,6 @@
 <PROPDEF CHARGES -1>
 <PROPDEF STARS -1>
 <PROPDEF CONDITION -1>
-<PROPDEF ACTION NONE>
 
 ; "STORY"
 ; ---------------------------------------------------------------------------------------------
@@ -2078,6 +2077,7 @@
 				<COND (<GETP .ITEMS ,P?DOCKED> <TELL ", docked at: " <GET ,DOCKS <GETP .ITEMS ,P?DOCKED>>>)>
 			)>
 			<COND (<OR <G? .BLESSINGS 0> <G? .QUANTITY 1> <G? .CHARGES 0> <G? .STARS 0> .WORN .EFFECTS <G=? .CONDITION 0>> <TELL ")">)>
+			<COND (<G? <GETP .ITEMS ,P?MONEY> 0> <TELL " (" N <GETP .ITEMS ,P?MONEY> " " D ,CURRENCY ")">)>
 		)>
 	)>>
 
@@ -2221,7 +2221,9 @@
 	<COND (<G? .COUNT 0>
 		<DO (I 1 20)
 			<COND (<GET ,SELECT-CHOICES .I>
-				<COND (<EQUAL? .CONTAINER ,PLAYER>
+				<COND (<EQUAL? <GET ,SELECT-CHOICES .I> ,MONEY-BAG>
+					<GAIN-MONEY <GETP <GET ,SELECT-CHOICES .I> ,P?MONEY>>
+				)(<EQUAL? .CONTAINER ,PLAYER>
 					<TAKE-ITEM <GET ,SELECT-CHOICES .I>>
 				)(ELSE
 					<MOVE <GET ,SELECT-CHOICES .I> .CONTAINER>
@@ -3273,6 +3275,11 @@
 	(COMBAT 2)
 	(FLAGS TAKEBIT WEAPONBIT)>
 
+<OBJECT ENCHANTED-SWORD
+	(DESC "enchanted sword")
+	(COMBAT 3)
+	(FLAGS TAKEBIT WEAPONBIT)>
+
 <OBJECT MACE
 	(DESC "mace")
 	(FLAGS TAKEBIT WEAPONBIT)>
@@ -3386,6 +3393,11 @@
 	(DESC "plate armour")
 	(DEFENSE 5)
 	(FLAGS TAKEBIT WEARBIT)>
+
+<OBJECT MONEY-BAG
+	(DESC "Money")
+	(MONEY 500)
+	(FLAGS TAKEBIT)>
 
 <OBJECT RING-MAIL
 	(DESC "ring mail")
@@ -3528,6 +3540,16 @@
 
 <OBJECT MAGIC-CHEST
 	(DESC "magic chest")
+	(FLAGS TAKEBIT)>
+
+<OBJECT MAGIC-LOCKPICKS
+	(DESC "magic lockpicks")
+	(THIEVERY 2)
+	(FLAGS TAKEBIT)>
+
+<OBJECT MAGIC-MANDOLIN
+	(DESC "magic mandolin")
+	(CHARISMA 2)
 	(FLAGS TAKEBIT)>
 
 <OBJECT MANDOLIN
@@ -6610,7 +6632,9 @@
 	<PUTP ,STORY589 ,P?DOOM T>
 	<PUTP ,STORY607 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>
-	<PUTP ,STORY631 ,P?DOOM T>>
+	<PUTP ,STORY631 ,P?DOOM T>
+	<PUTP ,STORY634 ,P?DOOM T>
+	<PUTP ,STORY646 ,P?DOOM T>>
 
 ; "endings"
 <CONSTANT BAD-ENDING "Your adventure ends here.|">
@@ -15228,195 +15252,144 @@ paste on the ground below.">
 	(CONTINUE STORY282)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT641 "\"Want to try your luck in the Gambler's Den?\" asks a short, dark man, dressed as a mercenary bodyguard. \"Just 5 Shards entrance fee.\"||He nods to a door at the top of some rickety stairs.">
+<CONSTANT CHOICES641 <LTABLE "Pay the money" "If not, he shrugs, and hisses at another passerby. You wander off and pass an uneventful evening">>
+
 <ROOM STORY641
 	(DESC "641")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT641)
+	(CHOICES CHOICES641)
+	(DESTINATIONS <LTABLE STORY091 STORY100>)
+	(REQUIREMENTS <LTABLE 5 NONE>)
+	(TYPES <LTABLE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT642 "You open the cage door. A wide grin suddenly appears at about head height within the dark shadows that wreath the trau. All you can see is a huge sliver of a grin, topped by two glowing red eyes.||\"Free at last!\" gushes the trau as it leaps out. \"Now for home, and as much faerie mead as I can drink!\"||With that, it delves into the ground so fast that it has burrowed out of sight before you can do anything to stop it.||Shrugging your shoulders resignedly, you leave the market.">
 
 <ROOM STORY642
 	(DESC "642")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT642)
+	(CONTINUE STORY400)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT643 "Gamely, you drive yourself on, but your thirst is becoming terrible, and soon you will be unable to continue. If you go on, you might die of thirst before finding a water supply.">
+<CONSTANT CHOICES643 <LTABLE "Turn back" "Press on">>
 
 <ROOM STORY643
 	(DESC "643")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT643)
+	(CHOICES CHOICES643)
+	(DESTINATIONS <LTABLE STORY244 STORY078>)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT644 "Using your sorcerous powers you breathe a cloud of greenish vapor over the ratmen. Coughing and gasping, they sink into an enchanted slumber. It is an easy matter to dispatch them while they sleep.">
 
 <ROOM STORY644
 	(DESC "644")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT644)
+	(CONTINUE STORY554)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT645 "You are brought before the druids' leader, the Oak Druid, a bearded fellow with earth and leaves all tangled up in his hair. He asks you to perform a service for them.||\"Take this oak staff to the Willow Druid in the Forest of Larun. The sacred grove where he lives will be hard to find, but I'm sure you can do it. The Willow Druid will give you something to bring back to me. When you return with it, I will make you a better Wayfarer.\"||You leave the City of Trees">
 
 <ROOM STORY645
 	(DESC "645")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY645-BACKGROUND)
+	(STORY TEXT645)
+	(CONTINUE STORY678)
+	(ITEMS <LTABLE OAK-STAFF>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY645-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY645 1> <RETURN ,STORY248>)>
+	<RETURN ,STORY645>>
+
+<CONSTANT TEXT646 "Your mind is blasted into numbed confusion by the protective spells that guard the sacred grove. You wander off aimlessly into the forest, and get hopelessly lost for days. You don't even have the wit to eat and drink.">
+<CONSTANT TEXT646-CONTINUED "You wander through the forest until you emerge, at last, at the Bronze Hills.">
 
 <ROOM STORY646
 	(DESC "646")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT646)
+	(EVENTS STORY646-EVENTS)
+	(CONTINUE STORY110)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY646-EVENTS ()
+	<LOSE-STAMINA 3 ,DIED-OF-HUNGER ,STORY646>
+	<CONTINUE-TEXT ,TEXT646-CONTINUED>>
+
+<CONSTANT TEXT647 "As you reach for the back of the golem's head, it turns and grabs your arm, yanking you to the ground. Then it swings its club at your head.">
+<CONSTANT CHOICES647 <LTABLE "Run away" "Fight the golem">>
 
 <ROOM STORY647
 	(DESC "647")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT647)
+	(CHOICES CHOICES647)
+	(DESTINATIONS <LTABLE STORY349 STORY081>)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT648 "You remain as quiet as a mouse, behind a pile of coins. After a long wait, the sea dragon slithers into the water, and swims out on some errand.||You have time to loot the hoard. You scrabble about for the chest that Oliphard the Wizardly wanted you to obtain for him. You find a rune-carved box which is positively glowing with magic.">
+<CONSTANT TEXT648-CONTINUED "After you have taken the third treasure, you hear the sea dragon returning. You climb up through the hole in the roof, on to an island in the middle of the lake. From there, you manage to get a lift on a passing boat, and make it safely to Cadmium village.||During the journey, you examine the magic chest, but it is guarded by great sorcery and is impossible to open.">
 
 <ROOM STORY648
 	(DESC "648")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT648)
+	(EVENTS STORY648-EVENTS)
+	(CONTINUE STORY135)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY648-EVENTS ()
+	<TAKE-ITEM ,MAGIC-CHEST>
+	<PUTP ,MONEY-BAG ,P?MONEY 500>
+	<SELECT-FROM-LIST <LTABLE ENCHANTED-SWORD PLATE-ARMOUR EBONY-WAND MONEY-BAG MAGIC-MANDOLIN GOLD-COMPASS MAGIC-LOCKPICKS SILVER-HOLY-SYMBOL> 8 3>
+	<DELETE-CODEWORD ,CODEWORD-AVENGE>
+	<CONTINUE-TEXT ,TEXT648-CONTINUED>
+	<UPDATE-STATUS-LINE>>
+
+<CONSTANT TEXT649 "The chief administrator is overjoyed to see you. The priests already know you have been successful in freeing Sul Veneris, the Lord of Thunder, because their crystal ball shows them that the storm demons have been driven away.||As a reward you receive the tuition of several high priests.||\"Visit me anytime,\" says the chief administrator when you leave.">
 
 <ROOM STORY649
 	(DESC "649")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISIT 0)
+	(BACKGROUND STORY649-BACKGROUND)
+	(STORY TEXT649)
+	(EVENTS STORY649-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY649-EVENTS ()
+	<GAIN-RANK 1>
+	<UPGRADE-STAMINA <ROLL-DICE 1>>>
+
+<ROUTINE STORY649-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY549 1> <RETURN ,STORY114>)>
+	<RETURN ,STORY649>>
+
+<CONSTANT TEXT650 "There is a flash, and suddenly you find yourself in a warm, comfortable room beside Elissia the Traveler, the sorceress you rescued from her burning house.">
+<CONSTANT TEXT650-CONTINUED "\"My debt to you is now paid,\" she says. With that, she passes her hands through the air and disappears in a cloud of smoke.||You find yourself in an inn at Marlock City. You venture out into town, slightly dazed.">
 
 <ROOM STORY650
 	(DESC "650")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT650)
+	(EVENTS STORY650-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY650-EVENTS ()
+	<LOSE-ITEM ,MOONSTONE-OF-TELEPORTATION T>
+	<COND (<L? ,STAMINA ,MAX-STAMINA>
+		<SETG STAMINA ,MAX-STAMINA>
+		<EMPHASIZE "You have fully recovered.">
+	)>
+	<COND (<OR <G? <COUNT-CONTAINER ,AILMENTS ,POISONBIT> 0> <G? <COUNT-CONTAINER ,AILMENTS ,DISEASEBIT> 0>>
+		<RESET-CONTAINER ,AILMENTS ,POISONBIT>
+		<RESET-CONTAINER ,AILMENTS ,DISEASEBIT>
+		<EMPHASIZE "You are cured instantly of any diseases and poisons you were suffering from.">
+	)>>
 
 <ROOM STORY651
 	(DESC "651")
