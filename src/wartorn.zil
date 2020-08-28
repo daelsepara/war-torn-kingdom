@@ -3788,6 +3788,12 @@
 	(DEFENSE 8)
 	(STAMINA 8)>
 
+<OBJECT MONSTER-GRYPHON
+	(DESC "Gryphon")
+	(COMBAT 4)
+	(DEFENSE 5)
+	(STAMINA 7)>
+
 <OBJECT MONSTER-KER-ILK
 	(DESC "Ker'ilk")
 	(COMBAT 4)
@@ -5660,6 +5666,46 @@
 		<HLIGHT 0>
 	)>>
 
+<ROUTINE BECOME-INITIATE-TYRNAI ("AUX" COMBAT)
+	<SET COMBAT <GETP ,CURRENT-CHARACTER ,P?COMBAT>>
+	<COND (<NOT ,GOD>
+		<COND (<G=? .COMBAT 6>
+			<CRLF>
+			<TELL "Become an Initiate of ">
+			<HLIGHT ,H-BOLD>
+			<TELL D ,GOD-TYRNAI>
+			<HLIGHT 0>
+			<TELL " (COMBAT: ">
+			<HLIGHT ,H-BOLD>
+			<TELL N .COMBAT>
+			<HLIGHT 0>
+			<TELL ")?">
+			<COND (<YES?>
+				<SETG GOD ,GOD-TYRNAI>
+				<CRLF>
+				<HLIGHT ,H-BOLD>
+				<TELL "You have become an Initiate of " D ,GOD ,PERIOD-CR>
+				<HLIGHT 0>
+			)>
+		)(ELSE
+			<CRLF>
+			<TELL "You cannot become an Initiate of ">
+			<HLIGHT ,H-BOLD>
+			<TELL D ,GOD-TYRNAI>
+			<HLIGHT 0>
+			<TELL " at this time. Your combat is score is ">
+			<HLIGHT ,H-BOLD>
+			<TELL N .COMBAT>
+			<HLIGHT 0>
+			<TELL ", lower than the required.">
+		)>
+	)(ELSE
+		<CRLF>
+		<HLIGHT ,H-BOLD>
+		<TELL "You are already an Initiate of " D ,GOD ,EXCLAMATION-CR>
+		<HLIGHT 0>
+	)>>
+
 <ROUTINE GOD-CURE (FEE DISCOUNT INITIATE FLAG "OPT" FLAG2)
 	<COND (<CHECK-GOD .INITIATE> <SET FEE .DISCOUNT>)>
 	<CURE-AILMENTS .FEE .FLAG .FLAG2>>
@@ -6462,7 +6508,8 @@
 	<PUTP ,STORY585 ,P?DOOM T>
 	<PUTP ,STORY589 ,P?DOOM T>
 	<PUTP ,STORY607 ,P?DOOM T>
-	<PUTP ,STORY617 ,P?DOOM T>>
+	<PUTP ,STORY617 ,P?DOOM T>
+	<PUTP ,STORY631 ,P?DOOM T>>
 
 ; "endings"
 <CONSTANT BAD-ENDING "Your adventure ends here.|">
@@ -6526,6 +6573,8 @@
 <CONSTANT TEXT-INITIATE-ALMIR-VALMIR "Becoming an initiate of Alvir and Valmir gives you the benefit of paying less for blessings and other services the temple can offer. It costs 40 Shards to become an initiate. You cannot do this if you are already an initiate of another temple.">
 
 <CONSTANT TEXT-INITIATE-ELNIR "Becoming an initiate of Elnir gives you the benefit of paying less for blessings and other services the temple can offer. It costs 60 Shards to become an initiate. You cannot become an initiate of Elnir if you are already an initiate of another temple.">
+
+<CONSTANT TEXT-INITIATE-TYRNAI "Becoming an initiate of Tyrnai gives you the benefit of paying less for blessings and other services the temple can offer. To qualify as an initiate you must have a natural COMBAT score (without combat bonuses) of at least 6. You cannot become an initiate of Tyrnai if you are already an initiate of another temple.">
 
 <CONSTANT TEXT-BLESSING-ELNIR "If you are an initiate it costs only 10 Shards to purchase Elnir's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again when you make a failed CHARISMA roll. It is good for only one reroll. You can have only one CHARISMA blessing at any one time. Once it is used up, you can return to any branch of the Temple of Elnir to buy a new one.">
 
@@ -11310,7 +11359,7 @@ paste on the ground below.">
 	(CONTINUE STORY400)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT350 "You are restored to life at the Temple of Nagil in Marlock City. Your Stamina is back to its normal score. The possessions and cash you were carrying at the time of your death are lost. \"Nagil has taken you from the barge of souls that sails to the lands of the dead, and returned you to us,\" declares the high priest.||You leave the temple.">
+<CONSTANT TEXT350 "You are restored to life at the Temple of Nagil in Marlock City.|| \"Nagil has taken you from the barge of souls that sails to the lands of the dead, and returned you to us,\" declares the high priest.||You leave the temple.">
 
 <ROOM STORY350
 	(DESC "350")
@@ -12425,54 +12474,15 @@ paste on the ground below.">
 <ROUTINE STORY434-EVENTS ()
 	<VISIT-TOWNHOUSE ,STORY434 ,TOWNHOUSE-MARLOCK T ,CODEWORD-AEGIS>>
 
-<CONSTANT TEXT435 "Becoming an initiate of Tyrnai gives you the benefit of paying less for blessings and other services the temple can offer. To qualify as an initiate you must have a COMBAT score of at least 6. You cannot become an initiate of Tyrnai if you are already an initiate of another temple.">
-
 <ROOM STORY435
 	(DESC "435")
-	(STORY TEXT435)
+	(STORY TEXT-INITIATE-TYRNAI)
 	(EVENTS STORY435-EVENTS)
 	(CONTINUE STORY526)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY435-EVENTS ("AUX" COMBAT)
-	<SET COMBAT <CALCULATE-ABILITY ,CURRENT-CHARACTER ,ABILITY-COMBAT ,PLAYER>>
-	<COND (<NOT ,GOD>
-		<COND (<G=? .COMBAT 6>
-			<CRLF>
-			<TELL "Become an Initiate of ">
-			<HLIGHT ,H-BOLD>
-			<TELL D ,GOD-TYRNAI>
-			<HLIGHT 0>
-			<TELL " (COMBAT: ">
-			<HLIGHT ,H-BOLD>
-			<TELL N .COMBAT>
-			<HLIGHT 0>
-			<TELL ")?">
-			<COND (<YES?>
-				<SETG GOD ,GOD-TYRNAI>
-				<CRLF>
-				<HLIGHT ,H-BOLD>
-				<TELL "You have become an Initiate of " D ,GOD ,PERIOD-CR>
-				<HLIGHT 0>
-			)>
-		)(ELSE
-			<CRLF>
-			<TELL "You cannot become an Initiate of ">
-			<HLIGHT ,H-BOLD>
-			<TELL D ,GOD-TYRNAI>
-			<HLIGHT 0>
-			<TELL " at this time. Your combat is score is ">
-			<HLIGHT ,H-BOLD>
-			<TELL N .COMBAT>
-			<HLIGHT 0>
-			<TELL ", lower than the required.">
-		)>
-	)(ELSE
-		<CRLF>
-		<HLIGHT ,H-BOLD>
-		<TELL "You are already an Initiate of " D ,GOD ,EXCLAMATION-CR>
-		<HLIGHT 0>
-	)>>
+<ROUTINE STORY435-EVENTS ()
+	<BECOME-INITIATE-TYRNAI>>
 
 <CONSTANT TEXT436 "You find yourself washed up on a rocky shore, battered and cold but lucky to be alive. You haul yourself up the beach. You are near the Trading Post on the Isle of Druids.">
 
@@ -14986,194 +14996,141 @@ paste on the ground below.">
 	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT631 "The soldier nods. Suddenly, he shouts something and several archers pop up from behind rocks and start shooting at you.||An arrow embeds itself in your shoulder.">
+<CONSTANT TEXT631-CONTINUED "You realize you are a sitting duck, and you run for your life.">
+<CONSTANT TEXT631-SURVIVED "You make it back to the foothills of the mountains.">
+
 <ROOM STORY631
 	(DESC "631")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT631)
+	(EVENTS STORY631-EVENTS)
+	(CONTINUE STORY474)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY631-EVENTS ("AUX" ROLL)
+	<LOSE-STAMINA 3 ,DIED-FROM-INJURIES ,STORY631>
+	<COND (<IS-ALIVE>
+		<CONTINUE-TEXT ,TEXT631-CONTINUED>
+		<SET ROLL <RANDOM-EVENT 1 0 T>>
+		<COND (<L=? .ROLL 2>
+			<EMPHASIZE "You are hit twice!">
+			<LOSE-STAMINA 6 ,DIED-FROM-INJURIES ,STORY631>
+		)(<L=? .ROLL 4>
+			<EMPHASIZE "You are hit once!">
+			<LOSE-STAMINA 3 ,DIED-FROM-INJURIES ,STORY631>
+		)(ELSE
+			<PREVENT-DOOM ,STORY631>
+		)>
+	)>
+	<CONTINUE-TEXT ,TEXT631-SURVIVED>>
 
 <ROOM STORY632
 	(DESC "632")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES-SANCTITY)
+	(DESTINATIONS <LTABLE <LTABLE STORY392 STORY125>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SANCTITY 12>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT633 "Your unerring sense of direction, even at sea, serves you well. It is not long before you find a familiar stretch of coast.">
 
 <ROOM STORY633
 	(DESC "633")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT633)
+	(EVENTS STORY633-EVENTS)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY633-EVENTS ("AUX" ROLL)
+	<SET ROLL <RANDOM-EVENT 1 0 T>>
+	<COND (<L=? .ROLL 2>
+		<STORY-JUMP ,STORY120>
+	)(<L=? .ROLL 4>
+		<STORY-JUMP ,STORY430>
+	)(ELSE
+		<STORY-JUMP ,STORY136>
+	)>>
+
+<CONSTANT TEXT634 "The climb is slightly easier than the last time, and you heave yourself over the lip of the top of Devil's Peak. A gryphon -- a creature that is half-lion, half-eagle, and at least the same size at you -- has made its nest here. It immediately swoops in to the attack, intent on protecting its nest. You must fight.">
+<CONSTANT TEXT634-LOSE "You are birdfeed for gryphon chicks.">
+<CONSTANT TEXT634-WIN "You find a bag of pearls and 10 Shards in the nest. There is nothing else up here, so you slog all the way down again.">
 
 <ROOM STORY634
 	(DESC "634")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT634)
+	(EVENTS STORY634-EVENTS)
+	(CONTINUE STORY658)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY634-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-GRYPHON 4 5 7>
+	<COND (<CHECK-COMBAT ,MONSTER-GRYPHON ,STORY634>
+		<CONTINUE-TEXT ,TEXT634-WIN>
+		<TAKE-ITEM ,BAG-OF-PEARLS>
+		<GAIN-MONEY 10>
+	)(ELSE
+		<EMPHASIZE ,TEXT634-LOSE>
+	)>>
 
 <ROOM STORY635
 	(DESC "635")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY635-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY635-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY635 1> <RETURN ,STORY470>)>
+	<RETURN ,STORY080>>
 
 <ROOM STORY636
 	(DESC "636")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-INITIATE-TYRNAI)
+	(EVENTS STORY636-EVENTS)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY636-EVENTS ()
+	<BECOME-INITIATE-TYRNAI>>
+
+<CONSTANT TEXT637 "Somehow you manage to evade the creature's jaws, and swim back to shore. Hauling yourself up on to the beach, you are accosted by an angry villager.||\"Where's my boat?\" he cries. \"You've sunk it, haven't you? You city types don't know a thing. Well, you'll have to pay me back. I want fifty Shards at least.\"||\"Ridiculous. I paid you far more than its value just to hire it. As far as I'm concerned, that boat was mine to do with as I liked.\"||The argument goes on all the way back to the village but eventually the fisherman gives up and storms off.">
 
 <ROOM STORY637
 	(DESC "637")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT637)
+	(CONTINUE STORY135)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT638 "You know from ancient texts of arcane lore that the repulsive ones cannot stand bright light. Using all your magical power, you cause the glowing moss to emit a dazzling flash of yellow light. Blinded for a few seconds, the repulsive ones mill about helplessly, and you dart in and seize the golden net.||You swim for the Shadar Tor as fast as you can.">
+<CONSTANT CHOICES638 <LTABLE TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
 
 <ROOM STORY638
 	(DESC "638")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT638)
+	(CHOICES CHOICES638)
+	(DESTINATIONS <LTABLE STORY602 STORY166>)
+	(TYPES TWO-CHOICES)
+	(ITEMS <LTABLE GOLDEN-NET>)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY639
 	(DESC "639")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-STORM-SEA)
+	(EVENTS STORY639-EVENTS)
+	(CHOICES CHOICES-STORM-FURY)
+	(DESTINATIONS <LTABLE <LTABLE STORY219 STORY067 STORY507>>)
+	(REQUIREMENTS STORY-STORM-REQUIREMENTS)
+	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY639-EVENTS ()
+	<STORM-AT-SEA ,STORY639 ,STORY507>>
+
+<CONSTANT TEXT640 "You are restored to life at the war god's temple in Caran Baru.||The high priest, sweating from the effort of the ceremony of resurrection, says, \"Tyrnai has brought you back -- honour him by the upholding the code of the warrior and by sending many the souls of those slain in battle to him.\"">
 
 <ROOM STORY640
 	(DESC "640")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT640)
+	(CONTINUE STORY282)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY641
