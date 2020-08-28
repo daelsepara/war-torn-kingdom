@@ -64,6 +64,7 @@
 <CONSTANT R-DOCK 18> ; "dock at port"
 <CONSTANT R-LOCATION 19> ; "test current location"
 <CONSTANT R-LOSE-ITEM 20> ; "lose item"
+<CONSTANT R-WEAPON 21> ; "you have a weapon of a specific combat score"
 
 ; "No requirements"
 <CONSTANT TWO-CHOICES <LTABLE R-NONE R-NONE>>
@@ -600,6 +601,17 @@
 							<HLIGHT 0>
 							<PRESS-A-KEY>
 						)>
+					)(<AND <EQUAL? .TYPE ,R-WEAPON> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+						<COND (<EQUAL? <FIND-BEST ,P?COMBAT ,WEAPONBIT ,PLAYER .LIST> .LIST>
+							<CRLF>
+							<SETG HERE <GET .DESTINATIONS .CHOICE>>
+						)(ELSE
+							<CRLF>
+							<HLIGHT ,H-BOLD>
+							<TELL CR "You do not have a weapon with +" N .LIST " COMBAT score" ,EXCLAMATION-CR>
+							<HLIGHT 0>
+							<PRESS-A-KEY>
+						)>
 					)>
 					<RETURN>
 				)(ELSE
@@ -663,6 +675,7 @@
 				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-VISITS> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (visited > " N .LIST " times)">)>)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-PROFESSION> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (" D .LIST ")">)>)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-DOCK> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (ship docks at " <GET ,DOCKS .LIST> ")">)>)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-WEAPON> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (COMBAT +" N .LIST ")">)>)>
 				<CRLF>
 			>
 			<SET CHOICE <PROCESS-CHOICES .CHOICES>>
@@ -3952,9 +3965,9 @@
 		<SET SCORE <GETP .ITEM .PROPERTY>>
 		<COND (<G? .MATCH 0>
 			<COND (.FLAG
-				<COND (<AND <FSET? .ITEM .FLAG> <FSET? .ITEM ,NDESCBIT>>
+				<COND (<AND <FSET? .ITEM .FLAG> <NOT <FSET? .ITEM ,NDESCBIT>>>
 					<COND (<EQUAL? .SCORE .MATCH>
-						<SET .RESULT .SCORE>
+						<SET RESULT .SCORE>
 						<SET-BEST-GEAR .ITEM>
 						<RETURN>
 					)>
@@ -4007,6 +4020,24 @@
 	<SETG BEST-ARMOUR NONE>
 	<FIND-BEST ,P?COMBAT ,WEAPONBIT ,PLAYER>
 	<FIND-BEST ,P?DEFENSE ,WEARBIT ,PLAYER>>
+
+<ROUTINE FIND-WEAPON ("OPT" (SCORE 0) CONTAINER "AUX" COMBAT ITEMS RESULT)
+	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
+	<SET RESULT NONE>
+	<SET ITEMS <FIRST? .CONTAINER>>
+	<REPEAT ()
+		<COND (<NOT .ITEMS> <RETURN>)>
+		<COND (<FSET? .ITEMS ,WEAPONBIT>
+			<SET COMBAT <GETP .ITEMS ,P?COMBAT>>
+			<COND (<OR <NOT .COMBAT> <L=? .COMBAT 0>> <SET COMBAT 0>)>
+			<COND (<EQUAL? .SCORE .COMBAT>
+				<SET RESULT .ITEMS>
+				<RETURN>
+			)>
+		)>
+		<SET ITEMS <NEXT? .ITEMS>>
+	>
+	<RETURN .RESULT>>
 
 <ROUTINE SET-BEST-GEAR (ITEM)
 	<COND (<FSET? .ITEM ,WEAPONBIT>
@@ -11273,7 +11304,8 @@ paste on the ground below.">
 
 <ROUTINE STORY354-EVENTS ()
 	<DELETE-CODEWORD ,CODEWORD-APPEASE>
-	<DELETE-CURSE ,CURSE-TYRNAI>>
+	<DELETE-CURSE ,CURSE-TYRNAI>
+	<REMOVE-ITEM <FIND-WEAPON 1 ,PLAYER> "threw" T T>>
 
 <ROOM STORY355
 	(DESC "355")
@@ -14359,194 +14391,164 @@ paste on the ground below.">
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT591 "You find yourself washed up on a rocky shore, battered and cold, but lucky to be alive. You are almost certain you have cast away on the beaches of Scorpion Bight. You have no choice but to head inland.">
+
 <ROOM STORY591
 	(DESC "591")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT591)
+	(CONTINUE STORY032)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY592
 	(DESC "592")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES-MAGIC)
+	(DESTINATIONS <LTABLE <LTABLE STORY638 STORY111>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-MAGIC 11>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT593 "You are under a curse. You remember what you were told: to lift the curse, you have to throw a weapon (any type) with a COMBAT bonus of +1 into the waters.">
+<CONSTANT CHOICES593 <LTABLE "You have such a weapon, and want to throw it" IF-NOT>>
 
 <ROOM STORY593
 	(DESC "593")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT593)
+	(CHOICES CHOICES593)
+	(DESTINATIONS <LTABLE STORY354 STORY450>)
+	(REQUIREMENTS <LTABLE 1 NONE>)
+	(TYPES <LTABLE R-WEAPON R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT594 "\"Oh, it's you again,\" says the tree grumpily. \"All right, off you go.\" The tree uproots itself and shuffles out of your way, leaving you free to visit the City of Trees once more.">
 
 <ROOM STORY594
 	(DESC "594")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT594)
+	(CONTINUE STORY358)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT595 "You will have to sneak in around the hall to get behind the king. There are plenty of shadows to hide in but it will not be easy.">
 
 <ROOM STORY595
 	(DESC "595")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT595)
+	(CHOICES CHOICES-THIEVERY)
+	(DESTINATIONS <LTABLE <LTABLE STORY608 STORY475>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-THIEVERY 11>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT596 "You thread your way through the ranks of trees. In places, the forest canopy almost blocks out the sunlight completely, and you are wandering in deep shadow, haunted by the cries of the creatures of the forest.">
+<CONSTANT CHOICES596 <LTABLE HAVE-A IF-NOT>>
 
 <ROOM STORY596
 	(DESC "596")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT596)
+	(CHOICES CHOICES596)
+	(DESTINATIONS <LTABLE STORY653 STORY698>)
+	(REQUIREMENTS <LTABLE OAK-STAFF NONE>)
+	(TYPES <LTABLE R-ITEM R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT597 "\"You did it!\" exclaims the warden happily, taking the ghoul's head and placing it in a jar.||You can have a choice of reward: an amber wand (+1 MAGIC), 500 Shards, or a free resurrection deal, if you do not already have one already. You can choose only one of these three rewards.">
 
 <ROOM STORY597
 	(DESC "597")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT597)
+	(EVENTS STORY597-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY597-EVENTS ("AUX" CHOICE)
+	<GIVE-ITEM ,GHOULS-HEAD T>
+	<REPEAT ()
+		<CRLF>
+		<TELL "You are offered:" CR>
+		<HLIGHT ,H-BOLD>
+		<TELL "1">
+		<HLIGHT 0>
+		<TELL " - ">
+		<PRINT-ITEM ,AMBER-WAND T>
+		<CRLF>
+		<HLIGHT ,H-BOLD>
+		<TELL "2">
+		<HLIGHT 0>
+		<TELL " - ">
+		<HLIGHT ,H-BOLD>
+		<TELL "500 " D ,CURRENCY CR>
+		<HLIGHT 0>
+		<HLIGHT ,H-BOLD>
+		<TELL "3">
+		<HLIGHT 0>
+		<TELL " - ">
+		<PRINT-ITEM ,RESURRECTION-NAGIL T>
+		<CRLF>
+		<SET CHOICE <GET-NUMBER "Which reward shall you choose" 1 3>>
+		<COND (<EQUAL? .CHOICE 1>
+			<COND (<CHECK-ITEM ,AMBER-WAND>
+				<CRLF>
+				<TELL "You already have an ">
+				<PRINT-ITEM ,AMBER-WAND T>
+				<TELL ,EXCLAMATION-CR>
+			)(ELSE
+				<TAKE-ITEM ,AMBER-WAND>
+				<RETURN>
+			)>
+		)(<EQUAL? .CHOICE 2>
+			<GAIN-MONEY 500>
+			<RETURN>
+		)(<EQUAL? .CHOICE 3>
+			<COND (,RESURRECTION-ARRANGEMENTS
+				<CRLF>
+				<TELL "You already have an arrangement: ">
+				<PRINT-ITEM ,RESURRECTION-ARRANGEMENTS T>
+				<TELL ,EXCLAMATION-CR>
+			)(ELSE
+				<PUTP ,RESURRECTION-NAGIL ,P?CONTINUE ,STORY350>
+				<SETG RESURRECTION-ARRANGEMENTS ,RESURRECTION-NAGIL>
+				<RETURN>
+			)>
+		)>
+	>
+	<COND (<CHECK-AILMENT ,DISEASE-GHOULBITE> <STORY-JUMP ,STORY156>)>>
+
+<CONSTANT TEXT598 "You strip off, and wade into the bubbling waters. The effect is astonishing! You feel a sense of well-being coursing through your body.">
 
 <ROOM STORY598
 	(DESC "598")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT598)
+	(EVENTS STORY598-EVENTS)
+	(CONTINUE STORY510)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY598-EVENTS ()
+	<COND (<OR <G? <COUNT-CONTAINER ,AILMENTS ,POISONBIT> 0> <G? <COUNT-CONTAINER ,AILMENTS ,DISEASEBIT> 0>>
+		<RESET-CONTAINER ,AILMENTS ,POISONBIT>
+		<RESET-CONTAINER ,AILMENTS ,DISEASEBIT>
+		<EMPHASIZE "You are cured instantly of any diseases and poisons you were suffering from.">
+	)>>
+
+<CONSTANT TEXT599 "Resurrection costs 200 Shards if you are an initiate, and 800 Shards if not.||It is the last word in insurance. Once you have arranged for resurrection you need not fear death, as you will be magically restored to life here at the temple. You can have only one resurrection arranged at any one time. If you arrange another resurrection later at a different temple, the original one is cancelled; you do not get a refund.">
 
 <ROOM STORY599
 	(DESC "599")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT599)
+	(EVENTS STORY599-EVENTS)
+	(CONTINUE STORY526)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY599-EVENTS ()
+	<PURCHASE-RESURRECTION 800 200 ,GOD-TYRNAI ,RESURRECTION-TYRNAI ,STORY500>>
+
+<CONSTANT TEXT600 "You wait until Thursday. Lynn tells you that the disappearances happened a little way out of town, near an old farmhouse.||As you leave town, you notice Fourze, the Master of the Market, heading in the opposite direction.">
+<CONSTANT CHOICES600 <LTABLE "Follow him" "Head for the old farm">>
 
 <ROOM STORY600
 	(DESC "600")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT600)
+	(CHOICES CHOICES600)
+	(DESTINATIONS <LTABLE STORY383 STORY263>)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY601
