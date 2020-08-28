@@ -6766,7 +6766,7 @@
 
 <CONSTANT TEXT-BLESSING-ELNIR "If you are an initiate it costs only 10 Shards to purchase Elnir's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again when you make a failed CHARISMA roll. It is good for only one reroll. You can have only one CHARISMA blessing at any one time. Once it is used up, you can return to any branch of the Temple of Elnir to buy a new one.">
 
-<CONSTANT TEXT-BLESSING-LACUNA "If you are an initiate it costs only 10 Shards to purchase Lacuna's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again on a failed SCOUTING roll. It is good for only one reroll. You can have only one SCOUTING blessing at any one time. Once it is used up, you can return to any branch of the temple of Lacuna to buy a new one.">
+<CONSTANT TEXT-BLESSING-LACUNA "If you are an initiate it costs only 10 Shards to purchase Lacuna's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again on a failed SCOUTING roll. It is good for only one reroll. You can have only one SCOUTING blessing at any one time. Once it is used up, you can return to any branch of the Temple of Lacuna to buy a new one.">
 
 <CONSTANT TEXT-WRATHFUL-BLOW "The High Priest smashes you across the jaw, saying, \"I'm doing you a favour, believe me.\"">
 
@@ -6987,10 +6987,10 @@
 		"Explore the city by night"
 		"Visit your townhouse"
 		"Visit the Gold Dust Tavern"
-		"Visit the temple of Maka"
+		"Visit the Temple of Maka"
 		"Visit the Temple of Elnir"
-		"Visit the temple of Alvir and Valmir"
-		"Visit the temple of Tyrnai"
+		"Visit the Temple of Alvir and Valmir"
+		"Visit the Temple of Tyrnai"
 		"Travel north-east toward Venefax"
 		"Head north-west to Trefoille"
 		"Follow the Stinking River north"
@@ -7454,7 +7454,7 @@ footing and fall to the ground.">
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT040 "You take the Book of the Seven Sages to Pyletes the Sage at the Gold Dust tavern. He thanks you effusively for bringing it to him. Your reward is secret learning from the temple of Molhern, god of knowledge.">
+<CONSTANT TEXT040 "You take the Book of the Seven Sages to Pyletes the Sage at the Gold Dust tavern. He thanks you effusively for bringing it to him. Your reward is secret learning from the Temple of Molhern, god of knowledge.">
 
 <ROOM STORY040
 	(DESC "040")
@@ -8102,7 +8102,7 @@ stink, laden with sulphur as it is.">
 	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT086 "The temple of the Three Fortunes is a squat, square building. A frieze above the door depicts three women weaving a tapestry. \"That's the Tapestry of Fate, wherein our destiny is woven,\" comments a priest.">
+<CONSTANT TEXT086 "The Temple of the Three Fortunes is a squat, square building. A frieze above the door depicts three women weaving a tapestry. \"That's the Tapestry of Fate, wherein our destiny is woven,\" comments a priest.">
 
 <ROOM STORY086
 	(DESC "086")
@@ -8307,7 +8307,7 @@ harbourmaster.">
 <CONSTANT MARLOCK-CHOICES
 	<LTABLE
 		"Visit the Three Rings Tavern"
-		"Visit the temple of Alvir and Valmir"
+		"Visit the Temple of Alvir and Valmir"
 		"Visit the Temple of Nagil"
 		"Visit the Temple of Sig"
 		"Visit the Temple of Elnir"
@@ -8490,7 +8490,7 @@ harbourmaster.">
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT107 "If you are an initiate it costs only 10 Shards to purchase Tyrnai's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again on a failed COMBAT roll. It is good for only one reroll. You can only have one COMBAT blessing at any one time. Once it is used up, you can return to any branch of the temple of Tyrnai to buy a new one.">
+<CONSTANT TEXT107 "If you are an initiate it costs only 10 Shards to purchase Tyrnai's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again on a failed COMBAT roll. It is good for only one reroll. You can only have one COMBAT blessing at any one time. Once it is used up, you can return to any branch of the Temple of Tyrnai to buy a new one.">
 
 <ROOM STORY107
 	(DESC "107")
@@ -9044,7 +9044,7 @@ harbourmaster.">
 	(CONTINUE STORY439)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT154 "The temple of Alvir and Valmir, Divine Rulers of the House of the Sea, is right on the teeming harbour of Marlock City. Its sea-green marbled porticos are draped in a hundred silver nets. Brother and sister, Alvir and Valmir rule below the waves. Alvir brings the souls of the drowned in his nets before his sister, Valmir, for judgment.||A swaggering ship's captain emerges from the temple, saying to you in passing, \"Never, I mean never go to sea without paying your respects to the twin gods -- unless ye want to sail through a world of storms.\"">
+<CONSTANT TEXT154 "The Temple of Alvir and Valmir, Divine Rulers of the House of the Sea, is right on the teeming harbour of Marlock City. Its sea-green marbled porticos are draped in a hundred silver nets. Brother and sister, Alvir and Valmir rule below the waves. Alvir brings the souls of the drowned in his nets before his sister, Valmir, for judgment.||A swaggering ship's captain emerges from the temple, saying to you in passing, \"Never, I mean never go to sea without paying your respects to the twin gods -- unless ye want to sail through a world of storms.\"">
 
 <ROOM STORY154
 	(DESC "154")
@@ -9065,7 +9065,7 @@ harbourmaster.">
 	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT156 "The priest looks you over. \"I'm afraid we have no one skilled enough to cure you. However, I believe the temple of Maka in Yellowport might be able to help. And the holy waters at Blessed Springs are known to be efficacious in this kind of case.\"">
+<CONSTANT TEXT156 "The priest looks you over. \"I'm afraid we have no one skilled enough to cure you. However, I believe the Temple of Maka in Yellowport might be able to help. And the holy waters at Blessed Springs are known to be efficacious in this kind of case.\"">
 
 <ROOM STORY156
 	(DESC "156")
@@ -9579,7 +9579,7 @@ harbourmaster.">
 	<COMPLETE-MISSION ,MISSION-GHOUL-HEAD>
 	<TAKE-ITEM ,GHOULS-HEAD>>
 
-<CONSTANT TEXT197 "The blessing of Sig costs 10 Shards if you are an initiate, 30 Shards otherwise.||The blessing works by allowing you to reroll any failed THIEVERY attempt once. You can have only one blessing for each ability at any one time. Once your THIEVERY blessing is used up, you can return to any branch of the temple of Sig to buy a new one.">
+<CONSTANT TEXT197 "The blessing of Sig costs 10 Shards if you are an initiate, 30 Shards otherwise.||The blessing works by allowing you to reroll any failed THIEVERY attempt once. You can have only one blessing for each ability at any one time. Once your THIEVERY blessing is used up, you can return to any branch of the Temple of Sig to buy a new one.">
 
 <ROOM STORY197
 	(DESC "197")
@@ -9873,7 +9873,7 @@ paste on the ground below.">
 <ROUTINE STORY219-EVENTS ()
 	<STORY-SHIPWRECK ,STORY219>>
 
-<CONSTANT TEXT220 "The temple of Alvir and Valmir is built like an upside-down galleon. Alvir and Valmir are brother and sister, King and Queen of the Land beneath the Waves, masters of the sea. Their servants and soldiers are the souls of the drowned, and when seas are rough and storm-tossed, sailors say that Alvir and Valmir are arguing again.">
+<CONSTANT TEXT220 "The Temple of Alvir and Valmir is built like an upside-down galleon. Alvir and Valmir are brother and sister, King and Queen of the Land beneath the Waves, masters of the sea. Their servants and soldiers are the souls of the drowned, and when seas are rough and storm-tossed, sailors say that Alvir and Valmir are arguing again.">
 
 <ROOM STORY220
 	(DESC "220")
@@ -10064,7 +10064,7 @@ paste on the ground below.">
 	(TYPES <LTABLE R-MONEY R-LOCATION R-LOCATION>)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT235 "The temple of Sig the Cunning, patron of vagabonds, troubadours, lovers, thieves and rogues, is a ramshackle warehouse in the poor quarter. Inside, however, there is so much wealth, it makes you gasp -- the idol of Sig, a saturnine two-faced young human of indistinct sex, is covered in gems. \"As you can see, we have been made rich by generous, er, donations!\" says a black-robed priest.">
+<CONSTANT TEXT235 "The Temple of Sig the Cunning, patron of vagabonds, troubadours, lovers, thieves and rogues, is a ramshackle warehouse in the poor quarter. Inside, however, there is so much wealth, it makes you gasp -- the idol of Sig, a saturnine two-faced young human of indistinct sex, is covered in gems. \"As you can see, we have been made rich by generous, er, donations!\" says a black-robed priest.">
 <CONSTANT CHOICES235 <LTABLE "Seek an audience with the high priest" TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY235
@@ -10587,7 +10587,7 @@ paste on the ground below.">
 	(TYPES ONE-ITEM)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT275 "If you are an initiate it costs only 5 Shards to propitiate the twin gods of the sea. A non-initiate must pay 20 Shards. The blessing works by allowing you to ignore any one storm at sea. You can only have one Safety from Storms blessing at any one time. Once it is used up, you can return to any branch of the temple of Alvir and Valmir to buy a new one.">
+<CONSTANT TEXT275 "If you are an initiate it costs only 5 Shards to propitiate the twin gods of the sea. A non-initiate must pay 20 Shards. The blessing works by allowing you to ignore any one storm at sea. You can only have one Safety from Storms blessing at any one time. Once it is used up, you can return to any branch of the Temple of Alvir and Valmir to buy a new one.">
 
 <ROOM STORY275
 	(DESC "275")
@@ -10992,7 +10992,7 @@ paste on the ground below.">
 	(ITEMS <LTABLE BAG-OF-PEARLS>)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT307 "It feels like you are playing the flute for an eternity. But at last they tire of your music...||You wake up with a scream. You realize you are not aboard your ship! You find out that you are in the temple of Alvir and Valmir in Yellowport. A priest tells you that your crew brought you here three months ago because they could not wake you from your sleep.||Your ship and crew are long gone now. The priests, however, have been looking after all your possessions. Among them is a silver flute (+2 CHARISMA). While you have the flute, it adds 2 to your CHARISMA. Note that it is worth 500 Shards, and that you can sell it at any market if you like.||You leave the temple.">
+<CONSTANT TEXT307 "It feels like you are playing the flute for an eternity. But at last they tire of your music...||You wake up with a scream. You realize you are not aboard your ship! You find out that you are in the Temple of Alvir and Valmir in Yellowport. A priest tells you that your crew brought you here three months ago because they could not wake you from your sleep.||Your ship and crew are long gone now. The priests, however, have been looking after all your possessions. Among them is a silver flute (+2 CHARISMA). While you have the flute, it adds 2 to your CHARISMA. Note that it is worth 500 Shards, and that you can sell it at any market if you like.||You leave the temple.">
 
 <ROOM STORY307
 	(DESC "307")
@@ -11121,7 +11121,7 @@ paste on the ground below.">
 <ROUTINE STORY315-EVENTS ()
 	<GAIN-MONEY 500>>
 
-<CONSTANT TEXT316 "The temple of Elnir is an imposing edifice of grey stone, inlaid with yellow marbling. Elnir is the god of the sky and of kingship. He is the ruler of the gods.||\"His dreams are the clouds before a storm,\" says a passing priest.">
+<CONSTANT TEXT316 "The Temple of Elnir is an imposing edifice of grey stone, inlaid with yellow marbling. Elnir is the god of the sky and of kingship. He is the ruler of the gods.||\"His dreams are the clouds before a storm,\" says a passing priest.">
 
 <ROOM STORY316
 	(DESC "316")
@@ -11694,7 +11694,7 @@ paste on the ground below.">
 <ROUTINE STORY359-EVENTS ()
 	<BUY-ITEMS ,LANTERN 50 3>>
 
-<CONSTANT TEXT360 "You have no luck in tracking down the ghoul. The next day, you hear a rumour doing the rounds in the taverns. A ghoul was found and destroyed by an adventuring priestess of Tyrnai. Apparently the temple of Nagil rewarded her handsomely. Looks like you were pipped at the post.">
+<CONSTANT TEXT360 "You have no luck in tracking down the ghoul. The next day, you hear a rumour doing the rounds in the taverns. A ghoul was found and destroyed by an adventuring priestess of Tyrnai. Apparently the Temple of Nagil rewarded her handsomely. Looks like you were pipped at the post.">
 
 <ROOM STORY360
 	(DESC "360")
@@ -11843,7 +11843,7 @@ paste on the ground below.">
 	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT373 "If you are an initiate it costs only 10 Shards to purchase Tyrnai's blessing. A non-initiate must pay 25 Shards. The blessing works by allowing you to try again when you make a failed COMBAT roll. It is good for only one reroll. You can have only one COMBAT blessing at any one time. Once it is used up, you can return to any branch of the temple of Tyrnai to buy a new one.">
+<CONSTANT TEXT373 "If you are an initiate it costs only 10 Shards to purchase Tyrnai's blessing. A non-initiate must pay 25 Shards. The blessing works by allowing you to try again when you make a failed COMBAT roll. It is good for only one reroll. You can have only one COMBAT blessing at any one time. Once it is used up, you can return to any branch of the Temple of Tyrnai to buy a new one.">
 
 <ROOM STORY373
 	(DESC "373")
@@ -12180,9 +12180,9 @@ paste on the ground below.">
 		"Visit the marketplace"
 		"Visit the merchants' guild"
 		"Visit the slave market"
-		"Visit the temple of Tyrnai"
-		"Visit the temple of Lacuna"
-		"Visit the temple of the Three Fortunes"
+		"Visit the Temple of Tyrnai"
+		"Visit the Temple of Lacuna"
+		"Visit the Temple of the Three Fortunes"
 		"Visit your townhouse"
 		"Visit the Blue Griffon Tavern"
 		"Follow the road north to the citadel"
@@ -12835,7 +12835,7 @@ paste on the ground below.">
 	(CONTINUE STORY035)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT448 "If you are an initiate it costs only 5 Shards to propitiate the twin gods of the sea. A non-initiate must pay 20 Shards.||The blessing works by allowing you to ignore any one storm at sea. You can only have one 'Safety from Storms' blessing at any one time. Once it is used up, you can return to any branch of the temple of Alvir and Valmir to buy a new one.">
+<CONSTANT TEXT448 "If you are an initiate it costs only 5 Shards to propitiate the twin gods of the sea. A non-initiate must pay 20 Shards.||The blessing works by allowing you to ignore any one storm at sea. You can only have one 'Safety from Storms' blessing at any one time. Once it is used up, you can return to any branch of the Temple of Alvir and Valmir to buy a new one.">
 
 <ROOM STORY448
 	(DESC "448")
@@ -13000,7 +13000,7 @@ paste on the ground below.">
 	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT462 "What service do you seek at the temple of the Twin Gods of the Sea?">
+<CONSTANT TEXT462 "What service do you seek at the Temple of the Twin Gods of the Sea?">
 
 <ROOM STORY462
 	(DESC "462")
@@ -13056,7 +13056,7 @@ paste on the ground below.">
 	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT467 "The heavy wooden gates of the temple of Tyrnai are guarded by a couple of veteran warriors -- the old iron bullmen are gone. Inside, the god is represented by a stone idol of a jaguar-headed warrior. He appears to be naked.||Suddenly, a priest shouts, \"It's the thief! The blasphemous devil had the nerve to return here.\"||A score of warrior priests of Tyrnai boil out of the back rooms of the temple. You had better run for your life.">
+<CONSTANT TEXT467 "The heavy wooden gates of the Temple of Tyrnai are guarded by a couple of veteran warriors -- the old iron bullmen are gone. Inside, the god is represented by a stone idol of a jaguar-headed warrior. He appears to be naked.||Suddenly, a priest shouts, \"It's the thief! The blasphemous devil had the nerve to return here.\"||A score of warrior priests of Tyrnai boil out of the back rooms of the temple. You had better run for your life.">
 
 <ROOM STORY467
 	(DESC "467")
@@ -13238,7 +13238,7 @@ paste on the ground below.">
 <ROUTINE STORY480-EVENTS ()
 	<UPGRADE-ABILITY ,ABILITY-CHARISMA 1>>
 
-<CONSTANT TEXT481 "If you are an initiate it costs only 10 Shards to purchase Maka's blessing. A non-initiate must pay 20 Shards.||The blessing works by allowing you to ignore any one occasion when you would normally suffer from disease or poison -- for instance, the venomous bite of a snake.||You can have only one 'Immunity to Disease and Poison' blessing at any one time. Once it is used up, you can return to any branch of the temple of Maka to buy a new one.">
+<CONSTANT TEXT481 "If you are an initiate it costs only 10 Shards to purchase Maka's blessing. A non-initiate must pay 20 Shards.||The blessing works by allowing you to ignore any one occasion when you would normally suffer from disease or poison -- for instance, the venomous bite of a snake.||You can have only one 'Immunity to Disease and Poison' blessing at any one time. Once it is used up, you can return to any branch of the Temple of Maka to buy a new one.">
 
 <ROOM STORY481
 	(DESC "481")
@@ -13836,7 +13836,7 @@ paste on the ground below.">
 	(CONTINUE STORY427)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT526 "The temple of Tyrnai, the God of War, is built in the shape of a spear with a long, pillared nave, and an altar at the far end. Two massive stone warriors guard its gates.||Tyrnai is depicted here as the insensate spirit of war: a blood-drenched warrior with the head of a maddened jaguar.">
+<CONSTANT TEXT526 "The Temple of Tyrnai, the God of War, is built in the shape of a spear with a long, pillared nave, and an altar at the far end. Two massive stone warriors guard its gates.||Tyrnai is depicted here as the insensate spirit of war: a blood-drenched warrior with the head of a maddened jaguar.">
 <CONSTANT CHOICES526 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-RESURRECTION-ARRANGEMENTS TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY526
@@ -14332,7 +14332,7 @@ paste on the ground below.">
 	(CONTINUE STORY412)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT568 "The temple of Elnir is a single spire reaching skyward. Eagles roost in its lofty belfry -- they are sacred to the priests of the Skylord. Elnir is the Divine Ruler of the Heavens, patron of statesman and kings, and his sons are the storm lords.||\"Thunder is the sound of the Sons of Elnir smiting the cloud demons,\" says a passing peasant.">
+<CONSTANT TEXT568 "The Temple of Elnir is a single spire reaching skyward. Eagles roost in its lofty belfry -- they are sacred to the priests of the Skylord. Elnir is the Divine Ruler of the Heavens, patron of statesman and kings, and his sons are the storm lords.||\"Thunder is the sound of the Sons of Elnir smiting the cloud demons,\" says a passing peasant.">
 
 <ROOM STORY568
 	(DESC "568")
@@ -14853,7 +14853,7 @@ paste on the ground below.">
 	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT603 "If you are an initiate it costs only 20 Shards to purchase The Three Fortunes' blessing. A non-initiate must pay 80 Shards.||The blessing works by allowing you to reroll any dice result once. You can have only one 'Luck' blessing at any one time. Once it is used up, you can return to any branch of the temple of the Three Fortunes to buy a new one.">
+<CONSTANT TEXT603 "If you are an initiate it costs only 20 Shards to purchase The Three Fortunes' blessing. A non-initiate must pay 80 Shards.||The blessing works by allowing you to reroll any dice result once. You can have only one 'Luck' blessing at any one time. Once it is used up, you can return to any branch of the Temple of the Three Fortunes to buy a new one.">
 
 <ROOM STORY603
 	(DESC "603")
