@@ -1949,6 +1949,24 @@
 	<COND (<CHECK-ITEM .ITEM> <LOSE-ITEM .ITEM>)>
 	<RFALSE>>
 
+<ROUTINE LOSE-ABILITY (ABILITY "OPT" LOSS "AUX" SCORE PROPERTY)
+	<COND (<NOT ,CURRENT-CHARACTER> <RETURN>)>
+	<COND (<NOT .LOSS> <SET LOSS 1>)>
+	<SET SCORE <GET-ABILITY-SCORE ,CURRENT-CHARACTER .ABILITY>>
+	<CRLF>
+	<TELL "Your " <GET ,ABILITIES .ABILITY> " score has decreased from ">
+	<HLIGHT ,H-BOLD>
+	<TELL N .SCORE>
+	<HLIGHT 0>
+	<SET PROPERTY <GET-ABILITY-PROPERTY .ABILITY>>
+	<TELL " to ">
+	<SET SCORE <- .SCORE .LOSS>>
+	<COND (<L? .SCORE 1> <SET .SCORE 1>)>
+	<HLIGHT ,H-BOLD>
+	<TELL N .SCORE ,EXCLAMATION-CR>
+	<COND (.PROPERTY <PUTP ,CURRENT-CHARACTER .PROPERTY .SCORE>)>
+	<HLIGHT 0>>
+
 <ROUTINE LOSE-ITEM (ITEM "OPT" (SILENT F))
 	<REMOVE-ITEM .ITEM "lost" F .SILENT>>
 
@@ -2387,11 +2405,12 @@
 	<TELL N .SCORE>
 	<HLIGHT 0>
 	<SET PROPERTY <GET-ABILITY-PROPERTY .ABILITY>>
-	<COND (.PROPERTY <PUTP ,CURRENT-CHARACTER .PROPERTY .SCORE>)>
 	<TELL " to ">
 	<SET SCORE <+ .SCORE .UPGRADE>>
+	<COND (<G? .SCORE 12> <SET .SCORE 12>)>
 	<HLIGHT ,H-BOLD>
 	<TELL N .SCORE ,EXCLAMATION-CR>
+	<COND (.PROPERTY <PUTP ,CURRENT-CHARACTER .PROPERTY .SCORE>)>
 	<HLIGHT 0>>
 
 <ROUTINE UPGRADE-STAMINA ("OPT" UPGRADE)
@@ -3214,6 +3233,7 @@
 <OBJECT CODEWORD-AMCHA (DESC "Amcha")>
 <OBJECT CODEWORD-AMENDS (DESC "Amends")>
 <OBJECT CODEWORD-ANCHOR (DESC "Anchor")>
+<OBJECT CODEWORD-ANGER (DESC "Anger")>
 <OBJECT CODEWORD-ANIMAL (DESC "Animal")>
 <OBJECT CODEWORD-ANTHEM (DESC "Anthem")>
 <OBJECT CODEWORD-ANVIL (DESC "Anvil")>
@@ -3229,6 +3249,7 @@
 <OBJECT CODEWORD-ASPEN (DESC "Aspen")>
 <OBJECT CODEWORD-ASSASSIN (DESC "Assassin")>
 <OBJECT CODEWORD-ASSAULT (DESC "Assault")>
+<OBJECT CODEWORD-ASSIST (DESC "Assist")>
 <OBJECT CODEWORD-ATTAR (DESC "Attar")>
 <OBJECT CODEWORD-AURIC (DESC "Auric")>
 <OBJECT CODEWORD-AVENGE (DESC "Avenge")>
@@ -15569,194 +15590,144 @@ paste on the ground below.">
 	)>
 	<CONTINUE-TEXT ,TEXT-YOU-CAN-GO>>
 
+<CONSTANT TEXT661 "With a thrill of horror, you realize you have missed your footing, crossing the wrong line by inches. The lid of the sarcophagus explodes into the air with a deafening crash, and a pillar of black smoke erupts out of the stone coffin!||The column of smoke hurtles towards you, like a miniature tornado.">
+
 <ROOM STORY661
 	(DESC "661")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT661)
+	(EVENTS STORY661-EVENTS)
+	(CONTINUE STORY260)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY661-EVENTS ("AUX" WEAPON)
+	<SET WEAPON <FIND-BEST ,P?COMBAT ,WEAPONBIT ,PLAYER>>
+	<COND (<G? .WEAPON 0> <STORY-JUMP ,STORY043>)>>
+
+<CONSTANT TEXT662 "That night, after Lauria has picked the locks on your chains, you head off for the tunnel rendezvous. You find there has been a cave-in, but the overseer and a troop of guards are waiting for you!||Lauria steps out laughing. In return for her betraying you, the overseer has transferred her to work on the surface, from which she will be able to escape more easily. You have been stitched up again!||The overseer has you whipped for trying to escape and you are left with some nasty scars.||A few days later, you try another escape on your own.">
 
 <ROOM STORY662
 	(DESC "662")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT662)
+	(EVENTS STORY662-EVENTS)
+	(CONTINUE STORY565)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY662-EVENTS ()
+	<LOSE-ABILITY 1>
+	<GAIN-CODEWORD ,CODEWORD-ANGER>
+	<DELETE-CODEWORD ,CODEWORD-ASHEN>>
+
+<CONSTANT TEXT663 "They are too fast. You are caught and overwhelmed. You end up as food for scorpion larvae.">
 
 <ROOM STORY663
 	(DESC "663")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT663)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT664 "\"That is fortunate -- for you,\" says the soldier. Several archers stand up from their hiding places behind the rocks overhead.||You have found a rebel base. These men are still loyal to Nergan Corin, the heir to the throne. Nergan went into hiding when General Marlock killed his father and took control of Sokara.||Another soldier, a captain, comes up to you and introduces himself as Captain Vorkung.||He is clearly one of the old aristocracy, the nobles loyal to the king and the old regime, before General Marlock and the army seized power, and executed the old king. Vorkung tells you to leave the mountains.">
+<CONSTANT CHOICES664 <LTABLE "Try talking to them" "Leave and climb back down the mountain">>
 
 <ROOM STORY664
 	(DESC "664")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT664)
+	(CHOICES CHOICES664)
+	(DESTINATIONS <LTABLE STORY691 STORY474>)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT665 "You enter the cave. It is large and dark. Unfortunately, it is the lair of a pack of wolves -- a very big pack of wolves.">
+<CONSTANT CHOICES665 <LTABLE HAVE-A IF-NOT>>
 
 <ROOM STORY665
 	(DESC "665")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT665)
+	(CHOICES CHOICES665)
+	(DESTINATIONS <LTABLE STORY516 STORY280>)
+	(REQUIREMENTS <LTABLE WOLF-PELT NONE>)
+	(TYPES ONE-ITEM)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT666 "A trader from the far north tells a story about a great wizard, Targdaz the Magnificent. who was tricked by a shaman of the Horde of the Thousand Winds on the Great Steppes.||\"He imprisoned Targdaz inside a giant ruby, and proceeded to loot Targdaz's tower. But in his stupidity, he opened the great wizard's Casket of Imponderables, and unleashed a terrible storm that swept across the steppes, scattering many of the tribes far and wide. The shaman was killed, of course, but as far as anyone knows, Targdaz is still trapped in the ruby, waiting patiently for release... perhaps for another hundred years, who knows? One thing's for certain -- it won't be me trying to get him out!\"||When you are ready, you can go:">
+<CONSTANT CHOICES666 <LTABLE "South" "North" "West into the Forest of Larun" "East to the lake">>
 
 <ROOM STORY666
 	(DESC "666")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT666)
+	(CHOICES CHOICES666)
+	(DESTINATIONS <LTABLE STORY558 STORY347 STORY047 STORY135>)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT667 "You have rescued Alissia, the commander's daughter, from the manbeasts. They have a tearful, joyous reunion -- all thanks to you!||The commander rewards you with combat training.">
+<CONSTANT CHOICES667 <LTABLE "East into Nerech" "North west to Fort Mereth" "South east to Fort Brilon" "West into the farmlands">>
 
 <ROOM STORY667
 	(DESC "667")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY667-BACKGROUND)
+	(STORY TEXT667)
+	(EVENTS STORY667-EVENTS)
+	(CHOICES CHOICES667)
+	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY299 STORY259 STORY548>)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY667-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY667 1> <RETURN ,STORY660>)>
+	<RETURN ,STORY667>>
+
+<ROUTINE STORY667-EVENTS ()
+	<UPGRADE-ABILITY ,ABILITY-COMBAT 1>>
+
+<CONSTANT TEXT668 "You are led to a rockface in the mine. You start digging.">
+<CONSTANT TEXT668-CONTINUED "You leave the Bronze Hills.||You can go:">
+<CONSTANT CHOICES668 <LTABLE "To Caran Baru" "South into the Forest of Larun" "West to the River Grimm" "North into the Western Wilderness">>
 
 <ROOM STORY668
 	(DESC "668")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT668)
+	(EVENTS STORY668-EVENTS)
+	(CHOICES CHOICES668)
+	(DESTINATIONS <LTABLE STORY400 STORY047 STORY333 STORY276>)
+	(TYPES FOUR-CHOICES)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY668-EVENTS ("AUX" ROLL)
+	<COND (,RUN-ONCE
+		<SET ROLL <RANDOM-EVENT 2 0 T>>
+		<COND (<L=? .ROLL 4>
+			<EMPHASIZE "Rockfall!">
+			<LOSE-STAMINA 2 ,DIED-FROM-INJURIES ,STORY668>
+		)(<L=? .ROLL 8>
+			<EMPHASIZE "You've had no luck, and your hour is up.">
+			<PREVENT-DOOM ,STORY668>
+		)(ELSE
+			<EMPHASIZE "You find a silver nugget.">
+			<TAKE-ITEM ,SILVER-NUGGET>
+			<PREVENT-DOOM ,STORY668>
+		)>
+	)>
+	<CONTINUE-TEXT ,TEXT668-CONTINUED>>
+
+<CONSTANT TEXT669 "You are recognized by an official, and a few moments later you are summoned to see the general himself. You are taken to the throne room, which has been converted to a military style headquarters.">
 
 <ROOM STORY669
 	(DESC "669")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT669)
+	(CHOICES CHOICES-CODEWORD)
+	(DESTINATIONS <LTABLE STORY102 STORY713>)
+	(REQUIREMENTS <LTABLE CODEWORD-ASSIST NONE>)
+	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT670 "You feel a wrenching moment of disorientation, and then you suddenly appear with a flash beside a ruined, burnt-out city. A passing builder stares at you in horror, unsure whether you are a human or a demon. You hurry away.">
 
 <ROOM STORY670
 	(DESC "670")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT670)
+	(CONTINUE STORY250)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY671
