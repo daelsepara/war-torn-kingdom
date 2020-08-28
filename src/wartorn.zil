@@ -336,6 +336,9 @@
 <ROUTINE CODEWORD-JUMP (CODEWORD STORY)
 	<COND (<CHECK-CODEWORD .CODEWORD> <STORY-JUMP .STORY>)>>
 
+<ROUTINE CONTINUE-TEXT (TEXT)
+	<COND (<IS-ALIVE> <TELL CR .TEXT CR>)>>
+
 <ROUTINE GAIN-BLESSINGS ("OPT" BLESSINGS)
 	<COND (<NOT .BLESSINGS> <SET BLESSINGS <GETP ,CURRENT-STORY ,P?BLESSINGS>>)>
 	<GAIN-OBJECTS .BLESSINGS GAIN-BLESSING>>
@@ -360,9 +363,6 @@
 <ROUTINE GAIN-TITLES ("OPT" TITLES)
 	<COND (<NOT .TITLES> <SET TITLES <GETP ,CURRENT-STORY ,P?TITLES>>)>
 	<GAIN-OBJECTS .TITLES GAIN-TITLE>>
-
-<ROUTINE IF-ALIVE (TEXT)
-	<COND (<IS-ALIVE> <TELL CR .TEXT CR>)>>
 
 <ROUTINE IS-ALIVE ("OPT" THRESHOLD)
 	<COND (<NOT .THRESHOLD> <SET THRESHOLD 0>)>
@@ -3387,6 +3387,12 @@
 	(SCOUTING 1)
 	(FLAGS TAKEBIT)>
 
+; "TO-DO: Implement in storm routines"
+<OBJECT CONCH-OF-SAFETY
+	(DESC "conch of safety from storms")
+	(QUANTITY 3)
+	(FLAGS TAKEBIT)>
+
 <OBJECT COPPER-AMULET
 	(DESC "copper-amulet")
 	(FLAGS TAKEBIT)>
@@ -6326,6 +6332,7 @@
 ; "reset routines"
 <ROUTINE RESET-OBJECTS ()
 	<FSET ,LEATHER-JERKIN ,WORNBIT>
+	<PUTP ,CONCH-OF-SAFETY ,P?QUANTITY 3>
 	<PUTP ,RESURRECTION-NAGIL ,P?CONTINUE ,STORY350>
 	<PUTP ,RESURRECTION-TYRNAI ,P?CONTINUE ,STORY640>>
 
@@ -6394,6 +6401,7 @@
 	<PUTP ,STORY579 ,P?DOOM T>
 	<PUTP ,STORY585 ,P?DOOM T>
 	<PUTP ,STORY589 ,P?DOOM T>
+	<PUTP ,STORY607 ,P?DOOM T>
 	<PUTP ,STORY617 ,P?DOOM T>>
 
 ; "endings"
@@ -6464,6 +6472,8 @@
 <CONSTANT TEXT-BLESSING-LACUNA "If you are an initiate it costs only 10 Shards to purchase Lacuna's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again on a failed SCOUTING roll. It is good for only one reroll. You can have only one SCOUTING blessing at any one time. Once it is used up, you can return to any branch of the temple of Lacuna to buy a new one.">
 
 <CONSTANT TEXT-WRATHFUL-BLOW "The High Priest smashes you across the jaw, saying, \"I'm doing you a favour, believe me.\"">
+
+<CONSTANT TEXT-GO-TREFOILLE "Go to Trefoille">
 
 <CONSTANT TEXT-TO-BEACH "Go down to the beach">
 <CONSTANT TEXT-TO-TREFOILLE "Take the road to Trefoille">
@@ -7072,7 +7082,7 @@ footing and fall to the ground.">
 
 <ROUTINE STORY034-EVENTS ()
 	<LOSE-STAMINA 4 ,DIED-FROM-INJURIES ,STORY034>
-	<IF-ALIVE ,TEXT034-CONTINUED>>
+	<CONTINUE-TEXT ,TEXT034-CONTINUED>>
 
 <CONSTANT TEXT035 "You come to the top of a windswept cliff. An ancient pillar of jumbled rock, pitted and weather-beaten, stands at the cliff's edge, like a broken finger pointing at the sky. Seagulls sing their song of desolation in the air.||Judging by the runes etched into the rock, the tor dates back to the time of the Shadar, a race that ruled Harkuna so long ago, they are lost in myth and legend.">
 <CONSTANT CHOICES035 <LTABLE "Examine the runes" TEXT-TO-BEACH TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
@@ -7487,7 +7497,7 @@ is off, you return to the city centre.">
 			<CHECK-COMBAT ,MONSTER-WOLF ,STORY060 0 ,WOLF-PELT>
 		)>
 	)>
-	<IF-ALIVE ,TEXT-YOU-CAN-GO>>
+	<CONTINUE-TEXT ,TEXT-YOU-CAN-GO>>
 
 <CONSTANT TEXT061 "\"Wait!\" you cry, \"I have seen the light. I wish to join your cult.\" \"What?\" yells the chef. Then his shoulders sag with obvious disappointment. \"We cannot refuse a new member. And we cannot eat our own people.\"||A short ceremony later -- fortunately, the initiation does not involve any cannibalistic rites -- and you are a full member of the Cult of Badogor. You lose 1 point of SANCTITY for joining such a vile cult.|| You take your leave and they wish you well, all smiles and friendship.||\"Remember, never say his name. And don't forget to bring us new recruits,\" says the leader.||\"And bring some people for dinner!\" adds the chef.||Hastily you head for the city centre.">
 
@@ -7823,7 +7833,7 @@ stink, laden with sulphur as it is.">
 			<PREVENT-DOOM ,STORY087>
 		)>
 	)>
-	<IF-ALIVE ,TEXT-YOU-CAN-GO>>
+	<CONTINUE-TEXT ,TEXT-YOU-CAN-GO>>
 
 <CONSTANT TEXT088 "You find out how well your investments have done:">
 
@@ -8111,7 +8121,7 @@ harbourmaster.">
 
 <ROUTINE STORY101-EVENTS ()
 	<LOSE-STAMINA 4 ,DIED-IN-COMBAT ,STORY101-SUCCEED>
-	<IF-ALIVE ,TEXT101-CONTINUED>>
+	<CONTINUE-TEXT ,TEXT101-CONTINUED>>
 
 <ROOM STORY102
 	(DESC "102")
@@ -8233,6 +8243,7 @@ harbourmaster.">
 
 <ROOM STORY112
 	(DESC "112")
+	(LOCATION LOCATION-CARAN)
 	(STORY TEXT112)
 	(CHOICES CHOICES112)
 	(DESTINATIONS <LTABLE STORY605 STORY400>)
@@ -9303,7 +9314,7 @@ harbourmaster.">
 	<COMBAT-MONSTER ,MONSTER-STORM-DEMON 3 6 8>
 	<CHECK-COMBAT ,MONSTER-STORM-DEMON ,STORY199>
 	<COND (<IS-ALIVE>
-		<IF-ALIVE ,TEXT199-FADE>
+		<CONTINUE-TEXT ,TEXT199-FADE>
 		<GAIN-MONEY 200>
 	)>>
 
@@ -11214,7 +11225,7 @@ paste on the ground below.">
 			<PREVENT-DOOM ,STORY347>
 		)>
 	)>
-	<IF-ALIVE ,TEXT-YOU-CAN-GO>>
+	<CONTINUE-TEXT ,TEXT-YOU-CAN-GO>>
 
 <CONSTANT TEXT348 "You remember what the fishermen say: the root of a certain seaweed, when crushed, gives off a cloud of toxic fluid. This sap is harmless to humans but is known to paralyse marine creatures for a short while. Fortunately, the seaweed grows in abundance here. You swim down with a handful of the roots, squeezing its sap into the waters. The hideous creatures shoot towards you, but are paralysed the instant they enter the cloud of reddish fluid that billows around you.||You take the golden net and swim back to the Shadar Tor as fast as you can.">
 <CONSTANT CHOICES348 <LTABLE TEXT-TO-TREFOILLE TEXT-TO-MARLOCK>>
@@ -11278,7 +11289,7 @@ paste on the ground below.">
 <ROUTINE STORY353-EVENTS ("AUX" ROLL)
 	<LOSE-STAMINA 3 ,DIED-FROM-INJURIES ,STORY353>
 	<COND (<IS-ALIVE>
-		<IF-ALIVE ,TEXT353-CONTINUED>
+		<CONTINUE-TEXT ,TEXT353-CONTINUED>
 		<SET ROLL <RANDOM-EVENT 1 0 T>>
 		<COND (<L=? .ROLL 2>
 			<EMPHASIZE "You are hit twice.">
@@ -11291,7 +11302,7 @@ paste on the ground below.">
 			<PREVENT-DOOM ,STORY353>
 		)>
 	)>
-	<IF-ALIVE ,TEXT353-END>>
+	<CONTINUE-TEXT ,TEXT353-END>>
 
 <CONSTANT TEXT354 "You throw, muttering a prayer for forgiveness to the gods.||The weapon soars through the air. It turns, and catches the sunlight, sparkling like a flashing star, before sinking beneath the water with barely a splash. No ripples appear. Your heart feels uplifted, and the curse is no more!">
 
@@ -11742,7 +11753,7 @@ paste on the ground below.">
 	<CHECK-COMBAT ,MONSTER-KER-ILK ,STORY389>>
 
 <CONSTANT TEXT390 "The horses rush past you. They seem to gallop through the air, whinnying and neighing, bellowing at the twilight sky. Soon they disappear from your sight. You make camp, and the next day continue your journey.">
-<CONSTANT CHOICES390 <LTABLE "Go north across country" "Head east to the road" "Go to Trefoille" TEXT-TO-MARLOCK "Head west towards the River Grimm">>
+<CONSTANT CHOICES390 <LTABLE "Go north across country" "Head east to the road" TEXT-GO-TREFOILLE TEXT-TO-MARLOCK "Head west towards the River Grimm">>
 
 <ROOM STORY390
 	(DESC "390")
@@ -11987,7 +11998,7 @@ paste on the ground below.">
 <ROUTINE STORY403-EVENTS ()
 	<RETURN-ITEM ,AMCHAS-HEAD T>
 	<UPGRADE-ABILITIES 1>
-	<IF-ALIVE ,TEXT403-CONTINUED>>
+	<CONTINUE-TEXT ,TEXT403-CONTINUED>>
 
 <CONSTANT TEXT404 "One of the cultists of Badogor the Unspoken is feigning distress in the hope of luring a sacrificial victim for dinner. He sits up when he recognizes you as a member of the cult and says, rather disconsolately, \"Ah, hallo, friend. We were hoping for a big banquet tonight.\"||Two more cultists step from the shadows, holding a net. \"Oh well, perhaps another will come along,\" one of them says optimistically.||They treat you as one of their own, even giving you a share of the cult's recent income.||\"May you never speak his name,\" they intone in parting.||You return to the city centre.">
 
@@ -13043,7 +13054,7 @@ paste on the ground below.">
 <ROUTINE STORY486-EVENTS ()
 	<LOSE-STAMINA 4 ,DIED-FROM-INJURIES ,STORY486>
 	<COND (<IS-ALIVE>
-		<IF-ALIVE "You will have to fight it.">
+		<CONTINUE-TEXT "You will have to fight it.">
 		<COMBAT-MONSTER ,MONSTER-GORLOCK 4 6 7>
 		<CHECK-COMBAT ,MONSTER-GORLOCK ,STORY486>
 	)>>
@@ -13090,7 +13101,7 @@ paste on the ground below.">
 
 <ROUTINE STORY490-EVENTS ()
 	<UPGRADE-ABILITIES 1>
-	<IF-ALIVE ,TEXT490-CONTINUED>>
+	<CONTINUE-TEXT ,TEXT490-CONTINUED>>
 
 <CONSTANT TEXT491 "You succumb to the insidious breath of the beast. Death has claimed you.">
 
@@ -13218,7 +13229,6 @@ paste on the ground below.">
 	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
 
-; "TO-DO: Ensure that ransom is priority (in STORY605)"
 <ROUTINE STORY501-BACKGROUND ()
 	<COND (<L? ,MONEY ,RANSOM> <RETURN ,STORY288>)>
 	<RETURN ,STORY501>>
@@ -13469,7 +13479,7 @@ paste on the ground below.">
 			)>
 		)>
 	)>
-	<IF-ALIVE ,TEXT-YOU-CAN>>
+	<CONTINUE-TEXT ,TEXT-YOU-CAN>>
 
 <CONSTANT TEXT519 "Your crew have driven off the other ker'ilk, which dive into the sea. The ship was carrying 1 Cargo Unit of furs, which you can take if your ship has room. You clean up the dead sailors, and give them a proper burial at sea. There is nothing else of interest, so you sail on.">
 
@@ -13630,8 +13640,8 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY532-EVENTS ()
-	<COND (<CHECK-AILMENT ,POISON-SCORPION> <IF-ALIVE ,TEXT532-POISONED>)>
-	<IF-ALIVE ,TEXT532-CONTINUED>>
+	<COND (<CHECK-AILMENT ,POISON-SCORPION> <CONTINUE-TEXT ,TEXT532-POISONED>)>
+	<CONTINUE-TEXT ,TEXT532-CONTINUED>>
 
 <CONSTANT TEXT533 "The man takes the money, bites a coin and spits. Satisfied, he says, \"The Witches' Cauldron, that's where you'll find him.\"||Later, you find the Witches' Cauldron tavern in a maze of backstreets. Looking through a window, you spot a man with a velvet eyepatch sitting at a table eating a meal.">
 <CONSTANT CHOICES533 <LTABLE "Walk in and challenge him" "Ambush him when he leaves">>
@@ -13821,7 +13831,7 @@ paste on the ground below.">
 			<TAKE-ITEM ,LEATHER-ARMOUR>
 		)>
 	)>
-	<IF-ALIVE ,TEXT-YOU-CAN-GO>>
+	<CONTINUE-TEXT ,TEXT-YOU-CAN-GO>>
 
 <CONSTANT TEXT549 "The priestess, dressed in a cloak made entirely of the leaves of trees, with her face smeared with moss, greets you. \"A tusk!\" she exclaims. \"But I have no need of another.\"||You ask if she might need it for the next time. \"Next time? Hmm, maybe you have a point.\"||She offers you 15 Shards.">
 
@@ -13944,7 +13954,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT558 "You join the much-travelled road that connects Trefoille and Caran Baru. The traffic mostly consists of convoys of troops and supplies.">
-<CONSTANT CHOICES558 <LTABLE "Go to Trefoille" "Follow the road north" "Go north into the Curstmoor" "Go east to the river">>
+<CONSTANT CHOICES558 <LTABLE TEXT-GO-TREFOILLE "Follow the road north" "Go north into the Curstmoor" "Go east to the river">>
 
 <ROOM STORY558
 	(DESC "558")
@@ -14016,7 +14026,7 @@ paste on the ground below.">
 	<COND (<CHECK-GOD ,GOD-SIG>
 		<RENOUNCE-WORSHIP 50 ,GOD-SIG>
 		<COND (<NOT ,GOD>
-			<IF-ALIVE ,TEXT563-CONTINUED>
+			<CONTINUE-TEXT ,TEXT563-CONTINUED>
 		)>
 	)>>
 
@@ -14113,6 +14123,7 @@ paste on the ground below.">
 
 <ROOM STORY571
 	(DESC "571")
+	(LOCATION LOCATION-MARLOCK)
 	(STORY TEXT571)
 	(CHOICES CHOICES571)
 	(DESTINATIONS <LTABLE STORY290 STORY104 STORY088 STORY605 STORY100>)
@@ -14272,7 +14283,7 @@ paste on the ground below.">
 			<PREVENT-DOOM ,STORY579>
 		)>
 	)>
-	<IF-ALIVE ,TEXT-YOU-CAN>>
+	<CONTINUE-TEXT ,TEXT-YOU-CAN>>
 
 <CONSTANT TEXT580 "You wait for things to die down, and make your way back to the door marked 'Thrown Rum'. Ignoring the kitchens, you go through.">
 
@@ -14551,195 +14562,126 @@ paste on the ground below.">
 	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT601 "The palace, the home of Protector General Grieve Marlock, is an imposing building of astonishing luxury. You get as far as a huge reception area, manned by many guards and staffed by government officials.">
+<CONSTANT CHOICES601 <LTABLE YOU-ARE-A "If not, you are thrown out">>
+
 <ROOM STORY601
 	(DESC "601")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT601)
+	(CHOICES CHOICES601)
+	(DESTINATIONS <LTABLE STORY669 STORY100>)
+	(REQUIREMENTS <LTABLE TITLE-PROTECTOR-SOKARA NONE>)
+	(TYPES <LTABLE R-TITLE R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT602 "You are travelling the road between the Shadar Tor and Trefoille. You pass a convoy of masons, carpenters and builders heading for Trefoille with an escort of Sokaran soldiers.">
+<CONSTANT CHOICES602 <LTABLE TEXT-GO-TREFOILLE "Head for the Shadar Tor">>
 
 <ROOM STORY602
 	(DESC "602")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT602)
+	(CHOICES CHOICES602)
+	(DESTINATIONS <LTABLE STORY250 STORY035>)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT603 "If you are an initiate it costs only 20 Shards to purchase The Three Fortunes' blessing. A non-initiate must pay 80 Shards.||The blessing works by allowing you to reroll any dice result once. You can have only one 'Luck' blessing at any one time. Once it is used up, you can return to any branch of the temple of the Three Fortunes to buy a new one.">
 
 <ROOM STORY603
 	(DESC "603")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT603)
+	(EVENTS STORY603-EVENTS)
+	(CONTINUE STORY086)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY603-EVENTS ()
+	<PURCHASE-BLESSING 80 20 ,GOD-THREE-FORTUNES ,BLESSING-LUCK>>
+
+<CONSTANT TEXT604 "The men mutter among themselves at your decision, but you insist. The sea centaur lies barely able to move on the deck. Nor does it speak.||That night, you see a strange glow rising up out of the depths. The sailors back away, muttering superstitiously, as several sea centaurs emerge from the waters, their spiny skins glittering with phosphorescent flashes of light.||One of the sea centaurs asks in a burbling voice, \"Where is our brother, whom you caught in your cruel nets, this day?\"||\"Why, here he is,\" you say, indicating the half-conscious sea centaur on deck.||\"Return him to us, we beg you,\" one of them warbles.||Your men, anxious to be rid of the creature, hand him down to his friends.||\"We thank you, landwalkers,\" says the leader.||He gives you a conch of safety from storms x 3. When you blow it, it confers the Blessing of Safety from Storms. It can be used three times only (each time you use it reduce the number of charges by one). When it is out of charges, it becomes useless.">
 
 <ROOM STORY604
 	(DESC "604")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT604)
+	(CONTINUE STORY507)
+	(ITEMS <LTABLE CONCH-OF-SAFETY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT605 "You can bank money with the merchants' guild. The guild charges 10% on any withdrawals.">
+<CONSTANT CHOICES605 <LTABLE "In Yellowport" "In Marlock City" "In Trefoille" "In Caran Baru">>
 
 <ROOM STORY605
 	(DESC "605")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT605)
+	(EVENTS STORY605-EVENTS)
+	(CHOICES CHOICES605)
+	(DESTINATIONS <LTABLE STORY010 STORY100 STORY250 STORY400>)
+	(REQUIREMENTS <LTABLE LOCATION-YELLOWPORT LOCATION-MARLOCK LOCATION-TREFOILLE LOCATION-CARAN>)
+	(TYPES <LTABLE R-LOCATION R-LOCATION R-LOCATION R-LOCATION>)
+	(MONEY 0)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY605-EVENTS ()
+	<GUILD-ACTIVITY ,STORY605 F>
+	<COND (<G? ,RANSOM 0> <STORY-JUMP ,STORY501>)>>
+
+<CONSTANT TEXT606 "You thread your way carefully through the maze of magical symbols, until you reach the sarcophagus safely. Inside you find the moldering bones of a long dead wizard, in whose skeletal hands you find the Book of Excellence.||As you scan the pages, you learn all sorts of new tricks.">
+<CONSTANT TEXT606-CONTINUED "Once you have read it, the book disappears with a flash.||You thread your way out of the Tomb of the Wizard King, back into the Forest of Larun.">
 
 <ROOM STORY606
 	(DESC "606")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT606)
+	(EVENTS STORY606-EVENTS)
+	(CONTINUE STORY047)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY606-EVENTS ()
+	<UPGRADE-ABILITIES 1>
+	<CONTINUE-TEXT ,TEXT606-CONTINUED>>
 
 <ROOM STORY607
 	(DESC "607")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-SHIPWRECK)
+	(EVENTS STORY607-EVENTS)
+	(CONTINUE STORY447)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY607-EVENTS ()
+	<STORY-SHIPWRECK ,STORY607>>
+
+<CONSTANT TEXT608 "You inch your way slowly around the edge of the old temple. Suddenly, you burst out of the shadows and cut the king down, catching the ratmen by surprise.||At the sight of you standing over their dead king, the four remaining ratmen flee in terror. Without their king, they have no spirit for a fight.">
 
 <ROOM STORY608
 	(DESC "608")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT608)
+	(CONTINUE STORY554)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT609 "You recognize the two iron statues of bull-men that guard the temple. They are golems, creatures created by powerful sorcery. They will animate and attempt to kill any intruders that steal into the temple. Golems are almost impossible to defeat in combat, but they have one weakness -- a ceramic plug, about the size of an apple, set into the backs of their heads. If the plug can be pulled out, the enchanted liquid that energises the golem will pour out, and the creature will die.||That night, you resolve to try to get on to the roof of the temple, hang down from the gables above the entrance, and pull the plugs on the golems, before going for the chain mail.">
 
 <ROOM STORY609
 	(DESC "609")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT609)
+	(CONTINUE STORY441)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT610 "At nightfall, the market is kept open for a special sale. A cage with a steel floor is wheeled out. Inside is a dark, manlike shape. It seems to radiate shadows, for you can barely make it out.||The slaver says, \"A trau, ladies and gentlemen. Excellent miners, though they have to be chained with cold iron at all times.\"||The price is 100 Shards.">
+<CONSTANT CHOICES610 <LTABLE "Buy the trau" "Leave the market">>
 
 <ROOM STORY610
 	(DESC "610")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY610-BACKGROUND)
+	(STORY TEXT610)
+	(CHOICES CHOICES610)
+	(DESTINATIONS <LTABLE STORY545 STORY400>)
+	(REQUIREMENTS <LTABLE 100 NONE>)
+	(TYPES <LTABLE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY610-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY610 1> <RETURN ,STORY400>)>
+	<RETURN ,STORY610>>
 
 <ROOM STORY611
 	(DESC "611")
