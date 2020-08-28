@@ -12185,7 +12185,6 @@ paste on the ground below.">
 		"Visit the temple of the Three Fortunes"
 		"Visit your townhouse"
 		"Visit the Blue Griffon Tavern"
-		"Visit the Blue Griffon Tavern"
 		"Follow the road north to the citadel"
 		"Go west into the Bronze Hills"
 		"Travel north east into the country"
