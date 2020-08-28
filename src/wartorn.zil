@@ -252,7 +252,6 @@
 		<COND (,RUN-ONCE
 			<GAIN-ITEMS>
 			<GAIN-CODEWORDS>
-			<GAIN-BLESSINGS>
 			<GAIN-TITLES>
 		)>
 		<COND (,CONTINUE-TO-CHOICES
@@ -345,10 +344,6 @@
 
 <ROUTINE CONTINUE-TEXT (TEXT)
 	<COND (<IS-ALIVE> <TELL CR .TEXT CR>)>>
-
-<ROUTINE GAIN-BLESSINGS ("OPT" BLESSINGS)
-	<COND (<NOT .BLESSINGS> <SET BLESSINGS <GETP ,CURRENT-STORY ,P?BLESSINGS>>)>
-	<GAIN-OBJECTS .BLESSINGS GAIN-BLESSING>>
 
 <ROUTINE GAIN-CODEWORDS ("OPT" CODEWORDS)
 	<COND (<NOT .CODEWORDS> <SET CODEWORDS <GETP ,CURRENT-STORY ,P?CODEWORDS>>)>
@@ -16465,100 +16460,66 @@ buildings.||\"It's built that way for defence,\" says a passing farmer. \"The sc
 	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT731 "Guildmaster Vernon of Yellowport is surprisingly eager to see you. He is a hugely fat and bejewelled merchant, and he tells you that a group of ratmen have made a base in the sewers beneath the city. They come out at night to raid the warehouses and homes of the merchants of Yellowport.||\"We need an adventurer like yourself to destroy their king,\" explains the guildmaster. \"Without him, the ratmen wouldn't be able to organize a feast in a larder. We will pay you 450 Shards if you succeed.\"||Vernon tells you that the sewers can be entered via an old disused well in the poor quarter.">
+<CONSTANT CHOICES731 <LTABLE "Return to the city centre" "Go down the sewers straight away">>
+
 <ROOM STORY731
 	(DESC "731")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT731)
+	(CHOICES CHOICES731)
+	(DESTINATIONS <LTABLE STORY010 STORY460>)
+	(TYPES TWO-CHOICES)
+	(CODEWORDS <LTABLE CODEWORD-AJAR>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT732 "\"What are you doing back here?\" demands Grieve Marlock. \"You should be defending the citadel. You know, that castle in the Pass of Eagles up north. Get back there and talk to Orin Telana.\"">
+<CONSTANT CHOICES732 <LTABLE HAVE-A "Otherwise, you are shown out in short order">>
 
 <ROOM STORY732
 	(DESC "732")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT732)
+	(CHOICES CHOICES732)
+	(DESTINATIONS <LTABLE STORY677 STORY100>)
+	(REQUIREMENTS <LTABLE CODED-MISSIVE NONE>)
+	(TYPES ONE-ITEM)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT733 "A mad beggar, covered in sores and grime, accosts you in the street. \"O noble one, aid me for the love of the gods,\" he rants, frothing at the mouth and gesticulating wildly. \"I need coins to eat, food to spend, and blessings to wear.\"">
+<CONSTANT CHOICES733 <LTABLE "Ignore him and return to the city centre" "Give alms" "Bless him">>
 
 <ROOM STORY733
 	(DESC "733")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT733)
+	(CHOICES CHOICES733)
+	(DESTINATIONS <LTABLE STORY010 STORY227 STORY632>)
+	(REQUIREMENTS <LTABLE NONE 5 NONE>)
+	(TYPES <LTABLE R-NONE R-MONEY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT734 "A small boy runs up to you, saying, \"Help us, help us! The Man-eating Blood-Thursday Gob-gobbler has got my little sister!\"||His mother, a flaxen-haired beauty, comes up behind him.||\"Surely you mean blood-thirsty, not Thursday?\" you ask.||\"Oh no,\" replies the young mother, \"the Man-eating Blood-Thursday Gob-gobbler is so named because it hunts only on Thursdays.\"||The boy's name is Mikail, and his mother is Lynn. Her husband is away in the army, and her young daughter, Haylie, was taken by the beast last Thursday. Apparently, several people have disappeared, never to be seen again.||\"Please help us,\" plead the villagers.">
+<CONSTANT CHOICES734 <LTABLE "Help them" "Refuse to help">>
 
 <ROOM STORY734
 	(DESC "734")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT734)
+	(CHOICES CHOICES734)
+	(DESTINATIONS <LTABLE STORY600 STORY427>)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT735 "The king bids you farewell. You are led out of the stockade and back down to the foothills of the Coldbleak Mountains.">
 
 <ROOM STORY735
 	(DESC "735")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(EVENTS STORY735-EVENTS)
+	(CONTINUE STORY474)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY735-EVENTS ()
+	<CRLF>
+	<TELL "Accept the mission to kill the Governor of Yellowport?">
+	<COND (<YES?> <GAIN-CODEWORD ,CODEWORD-AMBUSCADE>)>
+	<CONTINUE-TEXT ,TEXT735>>
 
 <CONSTANT TEXT736 "Out of the corner of your eye you see an old man wandering along the beach gathering driftwood. He glances in your direction but doesn't come over. Perhaps he mistakes you for a patch of seaweed -- or perhaps he is simply afraid. Whatever the reason, he soon hobbles off carrying his armload of wood. When he is out of sight, you rise unsteadily to your feet and consider your next move.">
 <CONSTANT CHOICES736 <LTABLE "Explore the coast" "Head into the nearby forest">>
@@ -16570,139 +16531,6 @@ buildings.||\"It's built that way for defence,\" says a passing farmer. \"The sc
 	(DESTINATIONS <LTABLE STORY128 STORY257>)
 	(TYPES TWO-CHOICES)
 	(CODEWORDS <LTABLE CODEWORD-AURIC>)
-	(FLAGS LIGHTBIT)>
-
-<ROOM STORY737
-	(DESC "737")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
-	(FLAGS LIGHTBIT)>
-
-<ROOM STORY738
-	(DESC "738")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
-	(FLAGS LIGHTBIT)>
-
-<ROOM STORY739
-	(DESC "739")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
-	(FLAGS LIGHTBIT)>
-
-<ROOM STORY740
-	(DESC "740")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
-	(FLAGS LIGHTBIT)>
-
-<ROOM STORY741
-	(DESC "741")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
-	(FLAGS LIGHTBIT)>
-
-<ROOM STORY742
-	(DESC "742")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
-	(FLAGS LIGHTBIT)>
-
-<ROOM STORY743
-	(DESC "743")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY-BLOOD-DARK-SEA
