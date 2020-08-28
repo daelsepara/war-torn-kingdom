@@ -3267,6 +3267,7 @@
 
 <OBJECT CODEWORD-BARNACLE (DESC "Barnacle")>
 <OBJECT CODEWORD-BRUSH (DESC "Brush")>
+<OBJECT CODEWORD-CRAG (DESC "Crag")>
 <OBJECT CODEWORD-CUTLASS (DESC "Cutlass")>
 <OBJECT CODEWORD-DEFEND (DESC "Defend")>
 <OBJECT CODEWORD-DELIVER (DESC "Deliver")>
@@ -6699,7 +6700,8 @@
 	<PUTP ,STORY634 ,P?DOOM T>
 	<PUTP ,STORY646 ,P?DOOM T>
 	<PUTP ,STORY668 ,P?DOOM T>
-	<PUTP ,STORY673 ,P?DOOM T>>
+	<PUTP ,STORY673 ,P?DOOM T>
+	<PUTP ,STORY690 ,P?DOOM T>>
 
 ; "endings"
 <CONSTANT BAD-ENDING "Your adventure ends here.|">
@@ -16008,194 +16010,103 @@ paste on the ground below.">
 		<UPDATE-STATUS-LINE>
 	)>>
 
+<CONSTANT TEXT691 "You can attempt to convince Captain Vorkung that you are on his side.">
+
 <ROOM STORY691
 	(DESC "691")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT691)
+	(CHOICES CHOICES-CHARISMA)
+	(DESTINATIONS <LTABLE STORY025 STORY179>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 9>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY692
 	(DESC "692")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY692-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY692-BACKGROUND ()
+	<COND (<CHECK-ITEM ,VERDIGRIS-KEY> <RETURN ,STORY431>)>
+	<RETURN ,STORY693>>
+
+<CONSTANT TEXT693 "Oliphard can use his sorcery to teleport you instantly to certain places at a cost of 100 Shards a journey for the following destinations:">
+<CONSTANT CHOICES693 <LTABLE "Marlock City" "Caran Baru" "Wishport (Cities of Gold and Glory)" "Dweomer (Over the Blood-Dark Sea)" "Otherwise, you can travel more conventionally. Take the road to the Shadar Tor" "Take the road to Marlock City" "Head into the Curstmoor" "Take the road north" "Take the road to Yellowport">>
 
 <ROOM STORY693
 	(DESC "693")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT693)
+	(CHOICES CHOICES693)
+	(DESTINATIONS <LTABLE STORY100 STORY400 STORY-CITIES-GOLD-GLORY STORY-BLOOD-DARK-SEA STORY602 STORY377 STORY175 STORY558 STORY233>)
+	(REQUIREMENTS <LTABLE 100 100 100 100 NONE NONE NONE NONE NONE>)
+	(TYPES <LTABLE R-MONEY R-MONEY R-MONEY R-MONEY R-NONE R-NONE R-NONE R-NONE R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT694 "The soldier looks you over critically. He signals that he wants to parley with you.">
+<CONSTANT CHOICES694 <LTABLE "Talk to him" "Attack him straight away">>
 
 <ROOM STORY694
 	(DESC "694")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT694)
+	(CHOICES CHOICES694)
+	(DESTINATIONS <LTABLE STORY557 STORY049>)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT CHOICES695 <LTABLE "Return to the trading post" "Attack the tree" "Try to persuade it to let you pass">>
 
 <ROOM STORY695
 	(DESC "695")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT-YOU-CAN)
+	(CHOICES CHOICES695)
+	(DESTINATIONS <LTABLE STORY195 STORY570 STORY237>)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT696 "You say that you have not completed your mission.||\"What are you doing here, then?\" demands the king. \"There is nothing we can do to help you. Use your own wits. Now go -- fulfil our royal command!\"||You are escorted to the foothills of the mountains.">
 
 <ROOM STORY696
 	(DESC "696")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT696)
+	(CONTINUE STORY474)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT697 "\"How do I learn the password?\" you ask.||\"Astrallus was the Wizard King, so why don't you ask some wizards?\"||\"Where would I find them?\"||\"How would I know?\" replies the door testily. \"I've been stuck here for a thousand years.\"||You decide it is time to leave.">
+<CONSTANT CHOICES697 <LTABLE "North to the Bronze Hills" "West to the River Grimm" "South to the country" "East to the road">>
 
 <ROOM STORY697
 	(DESC "697")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT697)
+	(CHOICES CHOICES697)
+	(DESTINATIONS <LTABLE STORY110 STORY333 STORY560 STORY387>)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT698 "You hack your way through the undergrowth until you stumble across an old ruin. Creepers and forest moss have grown over most of it, but you can see mask-like faces set into the walls, glaring down at you as if in angry outrage at your intrusion. You come to a massive stone slab, clearly a door. Set into the middle of it is a round granite face, the visage of a sleeping demon. Suddenly an eye pops open and regards you stonily.||\"A human!\" exclaims a gravelly voice. \"I haven't seen one of your kind for a hundred years.\" An expression of suspicion forms on its rocky features. \"What do you want here?\"||\"Just passing through.\"||\"This is the tomb of Astrallus the Wizard King, and you can't pass through unless you know the password that was given to me by Astrallus himself a thousand years ago.\"">
 
 <ROOM STORY698
 	(DESC "698")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT698)
+	(CHOICES CHOICES-CODEWORD)
+	(DESTINATIONS <LTABLE STORY160 STORY697>)
+	(REQUIREMENTS <LTABLE CODEWORD-CRAG NONE>)
+	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT699 "Oliphard thanks you and says, \"If you ever need some help, look for me in Trefoille.\" Then he leaves.">
 
 <ROOM STORY699
 	(DESC "699")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT699)
+	(CONTINUE STORY378)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY700
 	(DESC "700")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(CHOICES CHOICES-SCOUTING)
+	(DESTINATIONS <LTABLE <LTABLE STORY562 STORY438>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 12>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY701
