@@ -2657,7 +2657,15 @@
 <ROUTINE USE-INVENTORY ("AUX" KEY CHOICE ITEM COUNT ACTION)
 	<REPEAT ()
 		<EMPHASIZE "You are carrying the following items:">
-		<SET COUNT <PRINT-CONTAINER-MENU ,PLAYER !\0 "Back">>
+		<SET COUNT <PRINT-CONTAINER-MENU ,PLAYER>>
+		<HLIGHT ,H-BOLD>
+		<TELL "V">
+		<HLIGHT 0>
+		<TELL " - View ship manifest" CR>
+		<HLIGHT ,H-BOLD>
+		<TELL "0">
+		<HLIGHT 0>
+		<TELL " - Back" CR>
 		<TELL "Select an item to use:">
 		<REPEAT ()
 			<SET KEY <INPUT 1>>
@@ -2666,7 +2674,7 @@
 					<AND <G=? .KEY !\1> <L=? .KEY !\9> <L=?  <- .KEY !\0>.COUNT>>
 					<AND <G=? .KEY !\A> <L=? .KEY !\J> <G? .COUNT 9> <L=? <+ <- .KEY !\A> 10> .COUNT>>
 					<AND <G=? .KEY !\a> <L=? .KEY !\j> <G? .COUNT 9> <L=? <+ <- .KEY !\a> 10> .COUNT>>
-					<EQUAL? .KEY !\0>
+					<EQUAL? .KEY !\V !\v !\0>
 				>
 				<RETURN>
 			)>
@@ -2674,6 +2682,14 @@
 		<COND (<EQUAL? .KEY !\0>
 			<CRLF>
 			<RETURN>
+		)(<EQUAL? .KEY !\V !\v>
+			<CRLF>
+			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+				<VIEW-SHIP-MANIFEST>
+			)(ELSE
+				<EMPHASIZE ,TEXT-NO-SHIPS>
+				<PRESS-A-KEY>
+			)>
 		)(<OR <AND <G=? .KEY !\1> <L=? .KEY !\9> <L=?  <- .KEY !\0>.COUNT>> <AND <G=? .KEY !\A> <L=? .KEY !\J> <G? .COUNT 9> <L=? <+ <- .KEY !\A> 10> .COUNT>> <AND <G=? .KEY !\a> <L=? .KEY !\j> <G? .COUNT 9> <L=? <+ <- .KEY !\a> 10> .COUNT>>>
 			<COND (<AND <G=? .KEY !\1> <L=? .KEY !\9> <L=?  <- .KEY !\0>.COUNT>>
 				<SET CHOICE <- .KEY !\0>>
@@ -2687,7 +2703,7 @@
 				<SET ACTION <GETP .ITEM ,P?ACTION>>
 				<COND (.ACTION
 					<CRLF>
-					<APPLY .ACTION>
+					<COND (<APPLY .ACTION> <RETURN>)>
 				)(ELSE
 					<CRLF>
 					<TELL CR "Drop the ">
@@ -3193,6 +3209,7 @@
 <OBJECT CODEWORD-ALMANAC (DESC "Almanac")>
 <OBJECT CODEWORD-ALOFT (DESC "Aloft")>
 <OBJECT CODEWORD-ALTITUDE (DESC "Altitude")>
+<OBJECT CODEWORD-ALTRUIST (DESC "Altruist")>
 <OBJECT CODEWORD-AMBUSCADE (DESC "Ambuscade")>
 <OBJECT CODEWORD-AMCHA (DESC "Amcha")>
 <OBJECT CODEWORD-AMENDS (DESC "Amends")>
@@ -3434,9 +3451,6 @@
 
 ; "other objects"
 ; ---------------------------------------------------------------------------------------------
-; "TO-DO: Implement Forest of the Forsaken Map"
-; "TO-DO: Implement Moonstone of Teleportation"
-; "TO-DO: View Ship Manifest (partially implemented in Harbour routines)"
 
 <OBJECT AMCHAS-HEAD
 	(DESC "Amcha's head")
@@ -3499,7 +3513,15 @@
 
 <OBJECT FOREST-FORSAKEN-MAP
 	(DESC "Forest of the Forsaken map")
+	(ACTION FOREST-FORSAKEN-MAP-F)
 	(FLAGS TAKEBIT)>
+
+<ROUTINE FOREST-FORSAKEN-MAP-F ()
+	<SETG PREVIOUS-STORY ,HERE>
+	<SETG HERE ,STORY200>
+	<SETG RUN-ONCE T>
+	<SETG CONTINUE-TO-CHOICES F>
+	<RTRUE>>
 
 <OBJECT GHOULS-HEAD
 	(DESC "ghoul's head")
@@ -3567,7 +3589,15 @@
 
 <OBJECT MOONSTONE-OF-TELEPORTATION
 	(DESC "moonstone of teleportation")
+	(ACTION MOONSTONE-OF-TELEPORTATION-F)
 	(FLAGS TAKEBIT)>
+
+<ROUTINE MOONSTONE-OF-TELEPORTATION-F ()
+	<SETG HERE ,STORY650>
+	<SETG RUN-ONCE T>
+	<SETG CONTINUE-TO-CHOICES F>
+	<EMPHASIZE "You are teleported into another location.">
+	<RTRUE>>
 
 <OBJECT OAK-STAFF
 	(DESC "oak staff")
@@ -3630,7 +3660,8 @@
 		)>
 	)(ELSE
 		<EMPHASIZE "You do not have a potion of healing?">
-	)>>
+	)>
+	<RFALSE>>
 
 <OBJECT POTION-OF-INTELLECT
 	(DESC "potion of intellect")
@@ -3683,7 +3714,12 @@
 	(FLAGS TAKEBIT)>
 
 <ROUTINE SCORPION-ANTIDOTE-F ()
-	<USE-ANTIDOTE ,SCORPION-ANTIDOTE ,POISON-SCORPION ,DELETE-POISON>>
+	<USE-ANTIDOTE ,SCORPION-ANTIDOTE ,POISON-SCORPION ,DELETE-POISON>
+	<RFALSE>>
+
+<OBJECT SCORPIONS-VENOM
+	(DESC "scorpion's venom")
+	(FLAGS TAKEBIT)>
 
 <OBJECT SCROLL-OF-EBRON
 	(DESC "scroll of Ebron")
@@ -3850,7 +3886,7 @@
 	(FLAGS POISONBIT)>
 
 <OBJECT POISON-SCORPION
-	(DESC "scorpion's venom")
+	(DESC "scorpion's poison")
 	(EFFECTS <LTABLE 0 -1 0 0 -1 -1>)
 	(FLAGS POISONBIT)>
 
@@ -5166,7 +5202,7 @@
 			<COND (<YES?>
 				<RETURN>
 			)>
-		)(<EQUAL? .KEY !\V !\v>
+		)(<EQUAL? .KEY !\C !\c>
 			<CRLF>
 			<DESCRIBE-PLAYER-SHIPS>
 			<PRESS-A-KEY>
@@ -6665,6 +6701,7 @@
 <CONSTANT HAVE-THE "You have the">
 <CONSTANT HAVE-CODEWORD "You have the codeword">
 <CONSTANT HAVE-NEITHER "You have neither">
+<CONSTANT HAVE-TITLE "You have the title">
 <CONSTANT IF-NOT "If not">
 <CONSTANT OTHERWISE "Otherwise">
 <CONSTANT YOU-ARE-A "You are a">
@@ -6738,6 +6775,7 @@
 
 <CONSTANT CHOICES-CODEWORD <LTABLE HAVE-CODEWORD IF-NOT>>
 <CONSTANT ONE-CODEWORD <LTABLE R-CODEWORD R-NONE>>
+<CONSTANT ONE-ITEM <LTABLE R-ITEM R-NONE>>
 
 <ROUTINE STORY-GAIN-CARGO (CARGO "OPT" CAPACITY COUNT)
 	<COND (,CURRENT-SHIP
@@ -10124,7 +10162,7 @@ paste on the ground below.">
 	(CHOICES CHOICES246)
 	(DESTINATIONS <LTABLE STORY467 STORY728>)
 	(REQUIREMENTS <LTABLE GOLD-CHAIN-MAIL NONE>)
-	(TYPES <LTABLE R-ITEM R-NONE>)
+	(TYPES ONE-ITEM)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT247 "The sound was the click of a secret door sliding open in the wall of the cavern. With a swift motion, you step up beside it, back to the wall. A figure emerges but you are able to ambush the ambusher. A sharp blow to the back of the head sends the dark figure crashing to the ground.||Another steps forth, however, shouting in a guttural voice. You realize the figures are ratmen -- manlike creatures that stand on two legs, but which have the tail and hairy features of a gigantic rat.">
@@ -10509,7 +10547,7 @@ paste on the ground below.">
 	(CHOICES CHOICES274)
 	(DESTINATIONS <LTABLE STORY298 STORY212>)
 	(REQUIREMENTS <LTABLE AMULET-OF-PROTECTION NONE>)
-	(TYPES <LTABLE R-ITEM R-NONE>)
+	(TYPES ONE-ITEM)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT275 "If you are an initiate it costs only 5 Shards to propitiate the twin gods of the sea. A non-initiate must pay 20 Shards. The blessing works by allowing you to ignore any one storm at sea. You can only have one Safety from Storms blessing at any one time. Once it is used up, you can return to any branch of the temple of Alvir and Valmir to buy a new one.">
@@ -11075,9 +11113,13 @@ paste on the ground below.">
 	(DOOM T)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY318-EVENTS ()
+<ROUTINE STORY318-EVENTS ("AUX" INITIAL-STAMINA)
+	<SET INITIAL-STAMINA ,STAMINA>
 	<COMBAT-MONSTER ,MONSTER-SCORPION-MAN 3 6 8>
-	<CHECK-COMBAT ,MONSTER-SCORPION-MAN ,STORY318>>
+	<CHECK-COMBAT ,MONSTER-SCORPION-MAN ,STORY318>
+	<COND (<AND <IS-ALIVE> <L? ,STAMINA .INITIAL-STAMINA>>
+		<POISONED-WITH ,POISON-SCORPION>
+	)>>
 
 <CONSTANT TEXT319 "You give the willow staff to the Oak Druid of the City of Trees.||\"A willow staff, is it? I see,\" the druid intones. \"Thank you.\"||As a reward, the druid lets you train with the City of Trees' best hunters and trackers.">
 
@@ -12801,7 +12843,7 @@ paste on the ground below.">
 	(CHOICES CHOICES451)
 	(DESTINATIONS <LTABLE STORY575 STORY329>)
 	(REQUIREMENTS <LTABLE BLACK-DRAGON-SHIELD NONE>)
-	(TYPES <LTABLE R-ITEM R-NONE>)
+	(TYPES ONE-ITEM)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT452 "The Trading Post has a small market place in the village square, where half a dozen stalls sell a few goods. Items with no purchase price listed are not available locally.">
@@ -13574,7 +13616,7 @@ paste on the ground below.">
 	(CHOICES CHOICES512)
 	(DESTINATIONS <LTABLE STORY163 STORY706>)
 	(REQUIREMENTS <LTABLE PIRATE-CAPTAINS-HEAD NONE>)
-	(TYPES <LTABLE R-ITEM R-NONE>)
+	(TYPES ONE-ITEM)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT513 "One of them gives you a conch shell full of a greenish liquid. You drink it, and dive into the sea. Miraculously, you can breathe underwater. You follow the sea centaurs down into the depths until you arrive at a sunken ship, which is encrusted in barnacles and seaweed.||Suddenly, the sea centaurs swim away, leaving you alone. You notice that you are giving off a glow like the sea centaurs. Looking down, you see that the lower half of your body has turned into that of a sea centaur! You have been taken and transformed to replace their lost companion.">
@@ -14382,7 +14424,7 @@ paste on the ground below.">
 	(CHOICES CHOICES574)
 	(DESTINATIONS <LTABLE STORY677 STORY100>)
 	(REQUIREMENTS <LTABLE CODED-MISSIVE NONE>)
-	(TYPES <LTABLE R-ITEM R-NONE>)
+	(TYPES ONE-ITEM)
 	(FLAGS LIGHTBIT)>
 
 ; "TO-DO: search for money in townhouses, caches, banks, and investment houses"
@@ -14648,7 +14690,7 @@ paste on the ground below.">
 	(CHOICES CHOICES596)
 	(DESTINATIONS <LTABLE STORY653 STORY698>)
 	(REQUIREMENTS <LTABLE OAK-STAFF NONE>)
-	(TYPES <LTABLE R-ITEM R-NONE>)
+	(TYPES ONE-ITEM)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT597 "\"You did it!\" exclaims the warden happily, taking the ghoul's head and placing it in a jar.||You can have a choice of reward: an amber wand (+1 MAGIC), 500 Shards, or a free resurrection deal, if you do not have one already. You can choose only one of these three rewards.">
@@ -15283,7 +15325,7 @@ paste on the ground below.">
 	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT644 "Using your sorcerous powers you breathe a cloud of greenish vapor over the ratmen. Coughing and gasping, they sink into an enchanted slumber. It is an easy matter to dispatch them while they sleep.">
+<CONSTANT TEXT644 "Using your sorcerous powers you breathe a cloud of greenish vapour over the ratmen. Coughing and gasping, they sink into an enchanted slumber. It is an easy matter to dispatch them while they sleep.">
 
 <ROOM STORY644
 	(DESC "644")
@@ -15369,7 +15411,7 @@ paste on the ground below.">
 	<COND (<CHECK-VISITS-MORE ,STORY549 1> <RETURN ,STORY114>)>
 	<RETURN ,STORY649>>
 
-<CONSTANT TEXT650 "There is a flash, and suddenly you find yourself in a warm, comfortable room beside Elissia the Traveler, the sorceress you rescued from her burning house.">
+<CONSTANT TEXT650 "There is a flash, and suddenly you find yourself in a warm, comfortable room beside Elissia the Traveller, the sorceress you rescued from her burning house.">
 <CONSTANT TEXT650-CONTINUED "\"My debt to you is now paid,\" she says. With that, she passes her hands through the air and disappears in a cloud of smoke.||You find yourself in an inn at Marlock City. You venture out into town, slightly dazed.">
 
 <ROOM STORY650
@@ -15389,197 +15431,143 @@ paste on the ground below.">
 		<RESET-CONTAINER ,AILMENTS ,POISONBIT>
 		<RESET-CONTAINER ,AILMENTS ,DISEASEBIT>
 		<EMPHASIZE "You are cured instantly of any diseases and poisons you were suffering from.">
-	)>>
+	)>
+	<CONTINUE-TEXT ,TEXT650-CONTINUED>>
+
+<CONSTANT TEXT651 "The trau, realizing its fate, sinks into a dark, clouded silence. You haul it off to the mines where the overseer, a fat, cruel-looking man, gives you 150 Shards for the trau. You return to town.">
 
 <ROOM STORY651
 	(DESC "651")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT651)
+	(EVENTS STORY651-EVENTS)
+	(CONTINUE STORY400)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY651-EVENTS ()
+	<GAIN-MONEY 150>>
+
+<CONSTANT TEXT652 "You clamber up until you come to a mountain track. It rises up between a cleft in the rock, ahead of you.||A man steps out in front of you. He is clearly a soldier, but his clothes are rough and ready, as if he has been living in the wild for some time.">
+<CONSTANT CHOICES652 <LTABLE HAVE-TITLE HAVE-CODEWORD HAVE-CODEWORD OTHERWISE>>
 
 <ROOM STORY652
 	(DESC "652")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT652)
+	(CHOICES CHOICES652)
+	(DESTINATIONS <LTABLE STORY002 STORY629 STORY353 STORY694>)
+	(REQUIREMENTS <LTABLE TITLE-KINGS-CHAMPION CODEWORD-AMBUSCADE CODEWORD-ARK NONE>)
+	(TYPES <LTABLE R-TITLE R-CODEWORD R-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT653 "You are on a quest to take the oak staff to the Willow Druid who lives in a sacred grove somewhere in the forest. You wander around, looking for unusual tracks, strange creatures, anything that might lead you to a druid's den.">
 
 <ROOM STORY653
 	(DESC "653")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT653)
+	(CHOICES CHOICES-SCOUTING)
+	(DESTINATIONS <LTABLE <LTABLE STORY217 STORY007>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 12>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT654 "You slip out of your chains, and hide inside an ore-laden mining car. When it is taken out of the mine, you creep out, and run off into the hills. Eventually you reach Caran Baru.">
 
 <ROOM STORY654
 	(DESC "654")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT654)
+	(CONTINUE STORY400)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT655 "The general greets you with a smile and embraces you, saying, \"You have served me beyond my expectations, my friend.\"||A servant drags over a heavy chest, and Grieve Marlock flips open the lid with his sword. Inside is 1000 Shards. \"Yours,\" he says with a grin.||As you leave, he says, \"Don't hesitate to ask, if you need anything.\"">
+<CONSTANT CHOICES655 <LTABLE HAVE-A IF-NOT>>
 
 <ROOM STORY655
 	(DESC "655")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(VISITS 0)
+	(BACKGROUND STORY655-BACKGROUND)
+	(STORY TEXT655)
+	(CHOICES CHOICES655)
+	(DESTINATIONS <LTABLE STORY677 STORY100>)
+	(REQUIREMENTS <LTABLE CODED-MISSIVE NONE>)
+	(TYPES ONE-ITEM)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY655-BACKGROUND ()
+	<COND (<CHECK-VISITS-MORE ,STORY655 1> <RETURN ,STORY574>)>
+	<RETURN ,STORY655>>
+
+<ROUTINE STORY655-EVENTS ()
+	<GAIN-MONEY 1000>
+	<GAIN-RANK 1>
+	<UPGRADE-STAMINA <ROLL-DICE 1>>>
+
+<CONSTANT TEXT656 "You find a large, red pavilion which has been erected over a ruin. Oliphard the Wizardly is inside. He greets you warmly.">
+<CONSTANT CHOICES656 <LTABLE HAVE-A IF-NOT>>
 
 <ROOM STORY656
 	(DESC "656")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT656)
+	(CHOICES CHOICES656)
+	(DESTINATIONS <LTABLE STORY672 STORY692>)
+	(REQUIREMENTS <LTABLE MAGIC-CHEST NONE>)
+	(TYPES ONE-ITEM)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT657 "The creature falls dead. You can squeeze a little of its venom from its sting.||You wander on until you come to a ridge. Down below, in a shallow valley, is a great mound of earth. Many burrows have been dug through it, and scorpion men are crawling in and out. This is the mound of the scorpion men -- their home.">
+<CONSTANT CHOICES657 <LTABLE HAVE-CODEWORD "If not, you realize that it would simply be too dangerous to venture down there. You head back towards Venefax.">>
 
 <ROOM STORY657
 	(DESC "657")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT657)
+	(EVENTS STORY657-EVENTS)
+	(CHOICES CHOICES657)
+	(DESTINATIONS <LTABLE STORY406 STORY492>)
+	(REQUIREMENTS <LTABLE CODEWORD-ARTIFACT NONE>)
+	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY657-EVENTS ()
+	<KEEP-ITEM ,SCORPIONS-VENOM>>
+
+<CONSTANT TEXT658 "You are standing at the bottom of the Devil's Peak. It is a massive tower of black rock, like a stone tree-trunk, bare and branchless, climbing up into the sky. You cannot see the top, for it is shrouded in grey clouds. Thunder and lightning play about the clouded summit.||The sides of the peak are almost sheer, but there are many hand and footholds. It can be climbed, but only if you have climbing gear.">
+<CONSTANT CHOICES658 <LTABLE "Make the ascent" OTHERWISE>>
 
 <ROOM STORY658
 	(DESC "658")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT658)
+	(CHOICES CHOICES658)
+	(DESTINATIONS <LTABLE STORY340 STORY560>)
+	(REQUIREMENTS <LTABLE CLIMBING-GEAR NONE>)
+	(TYPES ONE-ITEM)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT659 "You untie the little creature from its bonds. It gives a jubilant cry and soars upwards.||\"Thank you, large one,\" it chatters, \"My name is Pikalik the wing-warrior. My people never forget. One day I will repay the debt I owe you.\" With that, he flitters away into the clouds.||\"That's 75 Shards you just let fly away,\" comments the man in the palanquin wryly, \"Mannekyn folk can't be trusted, believe me.\" You leave the slave market.">
 
 <ROOM STORY659
 	(DESC "659")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT659)
+	(CONTINUE STORY400)
+	(CODEWORDS <LTABLE CODEWORD-ALTRUIST>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT660 "You are greeted warmly by the commander of the fort, whose daughter, Alissia, embraces you happily.">
+<CONSTANT CHOICES660 <LTABLE "East into Nerech" "North west to Fort Mereth" "South east to Fort Brilon" "West into the Farmlands">>
 
 <ROOM STORY660
 	(DESC "660")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT660)
+	(EVENTS STORY660-EVENTS)
+	(CHOICES CHOICES660)
+	(DESTINATIONS <LTABLE STORY-PLAINS-HOWLING-DARKNESS STORY299 STORY259 STORY548>)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY660-EVENTS ()
+	<COND (<L? ,STAMINA ,MAX-STAMINA>
+		<SETG STAMINA ,MAX-STAMINA>
+		<EMPHASIZE "You have made a full recovery">
+		<UPDATE-STATUS-LINE>
+	)>
+	<CONTINUE-TEXT ,TEXT-YOU-CAN-GO>>
 
 <ROOM STORY661
 	(DESC "661")
