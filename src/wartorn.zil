@@ -3201,6 +3201,11 @@
 	(COMBAT 3)
 	(FLAGS TAKEBIT WEAPONBIT)>
 
+<OBJECT ENCHANTED-SPEAR
+	(DESC "enchanted spear")
+	(COMBAT 2)
+	(FLAGS TAKEBIT WEAPONBIT)>
+
 <OBJECT MACE
 	(DESC "mace")
 	(FLAGS TAKEBIT WEAPONBIT)>
@@ -3402,6 +3407,10 @@
 	(DESC "copper-amulet")
 	(FLAGS TAKEBIT)>
 
+<OBJECT FAERIE-MEAD
+	(DESC "faerie mead")
+	(FLAGS TAKEBIT)>
+
 <OBJECT FLAME-OPAL-EYE
 	(DESC "flame opal eye")
 	(FLAGS TAKEBIT)>
@@ -3445,6 +3454,10 @@
 <OBJECT LOCKPICKS
 	(DESC "lockpicks")
 	(THIEVERY 1)
+	(FLAGS TAKEBIT)>
+
+<OBJECT MAGIC-CHEST
+	(DESC "magic chest")
 	(FLAGS TAKEBIT)>
 
 <OBJECT MANDOLIN
@@ -5887,6 +5900,8 @@
 ; "Venefax Market"
 ; ---------------------------------------------------------------------------------------------
 
+<CONSTANT CHOICES-VENEFAX-MARKET <LTABLE "Buy armours/weapons/other items" "Sell armours/weapons/other items" "Leave Venefax market">>
+
 <CONSTANT VENEFAX-BUY-MENU <LTABLE "Buy armour/weapons" "Buy other items" "Back">>
 <CONSTANT VENEFAX-SELL-MENU <LTABLE "Sell armour/weapons" "Sell other items" "Back">>
 
@@ -5928,14 +5943,52 @@
 	(CONTINUE VENEFAX-SELL)
 	(FLAGS LIGHTBIT)>
 
+<ROOM VENEFAX-BUY2
+	(DESC "623 Merchant - Selling")
+	(CHOICES VENEFAX-BUY-MENU)
+	(DESTINATIONS <LTABLE VENEFAX-BUY-GEAR2 VENEFAX-BUY-OTHER2 STORY623>)
+	(TYPES THREE-CHOICES)
+	(FLAGS LIGHTBIT)>
+
+<ROOM VENEFAX-BUY-GEAR2
+	(DESC "623 Merchant - Selling armour/weapons")
+	(EVENTS VENEFAX-BUYING-GEAR)
+	(CONTINUE VENEFAX-BUY2)
+	(FLAGS LIGHTBIT)>
+
+<ROOM VENEFAX-BUY-OTHER2
+	(DESC "623 Merchant - Selling other items")
+	(EVENTS VENEFAX-BUYING-OTHER)
+	(CONTINUE VENEFAX-BUY2)
+	(FLAGS LIGHTBIT)>
+
+<ROOM VENEFAX-SELL2
+	(DESC "623 Merchant - Buying")
+	(CHOICES VENEFAX-SELL-MENU)
+	(DESTINATIONS <LTABLE VENEFAX-SELL-GEAR2 VENEFAX-SELL-OTHER2 STORY623>)
+	(TYPES THREE-CHOICES)
+	(FLAGS LIGHTBIT)>
+
+<ROOM VENEFAX-SELL-GEAR2
+	(DESC "623 Merchant - Buying armour/weapons")
+	(EVENTS VENEFAX-SELLING-GEAR)
+	(CONTINUE VENEFAX-SELL2)
+	(FLAGS LIGHTBIT)>
+
+<ROOM VENEFAX-SELL-OTHER2
+	(DESC "623 Merchant - Buying other items")
+	(EVENTS VENEFAX-SELLING-OTHER)
+	(CONTINUE VENEFAX-SELL2)
+	(FLAGS LIGHTBIT)>
+
 <ROUTINE VENEFAX-BUYING-GEAR ()
-	<MERCHANT <LTABLE LEATHER-ARMOUR BATTLE-AXE MACE SPEAR STAFF SWORD> <LTABLE 50 50 50 50 50 50>>>
+	<MERCHANT <LTABLE LEATHER-ARMOUR AXE BATTLE-AXE MACE SPEAR STAFF SWORD> <LTABLE 50 50 50 50 50 50 50>>>
 
 <ROUTINE VENEFAX-BUYING-OTHER ()
 	<MERCHANT <LTABLE ROPE LANTERN CLIMBING-GEAR SCORPION-ANTIDOTE> <LTABLE 50 100 100 100>>>
 
 <ROUTINE VENEFAX-SELLING-GEAR ()
-	<MERCHANT <LTABLE LEATHER-ARMOUR RING-MAIL BATTLE-AXE MACE SPEAR STAFF SWORD BATTLE-AXE1 MACE1 SPEAR1 STAFF1 SWORD1> <LTABLE 45 90 40 40 40 40 40 200 200 200 200 200> ,PLAYER T>>
+	<MERCHANT <LTABLE LEATHER-ARMOUR RING-MAIL AXE BATTLE-AXE MACE SPEAR STAFF SWORD AXE1 BATTLE-AXE1 MACE1 SPEAR1 STAFF1 SWORD1> <LTABLE 45 90 40 40 40 40 40 40 200 200 200 200 200 200> ,PLAYER T>>
 
 <ROUTINE VENEFAX-SELLING-OTHER ()
 	<MERCHANT <LTABLE ROPE LANTERN CLIMBING-GEAR SCORPION-ANTIDOTE SILVER-FLUTE> <LTABLE 45 90 90 90 500> ,PLAYER T>>
@@ -6480,7 +6533,12 @@
 
 <CONSTANT TEXT-WRATHFUL-BLOW "The High Priest smashes you across the jaw, saying, \"I'm doing you a favour, believe me.\"">
 
+<CONSTANT TEXT-NORTH-ACROSS "Go north across country">
+<CONSTANT TEXT-EAST-ROAD "Head east to the road">
+<CONSTANT TEXT-WEST-GRIMM "Head west towards the River Grimm">
+
 <CONSTANT TEXT-GO-TREFOILLE "Go to Trefoille">
+<CONSTANT TEXT-GO-MARLOCK "Go to Marlock City">
 
 <CONSTANT TEXT-TO-BEACH "Go down to the beach">
 <CONSTANT TEXT-TO-TREFOILLE "Take the road to Trefoille">
@@ -6509,6 +6567,9 @@
 <CONSTANT STORY-VIOLET-REQUIREMENTS <LTABLE 4 <LTABLE ABILITY-CHARISMA 12> NONE>>
 
 <CONSTANT STORY-STORM-REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 3 5 20> <LTABLE "The ship sinks!" "The mast splits!" "You weather the storm!">>>>
+
+<CONSTANT CHOICES-CODEWORD <LTABLE HAVE-CODEWORD IF-NOT>>
+<CONSTANT ONE-CODEWORD <LTABLE R-CODEWORD R-NONE>>
 
 <ROUTINE STORY-GAIN-CARGO (CARGO "OPT" CAPACITY COUNT)
 	<COND (,CURRENT-SHIP
@@ -7988,7 +8049,7 @@ stink, laden with sulphur as it is.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT099 "You are on the east bank of the River Grimm, a great, powerful river, which rushes past towards the sea. You can travel to Golnir from here.">
-<CONSTANT CHOICES099 <LTABLE "Cross the bridge to Conflass (Cities of Gold and Glory)" "Ford the river to the south (Cities of Gold and Glory)" "Follow the river north" "Head for the Curstmoor" "Head towards Devil's Peak" "Go south to the mouth of the river" "Go to Marlock City">>
+<CONSTANT CHOICES099 <LTABLE "Cross the bridge to Conflass (Cities of Gold and Glory)" "Ford the river to the south (Cities of Gold and Glory)" "Follow the river north" "Head for the Curstmoor" "Head towards Devil's Peak" "Go south to the mouth of the river" TEXT-GO-MARLOCK>>
 
 <ROOM STORY099
 	(DESC "099")
@@ -8337,15 +8398,14 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT118 "The overseer of the mines is a fat, cruel-looking man. He welcomes you with a promise, \"In one month, you'll be dead, slave.\"||You spend the next few weeks in chains, working sixteen hours a day, deep underground, digging at a rock face in the tunnels of the mines in the Bronze Hills. You are fed on gruel and black bread. You realize you will not live long down here and that you must escape if you are to survive.">
-<CONSTANT CHOICES118 <LTABLE HAVE-CODEWORD OTHERWISE>>
 
 <ROOM STORY118
 	(DESC "118")
 	(STORY TEXT118)
-	(CHOICES CHOICES118)
+	(CHOICES CHOICES-CODEWORD)
 	(DESTINATIONS <LTABLE STORY351 STORY565>)
 	(REQUIREMENTS <LTABLE CODEWORD-ASHEN NONE>)
-	(TYPES <LTABLE R-CODEWORD R-NONE>)
+	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT119 "You hear shouts from outside, muffled by the swirling sulphurous fog. A stab of icy panic pulses at your heart, and an instant later the door bursts open. Three militiamen armed with maces burst through the doorway. Behind them, a tall cadaverous gentleman wrapped in a cape is stamping in fury.||\"A thief in my house!\" he rages. \"Do your duty, men.\"||You realize the truth: Lauria has used you as a decoy to cover her escape. You'll get even with her later -- if you survive.">
@@ -8491,7 +8551,7 @@ harbourmaster.">
 	(CHOICES CHOICES130)
 	(DESTINATIONS <LTABLE STORY521 STORY276>)
 	(REQUIREMENTS <LTABLE CODEWORD-AXE NONE>)
-	(TYPES <LTABLE R-CODEWORD R-NONE>)
+	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT131 "On the island is a community of sea gypsies. They hail you, but then they seem to recognize you. Rapid activity takes place, and within seconds a huge sail has been raised, and the island scuds away. It seems they would rather not meet you a second time.">
@@ -8718,14 +8778,13 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT152 "You clamber down a ladder into a long low hall, the Venefax Market. A sign reads, \"Closed on Thursday\". Fortunately, it's not Thursday, and a stocky, barrel-chested man with piggy eyes introduces himself as Fourze, the Master of the Market.||There is not much you can buy or sell in this provincial market.">
-<CONSTANT CHOICES152 <LTABLE "Buy armours/weapons/other items" "Sell armours/weapons/other items" "Leave Venefax market">>
 
 <ROOM STORY152
 	(DESC "152")
 	(LOCATION LOCATION-VENEFAX)
 	(BACKGROUND STORY152-BACKGROUND)
 	(STORY TEXT152)
-	(CHOICES CHOICES152)
+	(CHOICES CHOICES-VENEFAX-MARKET)
 	(DESTINATIONS <LTABLE VENEFAX-BUY VENEFAX-SELL STORY427>)
 	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
@@ -8899,7 +8958,7 @@ harbourmaster.">
 <CONSTANT TEXT166 "You are on the road between Marlock City and the Shadar Tor. Along most of the length of the road, a thin sliver of a shanty town has grown up. Tents and lean-tos line the way. You find out that the people living here are refugees from Trefoille. The city was burnt to the ground during the recent civil war, in which the old king was overthrown.">
 <CONSTANT TEXT166-PICKPOCKET "A pick-pocket; you lose 10 Shards.">
 <CONSTANT TEXT166-LANTERN "You find a lantern by the side of the road.">
-<CONSTANT CHOICES166 <LTABLE "Go to Marlock City" "Head for the Shadar Tor">>
+<CONSTANT CHOICES166 <LTABLE TEXT-GO-MARLOCK "Head for the Shadar Tor">>
 
 <ROOM STORY166
 	(DESC "166")
@@ -9207,7 +9266,7 @@ harbourmaster.">
 	(CHOICES CHOICES191)
 	(DESTINATIONS <LTABLE STORY375 STORY010>)
 	(REQUIREMENTS <LTABLE CODEWORD-AMBUSCADE NONE>)
-	(TYPES <LTABLE R-CODEWORD R-NONE>)
+	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY191-EVENTS ()
@@ -9572,15 +9631,14 @@ paste on the ground below.">
 	<STORY-SHIPWRECK ,STORY219>>
 
 <CONSTANT TEXT220 "The temple of Alvir and Valmir is built like an upside-down galleon. Alvir and Valmir are brother and sister, King and Queen of the Land beneath the Waves, masters of the sea. Their servants and soldiers are the souls of the drowned, and when seas are rough and storm-tossed, sailors say that Alvir and Valmir are arguing again.">
-<CONSTANT CHOICES220 <LTABLE HAVE-CODEWORD IF-NOT>>
 
 <ROOM STORY220
 	(DESC "220")
 	(STORY TEXT220)
-	(CHOICES CHOICES220)
+	(CHOICES CHOICES-CODEWORD)
 	(DESTINATIONS <LTABLE STORY531 STORY729>)
 	(REQUIREMENTS <LTABLE CODEWORD-ANCHOR NONE>)
-	(TYPES <LTABLE R-CODEWORD R-NONE>)
+	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT221 "One of the militiamen recognizes you and shouts, \"That's the one who assassinated Marloes Marlock!\" You turn tail and flee with more than a dozen militiamen on your heels.">
@@ -9716,17 +9774,16 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT232 "The interior of the cave is cool and refreshing, a paradise compared with the savage heat of your gruelling climb. You find a man, floating cross-legged in the middle of the air! He is dressed only in a loincloth, and is painfully thin. His face is shrouded in a great luxuriant growth of glossy black hair, a beard like no other you have ever seen.||At the sight of you, he gives an exasperated sigh. \"I am Damor the Hermit. You know what a hermit is? That means I like to live alone. So go away!\"||\"I nearly died getting here, old man.\"||\"I guess you would have to be pretty tough to get through the curse I put on the path,\" he says apologetically.">
-<CONSTANT CHOICES232 <LTABLE HAVE-CODEWORD OTHERWISE>>
 
 <ROOM STORY232
 	(DESC "232")
 	(VISITS 0)
 	(BACKGROUND STORY232-BACKGROUND)
 	(STORY TEXT232)
-	(CHOICES CHOICES232)
+	(CHOICES CHOICES-CODEWORD)
 	(DESTINATIONS <LTABLE STORY285 STORY480>)
 	(REQUIREMENTS <LTABLE CODEWORD-ANTHEM NONE>)
-	(TYPES <LTABLE R-CODEWORD R-NONE>)
+	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY232-BACKGROUND ()
@@ -9819,15 +9876,14 @@ paste on the ground below.">
 	<COND (<IS-ALIVE> <REMOVE ,DISADVANTAGE-COMBAT2>)>>
 
 <CONSTANT TEXT239 "The climb is long and hard, but at last you heave yourself up on to the top of Devil's Peak -- a flat expanse of weathered black rock.">
-<CONSTANT CHOICES239 <LTABLE HAVE-CODEWORD OTHERWISE>>
 
 <ROOM STORY239
 	(DESC "239")
 	(STORY TEXT239)
-	(CHOICES CHOICES239)
+	(CHOICES CHOICES-CODEWORD)
 	(DESTINATIONS <LTABLE STORY126 STORY199>)
 	(REQUIREMENTS <LTABLE CODEWORD-ALTITUDE NONE>)
-	(TYPES <LTABLE R-CODEWORD R-NONE>)
+	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT240 "You sail into the teeming harbour of Marlock City. Sokaran warships escort you in.||\"Troubled times,\" comments a sailor.">
@@ -11760,7 +11816,7 @@ paste on the ground below.">
 	<CHECK-COMBAT ,MONSTER-KER-ILK ,STORY389>>
 
 <CONSTANT TEXT390 "The horses rush past you. They seem to gallop through the air, whinnying and neighing, bellowing at the twilight sky. Soon they disappear from your sight. You make camp, and the next day continue your journey.">
-<CONSTANT CHOICES390 <LTABLE "Go north across country" "Head east to the road" TEXT-GO-TREFOILLE TEXT-TO-MARLOCK "Head west towards the River Grimm">>
+<CONSTANT CHOICES390 <LTABLE TEXT-NORTH-ACROSS TEXT-EAST-ROAD TEXT-GO-TREFOILLE TEXT-TO-MARLOCK TEXT-WEST-GRIMM>>
 
 <ROOM STORY390
 	(DESC "390")
@@ -11843,17 +11899,16 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT398 "You make your way up the hill. After a while, you spot a cave set into the hillside, a little further up. Judging by the human bones, dumped near the entrance, this is the lair of a dangerous beast. Fresh tracks, of some large, two-legged, three-toed creature, lead from the cave into some nearby trees. It seems it is not at home, at the moment.">
-<CONSTANT CHOICES398 <LTABLE HAVE-CODEWORD IF-NOT>>
 
 <ROOM STORY398
 	(DESC "398")
 	(VISITS 0)
 	(BACKGROUND STORY398-BACKGROUND)
 	(STORY TEXT398)
-	(CHOICES CHOICES398)
+	(CHOICES CHOICES-CODEWORD)
 	(DESTINATIONS <LTABLE STORY463 STORY710>)
 	(REQUIREMENTS <LTABLE CODEWORD-APACHE NONE>)
-	(TYPES <LTABLE R-CODEWORD R-NONE>)
+	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY398-BACKGROUND ()
@@ -13130,15 +13185,14 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT493 "Gills grow out of your cheeks as soon as you have read the runes aloud! You make your way down a track to the beach, and swim out to sea. The gills work perfectly, and you find yourself swimming in the eerie silence of a submarine world.||Suddenly, a hideous form looms out of the murk. It is rather like a giant squid, but it carries a spear in one of its many tentacles and wears rudimentary armour. Great black eyes shine with an implacable alien intelligence.">
-<CONSTANT CHOICES493 <LTABLE HAVE-CODEWORD OTHERWISE>>
 
 <ROOM STORY493
 	(DESC "493")
 	(STORY TEXT493)
-	(CHOICES CHOICES493)
+	(CHOICES CHOICES-CODEWORD)
 	(DESTINATIONS <LTABLE STORY116 STORY238>)
 	(REQUIREMENTS <LTABLE CODEWORD-ANCHOR NONE>)
-	(TYPES <LTABLE R-CODEWORD R-NONE>)
+	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT494 "You dodge down a side tunnel, and mutter an enchantment intended to give you the appearance of a ratman. Your pursuers come bundling around the corner. One of them stops to shout at you, \"Where'd the human go?\"||Nonchalantly, you point down the tunnel, and the ratmen go haring off down it, whooping and yelling. You turn and walk the other way, a smile on your face.">
@@ -14261,7 +14315,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT579 "You are travelling across flatlands. The River Grimm splits into a delta here, spilling its waters into the sea. Long, sandy beaches stretch out to sea.">
-<CONSTANT CHOICES579 <LTABLE "Go to Marlock City" "Follow the river north" "Travel west into Golnir (Cities of Gold and Glory)">>
+<CONSTANT CHOICES579 <LTABLE TEXT-GO-MARLOCK "Follow the river north" "Travel west into Golnir (Cities of Gold and Glory)">>
 
 <ROOM STORY579
 	(DESC "579")
@@ -14820,194 +14874,116 @@ paste on the ground below.">
 	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT621 "The coast road between Venefax and Yellowport is well-maintained and you make good time. You pass a few army patrols but they leave you alone.">
+<CONSTANT CHOICES621 <LTABLE "Travel to Blessed Springs" "Head for Venefax" TEXT-NORTH-ACROSS "South to Yellowport">>
+
 <ROOM STORY621
 	(DESC "621")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT621)
+	(CHOICES CHOICES621)
+	(DESTINATIONS <LTABLE STORY510 STORY427 STORY548 STORY010>)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT622 "The last time you were here, you had only a few minutes to grab some loot. Desperately, you search around for the item that Oliphard the Wizardly asked you to bring him. You find it but the sea dragon returns almost straight away, and you are forced to climb out of the hole in the roof without having time to grab anything else except for a small pouch containing 50 Shards.||You crawl out on to the island in the middle of lake and hitch a boat ride back to Cadmium. During the journey, you examine the magic chest, but it is guarded by great sorcery and is impossible to open.">
 
 <ROOM STORY622
 	(DESC "622")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT622)
+	(EVENTS STORY622-EVENTS)
+	(CONTINUE STORY135)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY622-EVENTS ()
+	<TAKE-ITEM ,MAGIC-CHEST>
+	<GAIN-MONEY 50>
+	<DELETE-CODEWORD ,CODEWORD-AVENGE>>
+
+<CONSTANT TEXT623 "You clamber down a ladder into a long low hall, the Venefax Market.">
 
 <ROOM STORY623
 	(DESC "623")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT623)
+	(CHOICES CHOICES-VENEFAX-MARKET)
+	(DESTINATIONS <LTABLE VENEFAX-BUY2 VENEFAX-SELL2 STORY427>)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT624 "To renounce the worship of Alvir and Valmir, you must pay 30 Shards in compensation to the priesthood. The priest says nothing, he just points to a mural on the wall. It depicts the story of a woman who left the temple -- a storm destroyed her ship and she drowned, to spend eternity as a lost soul, cleaning the barnacles off the thrones of Alvir and Valmir.||Do you want to change your mind?">
 
 <ROOM STORY624
 	(DESC "624")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT624)
+	(EVENTS STORY624-EVENTS)
+	(CONTINUE STORY220)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY624-EVENTS ()
+	<RENOUNCE-WORSHIP 30 ,GOD-ALVIR-VALMIR>>
+
+<CONSTANT TEXT625 "You realize that you have committed an act of sacrilege by stealing from the temple -- you know in your heart that Tyrnai has cursed you. You will never be a great fighter while you suffer the wrath of Tyrnai.||Perhaps the priests of Sig in Marlock City can help you.||You sneak out of the temple.">
 
 <ROOM STORY625
 	(DESC "625")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT625)
+	(EVENTS STORY625-EVENTS)
+	(CONTINUE STORY400)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY625-EVENTS ()
+	<AFFLICTED-WITH ,CURSE-TYRNAI "cursed">>
+
+<CONSTANT TEXT626 "You recite a devotional prayer to the gods, calling on your faith to aid you. The goblin folk are repelled by your purity of spirit. Even Gobrash finds the strength to get out from under you and run off, such is your effect on them.||\"Eeaurgh!\" snarls the queen, recoiling, \"Please, your godliness is hurtful to us. Here, take these gifts and leave.\"||A jug of faerie mead and an enchanted spear (COMBAT +2) are pushed towards you.||The wall behind you shimmers and disappears. You step through, back into the cold, night air of the Curstmoor. You leave the faerie mound far behind, and camp for the night. The next day, you resume your travels.">
+<CONSTANT CHOICES626 <LTABLE TEXT-NORTH-ACROSS TEXT-EAST-ROAD TEXT-GO-TREFOILLE TEXT-GO-MARLOCK TEXT-WEST-GRIMM>>
 
 <ROOM STORY626
 	(DESC "626")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT626)
+	(CHOICES CHOICES626)
+	(DESTINATIONS <LTABLE STORY560 STORY558 STORY250 STORY100 STORY099>)
+	(TYPES FIVE-CHOICES)
+	(ITEMS <LTABLE FAERIE-MEAD ENCHANTED-SPEAR>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT627 "A bard in the tavern recites an epic tale of ancient legend. He speaks of Xinoc the Priest King, the ruler of a mighty nation in the distant steppes, far to the north. A thousand years ago his empire flourished, and his wealth was enormous. He was buried in a great pyramid tomb, along with his riches. It is said the Pyramid of Xinoc lies beyond the Spine of Harkun, and beyond the Great Steppes, in the foothills of the Peaks at the Edge of the World. You question him further, but that is all he knows. You leave the tavern.">
 
 <ROOM STORY627
 	(DESC "627")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT627)
+	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT628 "After a hard climb, you are half-way up the side of a mountain when you discover a thin, precarious path, leading up. The sun beats down, and you are sweating heavily. You take a swig of water from your canteen and proceed up the path.||After a while you have to stop to take more water. To your horror, your water supply has turned sour and undrinkable.">
 
 <ROOM STORY628
 	(DESC "628")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT628)
+	(CHOICES CHOICES-MAGIC)
+	(DESTINATIONS <LTABLE <LTABLE STORY374 STORY643>>)
+	(REQUIREMENTS <LTABLE <LTABLE ABILITY-MAGIC 10>>)
+	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT629 "The soldier recognizes you and leads you to see the king. Nergan is pleased to see you. \"Have you succeeded in ridding us of Marloes?\" he asks eagerly.">
 
 <ROOM STORY629
 	(DESC "629")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT629)
+	(CHOICES CHOICES-CODEWORD)
+	(DESTINATIONS <LTABLE STORY256 STORY696>)
+	(REQUIREMENTS <LTABLE CODEWORD-ASSASSIN NONE>)
+	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT630 "You struggle deeper into the forest until you come to a thick wall of impenetrable thorn bushes. Circling it, you find there is a break in the hedge, but it is filled by a big tree.||To your surprise, a face forms in the trunk, and speaks in a woody voice, \"None can pass. Begone, red-blooded one.\"">
 
 <ROOM STORY630
 	(DESC "630")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT630)
+	(CHOICES CHOICES-CODEWORD)
+	(DESTINATIONS <LTABLE STORY594 STORY695>)
+	(REQUIREMENTS <LTABLE CODEWORD-APPLE NONE>)
+	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY631
