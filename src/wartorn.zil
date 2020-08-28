@@ -6691,7 +6691,8 @@
 	<PUTP ,STORY617 ,P?DOOM T>
 	<PUTP ,STORY631 ,P?DOOM T>
 	<PUTP ,STORY634 ,P?DOOM T>
-	<PUTP ,STORY646 ,P?DOOM T>>
+	<PUTP ,STORY646 ,P?DOOM T>
+	<PUTP ,STORY668 ,P?DOOM T>>
 
 ; "endings"
 <CONSTANT BAD-ENDING "Your adventure ends here.|">
@@ -7690,8 +7691,10 @@ footing and fall to the ground.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY053-EVENTS ()
-	<GAIN-MONEY 15>
-	<KEEP-ITEM ,INK-SAC>>
+	<COND (,RUN-ONCE
+		<GAIN-MONEY 15>
+		<KEEP-ITEM ,INK-SAC>
+	)>>
 
 <CONSTANT TEXT054 "You drive back the storm demons long enough for you to work free one of the stakes that is holding Sul Veneris down.">
 
@@ -12522,7 +12525,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY423-EVENTS ()
-	<GAIN-MONEY 15>>
+	<COND (,RUN-ONCE <GAIN-MONEY 15>)>>
 
 <CONSTANT TEXT424 "The ship's captain says, \"I'll take you but you should be warned, it's a dangerous place we're travelling to. You'd better be sure you can handle it. If you're not at least a master of your profession, I'd advise against. But it's up to you.\"">
 <CONSTANT CHOICES424 <LTABLE "If you still want to go (Over the Blood-Dark Sea)" "If you decide not to go to Copper Island">>
@@ -15517,9 +15520,11 @@ paste on the ground below.">
 	<RETURN ,STORY655>>
 
 <ROUTINE STORY655-EVENTS ()
-	<GAIN-MONEY 1000>
-	<GAIN-RANK 1>
-	<UPGRADE-STAMINA <ROLL-DICE 1>>>
+	<COND (,RUN-ONCE
+		<GAIN-MONEY 1000>
+		<GAIN-RANK 1>
+		<UPGRADE-STAMINA <ROLL-DICE 1>>
+	)>>
 
 <CONSTANT TEXT656 "You find a large, red pavilion which has been erected over a ruin. Oliphard the Wizardly is inside. He greets you warmly.">
 <CONSTANT CHOICES656 <LTABLE HAVE-A IF-NOT>>
@@ -15730,194 +15735,140 @@ paste on the ground below.">
 	(CONTINUE STORY250)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT671 "Out of gratitude the villagers present you with 80 Shards. You do not wait around to see what fate befalls Old Megan and her accomplices. In theory they should be taken to the assizes in the nearest town, but feelings run so deep in this case that you suspect there will be some rough justice meted out.||You resume your journey.">
+<CONSTANT CHOICES671 <LTABLE "Follow the river north" "Follow the river south" "Head east into the countryside" "Go west to the main road">>
+
 <ROOM STORY671
 	(DESC "671")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT671)
+	(EVENTS STORY671-EVENTS)
+	(CHOICES CHOICES671)
+	(DESTINATIONS <LTABLE STORY576 STORY082 STORY278 STORY558>)
+	(TYPES FOUR-CHOICES)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY671-EVENTS ()
+	<COND (,RUN-ONCE <GAIN-MONEY 80>)>>
+
+<CONSTANT TEXT672 "\"My chest!\" yells Oliphard joyfully as you hand it over.||Oliphard thanks you, and teaches you how be a better Mage.">
 
 <ROOM STORY672
 	(DESC "672")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT672)
+	(EVENTS STORY672-EVENTS)
+	(CONTINUE STORY656)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY672-EVENTS ()
+	<RETURN-ITEM ,MAGIC-CHEST T>
+	<GAIN-RANK 1>
+	<UPGRADE-ABILITY ,ABILITY-MAGIC 1>>
+
+<CONSTANT TEXT673 "You are trekking across the aptly named Curstmoor. A great rolling expanse of blasted heath stretches before you. Grey clouds hang over a mournful, dirty-water coloured plain, studded with rocky outcrops and low hills.">
+<CONSTANT CHOICES673 <LTABLE "North across the country" "East to the road" "To Trefoille" "To Marlock City" "West towards the River Grimm">>
 
 <ROOM STORY673
 	(DESC "673")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT673)
+	(EVENTS STORY673-EVENTS)
+	(CHOICES CHOICES673)
+	(DESTINATIONS <LTABLE STORY560 STORY558 STORY250 STORY100 STORY099>)
+	(TYPES FIVE-CHOICES)
+	(DOOM T)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY673-EVENTS ("AUX" ROLL)
+	<COND (,RUN-ONCE
+		<SET ROLL <RANDOM-EVENT 1 0 T>>
+		<COND (<L? .ROLL 2>
+			<COMBAT-MONSTER ,MONSTER-WOLF 3 5 7>
+			<CHECK-COMBAT ,MONSTER-WOLF ,STORY673 0 ,WOLF-PELT>
+		)(<L? .ROLL 4>
+			<EMPHASIZE ,NOTHING-HAPPENS>
+			<PREVENT-DOOM ,STORY673>
+		)(ELSE
+			<EMPHASIZE "You find 10 Shards on an old skeleton.">
+			<GAIN-MONEY 10>
+			<PREVENT-DOOM ,STORY673>
+		)>
+	)>
+	<CONTINUE-TEXT ,TEXT-YOU-CAN-GO>>
+
+<CONSTANT TEXT674 "You realize from your magical studies that there is a safe path through the pentacle. If you step off the correct symbols, drawn on the ground, there is no telling what sorcerous trap you will set off.">
+<CONSTANT CHOICES674 <LTABLE "You decide the whole thing is too dangerous, and leave" "Try the path to the sarcophagus,">>
 
 <ROOM STORY674
 	(DESC "674")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT674)
+	(CHOICES CHOICES674)
+	(DESTINATIONS <LTABLE STORY047 <LTABLE STORY606 STORY661>>)
+	(REQUIREMENTS <LTABLE NONE <LTABLE ABILITY-THIEVERY 9>>)
+	(TYPES <LTABLE R-NONE R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT675 "You fall into the yawning blackness with a despairing cry. You plummet like a stone through the air for what seems like an age. You are engulfed in absolute darkness, and all you can hear is the whistling of the wind past your ears.||Suddenly you shoot into bright sunlight, and land with an almighty splash into the sea! Coughing and spluttering, you rise to the surface. You are not far from a forested island, and you swim for shore. A small settlement crowds the shore -- it looks like you have arrived at the Trading Post on the Isle of Druids.">
 
 <ROOM STORY675
 	(DESC "675")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT675)
+	(CONTINUE STORY195)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT676 "You were given the message to take to the king by some spies in Golnir. The king takes the coded missive.||\"You have done well in bringing this to me. It is important,\" says the king.||You are rewarded with 200 Shards.">
+<CONSTANT TEXT676-CONTINUED "The king goes on, \"However, I was hoping you had spoken with General Beladai of the allied army by now. We need that citadel. Now go. That is a Royal command!\"||You leave, climbing down to the foothills of the mountains.">
 
 <ROOM STORY676
 	(DESC "676")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT676)
+	(EVENTS STORY676-EVENTS)
+	(CONTINUE STORY474)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY676-EVENTS ()
+	<GAIN-MONEY 200>
+	<GIVE-ITEM ,CODED-MISSIVE T>
+	<COND (<CHECK-CODEWORD, CODEWORD-DELIVER>
+		<STORY-JUMP ,STORY098>
+	)(ELSE
+		<CONTINUE-TEXT ,TEXT676-CONTINUED>
+	)>>
+
+<CONSTANT TEXT677 "You were given the missive to take to the general by spies in Golnir. He takes the coded missive and reads it.||\"Interesting. You have done well in bringing this to me,\" he says. \"I thank you once more.\"||He rewards you with 150 Shards.">
 
 <ROOM STORY677
 	(DESC "677")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT677)
+	(EVENTS STORY677-EVENTS)
+	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY677-EVENTS ()
+	<GIVE-ITEM ,CODED-MISSIVE T>
+	<GAIN-MONEY 150>>
 
 <ROOM STORY678
 	(DESC "678")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(BACKGROUND STORY678-BACKGROUND)
 	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY678-BACKGROUND ()
+	<COND (<CHECK-CODEWORD ,CODEWORD-ASPEN> <RETURN ,STORY195>)>
+	<RETURN ,STORY684>>
+
+<CONSTANT TEXT679 "The scent of the sea proves strongest in one direction. Following your nose, you eventually break free of the trees and find yourself on the coast.">
 
 <ROOM STORY679
 	(DESC "679")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT679)
+	(CONTINUE STORY128)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT680 "The soldier recognizes you. He leads you to Nergan's mountain stockade, where the king greets you warmly.||\"Ah, my loyal champion, it is always a pleasure to see you. However, I was hoping you had spoken with General Beladai of the allied army -- we need that citadel. Go to him now. That is a royal command.\"||You leave, climbing down to the foothills of the mountains.">
 
 <ROOM STORY680
 	(DESC "680")
-	(BACKGROUND NONE)
-	(STORY NONE)
-	(EVENTS NONE)
-	(CHOICES NONE)
-	(DESTINATIONS NONE)
-	(REQUIREMENTS NONE)
-	(TYPES NONE)
-	(CONTINUE NONE)
-	(ITEMS NONE)
-	(CODEWORDS NONE)
-	(GOD NONE)
-	(BLESSINGS NONE)
-	(TITLES NONE)
-	(DOOM F)
-	(VICTORY F)
+	(STORY TEXT680)
+	(CONTINUE STORY474)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY681
