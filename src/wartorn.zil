@@ -3206,7 +3206,6 @@
 <OBJECT CODEWORD-ATTAR (DESC "Attar")>
 <OBJECT CODEWORD-AURIC (DESC "Auric")>
 <OBJECT CODEWORD-AVENGE (DESC "Avenge")>
-<OBJECT CODEWORD-AVERT (DESC "Avert")>
 <OBJECT CODEWORD-AXE (DESC "Axe")>
 <OBJECT CODEWORD-AZURE (DESC "Azure")>
 
@@ -3491,18 +3490,6 @@
 	(DESC "flame opal eye")
 	(FLAGS TAKEBIT)>
 
-<OBJECT FOREST-FORSAKEN-MAP
-	(DESC "Forest of the Forsaken map")
-	(ACTION FOREST-FORSAKEN-MAP-F)
-	(FLAGS TAKEBIT)>
-
-<ROUTINE FOREST-FORSAKEN-MAP-F ()
-	<SETG PREVIOUS-STORY ,HERE>
-	<SETG HERE ,STORY200>
-	<SETG RUN-ONCE T>
-	<SETG CONTINUE-TO-CHOICES F>
-	<RTRUE>>
-
 <OBJECT GHOULS-HEAD
 	(DESC "ghoul's head")
 	(FLAGS TAKEBIT)>
@@ -3730,7 +3717,15 @@
 
 <OBJECT TREASURE-MAP
 	(DESC "treasure map")
+	(ACTION TREASURE-MAP-F)
 	(FLAGS TAKEBIT)>
+
+<ROUTINE TREASURE-MAP-F ()
+	<SETG PREVIOUS-STORY ,HERE>
+	<SETG HERE ,STORY200>
+	<SETG RUN-ONCE T>
+	<SETG CONTINUE-TO-CHOICES F>
+	<RTRUE>>
 
 <OBJECT VERDIGRIS-KEY
 	(DESC "verdigris key")
@@ -6053,7 +6048,7 @@
 	<MERCHANT <LTABLE AMBER-WAND> <LTABLE 500>>>
 
 <ROUTINE YELLOWPORT-BUYING-OTHER ()
-	<MERCHANT <LTABLE MANDOLIN HOLY-SYMBOL COMPASS ROPE LANTERN CLIMBING-GEAR RAT-POISON> <LTABLE 300 200 500 50 100 100 60>>>
+	<MERCHANT <LTABLE MANDOLIN LOCKPICKS HOLY-SYMBOL COMPASS ROPE LANTERN CLIMBING-GEAR RAT-POISON> <LTABLE 300 300 200 500 50 100 100 60>>>
 
 <CONSTANT YELLOWPORT-SELL-MENU <LTABLE "Sell armour" "Sell weapons (no COMBAT bonuses)" "Sell weapons (+1 COMBAT)" "Sell weapons (+2 COMBAT)" "Sell weapons (+3 COMBAT)" "Sell Magical Equipment" "Sell other items" "Return to the market">>
 
@@ -6431,7 +6426,7 @@
 ; "Marlock city market"
 ; ---------------------------------------------------------------------------------------------
 
-<CONSTANT MARLOCK-BUY-MENU <LTABLE "Buy armour" "Buy weapons" "Buy magical and other items" "Return to the market">>
+<CONSTANT MARLOCK-BUY-MENU <LTABLE "Buy armour" "Buy weapons" "Buy magical and other items" "Back">>
 
 <ROOM MARLOCK-CITY-BUY
 	(DESC "396 Merchant - Selling")
@@ -6465,9 +6460,9 @@
 	<MERCHANT <LTABLE AXE BATTLE-AXE MACE SPEAR STAFF SWORD AXE1 BATTLE-AXE1 MACE1 SPEAR1 STAFF1 SWORD1> <LTABLE 70 70 70 70 70 70 270 270 270 270 270 270>>>
 
 <ROUTINE MARLOCK-BUYING-OTHER ()
-	<MERCHANT <LTABLE AMBER-WAND> <LTABLE 500>>>
+	<MERCHANT <LTABLE AMBER-WAND MANDOLIN LOCKPICKS HOLY-SYMBOL COMPASS ROPE LANTERN CLIMBING-GEAR RAT-POISON> <LTABLE 500 300 300 220 520 70 120 120 80>>>
 
-<CONSTANT MARLOCK-SELL-MENU <LTABLE "Sell armour" "Sell weapons (COMBAT +0-1)" "Sell weapons (++2-3 COMBAT)" "Sell magical items" "Sell other items" "Return to the market">>
+<CONSTANT MARLOCK-SELL-MENU <LTABLE "Sell armour" "Sell weapons (COMBAT +0-1)" "Sell weapons (++2-3 COMBAT)" "Sell magical items" "Sell other items" "Back">>
 
 <ROOM MARLOCK-CITY-SELL
 	(DESC "396 Merchant - Buying")
@@ -6828,7 +6823,7 @@
 	<COND (<L=? .COUNT .MAX>
 		<RESET-CARGO>
 	)(ELSE
-		<LOSE-STUFF ,BLESSINGS ,LOST-STUFF "blessing" <- .COUNT .MAX> RESET-BLESSINGS>
+		<LOSE-STUFF ,BLESSINGS ,LOST-STUFF "blessing" <- .COUNT .MAX> ,RESET-BLESSINGS>
 	)>>
 
 <ROUTINE STORY-LOSE-CARGO ("OPT" MAX "AUX" COUNT)
@@ -6837,7 +6832,7 @@
 	<COND (<L=? .COUNT .MAX>
 		<RESET-CARGO>
 	)(ELSE
-		<LOSE-STUFF ,CARGO ,LOST-STUFF "cargo" <- .COUNT .MAX> RESET-CARGO>
+		<LOSE-STUFF ,CARGO ,LOST-STUFF "cargo" <- .COUNT .MAX> ,RESET-CARGO>
 	)>>
 
 <CONSTANT TEXT-DROWNED "You drowned!">
@@ -9450,7 +9445,7 @@ harbourmaster.">
 	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT190 "You are sailing along the coast off Blessed Springs and Fort Brilon. Gulls cluster around the ship, looking for food. Their cries echo across the vasty seas.">
+<CONSTANT TEXT190 "You are sailing along the coast off Blessed Springs and Fort Brilon. Gulls cluster around the ship, looking for food. Their cries echo across the vast seas.">
 <CONSTANT STORY190-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "A shipwreck">>>>
 
 <ROOM STORY190
@@ -9588,35 +9583,7 @@ harbourmaster.">
 	)>>
 
 <CONSTANT TEXT200 "You have acquired an old map of the Forest of the Forsaken in Golnir, the land to the west of Sokara that is described in Fabled Lands book 2: Cities of Gold and Glory. The map shows a safe path that leads to the Tower of Despair, but it seems to conflict with the location of the Tower of Despair on the regular map of Golnir. Which is correct?||As long as you have the Forest of the Forsaken map you can choose the option to look at it at any time.">
-<CONSTANT TEXT200-MAP "+------------------------------------------------------------------------------+|
-+.############.@@.#############################################................+|
-+.############.@@@.###############################################.............+|
-+.############..@@.######################################...#########..........+|
-+..###########..@@..#####...#########################..#.++>...###########.....+|
-+.############.@@..#####.../\\..##########....#####.......++GIBBET.###########..+|
-+.#########..@@@..######..+MM+TOWER OF.................../\\..........#########.+|
-+##########.@@@..######...+MM+DESPAIR.##########.##......####.##..ELF.#########+|
-+.#########.@@@..######../****\\.....##############...##########..GLADE....#####+|
-+###########.@@@....####...........#############....###########.........#######+|
-+.#########..@@@..###########################......############....############+|
-+.#########..@@@.##############################.....###########################+|
-+.##########..@@@.############################.....###########################.+|
-+.############.@@@...#########.....###########....#########################....+|
-+...##########..@@@...######..........########....####################.#.+^^^+.+|
-+..############..@@@..#####..CLEARING...#######.....####################/*****\\+|
-+.############.#...@@@.##................########...KNIGHTLY.####.......HAMLET.+|
-+..############.....@@@..............##.###########.CHALLENGE.......###OF.BALD.+|
-+...##########.##./\\..@@@............################.............########ONES.+|
-+.......###.#####.MM....@@@...........###############...........##########..#..+|
-+.......#######.#HERMIT'S.@@@@@@@......#################....##############...#.+|
-+.........#######.COTTAGE..##@@@@@@@@@...##############....##############....#.+|
-+.MUCH.TREASURE...##........##.###..@@@@.......#########..################.....+|
-+..TO.BE.HAD.........#################..@@@@@.....####.TOMB################....+|
-+.--.BUT.'WARE......########..##########..@@@@@@..../MM\\...###############...#.+|
-+..THE.WATCHER!.....#######..HAMLET.OF.####...@@@@..+MM+.#################.#...+|
-+...................####..^^^.LAZARE.....####...@@@@..###################......+|
-+------------------------------------------------------------------------------+|
-">
+<CONSTANT TEXT200-MAP "+-------------------------------------------------FOREST-OF-THE-FORSAKEN-MAP---+|+.############.@@.#############################################................+|+.############.@@@.###############################################.............+|+.############..@@.######################################...#########..........+|+..###########..@@..#####...#########################..#.++>...###########.....+|+.############.@@..#####.../\\..##########....#####.......++GIBBET.###########..+|+.#########..@@@..######..+MM+TOWER OF.................../\\..........#########.+|+##########.@@@..######...+MM+DESPAIR.##########.##......####.##..ELF.#########+|+.#########.@@@..######../****\\.....##############...##########..GLADE....#####+|+###########.@@@....####...........#############....###########.........#######+|+.#########..@@@..###########################......############....############+|+.#########..@@@.##############################.....###########################+|+.##########..@@@.############################.....###########################.+|+.############.@@@...#########.....###########....#########################....+|+...##########..@@@...######..........########....####################.#.+^^^+.+|+..############..@@@..#####..CLEARING...#######.....####################/*****\\+|+.############.#...@@@.##................########...KNIGHTLY.####.......HAMLET.+|+..############.....@@@..............##.###########.CHALLENGE.......###OF.BALD.+|+...##########.##./\\..@@@............################.............########ONES.+|+.......###.#####.MM....@@@...........###############...........##########..#..+|+.......#######.#HERMIT'S.@@@@@@@......#################....##############...#.+|+.........#######.COTTAGE..##@@@@@@@@@...##############....##############....#.+|+.MUCH.TREASURE...##........##.###..@@@@.......#########..################.....+|+..TO.BE.HAD.........#################..@@@@@.....####.TOMB################....+|+.--.BUT.'WARE......########..##########..@@@@@@..../MM\\...###############...#.+|+..THE.WATCHER!.....#######..HAMLET.OF.####...@@@@..+MM+.#################.#...+|+...................####..^^^.LAZARE.....####...@@@@..###################......+|+------------------------------------------------------------------------------+|">
 
 <ROOM STORY200
 	(DESC "200")
@@ -9632,10 +9599,10 @@ harbourmaster.">
 		<PRESS-A-KEY>
 	)>
 	<CONTINUE-TEXT ,TEXT200>
-	<COND (<OR <CHECK-ITEM ,FOREST-FORSAKEN-MAP> <CHECK-VISITS-MORE ,STORY200 1>>
+	<COND (<OR <CHECK-ITEM ,TREASURE-MAP> <CHECK-VISITS-MORE ,STORY200 1>>
 		<STORY-JUMP ,PREVIOUS-STORY>
 	)(ELSE
-		<TAKE-ITEM ,FOREST-FORSAKEN-MAP>
+		<TAKE-ITEM ,TREASURE-MAP>
 	)>>
 
 <CONSTANT TEXT201 "The road between the Citadel and Caran Baru is chock-a-block with troops and carts. It looks like there is a war in the north.">
