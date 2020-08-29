@@ -209,9 +209,10 @@
 <CONSTANT LOCATION-DISASTER 19>
 <CONSTANT LOCATION-BLESSED 20>
 
-<CONSTANT LOCATIONS2 <LTABLE "Cadmium Village">>
+<CONSTANT LOCATIONS2 <LTABLE "Cadmium Village" "Fort Estgard">>
 
 <CONSTANT LOCATION-CADMIUM 21>
+<CONSTANT LOCATION-ESTGARD 22>
 
 ; "Gamebook loop"
 ; ---------------------------------------------------------------------------------------------
@@ -3851,7 +3852,7 @@
 	(EFFECTS <LTABLE 0 -2 0 0 0 0>)>
 
 <OBJECT DISEASE-GHOULBITE
-	(DESC "ghoulbite")
+	(DESC "Ghoulbite")
 	(EFFECTS <LTABLE -1 -1 0 -1 0 0>)
 	(FLAGS DISEASEBIT)>
 
@@ -6274,7 +6275,7 @@
 	<MERCHANT <LTABLE AXE2 BATTLE-AXE2 MACE2 SPEAR2 STAFF2 SWORD2> <LTABLE 500 500 500 500 500 500>>>
 
 <ROUTINE CARAN-BUYING-OTHER ()
-	<MERCHANT <LTABLE MANDOLIN COMPASS ROPE LANTERN CLIMBING-GEAR RAT-POISON WOLF-PELT> <LTABLE 300 500 50 100 100 60 100>>>
+	<MERCHANT <LTABLE AMBER-WAND MANDOLIN COMPASS ROPE LANTERN CLIMBING-GEAR RAT-POISON WOLF-PELT> <LTABLE 500 300 500 50 100 100 60 100>>>
 
 <ROOM CARAN-BARU-SELL
 	(DESC "215 Merchant - Buying")
@@ -6715,7 +6716,7 @@
 
 <CONSTANT TEXT-STORM-SUBSIDES "Your ship is thrown about like flotsam and jetsam. When the storm subsides, you take stock. Much has been swept overboard.||Also, the ship has been swept way off course and the mate has no idea where you are. \"We're lost at sea, Cap'n,\" he moans.">
 <CONSTANT TEXT-GUILD-INVESTMENTS "You can invest money in multiples of 100 Shards. The guild will buy and sell commodities on your behalf using this money until you return to collect it. \"Don't forget that you can lose money as well,\" mutters a merchant whose investments have not paid off.">
-<CONSTANT TEXT-BLESSING-STORM-SAFETY "Your 'Safety from Storms' blessing protected you">
+<CONSTANT TEXT-BLESSING-STORM-SAFETY "Your Safety from Storms blessing protected you">
 
 <CONSTANT TEXT-YOU-CAN-GO "You can go:">
 <CONSTANT TEXT-YOU-CAN "You can:">
@@ -13082,6 +13083,7 @@ paste on the ground below.">
 
 <ROOM STORY472
 	(DESC "472")
+	(LOCATION LOCATION-ESTGARD)
 	(BACKGROUND STORY472-BACKGROUND)
 	(STORY TEXT472)
 	(CHOICES CHOICES472)
@@ -14410,7 +14412,7 @@ paste on the ground below.">
 		<PREVENT-DOOM ,STORY573>
 	)>>
 
-<CONSTANT TEXT574 "\"Ah, the saviour of the citadel. What can I do for you?\" asks the general.||He can arrange for you to be healed of all your wounds, cured of poison, disease, and madness (but his court sorcerer cannot lift a curse).||\"Any time you're in real need, just come to me,\" he adds.">
+<CONSTANT TEXT574 "\"Ah, the saviour of the citadel. What can I do for you?\" asks the general.||He can arrange for you to be healed of all your wounds, cured of poison, and disease (but his court sorcerer cannot lift a curse).||\"Any time you're in real need, just come to me,\" he adds.">
 <CONSTANT CHOICES574 <LTABLE HAVE-A OTHERWISE>>
 
 <ROOM STORY574
@@ -14812,7 +14814,7 @@ paste on the ground below.">
 	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT603 "If you are an initiate it costs only 20 Shards to purchase The Three Fortunes' blessing. A non-initiate must pay 80 Shards.||The blessing works by allowing you to reroll any dice result once. You can have only one 'Luck' blessing at any one time. Once it is used up, you can return to any branch of the Temple of the Three Fortunes to buy a new one.">
+<CONSTANT TEXT603 "If you are an initiate it costs only 20 Shards to purchase The Three Fortunes' blessing. A non-initiate must pay 80 Shards.||The blessing works by allowing you to reroll any dice result once. You can have only one LUCK blessing at any one time. Once it is used up, you can return to any branch of the Temple of the Three Fortunes to buy a new one.">
 
 <ROOM STORY603
 	(DESC "603")
@@ -14824,7 +14826,7 @@ paste on the ground below.">
 <ROUTINE STORY603-EVENTS ()
 	<PURCHASE-BLESSING 80 20 ,GOD-THREE-FORTUNES ,BLESSING-LUCK>>
 
-<CONSTANT TEXT604 "The men mutter among themselves at your decision, but you insist. The sea centaur lies barely able to move on the deck. Nor does it speak.||That night, you see a strange glow rising up out of the depths. The sailors back away, muttering superstitiously, as several sea centaurs emerge from the waters, their spiny skins glittering with phosphorescent flashes of light.||One of the sea centaurs asks in a burbling voice, \"Where is our brother, whom you caught in your cruel nets, this day?\"||\"Why, here he is,\" you say, indicating the half-conscious sea centaur on deck.||\"Return him to us, we beg you,\" one of them warbles.||Your men, anxious to be rid of the creature, hand him down to his friends.||\"We thank you, landwalkers,\" says the leader.||He gives you a conch of safety from storms x 3. When you blow it, it confers the Blessing of Safety from Storms. It can be used three times only (each time you use it reduce the number of charges by one). When it is out of charges, it becomes useless.">
+<CONSTANT TEXT604 "The men mutter among themselves at your decision, but you insist. The sea centaur lies barely able to move on the deck. Nor does it speak.||That night, you see a strange glow rising up out of the depths. The sailors back away, muttering superstitiously, as several sea centaurs emerge from the waters, their spiny skins glittering with phosphorescent flashes of light.||One of the sea centaurs asks in a burbling voice, \"Where is our brother, whom you caught in your cruel nets, this day?\"||\"Why, here he is,\" you say, indicating the half-conscious sea centaur on deck.||\"Return him to us, we beg you,\" one of them warbles.||Your men, anxious to be rid of the creature, hand him down to his friends.||\"We thank you, landwalkers,\" says the leader.||He gives you a conch of safety from storms x 3. When you blow it, it confers the blessing of Safety from Storms. It can be used three times only (each time you use it reduce the number of charges by one). When it is out of charges, it becomes useless.">
 
 <ROOM STORY604
 	(DESC "604")
@@ -14834,16 +14836,16 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT605 "You can bank money with the merchants' guild. The guild charges 10% on any withdrawals.">
-<CONSTANT CHOICES605 <LTABLE "In Yellowport" "In Marlock City" "In Trefoille" "In Caran Baru">>
+<CONSTANT CHOICES605 <LTABLE "In Yellowport" "In Marlock City" "In Caran Baru">>
 
 <ROOM STORY605
 	(DESC "605")
 	(STORY TEXT605)
 	(EVENTS STORY605-EVENTS)
 	(CHOICES CHOICES605)
-	(DESTINATIONS <LTABLE STORY010 STORY100 STORY250 STORY400>)
-	(REQUIREMENTS <LTABLE LOCATION-YELLOWPORT LOCATION-MARLOCK LOCATION-TREFOILLE LOCATION-CARAN>)
-	(TYPES <LTABLE R-LOCATION R-LOCATION R-LOCATION R-LOCATION>)
+	(DESTINATIONS <LTABLE STORY010 STORY100 STORY400>)
+	(REQUIREMENTS <LTABLE LOCATION-YELLOWPORT LOCATION-MARLOCK LOCATION-CARAN>)
+	(TYPES <LTABLE R-LOCATION R-LOCATION R-LOCATION>)
 	(MONEY 0)
 	(FLAGS LIGHTBIT)>
 
