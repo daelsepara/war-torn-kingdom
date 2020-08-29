@@ -3,7 +3,7 @@ del *.xzap *.zap *.z?
 zilf -w wartorn.zil
 zapf -ab wartorn.zap > wartorn_freq.xzap
 del wartorn_freq.zap
-del zapf -la wartorn.zap
+zapf wartorn.zap
 
 
 
