@@ -85,12 +85,8 @@
 <CONSTANT ABILITY-SCOUTING 5>
 <CONSTANT ABILITY-THIEVERY 6>
 
-; "computed abilities"
-<CONSTANT ABILITY-DEFENSE 7>
-<CONSTANT ABILITY-STAMINA 8>
-
 ; "ability labels"
-<CONSTANT ABILITIES <LTABLE "CHARISMA" "COMBAT" "MAGIC" "SANCTITY" "SCOUTING" "THIEVERY" "DEFENSE" "STAMINA">>
+<CONSTANT ABILITIES <LTABLE "CHARISMA" "COMBAT" "MAGIC" "SANCTITY" "SCOUTING" "THIEVERY">>
 
 ; "PLAYER / CHARACTER / NPC"
 ; ---------------------------------------------------------------------------------------------
@@ -307,7 +303,7 @@
 			<STORY-JUMP <GETP ,RESURRECTION-ARRANGEMENTS ,P?CONTINUE>>
 			<SETG RESURRECTION-ARRANGEMENTS NONE>
 		)(ELSE
-			<PRINT-ENDING BAD-ENDING 3>
+			<PRINT-ENDING ,BAD-ENDING 3>G
 		)>
 		<SETG CONTINUE-TO-CHOICES F>
 	)>>
@@ -328,7 +324,7 @@
 	<SET VICTORY <GETP ,HERE ,P?VICTORY>>
 	<COND (.VICTORY
 		<COND (<EQUAL? .VICTORY T>
-			<PRINT-ENDING GOOD-ENDING 4>
+			<PRINT-ENDING ,GOOD-ENDING 4>
 		)(ELSE
 			<PRINT-ENDING .VICTORY 6>
 		)>
@@ -343,7 +339,7 @@
 
 <ROUTINE GAIN-CODEWORDS ("OPT" CODEWORDS)
 	<COND (<NOT .CODEWORDS> <SET CODEWORDS <GETP ,CURRENT-STORY ,P?CODEWORDS>>)>
-	<GAIN-OBJECTS .CODEWORDS GAIN-CODEWORD>>
+	<GAIN-OBJECTS .CODEWORDS ,GAIN-CODEWORD>>
 
 <ROUTINE GAIN-ITEMS ("OPT" ITEMS)
 	<COND (<NOT .ITEMS> <SET ITEMS <GETP ,CURRENT-STORY ,P?ITEMS>>)>
@@ -360,7 +356,7 @@
 
 <ROUTINE GAIN-TITLES ("OPT" TITLES)
 	<COND (<NOT .TITLES> <SET TITLES <GETP ,CURRENT-STORY ,P?TITLES>>)>
-	<GAIN-OBJECTS .TITLES GAIN-TITLE>>
+	<GAIN-OBJECTS .TITLES ,GAIN-TITLE>>
 
 <ROUTINE IS-ALIVE ("OPT" THRESHOLD)
 	<COND (<NOT .THRESHOLD> <SET THRESHOLD 0>)>
@@ -877,15 +873,15 @@
 
 <ROUTINE NOT-ALL-ANY (TYPE LIST "OPT" CONTAINER "AUX" COUNT)
 	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
-	<COND (<EQUAL? .TYPE R-ANY R-ALL>
+	<COND (<EQUAL? .TYPE ,R-ANY ,R-ALL>
 		<SET COUNT <GET .LIST 0>>
 		<HLIGHT ,H-BOLD>
 		<CRLF>
 		<TELL CR "You do not have ">
 		<COND (<G? .COUNT 1>
-			<COND (<EQUAL? .TYPE R-ANY>
+			<COND (<EQUAL? .TYPE ,R-ANY>
 				<TELL "any">
-			)(<EQUAL? .TYPE R-ALL>
+			)(<EQUAL? .TYPE ,R-ALL>
 				<TELL "all">
 			)>
 			<TELL " of the">
@@ -915,9 +911,9 @@
 			<COND (<G? .COUNT 1>
 				<TELL "items">
 				<HLIGHT 0>
-				<COND (<EQUAL? .TYPE R-ANY>
+				<COND (<EQUAL? .TYPE ,R-ANY>
 					<PRINT-ANY .LIST>
-				)(<EQUAL? .TYPE R-ALL>
+				)(<EQUAL? .TYPE ,R-ALL>
 					<PRINT-ALL .LIST>
 				)>
 			)(ELSE
@@ -1057,10 +1053,10 @@
 ; ---------------------------------------------------------------------------------------------
 
 <ROUTINE CHOOSE-CHARACTER ("AUX" COUNT KEY CHOICE CHARACTER POSSESSIONS)
-	<SET COUNT <GET CHARACTERS 0>>
+	<SET COUNT <GET ,CHARACTERS 0>>
 	<COND (<G? .COUNT 0>
 		<REPEAT ()
-			<SET COUNT <GET CHARACTERS 0>>
+			<SET COUNT <GET ,CHARACTERS 0>>
 			<CRLF>
 			<HLIGHT ,H-BOLD>
 			<TELL "Choose a character:">
@@ -1086,8 +1082,8 @@
 			>
 			<COND (<AND <G=? .KEY !\1> <L=? .KEY !\9>>
 				<SET CHOICE <- .KEY !\0>>
-				<COND (<AND <G=? <GET CHARACTERS 0> 1> <G=? .CHOICE 1> <L=? .CHOICE <GET CHARACTERS 0>>>
-				<SET CHARACTER <GET CHARACTERS .CHOICE>>
+				<COND (<AND <G=? <GET ,CHARACTERS 0> 1> <G=? .CHOICE 1> <L=? .CHOICE <GET ,CHARACTERS 0>>>
+				<SET CHARACTER <GET ,CHARACTERS .CHOICE>>
 					<CRLF>
 					<DESCRIBE-CHARACTER .CHARACTER>
 					<CRLF>
@@ -1196,9 +1192,7 @@
 			)(<EQUAL? .KEY !\Q !\q>
 				<CRLF>
 				<TELL CR ,TEXT-SURE>
-				<COND (<YES?>
-					<QUIT-MESSAGE>
-				)>
+				<COND (<YES?> <QUIT-MESSAGE>)>
 			)>
 		>
 	)>
@@ -1464,7 +1458,7 @@
 			)>
 			<TELL " to be cured?">
 			<COND (<YES?>
-				<COND (<G? .FEE 0> <COST-MONEY .FEE TEXT-PAID>)>
+				<COND (<G? .FEE 0> <COST-MONEY .FEE ,TEXT-PAID>)>
 				<COND (<G? <COUNT-CONTAINER ,AILMENTS .FLAG> 0>
 					<CRLF>
 					<TELL "You are cured of: ">
@@ -1505,10 +1499,10 @@
 	)>>
 
 <ROUTINE DELETE-BLESSING (BLESSING)
-	<DELETE-OBJECT .BLESSING CHECK-BLESSING "blessing of">>
+	<DELETE-OBJECT .BLESSING ,CHECK-BLESSING "blessing of">>
 
 <ROUTINE DELETE-CODEWORD (CODEWORD)
-	<DELETE-OBJECT .CODEWORD CHECK-CODEWORD "codeword">>
+	<DELETE-OBJECT .CODEWORD ,CHECK-CODEWORD "codeword">>
 
 <ROUTINE DELETE-CURSE (CURSE)
 	<DELETE-AILMENT .CURSE ,CURSEBIT "curse" "lifted">>
@@ -1520,9 +1514,9 @@
 	<DELETE-AILMENT .POISON ,POISONBIT "poison" "remedied">>
 
 <ROUTINE DELETE-TITLE (TITLE)
-	<DELETE-OBJECT .TITLE CHECK-TITLE "title of">>
+	<DELETE-OBJECT .TITLE ,CHECK-TITLE "title of">>
 
-<ROUTINE DELETE-OBJECT (OBJECT CHECK-ROUTINE DESCRIPTION "OPT" (RENDER H-BOLD))
+<ROUTINE DELETE-OBJECT (OBJECT CHECK-ROUTINE DESCRIPTION "OPT" (RENDER ,H-BOLD))
 	<COND (<AND .OBJECT <APPLY .CHECK-ROUTINE .OBJECT>>
 		<CRLF>
 		<TELL "You lose the " .DESCRIPTION " ">
@@ -1580,7 +1574,7 @@
 	<HLIGHT ,H-BOLD>
 	<TELL CT ,CURRENT-CHARACTER CR>
 	<HLIGHT 0>
-	<COND (<GETP ,CURRENT-CHARACTER, P?LDESC>
+	<COND (<GETP ,CURRENT-CHARACTER ,P?LDESC>
 		<CRLF>
 		<TELL <GETP ,CURRENT-CHARACTER ,P?LDESC> CR>
 	)>>
@@ -1663,12 +1657,12 @@
 		<TELL "STAMINA: " N ,STAMINA CR>
 	)>
 	<TELL "DEFENSE: " N <CALCULATE-DEFENSE .CHARACTER .CONTAINER> CR>
-	<TELL "CHARISMA: " N <CALCULATE-ABILITY .CHARACTER ABILITY-CHARISMA .CONTAINER> CR>
-	<TELL "COMBAT: " N <CALCULATE-ABILITY .CHARACTER ABILITY-COMBAT .CONTAINER> CR>
-	<TELL "MAGIC: " N <CALCULATE-ABILITY .CHARACTER ABILITY-MAGIC .CONTAINER> CR>
-	<TELL "SANCTITY: " N <CALCULATE-ABILITY .CHARACTER ABILITY-SANCTITY .CONTAINER> CR>
-	<TELL "SCOUTING: " N <CALCULATE-ABILITY .CHARACTER ABILITY-SCOUTING .CONTAINER> CR>
-	<TELL "THIEVERY: " N <CALCULATE-ABILITY .CHARACTER ABILITY-THIEVERY .CONTAINER> CR>>
+	<TELL "CHARISMA: " N <CALCULATE-ABILITY .CHARACTER ,ABILITY-CHARISMA .CONTAINER> CR>
+	<TELL "COMBAT: " N <CALCULATE-ABILITY .CHARACTER ,ABILITY-COMBAT .CONTAINER> CR>
+	<TELL "MAGIC: " N <CALCULATE-ABILITY .CHARACTER ,ABILITY-MAGIC .CONTAINER> CR>
+	<TELL "SANCTITY: " N <CALCULATE-ABILITY .CHARACTER ,ABILITY-SANCTITY .CONTAINER> CR>
+	<TELL "SCOUTING: " N <CALCULATE-ABILITY .CHARACTER ,ABILITY-SCOUTING .CONTAINER> CR>
+	<TELL "THIEVERY: " N <CALCULATE-ABILITY .CHARACTER ,ABILITY-THIEVERY .CONTAINER> CR>>
 
 <ROUTINE DESCRIBE-PLAYER-SHIPS ()
 	<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
@@ -1811,10 +1805,10 @@
 	)>>
 
 <ROUTINE GAIN-BLESSING (BLESSING)
-	<GAIN-OBJECT .BLESSING ,BLESSINGS "blessing" CHECK-BLESSING>>
+	<GAIN-OBJECT .BLESSING ,BLESSINGS "blessing" ,CHECK-BLESSING>>
 
 <ROUTINE GAIN-CODEWORD (CODEWORD)
-	<GAIN-OBJECT .CODEWORD ,CODEWORDS "codeword" CHECK-CODEWORD>>
+	<GAIN-OBJECT .CODEWORD ,CODEWORDS "codeword" ,CHECK-CODEWORD>>
 
 <ROUTINE GAIN-MONEY (AMOUNT)
 	<CRLF>
@@ -1849,7 +1843,7 @@
 	)>>
 
 <ROUTINE GAIN-CACHE (CACHE)
-	<GAIN-OBJECT .CACHE ,TOWNHOUSES "secret cache" CHECK-TOWNHOUSE>>
+	<GAIN-OBJECT .CACHE ,TOWNHOUSES "secret cache" ,CHECK-TOWNHOUSE>>
 
 <ROUTINE GAIN-STAMINA (POINTS "AUX" DIFFERENCE)
 	<COND (<L? ,STAMINA ,MAX-STAMINA>
@@ -1869,10 +1863,10 @@
     )>>
 
 <ROUTINE GAIN-TITLE (TITLE)
-	<GAIN-OBJECT .TITLE ,TITLES-AND-HONOURS "title" CHECK-TITLE>>
+	<GAIN-OBJECT .TITLE ,TITLES-AND-HONOURS "title" ,CHECK-TITLE>>
 
 <ROUTINE GAIN-TOWNHOUSE (TOWNHOUSE)
-	<GAIN-OBJECT .TOWNHOUSE ,TOWNHOUSES "townhouse" CHECK-TOWNHOUSE>>
+	<GAIN-OBJECT .TOWNHOUSE ,TOWNHOUSES "townhouse" ,CHECK-TOWNHOUSE>>
 
 <ROUTINE GET-ITEM (ITEM "OPT" CONTAINER "AUX" ITEMS COUNT)
 	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
@@ -2016,9 +2010,7 @@
 	<COND (.ITEMS
 		<COND (<NOT <FSET? .ITEMS ,NDESCBIT>>
 			<SET BLESSINGS <COUNT-BLESSINGS .ITEMS>>
-			<COND (<NOT .NO-QUANTITY>
-				<SET QUANTITY <GETP .ITEMS ,P?QUANTITY>>
-			)>
+			<COND (<NOT .NO-QUANTITY> <SET QUANTITY <GETP .ITEMS ,P?QUANTITY>>)>
 			<SET CHARGES <GETP .ITEMS ,P?CHARGES>>
 			<SET STARS <GETP .ITEMS ,P?STARS>>
 			<SET WORN <AND <FSET? .ITEMS ,WEARBIT> <FSET? .ITEMS ,WORNBIT>>>
@@ -3214,6 +3206,7 @@
 <OBJECT CODEWORD-ATTAR (DESC "Attar")>
 <OBJECT CODEWORD-AURIC (DESC "Auric")>
 <OBJECT CODEWORD-AVENGE (DESC "Avenge")>
+<OBJECT CODEWORD-AVERT (DESC "Avert")>
 <OBJECT CODEWORD-AXE (DESC "Axe")>
 <OBJECT CODEWORD-AZURE (DESC "Azure")>
 
@@ -4055,7 +4048,7 @@
 ; "Abilities and Combat"
 ; ---------------------------------------------------------------------------------------------
 
-<CONSTANT LOOKUP-ABILITY <LTABLE P?CHARISMA P?COMBAT P?MAGIC P?SANCTITY P?SCOUTING P?THIEVERY P?DEFENSE P?STAMINA>>
+<CONSTANT LOOKUP-ABILITY <LTABLE P?CHARISMA P?COMBAT P?MAGIC P?SANCTITY P?SCOUTING P?THIEVERY>>
 
 <ROUTINE APPLY-EFFECTS (ABILITY "OPT" CONTAINER "AUX" ITEM (EFFECTS NONE) (SCORE 0))
 	<COND (<NOT .CONTAINER> <SET CONTAINER ,AILMENTS>)>
@@ -4077,10 +4070,13 @@
 	<COND (<NOT .CONTAINER> <SET .CONTAINER ,PLAYER>)>
 	<SET PROPERTY <GET-ABILITY-PROPERTY .ABILITY>>
 	<SET SCORE <GET-ABILITY-SCORE .CHARACTER .ABILITY>>
-	<COND (<EQUAL? .ABILITY ABILITY-COMBAT>
+	<COND (<EQUAL? .ABILITY ,ABILITY-COMBAT>
 		<SET SCORE <+ .SCORE <FIND-BEST .PROPERTY ,WEAPONBIT .CONTAINER>>>
-	)(<N=? .ABILITY ABILITY-DEFENSE>
+	)(ELSE
 		<SET SCORE <+ .SCORE <FIND-BEST .PROPERTY NONE .CONTAINER>>>
+	)>
+	<COND (<AND <CHECK-GOD ,GOD-SIG> <EQUAL? .ABILITY ,ABILITY-THIEVERY>>
+		<INC .SCORE>
 	)>
 	<SET SCORE <+ .SCORE <APPLY-EFFECTS .ABILITY ,AILMENTS>>>
 	<SET SCORE <+ .SCORE <APPLY-EFFECTS .ABILITY ,TITLES-AND-HONOURS>>>
@@ -4305,15 +4301,15 @@
 ; "Calculate combat score"
 <ROUTINE CALCULATE-COMBAT (CHARACTER "OPT" CONTAINER)
 	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
-	<RETURN <CALCULATE-ABILITY .CHARACTER ABILITY-COMBAT .CONTAINER>>>
+	<RETURN <CALCULATE-ABILITY .CHARACTER ,ABILITY-COMBAT .CONTAINER>>>
 
 ; "Calculate defense score"
 <ROUTINE CALCULATE-DEFENSE (CHARACTER "OPT" CONTAINER "AUX" RESULT)
 	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
 	<SET RESULT <GET-RANK .CHARACTER>>
-	<SET RESULT <+ .RESULT <CALCULATE-ABILITY .CHARACTER ABILITY-COMBAT .CONTAINER>>>
+	<SET RESULT <+ .RESULT <CALCULATE-ABILITY .CHARACTER ,ABILITY-COMBAT .CONTAINER>>>
 	<COND (<AND <N=? .CONTAINER ,PLAYER> <N=? .CHARACTER ,CURRENT-CHARACTER>>
-		<SET RESULT <+ .RESULT <FIND-BEST-LIST P?DEFENSE ,WEARBIT <GETP .CHARACTER ,P?POSSESSIONS>>>>
+		<SET RESULT <+ .RESULT <FIND-BEST-LIST ,P?DEFENSE ,WEARBIT <GETP .CHARACTER ,P?POSSESSIONS>>>>
 	)(ELSE
 		<SET RESULT <+ .RESULT <FIND-BEST ,P?DEFENSE ,WEARBIT .CONTAINER>>>
 	)>
@@ -5746,10 +5742,10 @@
 		)>
 	>>
 
-; "Inns"
+; "Tavern"
 ; ---------------------------------------------------------------------------------------------
 
-<ROUTINE VISIT-INN ("OPT" (STORY NONE) (FEE 1) (GAIN 1) "AUX" (DAYS 0) (DIFFERENCE 0) (VISITS))
+<ROUTINE VISIT-TAVERN ("OPT" (STORY NONE) (FEE 1) (GAIN 1) "AUX" (DAYS 0) (DIFFERENCE 0) (VISITS))
 	<COND (<NOT .STORY> <SET STORY ,HERE>)>
 	<COND (<L? ,STAMINA ,MAX-STAMINA>
 		<SET DIFFERENCE <- ,MAX-STAMINA ,STAMINA>>
@@ -5757,7 +5753,7 @@
 			<REPEAT ()
 				<CRLF>
 				<TELL "It costs " N .FEE " per day to regain " N .GAIN " stamina" ,PERIOD-CR>
-				<SET DAYS <GET-NUMBER "How many days will you spend here" 0 12>>
+				<SET DAYS <GET-NUMBER "How many days will you spend here" 0 .DIFFERENCE>>
 				<COND (<G? .DAYS 0>
 					<COND (<G=? ,MONEY <* .DAYS .FEE>>
 						<GAIN-STAMINA <* .DAYS .GAIN>>
@@ -5770,15 +5766,15 @@
 						<EMPHASIZE "You can't afford that!">
 					)>
 				)(ELSE
-					<EMPHASIZE "You left the bar.">
+					<EMPHASIZE "You decide not to rest here.">
 					<RETURN>
 				)>
 			>
 		)(ELSE
-			<EMPHASIZE "You are turned away at the bar">
+			<EMPHASIZE "You cannot afford to rest here.">
 		)>
 	)(ELSE
-		<EMPHASIZE "You are fully recovered.">
+		<EMPHASIZE "You are not injured and do not need to recover.">
 	)>>
 
 ; "Gambling Den routines"
@@ -9078,7 +9074,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY158-EVENTS ()
-	<COND (,RUN-ONCE <VISIT-INN ,STORY158 1 1>)>>
+	<COND (,RUN-ONCE <VISIT-TAVERN ,STORY158 1 1>)>>
 
 <CONSTANT TEXT159 "Your mind falls into a waking dream, and you walk lazily into the waters. The merfolk, laughing and singing, take you down to their undersea home of living coral, where they stop you from drowning with their faerie magic. They keep you for several weeks, until you are no longer an amusement to them.||You wake up, as if from a long sleep, with only a shadowy memory of your ordeal, to find yourself washed up in the harbour of Yellowport. You have lost all the possessions you were carrying but you still have your money.">
 
@@ -9361,7 +9357,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY181-EVENTS ()
-	<VISIT-INN ,STORY181 1 1>>
+	<VISIT-TAVERN ,STORY181 1 1>>
 
 <ROOM STORY182
 	(DESC "182")
@@ -9397,7 +9393,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY184-EVENTS ()
-	<VISIT-INN ,STORY184 1 1>>
+	<COND (,RUN-ONCE <VISIT-TAVERN ,STORY184 1 1>)>>
 
 <CONSTANT TEXT185 "You tell him who you are, and that General Grieve Marlock's brother, the Governor of Yellowport, is your personal friend. His eyes widen as recognition dawns on his fat, greedy face.||\"Ah, er... I was merely jesting!\" he cries. \"Umm... I mean to say, perhaps you need an escort?\"||\"What I require is a levy in order to carry out the important mission the governor has entrusted to me. Sixty Shards ought to do it.\"||The Sokaran captain hands over the 60 Shards and leads his men off your ship. You sail on">
 
@@ -12033,7 +12029,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY387-EVENTS ()
-	<VISIT-INN ,STORY387 1 1>>
+	<COND (,RUN-ONCE <VISIT-TAVERN ,STORY387 1 1>)>>
 
 <ROOM STORY388
 	(DESC "388")
@@ -13272,7 +13268,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY483-EVENTS ()
-	<VISIT-INN ,STORY483 1 1>>
+	<COND (,RUN-ONCE <VISIT-TAVERN ,STORY483 1 1>)>>
 
 <CONSTANT TEXT484 "You sail for days without sight of land. Soon you have run out of water, and the crew start dying of thirst. Eventually, you find a familiar stretch of coast.">
 
@@ -13450,7 +13446,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY497-EVENTS ()
-	<VISIT-INN ,STORY497 1 1>>
+	<COND (,RUN-ONCE <VISIT-TAVERN ,STORY497 1 1>)>>
 
 <CONSTANT TEXT498 "There are too many of them, and they give you a good hiding. \"Maybe that'll teach you some respect,\" one of them says, as they swagger off, leaving you groaning in the gutter. You are reduced to only 1 Stamina point. You decide to call it a night.">
 
@@ -13569,7 +13565,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY506-VISITS ()
-	<VISIT-INN ,STORY506 1 1>>
+	<COND (,RUN-ONCE <VISIT-TAVERN ,STORY506 1 1>)>>
 
 <CONSTANT TEXT507 "You are sailing across the Sea of Whispers with a clear, blue sky and a salty wind to help you on your way.">
 <CONSTANT CHOICES507 <LTABLE "Dock at the Isle of Druids" "Sail west towards Scorpion Bight" "Sail north west into coastal waters" "Sail north into coastal waters" "Sail south into the Violet Ocean" "Sail east into the Unbounded Ocean">>
@@ -16542,10 +16538,4 @@ buildings.||\"It's built that way for defence,\" says a passing farmer. \"The sc
 <ROOM STORY-PLAINS-HOWLING-DARKNESS
 	(DESC "Plains of Howling Darkness")
 	(VICTORY ENDING-PLAINS-HOWLING-DARKNESS)
-	(FLAGS LIGHTBIT)>
-
-<ROOM STORY-KILLED
-	(DESC "The End")
-	(STORY "You were killed")
-	(DOOM T)
 	(FLAGS LIGHTBIT)>
