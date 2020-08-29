@@ -228,6 +228,7 @@
 	<RESET-STORY>
 	<CHOOSE-CHARACTER>
 	<SETG HERE ,STARTING-POINT>
+	<MOVE ,FOREST-FORSAKEN-MAP ,PLAYER>
 	<REPEAT ()
 		<CRLF>
 		<RESET-CHOICES>
@@ -3481,7 +3482,6 @@
 	(SCOUTING 1)
 	(FLAGS TAKEBIT)>
 
-; "TO-DO: Implement in storm routines"
 <OBJECT CONCH-OF-SAFETY
 	(DESC "conch of safety from storms")
 	(CHARGES 3)
@@ -4103,6 +4103,73 @@
 	)>
 	<RETURN 1>>
 
+; "Search gear/money routines"
+; ---------------------------------------------------------------------------------------------
+
+<ROUTINE FIND-ALL-ARMOUR ()
+	<RETURN <FIND-ALL-GEAR ,FIND-ARMOUR>>>
+
+; "Finds a weapon/armour on player and in townhouses and caches"
+<ROUTINE FIND-ALL-GEAR ("OPT" (FIND-ROUTINE NONE) "AUX" RESULT FINAL CACHES)
+	<COND (<NOT .FIND-ROUTINE> <SET FIND-ROUTINE ,FIND-WEAPON>)>
+	<SET FINAL NONE>
+	<SET RESULT NONE>
+	<DO (I 0 3)
+		<SET RESULT <APPLY .FIND-ROUTINE .I ,PLAYER>>
+		<COND (.RESULT
+			<SET FINAL .RESULT>
+			<RETURN>
+		)>
+	>
+	<COND (.FINAL <RETURN .FINAL>)>
+	<COND (<G? <COUNT-CONTAINER ,TOWNHOUSES> 0>
+		<SET CACHES <FIRST? ,TOWNHOUSES>>
+		<REPEAT ()
+			<COND (<NOT .CACHES> <RETURN>)>
+			<SET RESULT NONE>
+			<DO (I 0 3)
+				<SET RESULT <FIND-WEAPON .I .CACHES>>
+				<COND (.RESULT
+					<SET FINAL .RESULT>
+					<RETURN>
+				)>
+			>
+			<COND (.FINAL <RETURN>)>
+			<SET .CACHES <NEXT? .CACHES>>
+		>
+	)>
+	<RETURN .FINAL>>
+
+; "Finds a weapon/armour on player and in townhouses and caches"
+<ROUTINE FIND-ALL-MONEY ("AUX" RESULT CACHES)
+	<COND (<G? ,MONEY 0> <RTRUE>)>
+	<COND (<G? <GETP ,STORY046 ,P?INVESTMENTS> 0> <RTRUE>)>
+	<COND (<G? <GETP ,STORY104 ,P?INVESTMENTS> 0> <RTRUE>)>
+	<COND (<G? <GETP ,STORY605 ,P?MONEY> 0> <RTRUE>)>
+	<SET RESULT 0>
+	<COND (<G? <COUNT-CONTAINER ,TOWNHOUSES> 0>
+		<SET CACHES <FIRST? ,TOWNHOUSES>>
+		<REPEAT ()
+			<COND (<NOT .CACHES> <RETURN>)>
+			<SET RESULT 0>
+			<DO (I 0 3)
+				<SET RESULT <GETP .CACHES ,P?MONEY>>
+				<COND (<G? .RESULT 0> <RETURN>)>
+			>
+			<COND (<G? .RESULT 0> <RETURN>)>
+			<SET .CACHES <NEXT? .CACHES>>
+		>
+	)>
+	<COND (<G? .RESULT 0> <RTRUE>)>
+	<RFALSE>>
+
+<ROUTINE FIND-ALL-WEAPON ()
+	<RETURN <FIND-ALL-GEAR ,FIND-WEAPON>>>
+
+; "Find armour in container"
+<ROUTINE FIND-ARMOUR ("OPT" (SCORE 0) CONTAINER)
+	<RETURN <FIND-GEAR ,WEARBIT ,P?DEFENSE .SCORE .CONTAINER>>>
+
 ; "Finds the item with the best PROPERTY score"
 <ROUTINE FIND-BEST (PROPERTY "OPT" (FLAG NONE) CONTAINER (MATCH 0) "AUX" (SCORE 0) (ITEM NONE) (RESULT 0))
 	<SET RESULT 0>
@@ -4170,16 +4237,16 @@
 	<FIND-BEST ,P?COMBAT ,WEAPONBIT ,PLAYER>
 	<FIND-BEST ,P?DEFENSE ,WEARBIT ,PLAYER>>
 
-<ROUTINE FIND-WEAPON ("OPT" (SCORE 0) CONTAINER "AUX" COMBAT ITEMS RESULT)
+<ROUTINE FIND-GEAR (FLAG PROPERTY "OPT" (SCORE 0) CONTAINER "AUX" BONUS ITEMS RESULT)
 	<COND (<NOT .CONTAINER> <SET CONTAINER ,PLAYER>)>
 	<SET RESULT NONE>
 	<SET ITEMS <FIRST? .CONTAINER>>
 	<REPEAT ()
 		<COND (<NOT .ITEMS> <RETURN>)>
-		<COND (<FSET? .ITEMS ,WEAPONBIT>
-			<SET COMBAT <GETP .ITEMS ,P?COMBAT>>
-			<COND (<OR <NOT .COMBAT> <L=? .COMBAT 0>> <SET COMBAT 0>)>
-			<COND (<EQUAL? .SCORE .COMBAT>
+		<COND (<FSET? .ITEMS .FLAG>
+			<SET BONUS <GETP .ITEMS .PROPERTY>>
+			<COND (<OR <NOT .BONUS> <L=? .BONUS 0>> <SET BONUS 0>)>
+			<COND (<EQUAL? .SCORE .BONUS>
 				<SET RESULT .ITEMS>
 				<RETURN>
 			)>
@@ -4187,6 +4254,9 @@
 		<SET ITEMS <NEXT? .ITEMS>>
 	>
 	<RETURN .RESULT>>
+
+<ROUTINE FIND-WEAPON ("OPT" (SCORE 0) CONTAINER)
+	<RETURN <FIND-GEAR ,WEAPONBIT ,P?COMBAT .SCORE .CONTAINER>>>
 
 <ROUTINE SET-BEST-GEAR (ITEM)
 	<COND (<FSET? .ITEM ,WEAPONBIT>
@@ -9540,18 +9610,51 @@ harbourmaster.">
 	)>>
 
 <CONSTANT TEXT200 "You have acquired an old map of the Forest of the Forsaken in Golnir, the land to the west of Sokara that is described in Fabled Lands book 2: Cities of Gold and Glory. The map shows a safe path that leads to the Tower of Despair, but it seems to conflict with the location of the Tower of Despair on the regular map of Golnir. Which is correct?||As long as you have the Forest of the Forsaken map you can choose the option to look at it at any time.">
-<CONSTANT TEXT200-MAP "-- TO-DO: Map Display --">
+<CONSTANT TEXT200-MAP "+------------------------------------------------------------------------------+|
++.############.@@.#############################################................+|
++.############.@@@.###############################################.............+|
++.############..@@.######################################...#########..........+|
++..###########..@@..#####...#########################..#.++>...###########.....+|
++.############.@@..#####.../\\..##########....#####.......++GIBBET.###########..+|
++.#########..@@@..######..+MM+TOWER OF.................../\\..........#########.+|
++##########.@@@..######...+MM+DESPAIR.##########.##......####.##..ELF.#########+|
++.#########.@@@..######../****\\.....##############...##########..GLADE....#####+|
++###########.@@@....####...........#############....###########.........#######+|
++.#########..@@@..###########################......############....############+|
++.#########..@@@.##############################.....###########################+|
++.##########..@@@.############################.....###########################.+|
++.############.@@@...#########.....###########....#########################....+|
++...##########..@@@...######..........########....####################.#.+^^^+.+|
++..############..@@@..#####..CLEARING...#######.....####################/*****\\+|
++.############.#...@@@.##................########...KNIGHTLY.####.......HAMLET.+|
++..############.....@@@..............##.###########.CHALLENGE.......###OF.BALD.+|
++...##########.##./\\..@@@............################.............########ONES.+|
++.......###.#####.MM....@@@...........###############...........##########..#..+|
++.......#######.#HERMIT'S.@@@@@@@......#################....##############...#.+|
++.........#######.COTTAGE..##@@@@@@@@@...##############....##############....#.+|
++.MUCH.TREASURE...##........##.###..@@@@.......#########..################.....+|
++..TO.BE.HAD.........#################..@@@@@.....####.TOMB################....+|
++.--.BUT.'WARE......########..##########..@@@@@@..../MM\\...###############...#.+|
++..THE.WATCHER!.....#######..HAMLET.OF.####...@@@@..+MM+.#################.#...+|
++...................####..^^^.LAZARE.....####...@@@@..###################......+|
++------------------------------------------------------------------------------+|
+">
 
 <ROOM STORY200
 	(DESC "200")
 	(VISITS 0)
-	(STORY TEXT200)
 	(EVENTS STORY200-EVENTS)
 	(CONTINUE STORY030)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY200-EVENTS ()
-	<COND (<CHECK-VISITS-MORE ,STORY200 1>
+	<COND (<G=? <LOWCORE SCRH> 80>
+		<CRLF>
+		<TELL ,TEXT200-MAP>
+		<PRESS-A-KEY>
+	)>
+	<CONTINUE-TEXT ,TEXT200>
+	<COND (<OR <CHECK-ITEM ,FOREST-FORSAKEN-MAP> <CHECK-VISITS-MORE ,STORY200 1>>
 		<STORY-JUMP ,PREVIOUS-STORY>
 	)(ELSE
 		<TAKE-ITEM ,FOREST-FORSAKEN-MAP>
@@ -9905,9 +10008,8 @@ paste on the ground below.">
 	(CONTINUE STORY100)
 	(FLAGS LIGHTBIT)>
 
-; "TO-DO: Check if player has money invested in guilds (banks), townhouses"
 <ROUTINE STORY229-EVENTS ()
-	<COND (<L=? ,MONEY 0> <GAIN-MONEY 200>)>>
+	<COND (<NOT <FIND-ALL-MONEY>> <GAIN-MONEY 200>)>>
 
 <CONSTANT TEXT230 "You are caught in a narrow defile, and seized by many men. You are hauled before Captain Vorkung, who sentences you to be hanged. Sentence is carried out immediately.">
 
@@ -14374,16 +14476,15 @@ paste on the ground below.">
 	(TYPES ONE-ITEM)
 	(FLAGS LIGHTBIT)>
 
-; "TO-DO: search for money in townhouses, caches, banks, and investment houses"
-; "TO-DO: search for weapons and armours in townhouses, caches"
-<ROUTINE STORY574-EVENTS ()
+<ROUTINE STORY574-EVENTS ("AUX" (HAS-WEAPON NONE) (HAS-ARMOUR NONE))
 	<COND (,RUN-ONCE
 		<COND (<L? ,STAMINA ,MAX-STAMINA> <SETG STAMINA ,MAX-STAMINA>)>
 		<COND (<OR <G? <COUNT-CONTAINER ,AILMENTS ,DISEASEBIT> 0> <G? <COUNT-CONTAINER ,AILMENTS ,POISONBIT> 0>> <CURE-AILMENTS 0 ,DISEASEBIT ,POISONBIT>)>
-		<FIND-BEST-GEAR>
-		<COND (<NOT ,BEST-WEAPON> <TAKE-ITEM ,SWORD>)>
-		<COND (<NOT ,BEST-ARMOUR> <TAKE-ITEM ,CHAIN-MAIL>)>
-		<COND (<L=? ,MONEY 0> <GAIN-MONEY 200>)>
+		<SET HAS-WEAPON <FIND-ALL-WEAPON>>
+		<SET HAS-ARMOUR <FIND-ALL-ARMOUR>>
+		<COND (<NOT .HAS-WEAPON> <TAKE-ITEM ,SWORD>)>
+		<COND (<NOT .HAS-ARMOUR> <TAKE-ITEM ,CHAIN-MAIL>)>
+		<COND (<NOT <FIND-ALL-MONEY>> <GAIN-MONEY 200>)>
 	)>>
 
 <CONSTANT TEXT575 "\"You are indeed worthy,\" he says.||\"And will you teach me your fighting arts?\" you ask.||\"You have already learned all I can teach you,\" he says.||You realize that what he says is true. Your defeat of the Black Dragon Knight has taught you much.||You look up, but Yanryt the Son has gone.">
