@@ -13374,7 +13374,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT495 "You arrive at Disaster Bay, where you find a community of fishermen. Judging by their wealth, they also make a living by other means -- you suspect by looting the ships that get wrecked in the stormy waters of the bay.||A man offers to take you by boat, safely through the bay, and north to the port of Yarimura, on the Great Steppes; it will cost you 50 Shards.">
-<CONSTANT CHOICES495 <LTABLE "Pay to go to Yarimura (The Plains of Howling Darkness)" "Head north to the mountains" "Head for Fort Mereth">>
+<CONSTANT CHOICES495 <LTABLE "Pay to go to Yarimura (The Plains of Howling Darkness)" "Head north to the mountains" "Head for the road" "Head for Fort Mereth">>
 
 <ROOM STORY495
 	(DESC "495")
@@ -13570,7 +13570,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT510 "The village of Blessed Springs, nestling at the foot of a tall hill, has grown up around the holy waters, a special spring said to have healing powers. It has been fenced off by the villagers, and a priesthood appointed to supervise the supplicants who come to bathe, or drink of the spring's waters. There is no market, but an alchemist has set up shop here.">
-<CONSTANT CHOICES510 <LTABLE "Visit the Holy Waters" "Visit the alchemist's shop" "Visit the Blessed Ale Tavern" "Explore the hill" "Head north towards Fort Brilon" "South towards Venefax" "West into the countryside" "West into the countryside">>
+<CONSTANT CHOICES510 <LTABLE "Visit the Holy Waters" "Visit the alchemist's shop" "Visit the Blessed Ale Tavern" "Explore the hill" "Head north towards Fort Brilon" "South towards Venefax" "West into the countryside" "Northwest into the farmlands">>
 
 <ROOM STORY510
 	(DESC "510")
