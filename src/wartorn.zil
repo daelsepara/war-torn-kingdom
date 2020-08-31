@@ -78,8 +78,11 @@
 
 ; "frequent ability tests"
 ; ---------------------------------------------------------------------------------------------
+<CONSTANT ABILITY-CHARISMA-09 <LTABLE ABILITY-CHARISMA 9>>
+<CONSTANT ABILITY-CHARISMA-10 <LTABLE ABILITY-CHARISMA 10>>
 <CONSTANT ABILITY-CHARISMA-11 <LTABLE ABILITY-CHARISMA 11>>
 <CONSTANT ABILITY-CHARISMA-12 <LTABLE ABILITY-CHARISMA 12>>
+<CONSTANT ABILITY-COMBAT-12 <LTABLE ABILITY-COMBAT 12>>
 <CONSTANT ABILITY-MAGIC-09 <LTABLE ABILITY-MAGIC 9>>
 <CONSTANT ABILITY-MAGIC-10 <LTABLE ABILITY-MAGIC 10>>
 <CONSTANT ABILITY-MAGIC-11 <LTABLE ABILITY-MAGIC 11>>
@@ -89,10 +92,12 @@
 <CONSTANT ABILITY-SCOUTING-09 <LTABLE ABILITY-SCOUTING 9>>
 <CONSTANT ABILITY-SCOUTING-10 <LTABLE ABILITY-SCOUTING 10>>
 <CONSTANT ABILITY-SCOUTING-11 <LTABLE ABILITY-SCOUTING 11>>
+<CONSTANT ABILITY-SCOUTING-12 <LTABLE ABILITY-SCOUTING 12>>
 <CONSTANT ABILITY-THIEVERY-09 <LTABLE ABILITY-THIEVERY 9>>
 <CONSTANT ABILITY-THIEVERY-10 <LTABLE ABILITY-THIEVERY 10>>
 <CONSTANT ABILITY-THIEVERY-11 <LTABLE ABILITY-THIEVERY 11>>
 <CONSTANT ABILITY-THIEVERY-12 <LTABLE ABILITY-THIEVERY 12>>
+
 ; "ability labels"
 <CONSTANT ABILITIES <LTABLE "CHARISMA" "COMBAT" "MAGIC" "SANCTITY" "SCOUTING" "THIEVERY" "DEFENSE">>
 
@@ -3609,6 +3614,7 @@
 <OBJECT POTION-OF-HEALING
 	(DESC "potion of healing")
 	(ACTION POTION-OF-HEALING-F)
+	(QUANTITY 1)
 	(FLAGS TAKEBIT)>
 
 <ROUTINE POTION-OF-HEALING-F ()
@@ -3653,7 +3659,36 @@
 <OBJECT POTION-OF-RESTORATION
 	(DESC "potion of restoration")
 	(QUANTITY 1)
+	(ACTION POTION-OF-RESTORATION-F)
 	(FLAGS TAKEBIT)>
+
+<ROUTINE POTION-OF-RESTORATION-F ()
+	<COND (<CHECK-ITEM ,POTION-OF-HEALING>
+		<COND (<OR <L? ,STAMINA ,MAX-STAMINA> <G? <COUNT-CONTAINER ,AILMENTS ,POISONBIT> 0> <G? <COUNT-CONTAINER ,AILMENTS ,DISEASEBIT> 0>>
+			<CRLF>
+			<TELL "Use the ">
+			<PRINT-ITEM ,POTION-OF-HEALING T>
+			<TELL " to heal and cure any ailments (poisions and diseases)? ">
+			<COND (<YES?>
+				<REMOVE-ITEM ,POTION-OF-RESTORATION ,TEXT-USED T T>
+				<COND (<L? ,STAMINA ,MAX-STAMINA>
+					<SETG STAMINA ,MAX-STAMINA>
+					<EMPHASIZE "Your stamina has fully recovered.">
+				)>
+				<COND (<OR <G? <COUNT-CONTAINER ,AILMENTS ,POISONBIT> 0> <G? <COUNT-CONTAINER ,AILMENTS ,DISEASEBIT> 0>>
+					<RESET-CONTAINER ,AILMENTS ,DISEASEBIT>
+					<RESET-CONTAINER ,AILMENTS ,DISEASEBIT>
+					<EMPHASIZE "You were cured of any poisons and diseases you were suffering from.">
+				)>
+				<UPDATE-STATUS-LINE>
+			)>
+		)(ELSE
+			<EMPHASIZE "You are not injured nor suffering from any poisons or diseases!">
+		)>
+	)(ELSE
+		<EMPHASIZE "You do not have a potion of restoration!">
+	)>
+	<RFALSE>>
 
 <OBJECT POTION-OF-STEALTH
 	(DESC "potion of godliness")
@@ -6625,7 +6660,13 @@
 	<FSET ,LEATHER-JERKIN ,WORNBIT>
 	<PUTP ,CONCH-OF-SAFETY ,P?CHARGES 3>
 	<PUTP ,RESURRECTION-NAGIL ,P?CONTINUE ,STORY350>
-	<PUTP ,RESURRECTION-TYRNAI ,P?CONTINUE ,STORY640>>
+	<PUTP ,RESURRECTION-TYRNAI ,P?CONTINUE ,STORY640>
+	<PUTP ,POTION-OF-COMELINESS ,P?QUANTITY 1>
+	<PUTP ,POTION-OF-GODLINESS ,P?QUANTITY 1>
+	<PUTP ,POTION-OF-INTELLECT ,P?QUANTITY 1>
+	<PUTP ,POTION-OF-NATURE ,P?QUANTITY 1>
+	<PUTP ,POTION-OF-STEALTH ,P?QUANTITY 1>
+	<PUTP ,POTION-OF-STRENGTH ,P?QUANTITY 1>>
 
 <ROUTINE RESET-STORY ()
 	<RESET-ODDS 1 0 ,STORY038>
@@ -6818,9 +6859,11 @@
 <CONSTANT TEXT-NORTH-BRONZE "North to the Bronze Hills">
 <CONSTANT TEXT-NORTH-RIVER "Follow the river north">
 <CONSTANT TEXT-EAST-ROAD "Head east to the road">
+<CONSTANT TEXT-EAST-COUNTRYSIDE "Head east into the countryside">
 <CONSTANT TEXT-SOUTH-COUNTRY "South to the country">
 <CONSTANT TEXT-SOUTH-RIVER "Follow the river south">
 <CONSTANT TEXT-WEST-GRIMM "Head west towards the River Grimm">
+<CONSTANT TEXT-WEST-MAIN "Go west to the main road">
 <CONSTANT TEXT-WEST-ROAD "Go west to the road">
 
 <CONSTANT TEXT-GO-TREFOILLE "Go to Trefoille">
@@ -6838,11 +6881,15 @@
 <CONSTANT CHOICES-SANCTITY <LTABLE TEXT-ROLL-SANCTITY>>
 <CONSTANT CHOICES-SCOUTING <LTABLE TEXT-ROLL-SCOUTING>>
 <CONSTANT CHOICES-THIEVERY <LTABLE TEXT-ROLL-THIEVERY>>
+
+<CONSTANT CHOICES-HAVE-NOT <LTABLE HAVE-A IF-NOT>>
 <CONSTANT CHOICES-RANDOM <LTABLE TEXT-RANDOM-EVENT>>
 <CONSTANT CHOICES-MISSION <LTABLE TEXT-TAKE-MISSION IF-NOT>>
 
 <CONSTANT ONE-ABILITY <LTABLE R-TEST-ABILITY>>
 <CONSTANT ONE-GAIN <LTABLE R-GAIN-CODEWORD R-NONE>>
+<CONSTANT ONE-MONEY <LTABLE R-MONEY R-NONE>>
+<CONSTANT ONE-PROFESSION <LTABLE R-PROFESSION R-NONE>>
 <CONSTANT ONE-RANDOM <LTABLE R-RANDOM>>
 <CONSTANT TYPE-SAIL <LTABLE R-RANK R-TEST-ABILITY R-NONE>>
 <CONSTANT STORY-TEST-SAILING <LTABLE 4 ABILITY-CHARISMA-11 NONE>>
@@ -8688,7 +8735,7 @@ harbourmaster.">
 	(STORY TEXT119)
 	(CHOICES CHOICES-COMBAT)
 	(DESTINATIONS <LTABLE <LTABLE STORY588 STORY096>>)
-	(REQUIREMENTS <LTABLE <LTABLE ABILITY-COMBAT 12>>)
+	(REQUIREMENTS <LTABLE ABILITY-COMBAT-12>)
 	(TYPES ONE-ABILITY)
 	(CODEWORDS <LTABLE CODEWORD-ASHEN>)
 	(FLAGS LIGHTBIT)>
@@ -9011,7 +9058,7 @@ harbourmaster.">
 	(CHOICES CHOICES147)
 	(DESTINATIONS <LTABLE STORY469 STORY100>)
 	(REQUIREMENTS <LTABLE PROFESSION-TROUBADOUR NONE>)
-	(TYPES <LTABLE R-PROFESSION R-NONE>)
+	(TYPES ONE-PROFESSION)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT148 "\"Stop, stop, I surrender!\" yells the tree.||You cease your attack. \"So I can pass?\"||\"In view of recent events, I guess so,\" the tree says grudgingly. It uproots itself with a great tearing sound and shuffles out of the way.||You walk through the thorn bush gate. Beyond, you find several huge oaks trees whose branches are so big that they are able to support the homes of many people.">
@@ -9032,7 +9079,7 @@ harbourmaster.">
 	(CHOICES CHOICES149)
 	(DESTINATIONS <LTABLE STORY533 STORY468>)
 	(REQUIREMENTS <LTABLE 10 NONE>)
-	(TYPES <LTABLE R-MONEY R-NONE>)
+	(TYPES ONE-MONEY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT150 "You get a berth on a merchantmen headed for Marlock City. It is a trouble-free journey.||\"I pay everyone off -- the Sokarans, the pirates,\" says the captain. \"That way I get left alone.\"||You disembark in Marlock City.">
@@ -9129,7 +9176,7 @@ harbourmaster.">
 	(CHOICES CHOICES158)
 	(DESTINATIONS <LTABLE STORY147 STORY100>)
 	(REQUIREMENTS <LTABLE 3 NONE>)
-	(TYPES <LTABLE R-MONEY R-NONE>)
+	(TYPES ONE-MONEY)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY158-EVENTS ()
@@ -10069,7 +10116,7 @@ paste on the ground below.">
 	(CHOICES CHOICES233)
 	(DESTINATIONS <LTABLE STORY146 STORY567>)
 	(REQUIREMENTS <LTABLE PROFESSION-WARRIOR NONE>)
-	(TYPES <LTABLE R-PROFESSION R-NONE>)
+	(TYPES ONE-PROFESSION)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY233-BACKGROUND ()
@@ -10115,7 +10162,7 @@ paste on the ground below.">
 	(EVENTS STORY237-EVENTS)
 	(CHOICES CHOICES-CHARISMA)
 	(DESTINATIONS <LTABLE <LTABLE STORY391 STORY410>>)
-	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 10>>)
+	(REQUIREMENTS <LTABLE ABILITY-CHARISMA-10>)
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
@@ -10321,7 +10368,7 @@ paste on the ground below.">
 	(STORY TEXT254)
 	(CHOICES CHOICES-CHARISMA)
 	(DESTINATIONS <LTABLE <LTABLE STORY012 STORY281>>)
-	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 9>>)
+	(REQUIREMENTS <LTABLE ABILITY-CHARISMA-09>)
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
@@ -10506,7 +10553,7 @@ paste on the ground below.">
 	(STORY TEXT266)
 	(CHOICES CHOICES-COMBAT)
 	(DESTINATIONS <LTABLE <LTABLE STORY076 STORY498>>)
-	(REQUIREMENTS <LTABLE <LTABLE ABILITY-COMBAT 12>>)
+	(REQUIREMENTS <LTABLE ABILITY-COMBAT-12>)
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
@@ -10721,7 +10768,7 @@ paste on the ground below.">
 	<RETURN ,STORY282>>
 
 <CONSTANT TEXT283 "\"What goes on here?\" you ask. \"Why do you behave so oddly?||The villagers seem quite frightened of you, but one old fellow has nerve enough to reply. \"This banquet is for the ghosts of three travellers who lost their way in a storm, fell into our millpond and were drowned.\"||\"When was this?\" you ask.||\"Seven years since. They come every year on this night, and if we didn't placate them with victuals and treasure there'd be a mess of trouble.\"||\"How do you know that?\"||\"Old Megan told us,\" he says. \"She knows about such things.\"">
-<CONSTANT CHOICES283 <LTABLE "Stay out at night and watch for the ghosts" TEXT-NORTH-RIVER TEXT-SOUTH-RIVER "Head east into the countryside" "Go west to the main road">>
+<CONSTANT CHOICES283 <LTABLE "Stay out at night and watch for the ghosts" TEXT-NORTH-RIVER TEXT-SOUTH-RIVER TEXT-EAST-COUNTRYSIDE TEXT-WEST-MAIN>>
 
 <ROOM STORY283
 	(DESC "283")
@@ -11289,7 +11336,7 @@ paste on the ground below.">
 	(STORY TEXT328)
 	(CHOICES CHOICES-SCOUTING)
 	(DESTINATIONS <LTABLE <LTABLE STORY419 STORY360>>)
-	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 12>>)
+	(REQUIREMENTS <LTABLE ABILITY-SCOUTING-12>)
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
@@ -12517,7 +12564,7 @@ paste on the ground below.">
 	(STORY TEXT419)
 	(CHOICES CHOICES-CHARISMA)
 	(DESTINATIONS <LTABLE <LTABLE STORY553 STORY045>>)
-	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 10>>)
+	(REQUIREMENTS <LTABLE ABILITY-CHARISMA-10>)
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
@@ -12572,7 +12619,7 @@ paste on the ground below.">
 	(CHOICES CHOICES424)
 	(DESTINATIONS <LTABLE STORY-BLOOD-DARK-SEA STORY712>)
 	(REQUIREMENTS <LTABLE 30 NONE>)
-	(TYPES <LTABLE R-MONEY R-NONE>)
+	(TYPES ONE-MONEY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT425 "The woman tells you her name is Lauria. She leads you stealthily through winding cobblestoned streets to a town house standing at the back of a small tree-lined square.||A yellowish fog is descending with the coming of night. Lauria waits until it is thick enough to shroud your activities from any stray passersby, then jemmies a downstairs window. Within seconds the two of you are inside.||\"The stuff we're after is upstairs.\" she says. \"You've got the easy job. Stay down here and keep watch.\"||She bounds silently up to the next floor.">
@@ -12891,16 +12938,15 @@ paste on the ground below.">
 	(CHOICES CHOICES450)
 	(DESTINATIONS <LTABLE STORY378 STORY510>)
 	(REQUIREMENTS <LTABLE 30 NONE>)
-	(TYPES <LTABLE R-MONEY R-NONE>)
+	(TYPES ONE-MONEY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT451 "You ask the innkeeper about Yanryt the Son. He looks at you oddly, clearly unsettled by your question.||\"Some say he is the son of a mortal woman, and the god Tyrnai. But he has not been here for some time...\" Suddenly he stops, staring in amazement at the corner of the tavern.||You turn to look and there, hunched over a stoop of ale, is Yanryt the Son.">
-<CONSTANT CHOICES451 <LTABLE HAVE-A IF-NOT>>
 
 <ROOM STORY451
 	(DESC "451")
 	(STORY TEXT451)
-	(CHOICES CHOICES451)
+	(CHOICES CHOICES-HAVE-NOT)
 	(DESTINATIONS <LTABLE STORY575 STORY329>)
 	(REQUIREMENTS <LTABLE BLACK-DRAGON-SHIELD NONE>)
 	(TYPES ONE-ITEM)
@@ -13065,7 +13111,7 @@ paste on the ground below.">
 	(STORY TEXT465)
 	(CHOICES CHOICES-CHARISMA)
 	(DESTINATIONS <LTABLE <LTABLE STORY389 STORY214>>)
-	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 10>>)
+	(REQUIREMENTS <LTABLE ABILITY-CHARISMA-10>)
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
@@ -13169,7 +13215,7 @@ paste on the ground below.">
 	(CHOICES CHOICES473)
 	(DESTINATIONS <LTABLE STORY459 STORY400>)
 	(REQUIREMENTS <LTABLE 50 NONE>)
-	(TYPES <LTABLE R-MONEY R-NONE>)
+	(TYPES ONE-MONEY)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY473-BACKGROUND ()
@@ -13295,7 +13341,7 @@ paste on the ground below.">
 	(CHOICES CHOICES483)
 	(DESTINATIONS <LTABLE STORY323 STORY510>)
 	(REQUIREMENTS <LTABLE 3 NONE>)
-	(TYPES <LTABLE R-MONEY R-NONE>)
+	(TYPES ONE-MONEY)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY483-EVENTS ()
@@ -13473,7 +13519,7 @@ paste on the ground below.">
 	(CHOICES CHOICES497)
 	(DESTINATIONS <LTABLE STORY525 STORY427>)
 	(REQUIREMENTS <LTABLE 3 NONE>)
-	(TYPES <LTABLE R-MONEY R-NONE>)
+	(TYPES ONE-MONEY)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY497-EVENTS ()
@@ -13592,7 +13638,7 @@ paste on the ground below.">
 	(CHOICES CHOICES506)
 	(DESTINATIONS <LTABLE STORY331 STORY010>)
 	(REQUIREMENTS <LTABLE 3 NONE>)
-	(TYPES <LTABLE R-MONEY R-NONE>)
+	(TYPES ONE-MONEY)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY506-VISITS ()
@@ -13606,8 +13652,7 @@ paste on the ground below.">
 	(STORY TEXT507)
 	(CHOICES CHOICES507)
 	(DESTINATIONS <LTABLE STORY195 STORY430 STORY190 STORY312 STORY013 STORY206>)
-	(REQUIREMENTS <LTABLE DOCK-TRADING NONE NONE NONE NONE NONE>)
-	(TYPES <LTABLE R-DOCK R-NONE R-NONE R-NONE R-NONE R-NONE>)
+	(TYPES SIX-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT508 "You come round inside a disused warehouse, enmeshed in the net. You have been stripped of all your possessions -- they are in a tidy pile nearby. Several men surround you. They are dressed in furs and robes that are adorned with hundreds of multi-coloured feathers. Each man wears a necklace of animal skulls and has his teeth sharpened to needle-like points.||\"Hallo,\" the leader says reasonably. \"We are the Unspeakable Ones. It is our way to eat people in sacrifice to our god\".||He points to a squat wooden idol of a grossly fat half-man, half-ape with ivory needles for teeth. You notice the name \"Badogor the Unspoken\" inscribed on a plaque at the base of the idol.||\"Badogor the Unspoken? Who's he?\" you ask. \"Do not speak his name,\" shouts the cannibal, \"or you will be forever cursed!\"||You notice a large cauldron of boiling water into which another cultist is tossing herbs and garlic. He stares at you and licks his lips.">
@@ -13787,7 +13832,7 @@ paste on the ground below.">
 
 <CONSTANT TEXT520 "You hold up your arms and utter the mightiest prayer that you know. It has no effect.||The three white figures pelt you with a barrage of plates and knives. Something heavy hits you on the side of the head and you fall with a groan. The ghosts take advantage of this to snatch up the casket of silver and run off.">
 <CONSTANT TEXT520-CONTINUED "You recover your wits to find that the three figures have vanished. But you are sure now that they were not ghosts">
-<CONSTANT CHOICES520 <LTABLE "Try to track them down" TEXT-NORTH-RIVER TEXT-SOUTH-RIVER "Head east into the countryside" "West to the main road">>
+<CONSTANT CHOICES520 <LTABLE "Try to track them down" TEXT-NORTH-RIVER TEXT-SOUTH-RIVER TEXT-EAST-COUNTRYSIDE "West to the main road">>
 
 <ROOM STORY520
 	(DESC "520")
@@ -13966,7 +14011,7 @@ paste on the ground below.">
 	(CHOICES CHOICES535)
 	(DESTINATIONS <LTABLE STORY009 STORY100>)
 	(REQUIREMENTS <LTABLE PROFESSION-PRIEST NONE>)
-	(TYPES <LTABLE R-PROFESSION R-NONE>)
+	(TYPES ONE-PROFESSION)
 	(FLAGS LIGHTBIT)>
 
 <ROOM STORY536
@@ -13987,7 +14032,7 @@ paste on the ground below.">
 	(CHOICES CHOICES537)
 	(DESTINATIONS <LTABLE STORY106 STORY085>)
 	(REQUIREMENTS <LTABLE 25 NONE>)
-	(TYPES <LTABLE R-MONEY R-NONE>)
+	(TYPES ONE-MONEY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT538 "\"Refusing to pay your taxes, eh?\" says their leader. \"That's a crime for sure.\"||They close in around you. You'll have to think fast.">
@@ -14224,7 +14269,7 @@ paste on the ground below.">
 	(CHOICES CHOICES556)
 	(DESTINATIONS <LTABLE STORY426 STORY699>)
 	(REQUIREMENTS <LTABLE PROFESSION-MAGE NONE>)
-	(TYPES <LTABLE R-PROFESSION R-NONE>)
+	(TYPES ONE-PROFESSION)
 	(CODEWORDS <LTABLE CODEWORD-AMENDS>)
 	(FLAGS LIGHTBIT)>
 
@@ -14741,12 +14786,11 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT596 "You thread your way through the ranks of trees. In places, the forest canopy almost blocks out the sunlight completely, and you are wandering in deep shadow, haunted by the cries of the creatures of the forest.">
-<CONSTANT CHOICES596 <LTABLE HAVE-A IF-NOT>>
 
 <ROOM STORY596
 	(DESC "596")
 	(STORY TEXT596)
-	(CHOICES CHOICES596)
+	(CHOICES CHOICES-HAVE-NOT)
 	(DESTINATIONS <LTABLE STORY653 STORY698>)
 	(REQUIREMENTS <LTABLE OAK-STAFF NONE>)
 	(TYPES ONE-ITEM)
@@ -14967,7 +15011,7 @@ paste on the ground below.">
 	(CHOICES CHOICES610)
 	(DESTINATIONS <LTABLE STORY545 STORY400>)
 	(REQUIREMENTS <LTABLE 100 NONE>)
-	(TYPES <LTABLE R-MONEY R-NONE>)
+	(TYPES ONE-MONEY)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY610-BACKGROUND ()
@@ -15016,7 +15060,7 @@ paste on the ground below.">
 	<STORM-AT-SEA ,STORY613 ,STORY439>>
 
 <CONSTANT TEXT614 "The Stinking River has cuts its way through the high ground here. On the edge of the chasm that overlooks the river below, lies the village of High Therys.||Just outside of town, three bodies hang on a gallows, slowly rotting. Out on the streets beyond, the villagers are having a fete. They welcome you. You can get some rest and recuperation here.">
-<CONSTANT CHOICES614 <LTABLE TEXT-NORTH-RIVER TEXT-SOUTH-RIVER "Head east into the countryside" "Go west to the main road">>
+<CONSTANT CHOICES614 <LTABLE TEXT-NORTH-RIVER TEXT-SOUTH-RIVER TEXT-EAST-COUNTRYSIDE TEXT-WEST-MAIN>>
 
 <ROOM STORY614
 	(DESC "614")
@@ -15363,7 +15407,7 @@ paste on the ground below.">
 	(CHOICES CHOICES641)
 	(DESTINATIONS <LTABLE STORY091 STORY100>)
 	(REQUIREMENTS <LTABLE 5 NONE>)
-	(TYPES <LTABLE R-MONEY R-NONE>)
+	(TYPES ONE-MONEY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT642 "You open the cage door. A wide grin suddenly appears at about head height within the dark shadows that wreath the trau. All you can see is a huge sliver of a grin, topped by two glowing red eyes.||\"Free at last!\" gushes the trau as it leaps out. \"Now for home, and as much faerie mead as I can drink!\"||With that, it delves into the ground so fast that it has burrowed out of sight before you can do anything to stop it.||Shrugging your shoulders resignedly, you leave the market.">
@@ -15525,7 +15569,7 @@ paste on the ground below.">
 	(STORY TEXT653)
 	(CHOICES CHOICES-SCOUTING)
 	(DESTINATIONS <LTABLE <LTABLE STORY217 STORY007>>)
-	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 12>>)
+	(REQUIREMENTS <LTABLE ABILITY-SCOUTING-12>)
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
@@ -15538,14 +15582,13 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT655 "The general greets you with a smile and embraces you, saying, \"You have served me beyond my expectations, my friend.\"||A servant drags over a heavy chest, and Grieve Marlock flips open the lid with his sword. Inside is 1000 Shards. \"Yours,\" he says with a grin.||As you leave, he says, \"Don't hesitate to ask, if you need anything.\"">
-<CONSTANT CHOICES655 <LTABLE HAVE-A IF-NOT>>
 
 <ROOM STORY655
 	(DESC "655")
 	(VISITS 0)
 	(BACKGROUND STORY655-BACKGROUND)
 	(STORY TEXT655)
-	(CHOICES CHOICES655)
+	(CHOICES CHOICES-HAVE-NOT)
 	(DESTINATIONS <LTABLE STORY677 STORY100>)
 	(REQUIREMENTS <LTABLE CODED-MISSIVE NONE>)
 	(TYPES ONE-ITEM)
@@ -15563,12 +15606,11 @@ paste on the ground below.">
 	)>>
 
 <CONSTANT TEXT656 "You find a large, red pavilion which has been erected over a ruin. Oliphard the Wizardly is inside. He greets you warmly.">
-<CONSTANT CHOICES656 <LTABLE HAVE-A IF-NOT>>
 
 <ROOM STORY656
 	(DESC "656")
 	(STORY TEXT656)
-	(CHOICES CHOICES656)
+	(CHOICES CHOICES-HAVE-NOT)
 	(DESTINATIONS <LTABLE STORY672 STORY692>)
 	(REQUIREMENTS <LTABLE MAGIC-CHEST NONE>)
 	(TYPES ONE-ITEM)
@@ -15678,12 +15720,11 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT665 "You enter the cave. It is large and dark. Unfortunately, it is the lair of a pack of wolves -- a very big pack of wolves.">
-<CONSTANT CHOICES665 <LTABLE HAVE-A IF-NOT>>
 
 <ROOM STORY665
 	(DESC "665")
 	(STORY TEXT665)
-	(CHOICES CHOICES665)
+	(CHOICES CHOICES-HAVE-NOT)
 	(DESTINATIONS <LTABLE STORY516 STORY280>)
 	(REQUIREMENTS <LTABLE WOLF-PELT NONE>)
 	(TYPES ONE-ITEM)
@@ -15772,7 +15813,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT671 "Out of gratitude the villagers present you with 80 Shards. You do not wait around to see what fate befalls Old Megan and her accomplices. In theory they should be taken to the assizes in the nearest town, but feelings run so deep in this case that you suspect there will be some rough justice meted out.||You resume your journey.">
-<CONSTANT CHOICES671 <LTABLE TEXT-NORTH-RIVER TEXT-SOUTH-RIVER "Head east into the countryside" "Go west to the main road">>
+<CONSTANT CHOICES671 <LTABLE TEXT-NORTH-RIVER TEXT-SOUTH-RIVER TEXT-EAST-COUNTRYSIDE TEXT-WEST-MAIN>>
 
 <ROOM STORY671
 	(DESC "671")
@@ -16040,7 +16081,7 @@ paste on the ground below.">
 	(STORY TEXT691)
 	(CHOICES CHOICES-CHARISMA)
 	(DESTINATIONS <LTABLE <LTABLE STORY025 STORY179>>)
-	(REQUIREMENTS <LTABLE <LTABLE ABILITY-CHARISMA 9>>)
+	(REQUIREMENTS <LTABLE ABILITY-CHARISMA-09>)
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
@@ -16128,7 +16169,7 @@ paste on the ground below.">
 	(DESC "700")
 	(CHOICES CHOICES-SCOUTING)
 	(DESTINATIONS <LTABLE <LTABLE STORY562 STORY438>>)
-	(REQUIREMENTS <LTABLE <LTABLE ABILITY-SCOUTING 12>>)
+	(REQUIREMENTS <LTABLE ABILITY-SCOUTING-12>)
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
@@ -16151,7 +16192,7 @@ your loyalty to Sokara.">
 	(CHOICES CHOICES702)
 	(DESTINATIONS <LTABLE STORY191 STORY010>)
 	(REQUIREMENTS <LTABLE 5 NONE>)
-	(TYPES <LTABLE R-MONEY R-NONE>)
+	(TYPES ONE-MONEY)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY702-EVENTS ()
@@ -16183,7 +16224,7 @@ your loyalty to Sokara.">
 	(CHOICES CHOICES704)
 	(DESTINATIONS <LTABLE STORY191 STORY010>)
 	(REQUIREMENTS <LTABLE 5 NONE>)
-	(TYPES <LTABLE R-MONEY R-NONE>)
+	(TYPES ONE-MONEY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT705 "You have to wait several hours to be seen by one of the provost marshal's aides, a certain Captain Royzer.">
@@ -16295,7 +16336,7 @@ buildings.||\"It's built that way for defence,\" says a passing farmer. \"The sc
 	(DESC "715")
 	(CHOICES CHOICES715)
 	(DESTINATIONS <LTABLE <LTABLE STORY385 STORY581> <LTABLE STORY385 STORY581>>)
-	(REQUIREMENTS <LTABLE <LTABLE ABILITY-COMBAT 12> ABILITY-THIEVERY-12>)
+	(REQUIREMENTS <LTABLE ABILITY-COMBAT-12 ABILITY-THIEVERY-12>)
 	(TYPES TWO-ABILITY)
 	(FLAGS LIGHTBIT)>
 
