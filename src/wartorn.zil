@@ -1406,7 +1406,7 @@
 					<CRLF>
 					<TELL "Are you sure?">
 					<COND (<YES?>
-						<COST-MONEY <* .PRICE .NUMBER> "paid">
+						<COST-MONEY <* .PRICE .NUMBER> ,TEXT-PAID>
 						<DO (I 1 .NUMBER)
 							<TAKE-ITEM .ITEM T>
 						>
@@ -2576,7 +2576,7 @@
 					)>
 				)(ELSE
 					<COND (<OR <AND <EQUAL? .CONTAINER ,PLAYER> <CHECK-ITEM <GET .WARES .ITEM>>> <IN? <GET .WARES .ITEM> .CONTAINER>>
-						<REMOVE-ITEM <GET .WARES .ITEM> "sold" F T>
+						<REMOVE-ITEM <GET .WARES .ITEM> ,TEXT-SOLD F T>
 						<SETG MONEY <+ ,MONEY <GET .PRICELIST .ITEM>>>
 					)(ELSE
 						<CRLF>
@@ -3664,7 +3664,7 @@
 			<CRLF>
 			<TELL "Use the ">
 			<PRINT-ITEM ,POTION-OF-HEALING T>
-			<TELL " to heal and cure any ailments (poisions and diseases)? ">
+			<TELL " to heal and cure any ailments (poisons and diseases)? ">
 			<COND (<YES?>
 				<REMOVE-ITEM ,POTION-OF-RESTORATION ,TEXT-USED T T>
 				<COND (<L? ,STAMINA ,MAX-STAMINA>
@@ -4670,8 +4670,14 @@
 ; ---------------------------------------------------------------------------------------------
 
 <CONSTANT TEXT-GUILD "Guild">
-<CONSTANT TEXT-GUILD-NONE "You have not made any investments!">
 <CONSTANT TEXT-GUILD-BROKE "You do not have enough money!">
+<CONSTANT TEXT-GUILD-NONE "You have not made any investments!">
+<CONSTANT TEXT-GUILD-INVESTMENTS "You can invest money in multiples of 100 Shards. The guild will buy and sell commodities on your behalf using this money until you return to collect it. \"Don't forget that you can lose money as well,\" mutters a merchant whose investments have not paid off.">
+
+<CONSTANT TEXT-CHECK-INVESTMENTS "Check on investments">
+<CONSTANT TEXT-DEPOSIT-WITHDRAW "Deposit or withdraw money">
+<CONSTANT TEXT-MAKE-INVESTMENT "Make an investment">
+<CONSTANT TEXT-VISIT-GUILDMASTER "Visit the guildmaster">
 
 <CONSTANT TEXT-INVESTMENT-LOST "You lost the entire sum!">
 <CONSTANT TEXT-INVESTMENT-LOSE50 "You lost 50%">
@@ -4680,6 +4686,8 @@
 <CONSTANT TEXT-INVESTMENT-PROFIT10 "You gain a 10% profit!">
 <CONSTANT TEXT-INVESTMENT-PROFIT50 "You gain a 50% profit!">
 <CONSTANT TEXT-INVESTMENT-DOUBLED "Your investments are doubled!">
+
+<CONSTANT CHOICES-STANDARD-GUILD <LTABLE TEXT-VISIT-GUILDMASTER TEXT-MAKE-INVESTMENT TEXT-CHECK-INVESTMENTS TEXT-DEPOSIT-WITHDRAW TEXT-RETURN-CENTRE>>
 
 <ROUTINE CHECK-INVESTMENTS (STORY "AUX" INVESTMENTS ROLL)
 	<SET INVESTMENTS <GETP .STORY ,P?INVESTMENTS>>
@@ -6165,7 +6173,7 @@
 ; "Venefax Market"
 ; ---------------------------------------------------------------------------------------------
 
-<CONSTANT CHOICES-VENEFAX-MARKET <LTABLE "Buy armours/weapons/other items" "Sell armours/weapons/other items" "Leave Venefax market">>
+<CONSTANT CHOICES-VENEFAX-MARKET <LTABLE TEXT-BUY-GEAR "Sell armours/weapons/other items" "Leave Venefax market">>
 
 <CONSTANT VENEFAX-BUY-MENU <LTABLE "Buy armour/weapons" "Buy other items" TEXT-BACK>>
 <CONSTANT VENEFAX-SELL-MENU <LTABLE "Sell armour/weapons" "Sell other items" TEXT-BACK>>
@@ -6764,14 +6772,6 @@
 <CONSTANT DIED-FROM-INJURIES "You died from your injuries">
 <CONSTANT DIED-FROM-COLD "You eventually freeze to death">
 
-; "storm text constants"
-<CONSTANT TEXT-STORM-SEA "Heavy black clouds race towards you across the sky, whipping the waves into a frenzy. The crew mutter among themselves fearfully.">
-<CONSTANT CHOICES-STORM-FURY "The storm hits with full fury">
-
-<CONSTANT TEXT-STORM-SUBSIDES "Your ship is thrown about like flotsam and jetsam. When the storm subsides, you take stock. Much has been swept overboard.||Also, the ship has been swept way off course and the mate has no idea where you are. \"We're lost at sea, Cap'n,\" he moans.">
-<CONSTANT TEXT-GUILD-INVESTMENTS "You can invest money in multiples of 100 Shards. The guild will buy and sell commodities on your behalf using this money until you return to collect it. \"Don't forget that you can lose money as well,\" mutters a merchant whose investments have not paid off.">
-<CONSTANT TEXT-BLESSING-STORM-SAFETY "Your Safety from Storms blessing protected you">
-
 ; "generic continue text"
 <CONSTANT TEXT-YOU-CAN-GO "You can go:">
 <CONSTANT TEXT-YOU-CAN "You can:">
@@ -6796,26 +6796,48 @@
 <CONSTANT TEXT-ROLL-THIEVERY "Make a THIEVERY roll">
 
 ; "in-game text constants"
+
 <CONSTANT NOTHING-HAPPENS "Nothing happens.">
 <CONSTANT TEXT-AFFLICTED "afflicted">
 <CONSTANT TEXT-BACK "Back">
+<CONSTANT TEXT-BUY-GEAR "Buy armours/weapons/other items">
+<CONSTANT TEXT-BUY-STUFF "Buy armours/weapons/magic/other items">
 <CONSTANT TEXT-BYE "Bye">
 <CONSTANT TEXT-EXCELLENT "Excellent!">
 <CONSTANT TEXT-EXPLORE-COAST "Explore the Coast">
 <CONSTANT TEXT-FIGHT-IT "Fight it">
+<CONSTANT TEXT-FIGHT-NET "Fight your way to the golden net">
+<CONSTANT TEXT-FIGHT-THEM "Fight them">
 <CONSTANT TEXT-FOLLOW-HIM "Follow him">
 <CONSTANT TEXT-GO-BACK "Go back">
 <CONSTANT TEXT-GO-GUILD "Go to the merchants' guild">
 <CONSTANT TEXT-GOODBYE "Goodbye!">
-<CONSTANT TEXT-HEAD-FOREST "Head into the nearby forest">
+<CONSTANT TEXT-HIDE "Hide">
 <CONSTANT TEXT-INFECTED "infected">
+<CONSTANT TEXT-LEAVE-MARKET "Leave the market">
+<CONSTANT TEXT-LEAVE-NOW "Leave at once">
+<CONSTANT TEXT-LOSE-TUNNELS "Lose them in the tunnels">
 <CONSTANT TEXT-NEXT-TIME "See you next time!">
 <CONSTANT TEXT-PAID "paid">
+<CONSTANT TEXT-PAY-MONEY "Pay the money">
 <CONSTANT TEXT-POISONED "poisoned">
 <CONSTANT TEXT-RANDOM-EVENT "Random Event">
 <CONSTANT TEXT-RAT-COMBAT "The rat poison adds +3 to your rolls during combat.">
 <CONSTANT TEXT-REFUSE-LEAVE "Refuse and leave">
 <CONSTANT TEXT-RETURN-CENTRE "Return to the town centre">
+<CONSTANT TEXT-RETURN-CITY "Return to the city centre">
+<CONSTANT TEXT-RETURN-TRADING "Return to the Trading Post">
+<CONSTANT TEXT-SELL-GEAR "Sell armours/weapons/magic/other items">
+<CONSTANT TEXT-SMOLDER-FISH "You caught a smolder fish while fishing.">
+<CONSTANT TEXT-SOLD "sold">
+<CONSTANT TEXT-STORM "Storm">
+<CONSTANT TEXT-SURE "Are you sure?">
+<CONSTANT TEXT-SWIM-SHADAR "Swim back to the Shadar Tor">
+<CONSTANT TEXT-TAKE-MISSION "Take up the mission">
+<CONSTANT TEXT-TAKE-QUEST "Take up the quest">
+<CONSTANT TEXT-TRY-MAGIC "Try some magic">
+<CONSTANT TEXT-TURN-BACK "Turn back">
+<CONSTANT TEXT-UNEVENTFUL "An uneventful voyage">
 <CONSTANT TEXT-USED "used">
 <CONSTANT TEXT-USE-RAT "Use the rat poison?">
 <CONSTANT TEXT-VISIT-ALVIR "Visit the Temple of Alvir and Valmir">
@@ -6824,58 +6846,60 @@
 <CONSTANT TEXT-VISIT-MARKET "Visit the market">
 <CONSTANT TEXT-VISIT-TOWNHOUSE "Visit your townhouse">
 <CONSTANT TEXT-VISIT-TYRNAI "Visit the Temple of Tyrnai">
-<CONSTANT TEXT-SMOLDER-FISH "You caught a smolder fish while fishing.">
-<CONSTANT TEXT-STORM "Storm">
-<CONSTANT TEXT-SURE "Are you sure?">
-<CONSTANT TEXT-TAKE-MISSION "Take up the mission">
-<CONSTANT TEXT-TURN-BACK "Turn back">
-<CONSTANT TEXT-UNEVENTFUL "An uneventful voyage">
+<CONSTANT TEXT-WALK-ON "Walk on">
 
 ; "temple text constants"
+<CONSTANT CHOICES-BIG-TEMPLE <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-RESURRECTION-ARRANGEMENTS TEXT-LEAVE-TEMPLE>>
+<CONSTANT CHOICES-STANDARD-TEMPLE <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-LEAVE-TEMPLE>>
 <CONSTANT TEXT-BECOME-INITIATE "Become an Initiate">
 <CONSTANT TEXT-LEAVE-TEMPLE "Leave the temple">
 <CONSTANT TEXT-RENOUNCE-WORSHIP "Renounce worship">
 <CONSTANT TEXT-RESURRECTION-ARRANGEMENTS "Make Resurrection Arrangements">
 <CONSTANT TEXT-SEEK-BLESSING "Seek a blessing">
-<CONSTANT CHOICES-STANDARD-TEMPLE <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-LEAVE-TEMPLE>>
-
 <CONSTANT TEXT-INITIATE-ALMIR-VALMIR "Becoming an initiate of Alvir and Valmir gives you the benefit of paying less for blessings and other services the temple can offer. It costs 40 Shards to become an initiate. You cannot do this if you are already an initiate of another temple.">
-
 <CONSTANT TEXT-INITIATE-ELNIR "Becoming an initiate of Elnir gives you the benefit of paying less for blessings and other services the temple can offer. It costs 60 Shards to become an initiate. You cannot become an initiate of Elnir if you are already an initiate of another temple.">
-
 <CONSTANT TEXT-INITIATE-TYRNAI "Becoming an initiate of Tyrnai gives you the benefit of paying less for blessings and other services the temple can offer. To qualify as an initiate you must have a natural COMBAT score (without combat bonuses) of at least 6. You cannot become an initiate of Tyrnai if you are already an initiate of another temple.">
-
 <CONSTANT TEXT-BLESSING-ELNIR "If you are an initiate it costs only 10 Shards to purchase Elnir's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again when you make a failed CHARISMA roll. It is good for only one reroll. You can have only one CHARISMA blessing at any one time. Once it is used up, you can return to any branch of the Temple of Elnir to buy a new one.">
-
 <CONSTANT TEXT-BLESSING-LACUNA "If you are an initiate it costs only 10 Shards to purchase Lacuna's blessing. A non-initiate must pay 25 Shards.||The blessing works by allowing you to try again on a failed SCOUTING roll. It is good for only one reroll. You can have only one SCOUTING blessing at any one time. Once it is used up, you can return to any branch of the Temple of Lacuna to buy a new one.">
-
 <CONSTANT TEXT-WRATHFUL-BLOW "The High Priest smashes you across the jaw, saying, \"I'm doing you a favour, believe me.\"">
 
 ; "directions/locations text constants"
-
+<CONSTANT TEXT-DOWN-BEACH "Go down to the beach">
+<CONSTANT TEXT-EAST-COUNTRYSIDE "Head east into the countryside">
+<CONSTANT TEXT-EAST-NERECH "East into Nerech">
+<CONSTANT TEXT-EAST-ROAD "Head east to the road">
+<CONSTANT TEXT-EAST-WHISPERS "Sail east into the Sea of Whispers">
+<CONSTANT TEXT-GO-MARLOCK "Go to Marlock City">
+<CONSTANT TEXT-GO-TREFOILLE "Go to Trefoille">
+<CONSTANT TEXT-GO-VENEFAX "Go to Venefax">
+<CONSTANT TEXT-HEAD-CURSTMOOR "Head into the Curstmoor">
+<CONSTANT TEXT-HEAD-FOREST "Head into the nearby forest">
+<CONSTANT TEXT-HEAD-SHADAR "Head for the Shadar Tor">
 <CONSTANT TEXT-NORTH "North">
-<CONSTANT TEXT-SOUTH "South">
-
 <CONSTANT TEXT-NORTH-ACROSS "Go north across country">
 <CONSTANT TEXT-NORTH-BRONZE "North to the Bronze Hills">
 <CONSTANT TEXT-NORTH-RIVER "Follow the river north">
-<CONSTANT TEXT-EAST-ROAD "Head east to the road">
-<CONSTANT TEXT-EAST-COUNTRYSIDE "Head east into the countryside">
+<CONSTANT TEXT-NORTHWEST-MERETH "North west to Fort Mereth">
+<CONSTANT TEXT-ROAD-MARLOCK "Take the road to Marlock City">
+<CONSTANT TEXT-ROAD-NORTH "Take the road north">
+<CONSTANT TEXT-ROAD-TREFOILLE "Take the road to Trefoille">
+<CONSTANT TEXT-ROAD-YELLOWPORT "Take the road to Yellowport">
+<CONSTANT TEXT-SOUTH "South">
+<CONSTANT TEXT-SOUTH-BLESSED "South to Blessed Springs">
 <CONSTANT TEXT-SOUTH-COUNTRY "South to the country">
+<CONSTANT TEXT-SOUTH-LARUN "South into the Forest of Larun">
 <CONSTANT TEXT-SOUTH-RIVER "Follow the river south">
+<CONSTANT TEXT-SOUTH-SCORPION "Go south into Scorpion Bight">
+<CONSTANT TEXT-SOUTH-VIOLET "Sail south into the Violet Ocean">
+<CONSTANT TEXT-SOUTHEAST-BRILON "South east to Fort Brilon">
+<CONSTANT TEXT-TO-MARLOCK "To Marlock City">
+<CONSTANT TEXT-TO-TREFOILLE "To Trefoille">
+<CONSTANT TEXT-WEST-FARMLANDS "West into the farmlands">
 <CONSTANT TEXT-WEST-GRIMM "Head west towards the River Grimm">
 <CONSTANT TEXT-WEST-MAIN "Go west to the main road">
 <CONSTANT TEXT-WEST-ROAD "Go west to the road">
 
-<CONSTANT TEXT-GO-TREFOILLE "Go to Trefoille">
-<CONSTANT TEXT-GO-MARLOCK "Go to Marlock City">
-
-<CONSTANT TEXT-DOWN-BEACH "Go down to the beach">
-<CONSTANT TEXT-ROAD-TREFOILLE "Take the road to Trefoille">
-<CONSTANT TEXT-ROAD-MARLOCK "Take the road to Marlock City">
-<CONSTANT TEXT-TO-MARLOCK "To Marlock City">
-<CONSTANT TEXT-TO-TREFOILLE "To Trefoille">
-
+; "frequent choices lists"
 <CONSTANT CHOICES-COMBAT <LTABLE TEXT-ROLL-COMBAT>>
 <CONSTANT CHOICES-CHARISMA <LTABLE TEXT-ROLL-CHARISMA>>
 <CONSTANT CHOICES-MAGIC <LTABLE TEXT-ROLL-MAGIC>>
@@ -6883,12 +6907,18 @@
 <CONSTANT CHOICES-SCOUTING <LTABLE TEXT-ROLL-SCOUTING>>
 <CONSTANT CHOICES-THIEVERY <LTABLE TEXT-ROLL-THIEVERY>>
 
+<CONSTANT CHOICES-CODEWORD <LTABLE HAVE-CODEWORD IF-NOT>>
 <CONSTANT CHOICES-HAVE-NOT <LTABLE HAVE-A IF-NOT>>
-<CONSTANT CHOICES-RANDOM <LTABLE TEXT-RANDOM-EVENT>>
 <CONSTANT CHOICES-MISSION <LTABLE TEXT-TAKE-MISSION IF-NOT>>
+<CONSTANT CHOICES-NERECH <LTABLE "Demand that the crew follow your orders (The Plains of Howling Darkness)" TEXT-ROLL-CHARISMA TEXT-TURN-BACK>>
+<CONSTANT CHOICES-RANDOM <LTABLE TEXT-RANDOM-EVENT>>
+<CONSTANT CHOICES-RAT-TUNNELS <LTABLE TEXT-LOSE-TUNNELS TEXT-TRY-MAGIC TEXT-HIDE>>
 
+; "frequent choice types"
 <CONSTANT ONE-ABILITY <LTABLE R-TEST-ABILITY>>
+<CONSTANT ONE-CODEWORD <LTABLE R-CODEWORD R-NONE>>
 <CONSTANT ONE-GAIN <LTABLE R-GAIN-CODEWORD R-NONE>>
+<CONSTANT ONE-ITEM <LTABLE R-ITEM R-NONE>>
 <CONSTANT ONE-MONEY <LTABLE R-MONEY R-NONE>>
 <CONSTANT ONE-PROFESSION <LTABLE R-PROFESSION R-NONE>>
 <CONSTANT ONE-RANDOM <LTABLE R-RANDOM>>
@@ -6896,20 +6926,17 @@
 <CONSTANT STORY-TEST-SAILING <LTABLE 4 ABILITY-CHARISMA-11 NONE>>
 <CONSTANT TWO-ABILITY <LTABLE R-TEST-ABILITY R-TEST-ABILITY>>
 
-<CONSTANT CHOICES-NERECH <LTABLE "Demand that the crew follow your orders (The Plains of Howling Darkness)" TEXT-ROLL-CHARISMA TEXT-TURN-BACK>>
-
-<CONSTANT TEXT-VIOLET-OCEAN "\"The Violet Ocean's a dangerous place, Cap'n,\" says the first mate. \"The crew won't follow you there if they don't think you're good enough.\"">
-<CONSTANT CHOICES-VIOLET-OCEAN <LTABLE "Demand that the crew follow your orders (Over the Blood-Dark Sea)" TEXT-ROLL-CHARISMA TEXT-TURN-BACK>>
-<CONSTANT STORY-VIOLET-REQUIREMENTS <LTABLE 4 ABILITY-CHARISMA-12 NONE>>
-
-<CONSTANT STORY-STORM-REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 3 5 20> <LTABLE "The ship sinks!" "The mast splits!" "You weather the storm!">>>>
-
-<CONSTANT CHOICES-CODEWORD <LTABLE HAVE-CODEWORD IF-NOT>>
-<CONSTANT ONE-CODEWORD <LTABLE R-CODEWORD R-NONE>>
-<CONSTANT ONE-ITEM <LTABLE R-ITEM R-NONE>>
-
 ; "Ship events / routines"
 ; ---------------------------------------------------------------------------------------------
+
+<CONSTANT CHOICES-STORM-FURY "The storm hits with full fury">
+<CONSTANT CHOICES-VIOLET-OCEAN <LTABLE "Demand that the crew follow your orders (Over the Blood-Dark Sea)" TEXT-ROLL-CHARISMA TEXT-TURN-BACK>>
+<CONSTANT STORY-VIOLET-REQUIREMENTS <LTABLE 4 ABILITY-CHARISMA-12 NONE>>
+<CONSTANT STORY-STORM-REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 3 5 20> <LTABLE "The ship sinks!" "The mast splits!" "You weather the storm!">>>>
+<CONSTANT TEXT-BLESSING-STORM-SAFETY "Your Safety from Storms blessing protected you">
+<CONSTANT TEXT-STORM-SEA "Heavy black clouds race towards you across the sky, whipping the waves into a frenzy. The crew mutter among themselves fearfully.">
+<CONSTANT TEXT-STORM-SUBSIDES "Your ship is thrown about like flotsam and jetsam. When the storm subsides, you take stock. Much has been swept overboard.||Also, the ship has been swept way off course and the mate has no idea where you are. \"We're lost at sea, Cap'n,\" he moans.">
+<CONSTANT TEXT-VIOLET-OCEAN "\"The Violet Ocean's a dangerous place, Cap'n,\" says the first mate. \"The crew won't follow you there if they don't think you're good enough.\"">
 
 <ROUTINE STORY-GAIN-CARGO (CARGO "OPT" CAPACITY COUNT)
 	<COND (,CURRENT-SHIP
@@ -7422,7 +7449,7 @@
 
 <CONSTANT TEXT030 "The market is large and busy. At the corners of Brimstone Plaza, gigantic braziers burn sweet-smelling incense in an attempt to overpower the rotten-egg smell that permeates the whole city. There are many stalls and goods to choose from.||One trader is offering a treasure map for sale at 200 Shards. He will also buy any old treasure map for 150 Shards.||To buy cargo for a ship, you need to visit the warehouses at the
 harbourmaster.">
-<CONSTANT CHOICES030 <LTABLE "Buy armours/weapons/magical/equipment/other items" "Sell armours/weapons/magical/equipment/other items" "Buy treasure map" "Go back to town">>
+<CONSTANT CHOICES030 <LTABLE TEXT-BUY-STUFF TEXT-SELL-GEAR "Buy treasure map" "Go back to town">>
 
 <ROOM STORY030
 	(DESC "030")
@@ -7574,7 +7601,7 @@ footing and fall to the ground.">
 	<RETURN-ITEM ,BOOK-SEVEN-SAGES T>>
 
 <CONSTANT TEXT041 "The inside of the dome is lit with an eerie yellowish glow that comes from the sea-moss that carpets the ceiling. At the far end, a grotto in the wall contains an idol made from sea shells and coral, presumably of Oannes, the god of the repulsive ones. At its feet lies the golden net of Alvir and Valmir, the object of your quest. Between you and the idol swim several of the giant squid-creatures, carrying out various undersea chores.">
-<CONSTANT CHOICES041 <LTABLE "Swim back to Shadar Tor" "Fight your way to the golden net" "Trust your magical prowess" "Rack your memory for a solution">>
+<CONSTANT CHOICES041 <LTABLE TEXT-SWIM-SHADAR TEXT-FIGHT-NET "Trust your magical prowess" "Rack your memory for a solution">>
 
 <ROOM STORY041
 	(DESC "041")
@@ -7858,7 +7885,7 @@ is off, you return to the city centre.">
 	<DELETE-CODEWORD ,CODEWORD-BARNACLE>>
 
 <CONSTANT TEXT059 "Your deft fingers find a false spine of carved wood among the titles in the bookcase. Pressing it, you hear a click and the bookcase swings out from the wall. Beyond lies a hidden room where you find a verdigris key.">
-<CONSTANT CHOICES059 <LTABLE "Leave at once" "Go upstairs to find Lauria" "Wait for her to return">>
+<CONSTANT CHOICES059 <LTABLE TEXT-LEAVE-NOW "Go upstairs to find Lauria" "Wait for her to return">>
 
 <ROOM STORY059
 	(DESC "059")
@@ -8145,7 +8172,7 @@ is off, you return to the city centre.">
 <CONSTANT TEXT082 "You are following the course of the Stinking River -- and it certainly does
 stink, laden with sulphur as it is.">
 <CONSTANT TEXT082-STUNG "You are stung by a large golden insect.">
-<CONSTANT CHOICES082 <LTABLE TEXT-NORTH-RIVER "Follow the river south to Yellowport" TEXT-WEST-ROAD "Go east into the countryside">>
+<CONSTANT CHOICES082 <LTABLE TEXT-NORTH-RIVER "Follow the river south to Yellowport" TEXT-WEST-ROAD TEXT-EAST-COUNTRYSIDE>>
 
 <ROOM STORY082
 	(DESC "082")
@@ -8190,7 +8217,7 @@ stink, laden with sulphur as it is.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT085 "You are sailing around Scorpion Bight.">
-<CONSTANT CHOICES085 <LTABLE "Sail north along the coast" "Sail west towards Yellowport" "Sail east into the Sea of Whispers" "Sail south into the Violet Ocean" "Go ashore at Scorpion Bight">>
+<CONSTANT CHOICES085 <LTABLE "Sail north along the coast" "Sail west towards Yellowport" TEXT-EAST-WHISPERS TEXT-SOUTH-VIOLET "Go ashore at Scorpion Bight">>
 
 <ROOM STORY085
 	(DESC "085")
@@ -8213,7 +8240,7 @@ stink, laden with sulphur as it is.">
 <CONSTANT TEXT087 "You are on the road between Blessed Springs and Venefax. Pilgrims, the sick and the injured travel this route to the holy waters of Blessed Springs to find salvation.">
 <CONSTANT TEXT087-ATTACK "You are attacked by a mad pilgrim. You must fight.">
 <CONSTANT TEXT087-BLESSED "Blessed by a priest.">
-<CONSTANT CHOICES087 <LTABLE "Go to Blessed Springs" "Go to Venefax" "Go north into the countryside">>
+<CONSTANT CHOICES087 <LTABLE "Go to Blessed Springs" TEXT-GO-VENEFAX "Go north into the countryside">>
 
 <ROOM STORY087
 	(DESC "087")
@@ -8611,7 +8638,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT109 "You are about to leave when you see a crowd gathered around a skinny, pasty-faced scholar at a card table.||\"By the Three Fortunes, but I'm hot tonight!\" he cries. It seems he is on a winning streak. You notice a couple of dodgy-looking ruffians watching the scholar carefully.">
-<CONSTANT CHOICES109 <LTABLE "Wait and follow the scholar" "Return to the city centre">>
+<CONSTANT CHOICES109 <LTABLE "Wait and follow the scholar" TEXT-RETURN-CITY>>
 
 <ROOM STORY109
 	(DESC "109")
@@ -8622,7 +8649,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT110 "You are walking through the Bronze Hills. Virtually the whole area has been given over to mining. Everywhere, quarries and mine shafts abound. It is a horrible expanse of torn-up earth -- hardly any areas of green are left. Great heaps of excavated rock, leeched of their useful minerals, mar the landscape. You find a quarry that is open to the public. That is to say, if you pay 50 Shards, you can dig for an hour in a silver mine.">
-<CONSTANT CHOICES110 <LTABLE "Pay 50 Shards and mine for silver" "Go to Caran Baru" "South into the Forest of Larun" TEXT-WEST-GRIMM "North west into the Western Wilderness">>
+<CONSTANT CHOICES110 <LTABLE "Pay 50 Shards and mine for silver" "Go to Caran Baru" TEXT-SOUTH-LARUN TEXT-WEST-GRIMM "North west into the Western Wilderness">>
 
 <ROOM STORY110
 	(DESC "110")
@@ -8635,7 +8662,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT111 "Your knowledge of the arcane arts is too limited to help you here.">
-<CONSTANT CHOICES111 <LTABLE "Fight your way to the golden net" "Swim back to Shadar Tor">>
+<CONSTANT CHOICES111 <LTABLE TEXT-FIGHT-NET TEXT-SWIM-SHADAR>>
 
 <ROOM STORY111
 	(DESC "111")
@@ -9072,7 +9099,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT149 "A man accosts you as you are leaving a tavern. He presses his face close to yours. His breath reeks of rotting teeth and his ear has been cut off -- the mark of a man punished for piracy. \"Give me 10 Shards and I will tell you what you want to know.\"">
-<CONSTANT CHOICES149 <LTABLE "Pay the money" "Refuse to pay">>
+<CONSTANT CHOICES149 <LTABLE TEXT-PAY-MONEY "Refuse to pay">>
 
 <ROOM STORY149
 	(DESC "149")
@@ -9134,7 +9161,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT155 "One of the Trading Post sailors rows you out to your ship anchored in the bay. The sky is clear and the smell of the sea fills your heart with wanderlust. \"Welcome aboard, Cap'n,\" says the mate.">
-<CONSTANT CHOICES155 <LTABLE "Set sail into the Sea of Whispers" "Return to the Trading Post">>
+<CONSTANT CHOICES155 <LTABLE "Set sail into the Sea of Whispers" TEXT-RETURN-TRADING>>
 
 <ROOM STORY155
 	(DESC "155")
@@ -9271,7 +9298,7 @@ harbourmaster.">
 <CONSTANT TEXT166 "You are on the road between Marlock City and the Shadar Tor. Along most of the length of the road, a thin sliver of a shanty town has grown up. Tents and lean-tos line the way. You find out that the people living here are refugees from Trefoille. The city was burnt to the ground during the recent civil war, in which the old king was overthrown.">
 <CONSTANT TEXT166-PICKPOCKET "A pick-pocket; you lose 10 Shards.">
 <CONSTANT TEXT166-LANTERN "You find a lantern by the side of the road.">
-<CONSTANT CHOICES166 <LTABLE TEXT-GO-MARLOCK "Head for the Shadar Tor">>
+<CONSTANT CHOICES166 <LTABLE TEXT-GO-MARLOCK TEXT-HEAD-SHADAR>>
 
 <ROOM STORY166
 	(DESC "166")
@@ -9547,7 +9574,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT189 "There is nothing in your limited knowledge of undersea wildlife to help you.">
-<CONSTANT CHOICES189 <LTABLE "Swim back to the Shadar Tor" "Fight your way to the golden net" "Try magic">>
+<CONSTANT CHOICES189 <LTABLE TEXT-SWIM-SHADAR TEXT-FIGHT-NET TEXT-TRY-MAGIC>>
 
 <ROOM STORY189
 	(DESC "189")
@@ -9805,7 +9832,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT209 "You are sailing in the coastal waters off Fort Brilon and Blessed Springs.">
-<CONSTANT CHOICES209 <LTABLE "Sail north along the coast of Nerech" "Sail south to Scorpion Bight" "Sail east into the Sea of Whispers">>
+<CONSTANT CHOICES209 <LTABLE "Sail north along the coast of Nerech" "Sail south to Scorpion Bight" TEXT-EAST-WHISPERS>>
 
 <ROOM STORY209
 	(DESC "209")
@@ -9816,8 +9843,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT210 "They fall back for a moment, but your invocation fails to take hold, and they close in. You must fight them one at a time.">
-<CONSTANT TEXT210-END "You are tossed off the top of the peak, and end up as a messy
-paste on the ground below.">
+<CONSTANT TEXT210-END "You are tossed off the top of the peak, and end up as a messy paste on the ground below.">
 
 <ROOM STORY210
 	(DESC "210")
@@ -9884,8 +9910,8 @@ paste on the ground below.">
 	(DOOM T)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT215 "Caran Baru market consists of several covered arcades -- much of its stock is for miners and soldiers, and it is run with business-like efficiency by the Sokaran military. Items with no purchase price listed are not available locally.">
-<CONSTANT CHOICES215 <LTABLE "Buy armours/weapons/other items" "Sell armours/weapons/magic/other items" "Leave Caran Baru market">>
+<CONSTANT TEXT215 "Caran Baru market consists of several covered arcades -- much of its stock is for miners and soldiers, and it is run with business-like efficiency by the Sokaran military.">
+<CONSTANT CHOICES215 <LTABLE TEXT-BUY-GEAR TEXT-SELL-GEAR "Leave Caran Baru market">>
 
 <ROOM STORY215
 	(DESC "215")
@@ -10252,7 +10278,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT245 "The footprints cross a stream, and there you lose them. After an hour's fruitless searching by moonlight, you are forced to give up and go back to the village. There you are admonished for being reckless.||\"What if the ghosts had taken you with them back to their graves?\" says one man grimly.||The next day you are ready to resume your journey.">
-<CONSTANT CHOICES245 <LTABLE TEXT-NORTH-RIVER TEXT-SOUTH-RIVER "East into the countryside" "West to the main road">>
+<CONSTANT CHOICES245 <LTABLE TEXT-NORTH-RIVER TEXT-SOUTH-RIVER TEXT-EAST-COUNTRYSIDE TEXT-WEST-MAIN>>
 
 <ROOM STORY245
 	(DESC "245")
@@ -10321,7 +10347,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT250 "The city of Trefoille is a terrifying vision of apocalyptic destruction. It had once been a thriving crossroads town, but now it is a burnt-out hulk. It was almost razed to the ground when it declared for the king, and tried to hold out against the army of Grieve Marlock during the recent civil war. It was sacked by the general's mercenaries. General Marlock is now trying to rebuild it. Craftsmen are hard at work everywhere.||There is nothing here but ashes and rubble.">
-<CONSTANT CHOICES250 <LTABLE "Visit Oliphard the Wizardly" "Take the road to the Shadar Tor" TEXT-ROAD-MARLOCK "Head into the Curstmoor" "Take the road north" "Take the road to Yellowport">>
+<CONSTANT CHOICES250 <LTABLE "Visit Oliphard the Wizardly" "Take the road to the Shadar Tor" TEXT-ROAD-MARLOCK TEXT-HEAD-CURSTMOOR TEXT-ROAD-NORTH TEXT-ROAD-YELLOWPORT>>
 
 <ROOM STORY250
 	(DESC "250")
@@ -10434,7 +10460,7 @@ paste on the ground below.">
 	<BECOME-INITIATE 75 ,GOD-THREE-FORTUNES>>
 
 <CONSTANT TEXT259 "Fort Brilon, named after a Sokaran king of the first dynasty, is the southernmost castle on the fortified wall that keeps out the rabid manbeasts.||What the soldiers fear most is what they call 'Death Duty' -- going out on patrols beyond the wall, into Nerech itself.">
-<CONSTANT CHOICES259 <LTABLE "East into Nerech (The Plains of Howling Darkness)" "North west to Fort Estgard" "West into the farmlands" "South to Blessed Springs">>
+<CONSTANT CHOICES259 <LTABLE "East into Nerech (The Plains of Howling Darkness)" "North west to Fort Estgard" TEXT-WEST-FARMLANDS TEXT-SOUTH-BLESSED>>
 <CONSTANT TEXT259-THIEF "The thief steals one item from you.">
 
 <ROOM STORY259
@@ -10696,7 +10722,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT278 "You are crossing an open expanse of flinty ground. A few herds of sheep roam the low hills.">
-<CONSTANT CHOICES278 <LTABLE "To Venefax" "West to the Stinking River" "North to the lake" "East">>
+<CONSTANT CHOICES278 <LTABLE TEXT-GO-VENEFAX "West to the Stinking River" "North to the lake" "East">>
 
 <ROOM STORY278
 	(DESC "278")
@@ -10753,13 +10779,12 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT282 "The Temple of Tyrnai, the God of Battle, Chaos and Strife, is built like a small fortress in one corner of the city, near the barracks. Its heavy wooden gates are flanked by iron statues of bull-headed men wielding clubs. The workmanship is uncannily lifelike. Inside the temple, the god is represented by a stone idol of a jaguar-headed warrior. A beautiful suit of gold chain mail adorns the idol.">
-<CONSTANT CHOICES282 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-RESURRECTION-ARRANGEMENTS TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY282
 	(DESC "282")
 	(BACKGROUND STORY282-BACKGROUND)
 	(STORY TEXT282)
-	(CHOICES CHOICES282)
+	(CHOICES CHOICES-BIG-TEMPLE)
 	(DESTINATIONS <LTABLE STORY636 STORY514 STORY107 STORY033 STORY400>)
 	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
@@ -10867,7 +10892,7 @@ paste on the ground below.">
 	<BECOME-INITIATE 60 ,GOD-ELNIR>>
 
 <CONSTANT TEXT292 "The local market is very small -- only two commodities are available for trade.">
-<CONSTANT CHOICES292 <LTABLE "Buy items" "Sell items" "Leave the market">>
+<CONSTANT CHOICES292 <LTABLE "Buy items" "Sell items" TEXT-LEAVE-MARKET>>
 
 <ROOM STORY292
 	(DESC "292")
@@ -11244,7 +11269,7 @@ paste on the ground below.">
 	<UPGRADE-STAMINA <ROLL-DICE 1>>>
 
 <CONSTANT TEXT320 "You learn from their conversation that they are from the jungles of distant Ankon-Konu, the Feathered Lands, and that they have come here to find new sacrifices for their god, and new members for their cult. The chef pronounces the cauldron is ready, and they remove the net that holds you.">
-<CONSTANT CHOICES320 <LTABLE "Fight them" "Shout 'Badogor!' repeatedly" "Join their cult">>
+<CONSTANT CHOICES320 <LTABLE TEXT-FIGHT-THEM "Shout 'Badogor!' repeatedly" "Join their cult">>
 
 <ROOM STORY320
 	(DESC "320")
@@ -11359,7 +11384,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT331 "You fall into conversation with Pyletes, a kindly old scholar priest of Molhern, the God of Knowledge.||\"Many years ago, the Book of the Seven Sages was stolen from us,\" he says. \"News suggests that the scorpion men are in possession of it. I need a young adventurer like yourself to travel to Scorpion Bight and return the book to me. In return I can show you how to improve the skill of your choice.\"">
-<CONSTANT CHOICES331 <LTABLE "Take up the quest" IF-NOT>>
+<CONSTANT CHOICES331 <LTABLE TEXT-TAKE-QUEST IF-NOT>>
 
 <ROOM STORY331
 	(DESC "331")
@@ -11446,12 +11471,11 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT336 "You step in, saying, \"I have a message for King Skabb...\"||The ratmen stare at you in amazement.||\"A human! Get it!\" screams Skabb.||The four ratmen charge toward you with a roar, wielding swords before you can say anything more. Soon they have been joined by many others and you have little choice but to turn and flee for your life! Desperately, you race down the sewer tunnels with an army of ratmen in hot pursuit.">
-<CONSTANT CHOICES336 <LTABLE "Lose them in the tunnels" "Try some magic" "Hide">>
 
 <ROOM STORY336
 	(DESC "336")
 	(STORY TEXT336)
-	(CHOICES CHOICES336)
+	(CHOICES CHOICES-RAT-TUNNELS)
 	(DESTINATIONS <LTABLE STORY079 STORY296 STORY127>)
 	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
@@ -12200,7 +12224,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT396 "The market square in Marlock City is huge. Armed guards stand around the edge to enforce General Marlock's will. Merchants and traders from all over Harkuna hawk their goods in a dozen languages.||Items that are not available locally are not listed. The general has imposed a sales tax on all trade; the tax has been included in all the prices listed.">
-<CONSTANT CHOICES396 <LTABLE "Buy armours/weapons/magic/other items" "Sell armours/weapons/magic/other items" "Return to city centre">>
+<CONSTANT CHOICES396 <LTABLE TEXT-BUY-STUFF TEXT-SELL-GEAR "Return to city centre">>
 
 <ROOM STORY396
 	(DESC "396")
@@ -12394,13 +12418,12 @@ paste on the ground below.">
 	<GAIN-MONEY 20>>
 
 <CONSTANT TEXT405 "The merchants' guild of Yellowport is a large building of granite, plushly decorated inside to show off its wealth. Here you can bank your money for safe-keeping -- or invest it in guild enterprises in the hope of making a profit. You hear that the guildmaster is looking for adventurers.">
-<CONSTANT CHOICES405 <LTABLE "Visit the guildmaster" "Make an investment" "Check on investments" "Deposit or withdraw money" TEXT-RETURN-CENTRE>>
 
 <ROOM STORY405
 	(DESC "405")
 	(LOCATION LOCATION-YELLOWPORT)
 	(STORY TEXT405)
-	(CHOICES CHOICES405)
+	(CHOICES CHOICES-STANDARD-GUILD)
 	(DESTINATIONS <LTABLE STORY122 STORY046 STORY355 STORY605 STORY010>)
 	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
@@ -12570,7 +12593,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT420 "Your ship is sailing in the coastal waters beside Marlock City. You notice an unusual number of Sokaran warships patrolling the area.||\"The pirates are getting bolder and bolder -- that's why the navy's out in force,\" says the first mate.">
-<CONSTANT CHOICES420 <LTABLE "Sail west (Cities of Gold and Glory)" "Sail into Marlock City" "Sail east along the coast" "Sail south into the Violet Ocean">>
+<CONSTANT CHOICES420 <LTABLE "Sail west (Cities of Gold and Glory)" "Sail into Marlock City" "Sail east along the coast" TEXT-SOUTH-VIOLET>>
 
 <ROOM STORY420
 	(DESC "420")
@@ -12782,7 +12805,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT439 "Your ship is sailing in the coastal waters beside Yellowport.">
-<CONSTANT CHOICES439 <LTABLE "Sail into Yellowport Harbour" "Sail north east towards Scorpion Bight" "Sail south west along the coast" "Sail south into the Violet Ocean">>
+<CONSTANT CHOICES439 <LTABLE "Sail into Yellowport Harbour" "Sail north east towards Scorpion Bight" "Sail south west along the coast" TEXT-SOUTH-VIOLET>>
 
 <ROOM STORY439
 	(DESC "439")
@@ -12871,7 +12894,7 @@ paste on the ground below.">
 	<PUT .PARAMETERS 2 .MODIFIER>>
 
 <CONSTANT TEXT445 "You climb up, and squeeze through an open window into a long hall. Thin wires are stretched across the room, but you are an able enough rogue to crawl though without touching any of them and setting off possible traps or alarms.||Inside the temple, it is cool and dark, filled with an unearthly stillness. Suddenly, the temple doors are flung open, and two figures lumber into the room. You realize with a thrill of horror that the bull-headed iron statues outside the gates have come to life. They are golems, set here to guard the temple.">
-<CONSTANT CHOICES445 <LTABLE "Run for your life" "Fight them">>
+<CONSTANT CHOICES445 <LTABLE "Run for your life" TEXT-FIGHT-THEM>>
 
 <ROOM STORY445
 	(DESC "445")
@@ -12990,15 +13013,15 @@ paste on the ground below.">
 	<RETURN ,STORY454>>
 
 <CONSTANT TEXT455 "A merchant ship, sailing for Wishport, will take you for 15 Shards.">
-<CONSTANT CHOICES455 <LTABLE "If you do not want to make the trip" "If you pay for the journey to Wishport">>
+<CONSTANT CHOICES455 <LTABLE "If you pay for the journey to Wishport" "If you do not want to make the trip">>
 
 <ROOM STORY455
 	(DESC "455")
 	(STORY TEXT455)
 	(CHOICES CHOICES455)
-	(DESTINATIONS <LTABLE STORY142 STORY709>)
-	(REQUIREMENTS <LTABLE NONE 15>)
-	(TYPES <LTABLE R-NONE R-MONEY>)
+	(DESTINATIONS <LTABLE STORY709 STORY142>)
+	(REQUIREMENTS <LTABLE 15 NONE>)
+	(TYPES ONE-MONEY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT456 "\"Welcome,\" says Marloes Marlock.">
@@ -13188,7 +13211,7 @@ paste on the ground below.">
 	<RETURN ,STORY471>>
 
 <CONSTANT TEXT472 "Fort Estgard is one of three forts along the wall that runs right along the border. Their purpose is to defend Sokara against the ravening manbeasts of Nerech, which are constantly trying to break through to raid the interior. The commander of the fort desperately wants to see you.||\"My daughter, Alissia, has been kidnapped by the man-beasts!\" he says. \"They are asking that I let one of their raiding parties through, to attack the farmlands. I'm delaying my response as long as possible, but if I don't do something soon, they will kill her! Please, I need a brave adventurer to rescue her!\"">
-<CONSTANT CHOICES472 <LTABLE "Take up the quest" "Head east into Nerech (The Plains of Howling Darkness)" "North west to Fort Mereth" "South east to Fort Brilon" "West into the farmlands">>
+<CONSTANT CHOICES472 <LTABLE TEXT-TAKE-QUEST "Head east into Nerech (The Plains of Howling Darkness)" TEXT-NORTHWEST-MERETH TEXT-SOUTHEAST-BRILON TEXT-WEST-FARMLANDS>>
 
 <ROOM STORY472
 	(DESC "472")
@@ -13235,12 +13258,11 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT475 "You slip on the rotting scraps of King Skabb's last meal and fall over with a crash. The ratmen turn to stare at you.||\"A human! Get it!\" screams Skabb.||The ratmen charge toward you with a roar. Soon they have been joined by others and you have no choice but to flee for your life! You race down the sewer tunnels, with an army of ratmen in hot pursuit.">
-<CONSTANT CHOICES475 <LTABLE "Lose them in the tunnels" "Try some magic" "Hide">>
 
 <ROOM STORY475
 	(DESC "475")
 	(STORY TEXT475)
-	(CHOICES CHOICES475)
+	(CHOICES CHOICES-RAT-TUNNELS)
 	(DESTINATIONS <LTABLE STORY079 STORY096 STORY127>)
 	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
@@ -13452,7 +13474,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT492 "You are on a rough track that runs between Venefax and the territories of the scorpion men, slogging your way through hot, dry scrubland. A hawk circles overhead, cawing harshly.">
-<CONSTANT CHOICES492 <LTABLE "Go north to Venefax" "Go south into Scorpion Bight">>
+<CONSTANT CHOICES492 <LTABLE "Go north to Venefax" TEXT-SOUTH-SCORPION>>
 
 <ROOM STORY492
 	(DESC "492")
@@ -13573,7 +13595,7 @@ paste on the ground below.">
 	<RETURN ,STORY501>>
 
 <ROUTINE STORY501-EVENTS ()
-	<COST-MONEY ,RANSOM "paid">
+	<COST-MONEY ,RANSOM ,TEXT-PAID>
 	<SETG RANSOM 0>
 	<UPDATE-STATUS-LINE>>
 
@@ -13646,7 +13668,7 @@ paste on the ground below.">
 	<COND (,RUN-ONCE <VISIT-TAVERN ,STORY506 1 1>)>>
 
 <CONSTANT TEXT507 "You are sailing across the Sea of Whispers with a clear, blue sky and a salty wind to help you on your way.">
-<CONSTANT CHOICES507 <LTABLE "Dock at the Isle of Druids" "Sail west towards Scorpion Bight" "Sail north west into coastal waters" "Sail north into coastal waters" "Sail south into the Violet Ocean" "Sail east into the Unbounded Ocean">>
+<CONSTANT CHOICES507 <LTABLE "Dock at the Isle of Druids" "Sail west towards Scorpion Bight" "Sail north west into coastal waters" "Sail north into coastal waters" TEXT-SOUTH-VIOLET "Sail east into the Unbounded Ocean">>
 
 <ROOM STORY507
 	(DESC "507")
@@ -13709,7 +13731,7 @@ paste on the ground below.">
 			<PRINT-ITEM ,SALT-IRON-FILINGS T>
 			<TELL "?">
 			<COND (<YES?>
-				<COST-MONEY 15 "paid">
+				<COST-MONEY 15 ,TEXT-PAID>
 				<TAKE-ITEM ,SALT-IRON-FILINGS T>
 			)>
 		)>
@@ -13833,7 +13855,7 @@ paste on the ground below.">
 
 <CONSTANT TEXT520 "You hold up your arms and utter the mightiest prayer that you know. It has no effect.||The three white figures pelt you with a barrage of plates and knives. Something heavy hits you on the side of the head and you fall with a groan. The ghosts take advantage of this to snatch up the casket of silver and run off.">
 <CONSTANT TEXT520-CONTINUED "You recover your wits to find that the three figures have vanished. But you are sure now that they were not ghosts">
-<CONSTANT CHOICES520 <LTABLE "Try to track them down" TEXT-NORTH-RIVER TEXT-SOUTH-RIVER TEXT-EAST-COUNTRYSIDE "West to the main road">>
+<CONSTANT CHOICES520 <LTABLE "Try to track them down" TEXT-NORTH-RIVER TEXT-SOUTH-RIVER TEXT-EAST-COUNTRYSIDE TEXT-WEST-MAIN>>
 
 <ROOM STORY520
 	(DESC "520")
@@ -13907,12 +13929,11 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT526 "The Temple of Tyrnai, the God of War, is built in the shape of a spear with a long, pillared nave, and an altar at the far end. Two massive stone warriors guard its gates.||Tyrnai is depicted here as the insensate spirit of war: a blood-drenched warrior with the head of a maddened jaguar.">
-<CONSTANT CHOICES526 <LTABLE TEXT-BECOME-INITIATE TEXT-RENOUNCE-WORSHIP TEXT-SEEK-BLESSING TEXT-RESURRECTION-ARRANGEMENTS TEXT-LEAVE-TEMPLE>>
 
 <ROOM STORY526
 	(DESC "526")
 	(STORY TEXT526)
-	(CHOICES CHOICES526)
+	(CHOICES CHOICES-BIG-TEMPLE)
 	(DESTINATIONS <LTABLE STORY435 STORY069 STORY373 STORY599 STORY010>)
 	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
@@ -13993,7 +14014,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT534 "A long time passes. After a while, you risk calling up to Lauria in a whisper.||Your voice sounds thick, rasping, choked with growing fear. Lauria does not reply.||Each second you remain in the house increases the risk of discovery.">
-<CONSTANT CHOICES534 <LTABLE "Wait a little longer" "Go upstairs to find Lauria" "Leave at once">>
+<CONSTANT CHOICES534 <LTABLE "Wait a little longer" "Go upstairs to find Lauria" TEXT-LEAVE-NOW>>
 
 <ROOM STORY534
 	(DESC "534")
@@ -14059,7 +14080,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT540 "Sure enough, when the scholar leaves, purse bulging with Shards, the two ruffians go too. You follow at a slight distance. As you suspected, the ruffians wait for a suitable moment and then set about the scholar.||\"Help! Thieves!\" cries the scholar in a thin, reedy voice.">
-<CONSTANT CHOICES540 <LTABLE "Return to the city centre" "Chase the muggers off">>
+<CONSTANT CHOICES540 <LTABLE TEXT-RETURN-CITY "Chase the muggers off">>
 
 <ROOM STORY540
 	(DESC "540")
@@ -14143,7 +14164,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT548 "You are crossing an area of fertile farmland, where much of the food is grown to feed the army. Little farmsteads dot the landscape, and the ploughed fields have the appearance of a patchwork quilt.">
-<CONSTANT CHOICES548 <LTABLE "East to Fort Estgard" "North to the road" "South to Blessed Springs" "To the Coldbleak Mountains" "To the Lake of the Sea Dragon">>
+<CONSTANT CHOICES548 <LTABLE "East to Fort Estgard" "North to the road" TEXT-SOUTH-BLESSED "To the Coldbleak Mountains" "To the Lake of the Sea Dragon">>
 
 <ROOM STORY548
 	(DESC "548")
@@ -14165,7 +14186,7 @@ paste on the ground below.">
 		)(<L=? .ROLL 4>
 			<EMPHASIZE ,NOTHING-HAPPENS>
 		)(ELSE
-			<EMPHASIZE "You find some leather armour (DEFENSE + 1)">
+			<EMPHASIZE "You find some leather armour (DEFENSE +1)">
 			<TAKE-ITEM ,LEATHER-ARMOUR>
 		)>
 	)>
@@ -14184,7 +14205,7 @@ paste on the ground below.">
 	<CRLF>
 	<TELL "Accept her offer (15 Shards for the boar's tusk)?">
 	<COND (<YES?>
-		<REMOVE-ITEM ,BOARS-TUSK "sold" T T>
+		<REMOVE-ITEM ,BOARS-TUSK ,TEXT-SOLD T T>
 		<GAIN-MONEY 15>
 	)>>
 
@@ -14303,7 +14324,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT559 "Your ship is sailing in the coastal waters off the Shadar Tor.">
-<CONSTANT CHOICES559 <LTABLE "Sail north west towards Marlock City" "Sail north east towards Yellowport" "Sail south into the Violet Ocean">>
+<CONSTANT CHOICES559 <LTABLE "Sail north west towards Marlock City" "Sail north east towards Yellowport" TEXT-SOUTH-VIOLET>>
 
 <ROOM STORY559
 	(DESC "559")
@@ -14457,24 +14478,22 @@ paste on the ground below.">
 	)>>
 
 <CONSTANT TEXT571 "The merchants' guild of Marlock City is a large, many-storeyed building of marble. Inside, many clerks and scribes are at work. Here you can bank your money for safekeeping, or invest it in guild enterprises in the hope of making a profit. A sign on the guildmaster's door reads 'Help wanted'.">
-<CONSTANT CHOICES571 <LTABLE "Visit the guildmaster" "Make an investment" "Check on investments" "Deposit or withdraw money" TEXT-RETURN-CENTRE>>
 
 <ROOM STORY571
 	(DESC "571")
 	(LOCATION LOCATION-MARLOCK)
 	(STORY TEXT571)
-	(CHOICES CHOICES571)
+	(CHOICES CHOICES-STANDARD-GUILD)
 	(DESTINATIONS <LTABLE STORY290 STORY104 STORY088 STORY605 STORY100>)
 	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT572 "You open the door on to a large dining hall and kitchen. About thirty ratmen are standing around, eating and drinking. Everything goes quiet as they turn to stare at you with their black beady eyes.||\"Er, I do have an invitation,\" you stutter, holding up the note.||\"And we'd love to have you for dinner,\" one of them snarls.||Yelling noisily, they charge toward you. You have little choice but to turn and flee for your life! You race down the sewer tunnels, with the ratmen in hot pursuit.">
-<CONSTANT CHOICES572 <LTABLE "Lose them in the tunnels" "Try some magic" "Hide">>
 
 <ROOM STORY572
 	(DESC "572")
 	(STORY TEXT572)
-	(CHOICES CHOICES572)
+	(CHOICES CHOICES-RAT-TUNNELS)
 	(DESTINATIONS <LTABLE STORY079 STORY296 STORY127>)
 	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
@@ -14505,7 +14524,7 @@ paste on the ground below.">
 				<PRINT-ITEM ,GOD-THREE-FORTUNES T>
 				<TELL "?">
 				<COND (<YES?>
-					<COST-MONEY 25 "paid">
+					<COST-MONEY 25 ,TEXT-PAID>
 					<SETG GOD NONE>
 				)>
 			)(ELSE
@@ -14560,7 +14579,7 @@ paste on the ground below.">
 	<UPGRADE-STAMINA <ROLL-DICE 1>>>
 
 <CONSTANT TEXT576 "You are up the Stinking River near its source: the Lake of the Sea Dragon. From here, the yellow waters rush down to the sea. The smell of the bubbling, sulphur-laden water is abominable.">
-<CONSTANT CHOICES576 <LTABLE "Go to the Lake of the Sea Dragon" TEXT-SOUTH-RIVER TEXT-WEST-ROAD "East into the countryside">>
+<CONSTANT CHOICES576 <LTABLE "Go to the Lake of the Sea Dragon" TEXT-SOUTH-RIVER TEXT-WEST-ROAD TEXT-EAST-COUNTRYSIDE>>
 
 <ROOM STORY576
 	(DESC "576")
@@ -14911,7 +14930,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT602 "You are travelling the road between the Shadar Tor and Trefoille. You pass a convoy of masons, carpenters and builders heading for Trefoille with an escort of Sokaran soldiers.">
-<CONSTANT CHOICES602 <LTABLE TEXT-GO-TREFOILLE "Head for the Shadar Tor">>
+<CONSTANT CHOICES602 <LTABLE TEXT-GO-TREFOILLE TEXT-HEAD-SHADAR>>
 
 <ROOM STORY602
 	(DESC "602")
@@ -15002,7 +15021,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT610 "At nightfall, the market is kept open for a special sale. A cage with a steel floor is wheeled out. Inside is a dark, manlike shape. It seems to radiate shadows, for you can barely make it out.||The slaver says, \"A trau, ladies and gentlemen. Excellent miners, though they have to be chained with cold iron at all times.\"||The price is 100 Shards.">
-<CONSTANT CHOICES610 <LTABLE "Buy the trau" "Leave the market">>
+<CONSTANT CHOICES610 <LTABLE "Buy the trau" TEXT-LEAVE-MARKET>>
 
 <ROOM STORY610
 	(DESC "610")
@@ -15125,7 +15144,7 @@ paste on the ground below.">
 	<BECOME-INITIATE 30 ,GOD-LACUNA>>
 
 <CONSTANT TEXT619 "You come across a blazing house in the poorer area of town. A crowd has gathered, watching the flames impassively. A young girl runs up to you, in tears. \"My mother is inside! Please help her,\" she begs.||The fire is raging hard, and you are not sure whether anyone could be left alive inside.">
-<CONSTANT CHOICES619 <LTABLE "Attempt a rescue" "Walk on">>
+<CONSTANT CHOICES619 <LTABLE "Attempt a rescue" TEXT-WALK-ON>>
 
 <ROOM STORY619
 	(DESC "619")
@@ -15400,7 +15419,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT641 "\"Want to try your luck in the Gambler's Den?\" asks a short, dark man, dressed as a mercenary bodyguard. \"Just 5 Shards entrance fee.\"||He nods to a door at the top of some rickety stairs.">
-<CONSTANT CHOICES641 <LTABLE "Pay the money" "If not, he shrugs, and hisses at another passerby. You wander off and pass an uneventful evening">>
+<CONSTANT CHOICES641 <LTABLE TEXT-PAY-MONEY "If not, he shrugs, and hisses at another passerby. You wander off and pass an uneventful evening">>
 
 <ROOM STORY641
 	(DESC "641")
@@ -15655,7 +15674,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT660 "You are greeted warmly by the commander of the fort, whose daughter, Alissia, embraces you happily.">
-<CONSTANT CHOICES660 <LTABLE "East into Nerech" "North west to Fort Mereth" "South east to Fort Brilon" "West into the Farmlands">>
+<CONSTANT CHOICES660 <LTABLE TEXT-EAST-NERECH TEXT-NORTHWEST-MERETH TEXT-SOUTHEAST-BRILON TEXT-WEST-FARMLANDS>>
 
 <ROOM STORY660
 	(DESC "660")
@@ -15743,7 +15762,7 @@ paste on the ground below.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT667 "You have rescued Alissia, the commander's daughter, from the manbeasts. They have a tearful, joyous reunion -- all thanks to you!||The commander rewards you with combat training.">
-<CONSTANT CHOICES667 <LTABLE "East into Nerech" "North west to Fort Mereth" "South east to Fort Brilon" "West into the farmlands">>
+<CONSTANT CHOICES667 <LTABLE TEXT-EAST-NERECH TEXT-NORTHWEST-MERETH TEXT-SOUTHEAST-BRILON TEXT-WEST-FARMLANDS>>
 
 <ROOM STORY667
 	(DESC "667")
@@ -15765,7 +15784,7 @@ paste on the ground below.">
 
 <CONSTANT TEXT668 "You are led to a rockface in the mine. You start digging.">
 <CONSTANT TEXT668-CONTINUED "You leave the Bronze Hills.||You can go:">
-<CONSTANT CHOICES668 <LTABLE "To Caran Baru" "South into the Forest of Larun" TEXT-WEST-GRIMM "North into the Western Wilderness">>
+<CONSTANT CHOICES668 <LTABLE "To Caran Baru" TEXT-SOUTH-LARUN TEXT-WEST-GRIMM "North into the Western Wilderness">>
 
 <ROOM STORY668
 	(DESC "668")
@@ -15873,7 +15892,7 @@ paste on the ground below.">
 	<CONTINUE-TEXT ,TEXT-YOU-CAN-GO>>
 
 <CONSTANT TEXT674 "You realize from your magical studies that there is a safe path through the pentacle. If you step off the correct symbols, drawn on the ground, there is no telling what sorcerous trap you will set off.">
-<CONSTANT CHOICES674 <LTABLE "You decide the whole thing is too dangerous, and leave" "Try the path to the sarcophagus,">>
+<CONSTANT CHOICES674 <LTABLE "You decide the whole thing is too dangerous, and leave" "Try the path to the sarcophagus">>
 
 <ROOM STORY674
 	(DESC "674")
@@ -16096,7 +16115,7 @@ paste on the ground below.">
 	<RETURN ,STORY693>>
 
 <CONSTANT TEXT693 "Oliphard can use his sorcery to teleport you instantly to certain places at a cost of 100 Shards a journey for the following destinations:">
-<CONSTANT CHOICES693 <LTABLE "Marlock City" "Caran Baru" "Wishport (Cities of Gold and Glory)" "Dweomer (Over the Blood-Dark Sea)" "Otherwise, you can travel more conventionally. Take the road to the Shadar Tor" "Take the road to Marlock City" "Head into the Curstmoor" "Take the road north" "Take the road to Yellowport">>
+<CONSTANT CHOICES693 <LTABLE "Marlock City" "Caran Baru" "Wishport (Cities of Gold and Glory)" "Dweomer (Over the Blood-Dark Sea)" "Otherwise, you can travel more conventionally. Take the road to the Shadar Tor" TEXT-ROAD-MARLOCK TEXT-HEAD-CURSTMOOR TEXT-ROAD-NORTH TEXT-ROAD-YELLOWPORT>>
 
 <ROOM STORY693
 	(DESC "693")
@@ -16118,7 +16137,7 @@ paste on the ground below.">
 	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT CHOICES695 <LTABLE "Return to the trading post" "Attack the tree" "Try to persuade it to let you pass">>
+<CONSTANT CHOICES695 <LTABLE TEXT-RETURN-TRADING "Attack the tree" "Try to persuade it to let you pass">>
 
 <ROOM STORY695
 	(DESC "695")
@@ -16287,7 +16306,7 @@ your loyalty to Sokara.">
 
 <CONSTANT TEXT711 "Venefax is a strange-looking village. It looks like a single gigantic building. All the houses are joined together to form a jumbled mass, and none of the houses have doors. The only way in is through holes in the rooftop. Ladders lead up to the roof, which in effect forms a network of streets that the inhabitants travel across to get to certain 
 buildings.||\"It's built that way for defence,\" says a passing farmer. \"The scorpion men from the south can't climb, so they can't get inside the town.\"">
-<CONSTANT CHOICES711 <LTABLE TEXT-VISIT-MARKET "Visit the Scorpion's Sting tavern" "Visit the village healer" "Chat to villagers on the rooftop" "Go south into Scorpion Bight" "Take the road north to Blessed Springs" "South west on the road to Yellowport" "North into open countryside">>
+<CONSTANT CHOICES711 <LTABLE TEXT-VISIT-MARKET "Visit the Scorpion's Sting tavern" "Visit the village healer" "Chat to villagers on the rooftop" TEXT-SOUTH-SCORPION "Take the road north to Blessed Springs" "South west on the road to Yellowport" "North into open countryside">>
 
 <ROOM STORY711
 	(DESC "711")
@@ -16459,7 +16478,7 @@ buildings.||\"It's built that way for defence,\" says a passing farmer. \"The sc
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT725 "You hear a muffled cry of distress from a dark alley.">
-<CONSTANT CHOICES725 <LTABLE "Investigate" "Walk on">>
+<CONSTANT CHOICES725 <LTABLE "Investigate" TEXT-WALK-ON>>
 
 <ROOM STORY725
 	(DESC "725")
@@ -16524,7 +16543,7 @@ buildings.||\"It's built that way for defence,\" says a passing farmer. \"The sc
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT731 "Guildmaster Vernon of Yellowport is surprisingly eager to see you. He is a hugely fat and bejewelled merchant, and he tells you that a group of ratmen have made a base in the sewers beneath the city. They come out at night to raid the warehouses and homes of the merchants of Yellowport.||\"We need an adventurer like yourself to destroy their king,\" explains the guildmaster. \"Without him, the ratmen wouldn't be able to organize a feast in a larder. We will pay you 450 Shards if you succeed.\"||Vernon tells you that the sewers can be entered via an old disused well in the poor quarter.">
-<CONSTANT CHOICES731 <LTABLE "Return to the city centre" "Go down the sewers straight away">>
+<CONSTANT CHOICES731 <LTABLE TEXT-RETURN-CITY "Go down the sewers straight away">>
 
 <ROOM STORY731
 	(DESC "731")
