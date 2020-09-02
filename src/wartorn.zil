@@ -5012,11 +5012,11 @@
 			<BUY-SHIP .BUY-PRICES .DOCK>
 		)(<EQUAL? .KEY !\2>
 			<CRLF>
-			<SELL-SHIP .SELL-PRICES .CARGO-PRICES>
+			<SELL-SHIP .SELL-PRICES .CARGO-PRICES .DOCK>
 		)(<EQUAL? .KEY !\3>
 			<CRLF>
 			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
-				<UPGRADE-SHIP .UPGRADE-PRICES>
+				<UPGRADE-SHIP .DOCK .UPGRADE-PRICES>
 			)(ELSE
 				<EMPHASIZE ,TEXT-NO-SHIPS>
 			)>
@@ -5094,7 +5094,7 @@
 		<MERCHANT ,CARGO-LIST .SELL-PRICES ,CARGO T>
 	)>>
 
-<ROUTINE SELL-SHIP (SELL-PRICES CARGO-PRICES "AUX" KEY ITEM)
+<ROUTINE SELL-SHIP (SELL-PRICES CARGO-PRICES DOCK "AUX" KEY ITEM)
 	<REPEAT ()
 		<EMPHASIZE "You can sell your ships at these prices" "Shipyard">
 		<PRINT-MENU ,SHIPS-LIST T T !\0 ,TEXT-GO-BACK .SELL-PRICES>
@@ -5116,6 +5116,9 @@
 			<COND (<NOT <IN? <GET ,SHIPS-LIST .ITEM> ,SHIPS>>
 				<CRLF>
 				<EMPHASIZE ,TEXT-SHIP-NOT-OWNER>
+			)(<N=? <GETP <GET ,SHIPS-LIST .ITEM> ,P?DOCKED> .DOCK>
+				<CRLF>
+				<EMPHASIZE "That ship is not docked here!">
 			)(ELSE
 				<CRLF>
 				<TELL CR "Sell " T <GET ,SHIPS-LIST .ITEM> "?">
@@ -5137,7 +5140,7 @@
 		)>
 	>>
 
-<ROUTINE UPGRADE-SHIP (UPGRADE-PRICES "AUX" CONDITION KEY UPGRADES ITEM)
+<ROUTINE UPGRADE-SHIP (UPGRADE-PRICES DOCK "AUX" CONDITION KEY UPGRADES ITEM)
 	<SET UPGRADES <LTABLE 0 0 0>>
 	<REPEAT ()
 		<DO (I 1 3)
@@ -5178,7 +5181,9 @@
 			<CRLF>
 			<SET .ITEM <- .KEY !\0>>
 			<COND (<IN? <GET ,SHIPS-LIST .ITEM> ,SHIPS>
-				<COND (<EQUAL? <GET .UPGRADES .ITEM> 0>
+				<COND (<N=? <GETP <GET ,SHIPS-LIST .ITEM> ,P?DOCKED> .DOCK>
+					<EMPHASIZE "That shipped is not docked here!">
+				)(<EQUAL? <GET .UPGRADES .ITEM> 0>
 					<EMPHASIZE "That ship can no longer be upgraded!">
 				)(<G=? ,MONEY <GET .UPGRADES .ITEM>>
 					<CRLF>
@@ -5346,7 +5351,7 @@
 			)>
 		)(<EQUAL? .CHOICE 3>
 			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
-				<EMPHASIZE "You have not designated a primary ship!">
+				<COND (<NOT ,CURRENT-SHIP> <EMPHASIZE "You have not designated a primary ship!">)>
 				<VIEW-SHIP-MANIFEST>
 			)(ELSE
 				<EMPHASIZE ,TEXT-NO-SHIPS>
@@ -5359,9 +5364,16 @@
 			)>
 		)(<EQUAL? .CHOICE 5>
 			<COND (,CURRENT-SHIP
-				<COND (<VALIDATE-CARGO ,MARLOCK-CARGO-SELL>
-					<STORY-JUMP ,STORY084>
-					<RETURN>
+				<COND (<EQUAL? <GETP ,CURRENT-SHIP ,P?DOCKED> ,DOCK-MARLOCK>
+					<COND (<VALIDATE-CARGO ,MARLOCK-CARGO-SELL>
+						<STORY-JUMP ,STORY084>
+						<RETURN>
+					)>
+				)(ELSE
+					<CRLF>
+					<TELL "Your ">
+					<PRINT-ITEM ,CURRENT-SHIP T>
+					<TELL " is not docked at " <GET ,DOCKS ,DOCK-MARLOCK> ,EXCLAMATION-CR>
 				)>
 			)(ELSE
 				<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
@@ -5420,7 +5432,7 @@
 			)>
 		)(<EQUAL? .CHOICE 2>
 			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
-				<EMPHASIZE "You have not designated a primary ship!">
+				<COND (<NOT ,CURRENT-SHIP> <EMPHASIZE "You have not designated a primary ship!">)>
 				<VIEW-SHIP-MANIFEST>
 			)(ELSE
 				<EMPHASIZE ,TEXT-NO-SHIPS>
@@ -5433,12 +5445,20 @@
 			)>
 		)(<EQUAL? .CHOICE 4>
 			<COND (,CURRENT-SHIP
-				<COND (<VALIDATE-CARGO ,TRADING-POST-CARGO-SELL>
-					<STORY-JUMP ,STORY155>
-					<RETURN>
+				<COND (<EQUAL? <GETP ,CURRENT-SHIP ,P?DOCKED> ,DOCK-TRADING>
+					<COND (<VALIDATE-CARGO ,TRADING-POST-CARGO-SELL>
+						<STORY-JUMP ,STORY155>
+						<RETURN>
+					)>
+				)(ELSE
+					<CRLF>
+					<TELL "Your ">
+					<PRINT-ITEM ,CURRENT-SHIP T>
+					<TELL " is not docked at " <GET ,DOCKS ,DOCK-TRADING> ,EXCLAMATION-CR>
 				)>
 			)(ELSE
 				<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
+					<COND (<NOT ,CURRENT-SHIP> 	)>
 					<VIEW-SHIP-MANIFEST>
 				)(ELSE
 					<EMPHASIZE ,TEXT-NO-SHIPS>
@@ -5508,7 +5528,7 @@
 			)>
 		)(<EQUAL? .CHOICE 3>
 			<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
-				<EMPHASIZE "You have not designated a primary ship!">
+				<COND (<NOT ,CURRENT-SHIP> <EMPHASIZE "You have not designated a primary ship!">)>
 				<VIEW-SHIP-MANIFEST>
 			)(ELSE
 				<EMPHASIZE ,TEXT-NO-SHIPS>
@@ -5521,9 +5541,16 @@
 			)>
 		)(<EQUAL? .CHOICE 5>
 			<COND (,CURRENT-SHIP
-				<COND (<VALIDATE-CARGO ,YELLOWPORT-CARGO-SELL>
-					<STORY-JUMP ,STORY499>
-					<RETURN>
+				<COND (<EQUAL? <GETP ,CURRENT-SHIP ,P?DOCKED> ,DOCK-YELLOWPORT>
+					<COND (<VALIDATE-CARGO ,YELLOWPORT-CARGO-SELL>
+						<STORY-JUMP ,STORY499>
+						<RETURN>
+					)>
+				)(ELSE
+					<CRLF>
+					<TELL "Your ">
+					<PRINT-ITEM ,CURRENT-SHIP T>
+					<TELL " is not docked at " <GET ,DOCKS ,DOCK-YELLOWPORT> ,EXCLAMATION-CR>
 				)>
 			)(ELSE
 				<COND (<G? <COUNT-CONTAINER ,SHIPS> 0>
