@@ -2316,8 +2316,7 @@
 				<PUT .PARAMETERS 2 1>
 			)>
 		)>
-	)>
-	>
+	)>>
 
 <ROUTINE TAKE-ITEM (ITEM "OPT" (BUY F) "AUX" QUANTITY)
 	<COND (.ITEM
@@ -7121,7 +7120,7 @@
 ; "Ship events / routines"
 ; ---------------------------------------------------------------------------------------------
 
-<CONSTANT CHOICES-STORM-FURY "The storm hits with full fury">
+<CONSTANT CHOICES-STORM-FURY <LTABLE "The storm hits with full fury">>
 <CONSTANT CHOICES-VIOLET-OCEAN <LTABLE "Demand that the crew follow your orders (Over the Blood-Dark Sea)" TEXT-ROLL-CHARISMA TEXT-TURN-BACK>>
 <CONSTANT STORY-VIOLET-REQUIREMENTS <LTABLE 4 ABILITY-CHARISMA-12 NONE>>
 <CONSTANT STORY-STORM-REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 3 5 20> <LTABLE "The ship sinks!" "The mast splits!" "You weather the storm!">>>>
