@@ -7189,6 +7189,7 @@
 <CONSTANT TEXT-SHIPWRECK "Your ship, crew and cargo are lost to the deep, dark sea. Your only thought now is to save yourself.">
 
 <ROUTINE STORY-SHIPWRECK (STORY "AUX" (RANK 1) ROLL LOSS)
+	<PUTP .STORY ,P?DOOM T>
 	<SET RANK <GET-RANK ,CURRENT-CHARACTER>>
 	<SET ROLL <RANDOM-EVENT 2>>
 	<COND (<G? .ROLL .RANK>
