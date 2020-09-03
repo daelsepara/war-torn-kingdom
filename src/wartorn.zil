@@ -46,7 +46,7 @@
 <CONSTANT R-CODEWORD-ITEM 10> ; "presence of codeword and item"
 <CONSTANT R-DISCHARGE 11> ; "discharge a weapon"
 <CONSTANT R-TITLE 12> ; "check for presence of titles"
-<CONSTANT R-VISITS 13> ; "check if location was visited multiple times"
+<CONSTANT R-VISITS 13> ; "check if location was visited multiple times, requirements format <STORY-NUMBER NUMBER-OF-VISITS NAME-OF-LOCATION>"
 <CONSTANT R-RANK 14> ; "check if location was visited multiple times"
 <CONSTANT R-GAIN-CODEWORD 15> ; "gain codeword (s)"
 <CONSTANT R-PROFESSION 16> ; "check profession"
@@ -54,6 +54,7 @@
 <CONSTANT R-LOCATION 18> ; "test current location"
 <CONSTANT R-LOSE-ITEM 19> ; "lose item"
 <CONSTANT R-WEAPON 20> ; "you have a weapon of a specific combat score"
+<CONSTANT R-DOCKED 21> ; "you have a ship docked here"
 
 ; "No requirements"
 <CONSTANT TWO-CHOICES <LTABLE R-NONE R-NONE>>
@@ -615,6 +616,29 @@
 							<HLIGHT 0>
 							<PRESS-A-KEY>
 						)>
+					)(<AND <EQUAL? .TYPE ,R-DOCKED> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+						<COND (<CHECK-DOCKED .LIST>
+							<SETG HERE <GET .DESTINATIONS .CHOICE>>
+							<CRLF>
+						)(ELSE
+							<HLIGHT ,H-BOLD>
+							<CRLF>
+							<TELL CR "You do not have a ship docked at ">
+							<TELL " " <GET ,DOCKS .LIST> ,EXCLAMATION-CR>
+							<HLIGHT 0>
+							<PRESS-A-KEY>
+						)>
+					)(<AND <EQUAL? .TYPE ,R-VISITS> .REQUIREMENTS <L=? .CHOICE <GET .REQUIREMENTS 0>>>
+						<COND (<CHECK-VISITS-MORE <GET .LIST 1> <GET .LIST 2>>
+							<SETG HERE <GET .DESTINATIONS .CHOICE>>
+							<CRLF>
+						)(ELSE
+							<HLIGHT ,H-BOLD>
+							<CRLF>
+							<TELL CR "You do have not visited " <GET .LIST 3> " enough times" ,EXCLAMATION-CR>
+							<HLIGHT 0>
+							<PRESS-A-KEY>
+						)>
 					)>
 					<RETURN>
 				)(ELSE
@@ -659,10 +683,12 @@
 				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-RANK> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (Rank "> <HLIGHT ,H-BOLD> <TELL N .LIST> <HLIGHT 0> <TELL ")">)>)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-ANY> .REQUIREMENTS> <PRINT-ANY .LIST>)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-ALL> .REQUIREMENTS> <PRINT-ALL .LIST>)>
-				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-VISITS> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (visited > " N .LIST " times)">)>)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-VISITS> .REQUIREMENTS> <COND (<G=? <GET .LIST 0> 3> <TELL " (visited " <GET .LIST 3> " > " N <GET .LIST 2> " times)">)>)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-PROFESSION> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (" D .LIST ")">)>)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-DOCK> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (ship docks at " <GET ,DOCKS .LIST> ")">)>)>
 				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-WEAPON> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (COMBAT +" N .LIST ")">)>)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-DOCKED> .REQUIREMENTS> <COND (<G? .LIST 0> <TELL " (ship docked at " <GET ,DOCKS .LIST> ")">)>)>
+				<COND (<AND <EQUAL? .CHOICE-TYPE ,R-LOSE-ITEM> .REQUIREMENTS> <TELL " (lose the ">  <PRINT-ITEM .LIST T> <TELL ")">)>
 				<CRLF>
 			>
 			<SET CHOICE <PROCESS-CHOICES .CHOICES>>
