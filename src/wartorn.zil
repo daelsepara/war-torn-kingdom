@@ -200,7 +200,7 @@
 <GLOBAL STARTING-POINT STORY001>
 <GLOBAL CURRENT-LOCATION LOCATION-SOKARA>
 
-<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "The City of Trefoille" "Curstmoor" "Shadar Tor" "The River Grimm" "The Pass of the Eagles" "Fort Mereth" "The Isle of Druids" "The Stinking River" "The Forest of Larun" "The City of Trees" "Caran Baru" "Bronze Hills" "Fort Brilon" "Scorpion Bight" "Disaster Bay" "The Village of Blessed Springs">>
+<CONSTANT LOCATIONS <LTABLE "Sokara" "Marlock City" "Yellowport" "Venefax" "the City of Trefoille" "Curstmoor" "Shadar Tor" "the River Grimm" "the Pass of the Eagles" "Fort Mereth" "the Isle of Druids" "the Stinking River" "the Forest of Larun" "the City of Trees" "Caran Baru" "Bronze Hills" "Fort Brilon" "Scorpion Bight" "Disaster Bay" "the Village of Blessed Springs">>
 
 <CONSTANT LOCATION-SOKARA 1>
 <CONSTANT LOCATION-MARLOCK 2>
