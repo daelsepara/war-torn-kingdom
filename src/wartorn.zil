@@ -34,27 +34,26 @@
 <CONSTANT TEMP-LIST <LTABLE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE>>
 
 <CONSTANT R-NONE 0> 
-<CONSTANT R-ABILITY 1> ; "tests whether ABILITY exceeds certain score"
-<CONSTANT R-TEST-ABILITY 2> ; "test ABILITY versus difficulty roll"
-<CONSTANT R-RANDOM 3> ; "rolls a number of dice and choose destination based on threshold"
-<CONSTANT R-CODEWORD 4> ; "presence of codeword(s)"
-<CONSTANT R-CODEWORDS 5> ; "presence of codeword(s)"
-<CONSTANT R-ITEM 6> ; "possession of item (s)"
-<CONSTANT R-ALL 7> ; "possession of all these item (s)"
-<CONSTANT R-ANY 8> ; "possession of any of the item (s)"
-<CONSTANT R-MONEY 9> ; "tests ability to pay indicated amount"
-<CONSTANT R-CODEWORD-ITEM 10> ; "presence of codeword and item"
-<CONSTANT R-DISCHARGE 11> ; "discharge a weapon"
-<CONSTANT R-TITLE 12> ; "check for presence of titles"
-<CONSTANT R-VISITS 13> ; "check if location was visited multiple times, requirements format <STORY-NUMBER NUMBER-OF-VISITS NAME-OF-LOCATION>"
-<CONSTANT R-RANK 14> ; "check if location was visited multiple times"
-<CONSTANT R-GAIN-CODEWORD 15> ; "gain codeword (s)"
-<CONSTANT R-PROFESSION 16> ; "check profession"
-<CONSTANT R-DOCK 17> ; "dock at port"
-<CONSTANT R-LOCATION 18> ; "test current location"
-<CONSTANT R-LOSE-ITEM 19> ; "lose item"
-<CONSTANT R-WEAPON 20> ; "you have a weapon of a specific combat score"
-<CONSTANT R-DOCKED 21> ; "you have a ship docked here"
+<CONSTANT R-TEST-ABILITY 1> ; "test ABILITY versus difficulty roll"
+<CONSTANT R-RANDOM 2> ; "rolls a number of dice and choose destination based on threshold"
+<CONSTANT R-CODEWORD 3> ; "presence of codeword(s)"
+<CONSTANT R-CODEWORDS 4> ; "presence of codeword(s)"
+<CONSTANT R-ITEM 5> ; "possession of item (s)"
+<CONSTANT R-ALL 6> ; "possession of all these item (s)"
+<CONSTANT R-ANY 7> ; "possession of any of the item (s)"
+<CONSTANT R-MONEY 8> ; "tests ability to pay indicated amount"
+<CONSTANT R-CODEWORD-ITEM 9> ; "presence of codeword and item"
+<CONSTANT R-DISCHARGE 10> ; "discharge a weapon"
+<CONSTANT R-TITLE 11> ; "check for presence of titles"
+<CONSTANT R-VISITS 12> ; "check if location was visited multiple times, requirements format <STORY-NUMBER NUMBER-OF-VISITS NAME-OF-LOCATION>"
+<CONSTANT R-RANK 13> ; "check if location was visited multiple times"
+<CONSTANT R-GAIN-CODEWORD 14> ; "gain codeword (s)"
+<CONSTANT R-PROFESSION 15> ; "check profession"
+<CONSTANT R-DOCK 16> ; "dock at port at this port"
+<CONSTANT R-LOCATION 17> ; "test current location"
+<CONSTANT R-LOSE-ITEM 18> ; "lose item"
+<CONSTANT R-WEAPON 19> ; "you have a weapon of a specific combat score"
+<CONSTANT R-DOCKED 20> ; "you have a ship docked here"
 
 ; "No requirements"
 <CONSTANT TWO-CHOICES <LTABLE R-NONE R-NONE>>
@@ -7215,9 +7214,10 @@
 	<SETG MONEY 0>
 	<UPDATE-STATUS-LINE>>
 
-<ROUTINE STORY-RESET-CREW ("OPT" CONDITION)
+<ROUTINE STORY-RESET-CREW ("OPT" CONDITION SHIP)
+	<COND (<NOT .SHIP> <SET SHIP ,CURRENT-SHIP>)>
 	<COND (<NOT .CONDITION> <SET .CONDITION ,CONDITION-GOOD>)>
-	<COND (,CURRENT-SHIP <PUTP ,CURRENT-SHIP ,P?CONDITION .CONDITION>)>>
+	<COND (.SHIP <PUTP .SHIP ,P?CONDITION .CONDITION>)>>
 
 <ROUTINE STORY-ROLL-RANK (STORY "OPT" (MODIFIER -1) "AUX" ROLL (RANK 1))
 	<SET ROLL <RANDOM-EVENT 1 .MODIFIER T>>
