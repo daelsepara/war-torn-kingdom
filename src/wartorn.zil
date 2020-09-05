@@ -7156,7 +7156,7 @@
 <CONSTANT TEXT-STORM-SUBSIDES "Your ship is thrown about like flotsam and jetsam. When the storm subsides, you take stock. Much has been swept overboard.||Also, the ship has been swept way off course and the mate has no idea where you are. \"We're lost at sea, Cap'n,\" he moans.">
 <CONSTANT TEXT-VIOLET-OCEAN "\"The Violet Ocean's a dangerous place, Cap'n,\" says the first mate. \"The crew won't follow you there if they don't think you're good enough.\"">
 
-<ROUTINE STORY-GAIN-CARGO (CARGO "OPT" CAPACITY COUNT)
+<ROUTINE STORY-GAIN-CARGO (CARGO "AUX" CAPACITY COUNT)
 	<COND (,CURRENT-SHIP
 		<MOVE .CARGO ,CURRENT-SHIP>
 		<SET CAPACITY <GETP ,CURRENT-SHIP ,P?CAPACITY>>
@@ -7196,9 +7196,7 @@
 	<COND (<G? .ROLL .RANK>
 		<EMPHASIZE ,TEXT-DROWNED>
 	)(ELSE
-		<RESET-CONTAINER ,CARGO>
-		<REMOVE ,CURRENT-SHIP>
-		<SETG CURRENT-SHIP NONE>
+		<STORY-LOSE-SHIP>
 		<CRLF>
 		<TELL ,TEXT-DRIFTWOOD>
 		<TELL ,PERIOD-CR>
@@ -7212,6 +7210,14 @@
 	)>
 	<RESET-POSSESSIONS>
 	<SETG MONEY 0>
+	<UPDATE-STATUS-LINE>>
+
+<ROUTINE STORY-LOSE-SHIP ()
+	<RESET-CARGO>
+	<COND (,CURRENT-SHIP
+		<REMOVE ,CURRENT-SHIP>
+		<SETG CURRENT-SHIP NONE>
+	)>
 	<UPDATE-STATUS-LINE>>
 
 <ROUTINE STORY-RESET-CREW ("OPT" CONDITION SHIP)
@@ -11316,11 +11322,7 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY307-EVENTS ()
-	<RESET-CONTAINER ,CARGO>
-	<COND (,CURRENT-SHIP
-		<REMOVE ,CURRENT-SHIP>
-		<SETG CURRENT-SHIP NONE>
-	)>>
+	<STORY-LOSE-SHIP>>
 
 <CONSTANT TEXT308 "The ratmen beat you into unconsciousness, and then toss you down an underground sewer outlet. You are washed up on the beaches outside Yellowport, where you come to. You have 1 Stamina point left, and the ratmen have taken all the items and money that you were carrying.||Groggily, you make your way back into the city.">
 
