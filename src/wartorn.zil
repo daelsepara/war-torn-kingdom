@@ -1042,8 +1042,10 @@
 			<DO (I 1 .EVENTS)
 				<COND (<L=? .RESULT <GET .ODDS .I>>
 					<SET DESTINATION <GET .DESTINATIONS .I>>
-					<EMPHASIZE <GET .OUTCOMES .I> "Outcome">
-					<PRESS-A-KEY>
+					<COND (.OUTCOMES
+						<EMPHASIZE <GET .OUTCOMES .I> "Outcome">
+						<PRESS-A-KEY>
+					)>
 					<COND (<NOT <PROCESS-RANDOM-BLESSING>>
 						<SET HAS-DESTINATION T>
 					)>
@@ -13618,19 +13620,18 @@ harbourmaster.">
 	(DESC "484")
 	(STORY TEXT484)
 	(EVENTS STORY484-EVENTS)
-	(CONTINUE STORY136)
+	(CHOICES CHOICES-RANDOM)
+	(DESTINATIONS <LTABLE <LTABLE STORY120 STORY430 STORY136>>)
+	(REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 2 4 6> NONE>>)
+	(TYPES ONE-RANDOM)
 	(DOOM T)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY484-EVENTS ("AUX" ROLL)
-	<LOSE-STAMINA <ROLL-DICE 1> ,DIED-OF-HUNGER ,STORY484>
-	<COND (<IS-ALIVE>
-		<STORY-RESET-CREW ,CONDITION-POOR>
-		<SET ROLL <RANDOM-EVENT 1 0 T>>
-		<COND (<L=? .ROLL 2>
-			<STORY-JUMP ,STORY120>
-		)(<L=? .ROLL 4>
-			<STORY-JUMP ,STORY430>
+<ROUTINE STORY484-EVENTS ()
+	<COND (,RUN-ONCE
+		<LOSE-STAMINA <ROLL-DICE 1> ,DIED-OF-HUNGER ,STORY484>
+		<COND (<IS-ALIVE>
+			<STORY-RESET-CREW ,CONDITION-POOR>
 		)>
 	)>>
 
@@ -15562,18 +15563,11 @@ harbourmaster.">
 <ROOM STORY633
 	(DESC "633")
 	(STORY TEXT633)
-	(EVENTS STORY633-EVENTS)
+	(CHOICES CHOICES-RANDOM)
+	(DESTINATIONS <LTABLE <LTABLE STORY120 STORY430 STORY136>>)
+	(REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 2 4 6> NONE>>)
+	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY633-EVENTS ("AUX" ROLL)
-	<SET ROLL <RANDOM-EVENT 1 0 T>>
-	<COND (<L=? .ROLL 2>
-		<STORY-JUMP ,STORY120>
-	)(<L=? .ROLL 4>
-		<STORY-JUMP ,STORY430>
-	)(ELSE
-		<STORY-JUMP ,STORY136>
-	)>>
 
 <CONSTANT TEXT634 "The climb is slightly easier than the last time, and you heave yourself over the lip of the top of Devil's Peak. A gryphon -- a creature that is half-lion, half-eagle, and at least the same size at you -- has made its nest here. It immediately swoops in to the attack, intent on protecting its nest. You must fight.">
 <CONSTANT TEXT634-LOSE "You are birdfeed for gryphon chicks.">
