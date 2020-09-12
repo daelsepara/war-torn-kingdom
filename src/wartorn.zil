@@ -184,7 +184,7 @@
 
 ; "NON-PERSON OBJECTS Properties"
 ; ---------------------------------------------------------------------------------------------
-
+<PROPDEF CHARGES -1>
 <PROPDEF QUANTITY -1>
 <PROPDEF CONDITION -1>
 
