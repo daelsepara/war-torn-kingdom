@@ -418,8 +418,8 @@
 			<COND (
 				<OR
 					<AND <G=? .KEY !\1> <L=? .KEY !\9>>
-					<AND <G=? .KEY !\A> <L=? .KEY !\J> <G? <GET .CHOICES 0> 9>>
-					<AND <G=? .KEY !\a> <L=? .KEY !\j> <G? <GET .CHOICES 0> 9>>
+					<AND <G=? .KEY !\A> <L=? .KEY !\J> <G? <GET .CHOICES 0> 9> <L=? <+ <- .KEY !\A> 10> <GET .CHOICES 0>>>
+					<AND <G=? .KEY !\a> <L=? .KEY !\j> <G? <GET .CHOICES 0> 9> <L=? <+ <- .KEY !\a> 10> <GET .CHOICES 0>>>
 					<AND <EQUAL? .KEY !\H !\h> <L? <GET .CHOICES 0> 17>>
 					<EQUAL? .KEY !\? !\Q !\q !\P !\p !\R !\r !\S !\s !\U !\u>
 				>
