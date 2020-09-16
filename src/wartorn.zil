@@ -7131,7 +7131,7 @@
 <CONSTANT CHOICES-THIEVERY <LTABLE TEXT-ROLL-THIEVERY>>
 
 <CONSTANT CHOICES-CODEWORD <LTABLE HAVE-CODEWORD IF-NOT>>
-<CONSTANT CHOICES-CODEWORD-ITEM TEXT-GO-ASHORE>
+<CONSTANT CHOICES-CODEWORD-ITEM <LTABLE HAVE-CODEWORD HAVE-A IF-NOT>>
 <CONSTANT CHOICES-HAVE-NOT <LTABLE HAVE-A IF-NOT>>
 <CONSTANT CHOICES-MISSION <LTABLE TEXT-TAKE-MISSION IF-NOT>>
 <CONSTANT CHOICES-NERECH <LTABLE "Demand that the crew follow your orders (The Plains of Howling Darkness)" TEXT-ROLL-CHARISMA TEXT-TURN-BACK>>
@@ -7468,7 +7468,7 @@
 	)(<CHECK-VISITS-EQUAL ,STORY010 4>
 		<RETURN ,STORY273>
 	)(ELSE
-		<RETURN ,STORY010>	
+		<RETURN ,STORY010>
 	)>>
 
 <ROUTINE STORY010-EVENTS ()
@@ -7687,7 +7687,6 @@
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT029 "Your ship is sailing in the coastal waters beside Yellowport. There are a number of other ships, mostly merchantmen, but there are also a few warships of the Sokaran Imperial Navy. \"At least we won't be plagued by pirates with the navy around,\" says the first mate.">
-<CONSTANT STORY029-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "Sokaran war galley!">>>>
 
 <ROOM STORY029
 	(DESC "029")
@@ -7695,7 +7694,7 @@
 	(EVENTS STORY-SET-SAIL)
 	(CHOICES CHOICES-RANDOM)
 	(DESTINATIONS <LTABLE <LTABLE STORY613 STORY439 STORY165>>)
-	(REQUIREMENTS STORY029-REQUIREMENTS)
+	(REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "Sokaran war galley!">>>)
 	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
@@ -7972,7 +7971,6 @@ footing and fall to the ground.">
 <CONSTANT TEXT049 "Not taking any chances, you charge the soldier, yelling a war cry. He starts back in astonishment. Just then, several archers pop up from behind the rocks above, and let loose a volley of arrows. One takes you in the leg.">
 <CONSTANT TEXT049-CONTINUED "You fall to one knee, and the soldier melts away into the rocks. Alone, and wounded in the thigh, you cannot climb upwards. You have to go back down though the descent will be difficult with an injured leg">
 <CONSTANT CHOICES049 <LTABLE "Continue descent">>
-<CONSTANT STORY049-REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 3 6> <LTABLE "You lose footing and fell!" "You finally managed to descend!">>>>
 
 <ROOM STORY049
 	(DESC "049")
@@ -7980,7 +7978,7 @@ footing and fall to the ground.">
 	(EVENTS STORY049-EVENTS)
 	(CHOICES CHOICES049)
 	(DESTINATIONS <LTABLE <LTABLE STORY529 STORY474>>)
-	(REQUIREMENTS STORY049-REQUIREMENTS)
+	(REQUIREMENTS <LTABLE <LTABLE 1 0 <LTABLE 3 6> <LTABLE "You lose footing and fell!" "You finally managed to descend!">>>)
 	(TYPES ONE-RANDOM)
 	(DOOM T)
 	(FLAGS LIGHTBIT)>
@@ -8764,7 +8762,6 @@ harbourmaster.">
 		R-NONE
 		R-NONE
 		R-NONE
-		R-NONE
 	>>
 
 <ROOM STORY100
@@ -8970,7 +8967,6 @@ harbourmaster.">
 	(DESTINATIONS <LTABLE STORY446 STORY226>)
 	(REQUIREMENTS <LTABLE CODEWORD-AGUE NONE>)
 	(TYPES ONE-CODEWORD)
-	(CONTINUE STORY226)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT116 "You realize the creature is one of the legendary repulsive ones. It is swimming past you, intent on its own business, so you follow it, in the hope it will lead you to the sunken city of Ziusudra.">
@@ -9022,14 +9018,13 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT120 "Your ship is sailing in the coastal waters off the Shadar Tor. You can just see the tor, a jumbled mass of rocks, sitting on the clifftops as it has done for a thousand years.">
-<CONSTANT STORY120-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "A merchant ship">>>>
 
 <ROOM STORY120
 	(DESC "120")
 	(STORY TEXT120)
 	(CHOICES CHOICES-RANDOM)
 	(DESTINATIONS <LTABLE <LTABLE STORY324 STORY559 STORY207>>)
-	(REQUIREMENTS STORY120-REQUIREMENTS)
+	(REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "A merchant ship">>>)
 	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
@@ -9202,7 +9197,6 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT136 "The Sea of Whispers. Under a grey-blue sky, the sea is uncannily quiet and flat as a pane of glass. At night, however, the waters seem to come alive with an eerie whispering. One of your crew tells you that the sounds you heard at night are the sea centaurs speaking to one another across the waves.">
-<CONSTANT STORY136-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 7 10 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "An unusual catch" "A strange dream">>>>
 
 <ROOM STORY136
 	(DESC "136")
@@ -9210,7 +9204,7 @@ harbourmaster.">
 	(EVENTS STORY-SET-SAIL)
 	(CHOICES CHOICES-RANDOM)
 	(DESTINATIONS <LTABLE <LTABLE STORY639 STORY507 STORY337 STORY108>>)
-	(REQUIREMENTS STORY136-REQUIREMENTS)
+	(REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 7 10 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "An unusual catch" "A strange dream">>>)
 	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
@@ -9836,14 +9830,13 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT190 "You are sailing along the coast off Blessed Springs and Fort Brilon. Gulls cluster around the ship, looking for food. Their cries echo across the vast seas.">
-<CONSTANT STORY190-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "A shipwreck">>>>
 
 <ROOM STORY190
 	(DESC "190")
 	(STORY TEXT190)
 	(CHOICES CHOICES-RANDOM)
 	(DESTINATIONS <LTABLE <LTABLE STORY038 STORY209 STORY504>>)
-	(REQUIREMENTS STORY190-REQUIREMENTS)
+	(REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "A shipwreck">>>)
 	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
@@ -10090,7 +10083,7 @@ harbourmaster.">
 	(STORY TEXT209)
 	(CHOICES CHOICES209)
 	(DESTINATIONS <LTABLE STORY249 STORY430 STORY136>)
-	(TYPES TWO-CHOICES)
+	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT210 "They fall back for a moment, but your invocation fails to take hold, and they close in. You must fight them one at a time.">
@@ -10247,7 +10240,6 @@ harbourmaster.">
 	<STORY-ROLL-RANK ,STORY057 0>>
 
 <CONSTANT TEXT222 "Your ship is sailing in the coastal waters near Marlock City.">
-<CONSTANT STORY222-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "Sea battle">>>>
 
 <ROOM STORY222
 	(DESC "222")
@@ -10255,7 +10247,7 @@ harbourmaster.">
 	(EVENTS STORY-SET-SAIL)
 	(CHOICES CHOICES-RANDOM)
 	(DESTINATIONS <LTABLE <LTABLE STORY124 STORY420 STORY169>>)
-	(REQUIREMENTS STORY222-REQUIREMENTS)
+	(REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "Sea battle">>>)
 	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
@@ -12958,14 +12950,13 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT430 "You are sailing in the waters around Scorpion Bight.||\"I wouldn't want to put into land in these parts,\" says your navigator. \"The scorpion men'll take all we've got, and our lives too, given half a chance.\"">
-<CONSTANT STORY430-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 7 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "A ship of bizarre design" "A floating island">>>>
 
 <ROOM STORY430
 	(DESC "430")
 	(STORY TEXT430)
 	(CHOICES CHOICES-RANDOM)
 	(DESTINATIONS <LTABLE <LTABLE STORY586 STORY085 STORY056 STORY264>>)
-	(REQUIREMENTS STORY430-REQUIREMENTS)
+	(REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 4 7 9 12> <LTABLE TEXT-STORM TEXT-UNEVENTFUL "A ship of bizarre design" "A floating island">>>)
 	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
@@ -13100,7 +13091,6 @@ harbourmaster.">
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT444 "You try to make a run for it.">
-<CONSTANT STORY444-REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 7 100> <LTABLE "The galley overtakes you" "You outrun them">>>>
 
 <ROOM STORY444
 	(DESC "444")
@@ -13108,7 +13098,7 @@ harbourmaster.">
 	(EVENTS STORY444-EVENTS)
 	(CHOICES CHOICES-RANDOM)
 	(DESTINATIONS <LTABLE <LTABLE STORY051 STORY402>>)
-	(REQUIREMENTS STORY444-REQUIREMENTS)
+	(REQUIREMENTS <LTABLE <LTABLE 2 0 <LTABLE 7 100> <LTABLE "The galley overtakes you" "You outrun them">>>)
 	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
@@ -16568,7 +16558,7 @@ buildings.||\"It's built that way for defence,\" says a passing farmer. \"The sc
 	(CHOICES CHOICES713)
 	(DESTINATIONS <LTABLE STORY677 STORY100>)
 	(REQUIREMENTS <LTABLE CODED-MISSIVE NONE>)
-	(TYPES <LTABLE R-ITEM R-NONE>)
+	(TYPES ONE-ITEM)
 	(CODEWORDS <LTABLE CODEWORD-ASSIST>)
 	(FLAGS LIGHTBIT)>
 
@@ -16691,15 +16681,15 @@ buildings.||\"It's built that way for defence,\" says a passing farmer. \"The sc
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT723 "They say that you will be arrested unless you pay 15 Shards as 'thoroughfare tax'.">
-<CONSTANT CHOICES723 <LTABLE "If you refuse, or don't have 15 Shards" "If you hand over the money, and the militiamen leave you alone">>
+<CONSTANT CHOICES723 <LTABLE "If you hand over the money, and the militiamen leave you alone" "If you refuse, or don't have 15 Shards">>
 
 <ROOM STORY723
 	(DESC "723")
 	(STORY TEXT723)
 	(CHOICES CHOICES723)
-	(DESTINATIONS <LTABLE STORY538 STORY010>)
-	(REQUIREMENTS <LTABLE NONE 15>)
-	(TYPES <LTABLE R-NONE R-MONEY>)
+	(DESTINATIONS <LTABLE STORY010 STORY538>)
+	(REQUIREMENTS <LTABLE 15 NONE>)
+	(TYPES ONE-MONEY)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT724 "The chief administrator is not happy to see you.||\"What are you doing here?\" he demands. \"You should be at Devil's Peak, north of here. The storm demons still threaten our city. Come back when you have succeeded.\"">
