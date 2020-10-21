@@ -7551,17 +7551,17 @@
 	(CONTINUE STORY065)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT012 "You tell them a story of tragic love between a merman and a human princess. The merfolk are moved to shed briny tears, and one of them plants a languorous kiss on your lips.||You find you can indeed breathe underwater now. The merfolk lead you into the depths, where they swim playfully around you.||Suddenly, a hideous form looms out of the murk. It is like a giant squid, but it carries a spear in one of its many tentacles and wears rudimentary armour. Great black eyes shine with an implacable alien intelligence. The merfolk dart away in fright, leaving you alone with the creature.">
+<CONSTANT TEXT012 "You tell them a story of tragic love between a merman and a human princess. The mer-folk are moved to shed briny tears, and one of them plants a languorous kiss on your lips.||You find that you can indeed breathe underwater now. The mer-folk lead you into the depths, where they swim playfully around you.||Suddenly, a hideous form looms out of the murk. It is like a giant squid, but it carries a spear in one of its many tentacles and wears rudimentary armour. Great black eyes shine with an implacable alien intelligence. The mer-folk dart away in fright, leaving you alone with the creature.">
+<CONSTANT CHOICES012 <LTABLE HAVE-CODEWORD OTHERWISE>>
 
 <ROOM STORY012
 	(DESC "012")
 	(STORY TEXT012)
-	(EVENTS STORY012-EVENTS)
-	(CONTINUE STORY238)
+	(CHOICES CHOICES012)
+	(DESTINATIONS <PLTABLE STORY116 STORY238>)
+	(REQUIREMENTS <PLTABLE CODEWORD-ANCHOR NONE>)
+	(TYPES ONE-CODEWORD)
 	(FLAGS LIGHTBIT)>
-
-<ROUTINE STORY012-EVENTS ()
-	<CODEWORD-JUMP ,CODEWORD-ANCHOR ,STORY116>>
 
 <ROOM STORY013
 	(DESC "013")
@@ -7573,7 +7573,7 @@
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT014 "Someone stabs you in the back.">
-<CONSTANT TEXT014-CONTINUED "You spin around just as a beefy, disreputable-looking thug comes for you again with a long dagger.||\"Get the snooping swine!\" yells the man with the eye patch">
+<CONSTANT TEXT014-CONTINUED "You spin around just as a beefy, disreputable-looking thug comes for you again with a long dagger.||\"Get the snooping swine!\" yells the man with the eye patch.||You must fight.">
 
 <ROOM STORY014
 	(DESC "014")
@@ -7594,28 +7594,49 @@
 	)>>
 
 <CONSTANT TEXT015 "Three drunken army officers accost you on the street.">
+<CONSTANT TEXT015-CONTINUED "\"Sho, what have we... hic... here,\" sneers one of them drunkenly.||\"Out of the way, you stinking dog!\" says another, shoving you in the chest.">
+<CONSTANT CHOICES015 <LTABLE "Step out of the way" "Return the insult">>
 
 <ROOM STORY015
 	(DESC "015")
 	(STORY TEXT015)
 	(EVENTS STORY015-EVENTS)
-	(CONTINUE STORY686)
+	(CHOICES CHOICES015)
+	(DESTINATIONS <PLTABLE STORY044 STORY266>)
+	(TYPES TWO-CHOICES)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY015-EVENTS ()
-	<TITLE-JUMP ,TITLE-PROTECTOR-SOKARA ,STORY542>>
+	<TITLE-JUMP ,TITLE-PROTECTOR-SOKARA ,STORY542>
+	<CONTINUE-TEXT ,TEXT015-CONTINUED>>
+
+<CONSTANT TEXT016 "You remain quiet as a mouse, behind a pile of coins. After a long wait, the sea dragon slithers into the water, and swims out on some errand. You have some time to loot the hoard. You may choose up to three of the following treasures:">
+<CONSTANT TEXT016-CONTINUED "After you have taken the third treasure, you hear the sea dragon returning. Quickly you climb up through the hole in the roof on to an island in the middle of the lake. From there you manage to get a lift on a passing boat, and make it safely to Cadmium village.">
 
 <ROOM STORY016
 	(DESC "016")
 	(VISITS 0)
 	(BACKGROUND STORY016-BACKGROUND)
+	(STORY TEXT016)
+	(EVENTS STORY016-EVENTS)
+	(CONTINUE STORY135)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY016-BACKGROUND ()
-	<COND (<CHECK-VISITS-MORE ,STORY016 1> <RETURN ,STORY251>)>
-	<RETURN ,STORY688>>
+	<COND (<CHECK-VISITS-MORE ,STORY016 1>
+		<RETURN ,STORY251>
+	)(<CHECK-CODEWORD ,CODEWORD-AVENGE>
+		<RETURN ,STORY648>
+	)>
+	<RETURN ,STORY016>>
 
-<CONSTANT TEXT017 "The horse and you hit the wall. There is a bright flash, and you find that you have passed straight through into the hill. It must be a faerie mound -- and that's not good. The horse you are riding abruptly changes shape in a puff of smoke. You find yourself on the back of a little knobbly-limbed, white-faced goblin, who promptly collapses under your weight.||You are in a cavern lit by mouse-sized faerie folk, who flit about in the air blazing like fireflies. The other horses have also turned into goblins, elves and faeries of all shapes and sizes.||\"What have we here?\" whispers a pale, dark-eyed elfin woman, dressed in silvery cobwebs and wearing a platinum crown.||\"An overweight mortal sitting on poor old Gobrash, your majesty,\" groans the goblin you are sitting on.||You realize you are in great danger here. There's no telling what the faerie folk will do to you. The queen signals to her people and they close in around you ominously.">
+<ROUTINE STORY016-EVENTS ()
+	<PUTP ,MONEY-BAG ,P?MONEY 500>
+	<SELECT-FROM-LIST <LTABLE ENCHANTED-SWORD PLATE-ARMOUR EBONY-WAND MONEY-BAG MAGIC-MANDOLIN GOLD-COMPASS MAGIC-LOCKPICKS SILVER-HOLY-SYMBOL> 8 3>
+	<CONTINUE-TEXT ,TEXT016-CONTINUED>
+	<UPDATE-STATUS-LINE>>
+
+<CONSTANT TEXT017 "The horse and you hit the wall. There is a bright flash, and you find you have passed straight through into the hill -- it must be a faery mound!||The horse you are riding abruptly changes shape in a puff of smoke. You find yourself on the back of a little, knobbly-limbed, white-faced goblin, who promptly collapses under your weight.||You are in a cavern, lit by mouse-sized faery folk, who flit about in the air blazing like fireflies. The other horses have also turned into goblins, elves and faeries of all shapes and sizes.||\"What have we here?,\" whispers a pale, dark-eyed elf woman, dressed in silvery cobwebs and wearing a gold crown.||\"An overweight mortal sitting on poor old Gobrash, your majesty!\" groans the goblin you are sitting on.||You realize you are in great danger here -- there's no telling what the faery folk will do to you. The queen signals to her people and they close in around you ominously.">
 
 <ROOM STORY017
 	(DESC "017")
@@ -7626,7 +7647,7 @@
 	(TYPES ONE-ABILITY)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT018 "You spin them a tale about how your poor brother, a mercenary in Grieve Marlock's personal guard, lost his legs in the fight to overthrow the old king, and that you have spent all your money on looking after him.||Several of the militia are brought to tears by your eloquent speech. They end up having a whip-round among themselves for your brother, and they give you 15 Shards. Chuckling to yourself, you return to the city centre.">
+<CONSTANT TEXT018 "You spin them a tale about how your poor brother, a mercenary in Grieve Marlock's personal guard, lost his legs in the fight to overthrow the old king, and that you have spent all your money on looking after him. Several of the militia are brought to tears by your eloquent speech -- they end up having a whip-round among themselves for your brother, and they give you 15 Shards! Chuckling to yourself, you return to the city centre.">
 
 <ROOM STORY018
 	(DESC "018")
@@ -7638,7 +7659,7 @@
 <ROUTINE STORY018-EVENTS ()
 	<GAIN-MONEY 15>>
 
-<CONSTANT TEXT019 "The Dragon Knights are impressed with your combat skills. Your opponent comes round, ruefully rubbing his neck. Grudgingly, he admits to your superior skill and hands you his weapon and armour. You get an ordinary sword and a suit of heavy plate (Defence +6).">
+<CONSTANT TEXT019 "The Dragon Knights are impressed with your combat skills. Your opponent comes round, ruefully rubbing his neck. Grudgingly, he admits to your superior skill and hands you his weapon and armour. You get an ordinary sword and a suit of heavy plate (Defence +6).||You take your leave.">
 
 <ROOM STORY019
 	(DESC "019")
@@ -7652,16 +7673,16 @@
 <ROUTINE STORY019-EVENTS ()
 	<COND (<CHECK-VISITS-MORE ,STORY019 2> <GAIN-CODEWORD ,CODEWORD-ANVIL>)>>
 
-<CONSTANT TEXT020 "Wary of danger, you lose no time in getting to your feet, but it is only an old man gathering driftwood.||\"What have we here?\" he asks, edging closer. \"All wet and out of luck, you look. Washed-up, eh?\"||\"Where is this?\" Your eyes take in the empty shore, the cliffs, the forest of the hinterland. None of it is familiar to you.||\"You don't know?\" The old man gives you a keener look, and a more serious look comes into his eyes. \"Can it be? After all my waiting, the prophecy is fulfilled at last?\"||\"Prophecy? What are you talking about?\"||\"It was written in the stars that someone like you would come. A traveller from a far land. Great things are in store for you, my young friend.\"||The old man turns smartly about and begins walking up a path. Looking past him, you can just make out a monolithic stone structure atop the cliffs.||\"You still haven't told me where I am.\"||\"This is the Isle of the Druids.\" He gestures to the west. \"The great continent of Harkuna lies a few leagues that way. But if you want to explore it, you'd better come with me.\"||\"Come with you where?\"||He points. \"That ring of stones up there. It's called the Gates of the World.\"">
+<CONSTANT TEXT020 "\"Well, well, well, what have we here, friends?\" asks the old man. He seems to be talking to someone next to him, although you are certain he is alone. \"Looks like a washed up adventurer to me!\" he says in answer to his own question, \"all wet and out of luck.\"||He carries on having a conversation -- a conversation that quickly turns into a heated debate. He is clearly quite mad.||\"Excuse me, umm, EXCUSE ME!,\" you shout above the hubbub in an attempt to grab the old man's attention. He stops and stares at you.||\"Is this the Isle of the Druids?\" you ask impatiently.||\"Indeed it is,\" says the old man, \"I see that you are from a far land so it is up to me to welcome you to Harkuna. But I think you may have much to do here as it is written in the stars that someone like you would come. Your destiny awaits you! Follow me, young adventurer.\"||The old man turns smartly about and begins walking up a path towards some hills. You can just see some sort of monolithic stone structure atop one of them.||\"Come on, come one, I'll show you the Gates of the World,\" the old man babbles.">
 <CONSTANT CHOICES020 <LTABLE TEXT-FOLLOW-HIM TEXT-EXPLORE-COAST TEXT-HEAD-FOREST>>
 
 <ROOM STORY020
 	(DESC "020")
+	(LOCATION LOCATION-TRADING)
 	(STORY TEXT020)
 	(CHOICES CHOICES020)
 	(DESTINATIONS <PLTABLE STORY192 STORY128 STORY257>)
 	(TYPES THREE-CHOICES)
-	(CODEWORDS <PLTABLE CODEWORD-AURIC>)
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT021 "While making your way through the back streets of the poor quarter you are set upon by a knife-wielding thug who is intent on relieving you of your purse.">
