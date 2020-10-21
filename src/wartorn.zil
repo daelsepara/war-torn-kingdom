@@ -7316,30 +7316,32 @@
 ; "Story"
 ; ---------------------------------------------------------------------------------------------
 
-<CONSTANT TEXT001 "The first sound is the gentle murmur of waves some way off. The cry of gulls. Then the sensation of a softly stirring sea breeze and the baking sun on your back.||If that was all, you could imagine yourself in paradise, but as your senses return you start to feel the aches in every muscle. And then you remember the shipwreck.||You force open your eyes, caked shut by a crust of salt. You are lying on a beach, a desolate slab of wet sand that glistens in the merciless glare of the sun. Small crabs break away as you stir, scurrying for cover amid the long strands of seaweed.||\"Not... food for you yet...\" you murmur, wincing at the pain of cracked lips. Your mouth is dry and there is a pounding in your head born of fatigue and thirst. You don't care about the headache or the bruises, just as long as you're alive.||As you lie gathering your strength, you hear somebody coming along the shore.">
-<CONSTANT CHOICES001 <LTABLE "Lie still until he's gone" "Speak to him">>
+<CONSTANT TEXT001 "The approach of dawn has turned the sky a milky grey-green, like jade. The sea is a luminous pane of silver. Holding the tiller of your sailing boat, you keep your gaze fixed on the glittering constellation known as the Spider. It marks the north, and by keeping it to port you know you are still on course.||The sun appears in a trembling burst of red fire at the rim of the world. Slowly the chill of night gives way to brazen warmth. You lick your parched lips. There is a little water sloshing in the bottom of the barrel by your feet, but not enough to see you through another day.||Sealed in a scroll case tucked into your jerkin is the parchment map your grandfather gave to you on his death-bed. You remember his stirring tales of far sea voyages, of kingdoms beyond the western horizon, of sorcerous islands and ruined palaces filled with treasure. As a child you dreamed of nothing else but the magical quests that were in store if you too became an adventurer.||You never expected to die in an open boat before your adventures even began.||Securing the tiller, you unroll the map and study it again. You hardly need to. Every detail is etched into your memory by now. According to your reckoning, you should have reached the east coast of Harkuna, the great northern continent, days ago.||A pasty grey blob splatters on to the map. After a moment of stunned surprise, you look up and curse the seagull circling directly overhead. Then it strikes you -- where there's a seagull, there may be land.||You leap to your feet and scan the horizon. Sure enough, a line of white cliffs lie a league to the north. Have you been sailing along the coast all this time without realising the mainland was so close?||Steering towards the cliffs, you feel the boat judder against rough waves. A howling wind whips plumes of spindrift across the sea. Breakers pound the high cliffs. The tiller is yanked out of your hands. The little boat is spun around, out of control, and goes plunging in towards the coast.||You leap clear at the last second. There is the snap of timber, the roaring crescendo of the waves -- and then silence as you go under. Striking out wildly, you try to swim clear of the razor-sharp rocks. For a while the undertow threatens to drag you down, then suddenly a wave catches you and flings you contemptuously up on to the beach.||Battered and bedraggled you lie gasping for breath until you hear someone walking along the shore towards you. Wary of danger, you lose no time in getting to your feet. Confronting you is an old man clad in a dirty loin-cloth. His eyes have a feverish bright look that is suggestive of either a mystic or a madman.">
 
 <ROOM STORY001
 	(DESC "001")
 	(STORY TEXT001)
-	(CHOICES CHOICES001)
-	(DESTINATIONS <PLTABLE STORY736 STORY020>)
-	(TYPES TWO-CHOICES)
+	(CONTINUE STORY020)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT002 "You are face to face with a soldier. But is he friend -- or foe?">
-<CONSTANT CHOICES002 <LTABLE HAVE-A HAVE-CODEWORD HAVE-NEITHER>>
+<CONSTANT TEXT002 "The soldier recognizes you. He bows and says, \"Welcome, my lord. I will take you see King Nergan.\"||He leads you to Nergan's mountain stockade, where the king greets you warmly.||\"Ah, my local champion! It is always a pleasure to see you. However, I was hoping you had spoken with General Beladai of the allied army -- we need that citadel. Now go. That is a royal command!\"||You leave, climbing down to the foothills of the mountains.">
 
 <ROOM STORY002
 	(DESC "002")
+	(BACKGROUND STORY002-BACKGROUND)
 	(STORY TEXT002)
-	(CHOICES CHOICES002)
-	(DESTINATIONS <PLTABLE STORY676 STORY098 STORY680>)
-	(REQUIREMENTS <PLTABLE CODED-MISSIVE CODEWORD-DELIVER NONE>)
-	(TYPES <PLTABLE R-ITEM R-CODEWORD R-NONE>)
+	(CONTINUE STORY474)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT003 "You have come to the foothills of the Spine of Harkun, in the north west of Sokara. The view is impressive: a massive wall of forested mountains, whose rocky, white-flanked peaks soar skywards into the clouds. These parts of the mountains are unscalable but you notice a large cave at the bottom of a mountain.">
+<ROUTINE STORY002-BACKGROUND ()
+	<COND (<CHECK-ITEM ,CODED-MISSIVE>
+		<RETURN ,STORY676>
+	)(<CHECK-CODEWORD ,CODEWORD-DELIVER>
+		<RETURN ,STORY098>
+	)>
+	<RETURN ,STORY002>>
+
+<CONSTANT TEXT003 "You have come to the foothills of the Spine of Harkun, in the north west of Sokara. The view is impressive: a massive wall of forested mountains, whose rocky, white-flanked peaks soar skywards into the clouds. These parts of the mountains are unclimbable but you notice a large cave at the bottom of a mountain.">
 <CONSTANT CHOICES003 <LTABLE "Investigate the cave" "Go east to the Citadel of Velis Corin" "South into the wilderness">>
 
 <ROOM STORY003
@@ -7350,7 +7352,7 @@
 	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT004 "The priests of Alvir and Valmir are overjoyed that you have returned the golden net. The high priest rewards you with 100 Shards and a rune-engraved magic weapon.">
+<CONSTANT TEXT004 "The priests of Alvir and Valmir are overjoyed that you have returned the golden net. The high priest rewards you with 100 Shards and a magic weapon, a rune-engraved trident.">
 
 <ROOM STORY004
 	(DESC "004")
@@ -7365,18 +7367,19 @@
 	<GAIN-MONEY 100>>
 
 <CONSTANT TEXT005 "It is a tough climb upwards but not impossible.">
+<CONSTANT CHOICES005 <LTABLE HAVE-A TEXT-ROLL-SCOUTING>>
 
 <ROOM STORY005
 	(DESC "005")
 	(STORY TEXT005)
-	(EVENTS STORY005-EVENTS)
-	(CONTINUE STORY681)
+	(CONSTANT CHOICES005)
+	(DESTINATIONS <PLTABLE STORY652 <PLTABLE STORY652 STORY529>>)
+	(REQUIREMENTS <PLTABLE CLIMBING-GEAR <PLTABLE ABILITY-SCOUTING 10>>)
+	(TYPES <PLTABLE R-ITEM R-TEST-ABILITY>)
 	(FLAGS LIGHTBIT)>
 
-<ROUTINE STORY005-EVENTS ()
-	<ITEM-JUMP ,CLIMBING-GEAR ,STORY652>>
-
-<CONSTANT TEXT006 "The chest springs open with a click. Inside you find 60 Shards, a mandolin (CHARISMA +1), and a potion of healing. The potion can be used once at any time (even in combat) to restore 5 Stamina points.||There is also an ancient religious text about the gods of Uttaku, called the scroll of Ebron, which reveals that one of the gods of the Uttakin is called Ebron, and that he has fourteen angles. You double-check but that's what it says. Not angels, angles.">
+; "TO-DO: Implement potion of healing in combat"
+<CONSTANT TEXT006 "The chest springs open with a click. Inside you find 60 Shards, a mandolin (CHARISMA +1), and a potion of healing. The potion can be used once at any time (even in combat) to restore 5 Stamina points.||There is also an ancient religious text about the gods of Uttaku, called the scroll of Ebron, which reveals that one of the gods of the Uttakin is called Ebron, and that he has fourteen angles. You double-check but that's what it says.">
 
 <ROOM STORY006
 	(DESC "006")
@@ -7396,7 +7399,7 @@
 	(CONTINUE STORY110)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT008 "You step through the archway. Immediately the symbols on the stone begin to glow with red-hot energy; your hair stands on end and your body tingles. A crackling nimbus of blue-white force engulfs you, the sky darkens and thunder and lightning crash and leap across the heavens. Suddenly, your vision fades, and everything goes black.||When your sight returns, you find yourself at the gates of a large city, set on an ochre-coloured river. A vile stink of brimstone permeates the air. You wrinkle your face up in disgust and gag involuntarily.||\"Welcome to Yellowport,\" says a passing merchant.">
+<CONSTANT TEXT008 "You step through the archway. Immediately the symbols on the stone begin to glow with red-hot energy; your hair stands on end and your body tingles. A crackling nimbus of blue-white force engulfs you, the sky darkens and thunder and lightning crash and leap across the heavens. Suddenly, your vision fades, and everything goes black.||When your sight returns, you find yourself at the gates of a large city, set on an ochre-coloured river. A vile stink of brimstone permeates the air. You wrinkle your face up in disgust and gag involuntarily.||\"Welcome to Yellowport!\" says a passing merchant.">
 
 <ROOM STORY008
 	(DESC "008")
@@ -7404,16 +7407,24 @@
 	(CONTINUE STORY010)
 	(FLAGS LIGHTBIT)>
 
+<CONSTANT TEXT009 "A notice has been pinned up in the foyer. 'Adventurer priest wanted. See the Chief Administrator.'||Naturally, you present yourself, and the Chief Administrator, a grey-whiskered priest of Elnir, takes you into his office. He shows you a special crystal ball that displays an aerial view of Marlock City. You notice several strange-looking clouds hanging over the city. They are shaped like gigantic demons reaching down to claw at the city laid out below them.||\"The crystal ball shows things as they are in the spirit world,\" explains the priest. \"These storm demons cannot be seen under normal circumstances, but they are there, almost ready to destroy the city.\"||He goes on to tell you that Sul Veneris, the divine Lord of Thunder is one of the sons of Elnir, the Sky God, chief among the gods. He is responsible for keeping the storm demons under control, and thunder is thought to be the sound of Sul Veneris smiting the demons in his wrath.||\"Unfortunately, the storm demons have found a way to put Sul Veneris into an enchanted sleep. He lies at the very top of Devil's Peak, a single spire of volcanic rock, reaching up into the clouds. The peak lies north of Marlock City and the Curstmoor. We need an enterprising priest to get to the top of the peak and free Sul Veneris from his sleep. But I must warn you that several priests have already tried, and we never saw them again.\"">
+<CONSTANT CHOICES009 <LTABLE "Take up the quest" IF-NOT>>
+
 <ROOM STORY009
 	(DESC "009")
 	(BACKGROUND STORY009-BACKGROUND)
+	(STORY TEXT009)
+	(CHOICES CHOICES009)
+	(DESTINATIONS <PLTABLE STORY100 STORY100>)
+	(REQUIREMENTS <PLTABLE CODEWORD-ALTITUDE NONE>)
+	(TYPES <PLTABLE R-GAIN-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY009-BACKGROUND ()
 	<COND (<CHECK-CODEWORD ,CODEWORD-ALTITUDE> <RETURN ,STORY272>)>
-	<RETURN ,STORY685>>
+	<RETURN ,STORY009>>
 
-<CONSTANT TEXT010 "Yellowport is the second largest city in Sokara. It is mainly a trading town, and is known for its exotic goods from distant Ankon-Konu.||The Stinking River brings rich deposits of sulphur from the Lake of the Sea Dragon down to the town, where it is extracted and stored in the large waterfront warehouses run by the merchants' guild. From here, the mineral is exported all over Harkuna. But all that sulphur has its drawbacks. The stink is abominable, and much of the city has a yellowish hue. The river is so full of sulphur that it is virtually useless as drinking water. However, the demand for sulphur, especially from the sorcerous guilds, is great.||Politically much has changed in the past few years. The old and corrupt king of Sokara, Corin VII, has been deposed and executed in a military coup. General Grieve Marlock and the army now control Sokara. The old Council of Yellowport has been indefinitely dissolved and a provost marshal, Marloes Marlock, the general's brother, appointed as military governor of the town.||You can buy a townhouse in Yellowport for 200 Shards. Owning a townhouse gives you a place to rest and to store equipment.||To leave Yellowport by sea, buy or sell ships and cargo, go to the harbourmaster.">
+<CONSTANT TEXT010 "Yellowport is the second largest city in Sokara. It is mainly a trading town, and is known for its exotic goods from distant Ankon-Konu, way to the south.||The Stinking River brings rich deposits of sulphur from the Lake of the Sea Dragon down to the town, where it is extracted and stored in the large waterfront warehouses run by the merchants' guild. From here, the mineral is exported all over Harkuna. Unfortunately, all that sulphur has its drawbacks. The stink is abominable, and much of the city has a yellowish hue. The river is so full of sulphur that it is virtually useless as a source of food or of drinking water. However, the demand for sulphur, especially from the sorcerous guilds, is great.||Politically, much has changed in the past few years. The old and corrupt king of Sokara, Corin VII, has been deposed and executed in a military coup. General Grieve Marlock and the army now control Sokara. The old Council of Yellowport has been 'indefinitely dissolved' and a provost marshal, Marloes Marlock, the general's brother, appointed as military governor of the town.||You can buy a town house in Yellowport for 200 Shards. Owning a house gives you a place to rest, and to store equipment.||To leave Yellowport by sea, buy or sell ships and cargo, go to the harbourmaster.">
 
 <CONSTANT YELLOWPORT-CHOICES
 	<LTABLE
@@ -7434,8 +7445,6 @@
 		"Head north-west to Trefoille"
 		"Follow the Stinking River north"
 		"Strike out north-west, across country"
-		"Visit your secret cache"
-		"Go down into the sewers"
 	>>
 
 <CONSTANT YELLOWPORT-DESTINATIONS
@@ -7457,8 +7466,6 @@
 		STORY233
 		STORY082
 		STORY558
-		STORY327
-		STORY460
 	>>
 
 <CONSTANT YELLOWPORT-REQUIREMENTS
@@ -7480,8 +7487,6 @@
 		NONE
 		NONE
 		NONE
-		CODEWORD-ACID
-		CODEWORD-AJAR
 	>>
 
 <CONSTANT YELLOWPORT-TYPES
@@ -7503,8 +7508,6 @@
 		R-NONE
 		R-NONE
 		R-NONE
-		R-CODEWORD
-		R-CODEWORD
 	>>
 
 <ROOM STORY010
