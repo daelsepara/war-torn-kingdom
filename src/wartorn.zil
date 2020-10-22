@@ -2,8 +2,8 @@
 ; ---------------------------------------------------------------------------------------------
 
 <CONSTANT GAME-TITLE "||The War-Torn Kingdom">
-<CONSTANT GAME-DESCRIPTION "|Dave Morris and Jamie Thomson (1995, 2010)||Implemented in ZIL by SD Separa (2020)|">
-<CONSTANT RELEASEID 1>
+<CONSTANT GAME-DESCRIPTION "|Dave Morris and Jamie Thomson (1995)||Implemented in ZIL by SD Separa (2020)|">
+<CONSTANT RELEASEID 2>
 <CONSTANT IFID "ADECB9D4-B91D-4C0A-8912-A6195F7A81A0">
 <VERSION XZIP>
 
@@ -5909,6 +5909,7 @@
 		)(<L=? .ROLL 12>
 			<COND (.FATAL
 				<EMPHASIZE "Earthquake! You lose all possessions you left here and the townhouse is destroyed.">
+				<COND (<G? <GETP .STORY ,P?VISITS> 0> <PUTP .STORY ,P?VISITS 0>)>
 				<COND (.CODEWORD <DELETE-CODEWORD .CODEWORD>)>
 				<RESET-CONTAINER .TOWNHOUSE>
 				<GAIN-MONEY <GETP .TOWNHOUSE ,P?MONEY>>
@@ -6916,6 +6917,7 @@
 	<SET-DESTINATION ,STORY358 3 ,STORY678>
 	<RESET-DIFFICULTY ,STORY237 1 10>
 	<RESET-VISITS>
+	<PUTP ,STORY021-FIGHT ,P?DOOM T>
 	<PUTP ,STORY014 ,P?DOOM T>
 	<PUTP ,STORY034 ,P?DOOM T>
 	<PUTP ,STORY036 ,P?DOOM T>
@@ -7001,6 +7003,7 @@
 	<PUTP ,STORY232 ,P?VISITS 0>
 	<PUTP ,STORY233 ,P?VISITS 0>
 	<PUTP ,STORY264 ,P?VISITS 0>
+	<PUTP ,STORY300 ,P?VISITS 0>
 	<PUTP ,STORY305 ,P?VISITS 0>
 	<PUTP ,STORY310 ,P?VISITS 0>
 	<PUTP ,STORY331 ,P?VISITS 0>
@@ -7477,7 +7480,7 @@
 		NONE
 		NONE
 		NONE
-		CODEWORD-ABIDE
+		0
 		NONE
 		NONE
 		NONE
@@ -7498,7 +7501,7 @@
 		R-NONE
 		R-NONE
 		R-NONE
-		R-CODEWORD
+		R-VISITS
 		R-NONE
 		R-NONE
 		R-NONE
@@ -7538,7 +7541,7 @@
 		<TELL "Would you like to buy a townhouse in Yellowport (200 " D ,CURRENCY ")?">
 		<COND (<YES?>
 			<COST-MONEY 200>
-			<GAIN-CODEWORD ,CODEWORD-ABIDE>
+			<PUTP ,STORY300 ,P?VISITS 1>
 			<GAIN-TOWNHOUSE ,TOWNHOUSE-YELLOWPORT>
 		)>
 	)>>
@@ -7685,16 +7688,47 @@
 	(TYPES THREE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT021 "While making your way through the back streets of the poor quarter you are set upon by a knife-wielding thug who is intent on relieving you of your purse.">
-<CONSTANT CHOICES021 <LTABLE "Reason with him" "Fight">>
+<CONSTANT TEXT021 "While making your way through the back streets of the poor quarter you are set upon a knife-wielding thug, who is intent of relieving you of your purse.">
+<CONSTANT CHOICES021 <LTABLE "Try to talk your way out of this unpleasant situation" "Otherwise, you must fight him">>
 
 <ROOM STORY021
 	(DESC "021")
 	(STORY TEXT021)
 	(CHOICES CHOICES021)
-	(DESTINATIONS <PLTABLE STORY689 STORY690>)
-	(TYPES TWO-CHOICES)
+	(DESTINATIONS <PLTABLE <PLTABLE STORY021-CONFUSED STORY021-FIGHT> STORY021-FIGHT>)
+	(REQUIREMENTS <PLTABLE <PLTABLE ABILITY-CHARISMA 8> NONE>)
+	(TYPES <PLTABLE R-TEST-ABILITY R-NONE>)
 	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT021-CONFUSED "The thug leaves, confused by your rhetoric.">
+
+<ROOM STORY021-CONFUSED
+	(DESC "021")
+	(STORY TEXT021-CONFUSED)
+	(CONTINUE STORY010)
+	(FLAGS LIGHTBIT)>
+
+<CONSTANT TEXT021-FIND "You find 15 Shards on his body.">
+<CONSTANT TEXT021-STUNNED "You are defeated, you are stunned into unconsciousness. You come round with 1 Stamina point, and he has robbed you of 50 Shards.">
+
+<ROOM STORY021-FIGHT
+	(DESC "021")
+	(EVENTS STORY021-EVENTS)
+	(CONTINUE STORY010)
+	(DOOM T)
+	(FLAGS LIGHTBIT)>
+
+<ROUTINE STORY021-EVENTS ()
+	<COMBAT-MONSTER ,MONSTER-THUG 4 7 6>
+	<COND (<CHECK-COMBAT ,MONSTER-THUG ,STORY021-FIGHT>
+		<EMPHASIZE ,TEXT021-FIND>
+		<GAIN-MONEY 15>
+	)(ELSE
+		<EMPHASIZE ,TEXT021-STUNNED>
+		<SETG STAMINA 1>
+		<LOSE-MONEY 50>
+		<STORY-JUMP ,STORY010>
+	)>>
 
 <CONSTANT TEXT022 "You reach down and deftly pull out the ceramic plug. A gush of foul-smelling emerald green liquid spills on to the floor, and the golem twitches once before collapsing. The other golem is coming to life, however. You'll have to be quick to get it in time.">
 
@@ -7730,16 +7764,28 @@
 	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT025 "Captain Vorkung is impressed with your claims of loyalty to the rightful king. He decides you might be useful to their cause, and you are led, blindfolded, through a secret pass to a mountain stockade.||King Nergan gives you an audience in a makeshift throne room. He is a young, and handsome man, who seems committed to his country. He leads you aside, into a private chamber.||\"I have need of one such as you,\" he says. \"Yellowport groans under the yoke of Governor Marloes Marlock, the brother of General Grieve Marlock. If you can get into the palace at Yellowport and assassinate Marloes, I will be eternally grateful.\"">
+<CONSTANT CHOICES025 <LTABLE "Accept the mission to kill the Governor of Yellowport" OTHERWISE>>
 
 <ROOM STORY025
 	(DESC "025")
 	(STORY TEXT025)
 	(EVENTS STORY025-EVENTS)
-	(CONTINUE STORY735)
+	(CHOICES CHOICES025)
+	(DESTINATIONS <PLTABLE STORY025-LEAVE STORY025-LEAVE>)
+	(REQUIREMENTS <PLTABLE CODEWORD-AMBUSCADE NONE>)
+	(TYPES <PLTABLE R-GAIN-CODEWORD R-NONE>)
 	(FLAGS LIGHTBIT)>
 
 <ROUTINE STORY025-EVENTS ()
 	<CODEWORD-JUMP ,CODEWORD-ARTERY ,STORY399>>
+
+<CONSTANT TEXT025-LEAVE "When you are ready, the King wishes you well, and you are lead out of the stockade, and back down to the foothills of the Coldbleak Mountains.">
+
+<ROOM STORY025-LEAVE
+	(DESC "025")
+	(STORY TEXT025-LEAVE)
+	(CONTINUE STORY474)
+	(FLAGS LIGHTBIT)>
 
 <CONSTANT TEXT026 "You set sail for Dweomer. The journey takes a few days but is uneventful. The captain can't believe his luck. \"I half-expected us to end up wrecked on rocks or seized by Uttakin slavers,\" he says with evident relief. You disembark at Dweomer harbour, on the Sorcerers' Isle.">
 
@@ -7764,7 +7810,7 @@
 	(DESC "028")
 	(STORY TEXT028)
 	(CHOICES CHOICES028)
-	(DESTINATIONS <PLTABLE STORY560 STORY558 STORY250 STORY100 STORY099>)
+	(DESTINATIONS <PLTABLE STORY560 STORY588 STORY250 STORY100 STORY099>)
 	(TYPES FIVE-CHOICES)
 	(FLAGS LIGHTBIT)>
 
@@ -7780,8 +7826,7 @@
 	(TYPES ONE-RANDOM)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT030 "The market is large and busy. At the corners of Brimstone Plaza, gigantic braziers burn sweet-smelling incense in an attempt to overpower the rotten-egg smell that permeates the whole city. There are many stalls and goods to choose from.||One trader is offering a treasure map for sale at 200 Shards. He will also buy any old treasure map for 150 Shards.||To buy cargo for a ship, you need to visit the warehouses at the
-harbourmaster.">
+<CONSTANT TEXT030 "The market is large and busy. At the corners of Brimstone Plaza, gigantic braziers burn sweet-smelling incense in an attempt to overpower the rotten-egg smell that permeates the whole city. There are many stalls and goods to choose from.||One trader is offering a treasure map for sale at 200 Shards. He will also buy any old treasure map for 150 Shards.||If you wish to buy cargo for a ship, you need to visit the warehouses at the harbourmaster.">
 <CONSTANT CHOICES030 <LTABLE TEXT-BUY-STUFF TEXT-SELL-STUFF "Buy treasure map" "Go back to town">>
 
 <ROOM STORY030
@@ -11336,6 +11381,7 @@ harbourmaster.">
 
 <ROOM STORY300
 	(DESC "300")
+	(VISITS 0)
 	(STORY TEXT-TOWNHOUSE)
 	(EVENTS STORY300-EVENTS)
 	(CONTINUE STORY010)
