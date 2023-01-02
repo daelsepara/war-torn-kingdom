@@ -230,6 +230,7 @@
 ; ---------------------------------------------------------------------------------------------
 
 <ROUTINE GAME-BOOK ("AUX" KEY)
+	<SETG HERE NONE>
 	<INSTRUCTIONS>
 	<RESET-PLAYER>
 	<RESET-OBJECTS>
@@ -2997,12 +2998,12 @@
 	<CURSET .ROW 1>>
 
 <ROUTINE UPDATE-STATUS-LINE ("AUX" WIDTH)
-	<SPLIT 2>
-	<SCREEN 1>
-	<SET WIDTH <LOWCORE SCRH>>
-	<HLIGHT ,H-INVERSE>
-	<LINE-ERASE 1>
 	<COND (,HERE
+		<SPLIT 2>
+		<SCREEN 1>
+		<SET WIDTH <LOWCORE SCRH>>
+		<HLIGHT ,H-INVERSE>
+		<LINE-ERASE 1>
 		<CURSET 1 1>
 		<TELL D ,HERE>
 		<COND (<G? <GETP ,HERE ,P?VISITS> 1>
@@ -3023,9 +3024,9 @@
 				<TELL ": " N ,MONEY>
 			)>
 		)>
-	)>
-	<SCREEN 0>
-	<HLIGHT 0>>
+		<SCREEN 0>
+		<HLIGHT 0>
+	)>>
 
 ; "Gamebook loop routines"
 ; ---------------------------------------------------------------------------------------------
@@ -3106,7 +3107,7 @@
 
 <OBJECT CHARACTER-ANDRIEL
 	(DESC "Andriel The Hammer")
-	(LDESC "Andriel seeks frame through adventure and the glory of battle. He left his homeland when an extended outbreak of peace made his skills redundant there. He is blunt and outspoken, but scrupulously follows the warrior's code. He knows that the merchants' guild in Yellowport needs assistance.")
+	(LDESC "Andriel seeks fame through adventure and the glory of battle. He left his homeland when an extended outbreak of peace made his skills redundant there. He is blunt and outspoken, but scrupulously follows the warrior's code. He knows that the merchants' guild in Yellowport needs assistance.")
 	(RANK 1)
 	(PROFESSION PROFESSION-WARRIOR)
 	(STAMINA 9)
