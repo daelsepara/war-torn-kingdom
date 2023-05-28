@@ -8,7 +8,7 @@ ZIL Implementation of War-Torn Kingdom (Quest / Fabled Lands Game book) by Dave 
 | |FOR ONE PLAYER. This book includes:<br>* A pair of dice<br>* 14 reusable adventure sheets<br>* Character profiles<br>* 2 maps of Fabled Lands of Quest<br>* All the instructions you need to start your very own adventure|
 | |*This is role-playing as you've never known it before -- in the perilous world of QUEST!*|
 | |*Cover illustration by Kevin Jenkins|
-| |**Map of Sokara**| 
+| |**Map of Sokara**|
 | |![Map](/images/map-of-sokara.jpg)<br>**From: [The Gallery: Art of Russ Nicholson](https://russnicholson.blogspot.com/)|
 
 ## Full Map (c) 1995 Macmillan Children's books
@@ -20,7 +20,7 @@ ZIL Implementation of War-Torn Kingdom (Quest / Fabled Lands Game book) by Dave 
 ## Full Cover Art (c) Kevin Jenkins
 ![Full Cover Art](/images/full-cover-art.jpg)
 
-## Additional Copyright Information 
+## Additional Copyright Information
 
 ```
 Text copyright (c) 1995, 2010 Dave Morris and Jamie Thomson
@@ -61,7 +61,7 @@ First Edition
 - Press **r** or **R** to restore progress from a save file
 - Press **s** or **S** to save current progress to a file
 - Press **u** or **U** Use/drop an item from your inventory
-- Press **?** to list the commands **P**/**S**/**R**/**U**/**Q** and what each does 
+- Press **?** to list the commands **P**/**S**/**R**/**U**/**Q** and what each does
 
 ## Additional Notes
 

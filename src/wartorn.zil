@@ -33,7 +33,7 @@
 <CONSTANT SELECT-CHOICES <LTABLE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE>>
 <CONSTANT TEMP-LIST <LTABLE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE NONE>>
 
-<CONSTANT R-NONE 0> 
+<CONSTANT R-NONE 0>
 <CONSTANT R-TEST-ABILITY 1> ; "test ABILITY versus difficulty roll"
 <CONSTANT R-RANDOM 2> ; "rolls a number of dice and choose destination based on threshold"
 <CONSTANT R-CODEWORD 3> ; "presence of codeword(s)"
@@ -4499,7 +4499,7 @@
 	<TELL "Round " N .ROUND ": ">
 	<HLIGHT 0>
 	<HLIGHT ,H-ITALIC>
-	<TELL D ,CURRENT-CHARACTER> 
+	<TELL D ,CURRENT-CHARACTER>
 	<HLIGHT 0>
 	<TELL " (STAMINA: " N .STAMINA-PLAYER "), ">
 	<HLIGHT ,H-ITALIC>
@@ -4547,7 +4547,7 @@
 	<TELL " (COMBAT: " N .COMBAT-MONSTER " DEFENSE: " N .DEFENSE-MONSTER ")">
 	<TELL ,PERIOD-CR>
 	; "Track Previous Stamina"
-	<SETG PREVIOUS-STAMINA .STAMINA-PLAYER> 
+	<SETG PREVIOUS-STAMINA .STAMINA-PLAYER>
 	<REPEAT ()
 		<INC .ROUND>
 		<COMBAT-STATUS .ROUND .MONSTER .STAMINA-PLAYER .STAMINA-MONSTER>
@@ -4776,7 +4776,7 @@
 		<COND (<OR
 			<AND <G=? .CHARACTER !\0> <L=? .CHARACTER !\9>>
 			<AND <G? .BASE 10> <L=? .BASE 36>
-				<OR 
+				<OR
 					<AND <G=? .CHARACTER !\A> <L=? .CHARACTER !\Z>>
 					<AND <G=? .CHARACTER !\a> <L=? .CHARACTER !\z>>
 				>
@@ -5863,7 +5863,7 @@
 			<HLIGHT 0>
 			<COND (<YES?>
 				<COND (.LEAVE
-					<MOVE <GET-ITEM .CHOICE .FROM> .TO>	
+					<MOVE <GET-ITEM .CHOICE .FROM> .TO>
 				)(ELSE
 					<COND (<EQUAL? .TO ,PLAYER>
 						<COND (<G=? <COUNT-CONTAINER .TO> ,LIMIT-POSSESSIONS>
@@ -16586,7 +16586,7 @@ your loyalty to Sokara.">
 	(TYPES TWO-ABILITY)
 	(FLAGS LIGHTBIT)>
 
-<CONSTANT TEXT711 "Venefax is a strange-looking village. It looks like a single gigantic building. All the houses are joined together to form a jumbled mass, and none of the houses have doors. The only way in is through holes in the rooftop. Ladders lead up to the roof, which in effect forms a network of streets that the inhabitants travel across to get to certain 
+<CONSTANT TEXT711 "Venefax is a strange-looking village. It looks like a single gigantic building. All the houses are joined together to form a jumbled mass, and none of the houses have doors. The only way in is through holes in the rooftop. Ladders lead up to the roof, which in effect forms a network of streets that the inhabitants travel across to get to certain
 buildings.||\"It's built that way for defence,\" says a passing farmer. \"The scorpion men from the south can't climb, so they can't get inside the town.\"">
 <CONSTANT CHOICES711 <LTABLE TEXT-VISIT-MARKET "Visit the Scorpion's Sting tavern" "Visit the village healer" "Chat to villagers on the rooftop" TEXT-SOUTH-SCORPION "Take the road north to Blessed Springs" TEXT-SOUTHWEST-YELLOWPORT TEXT-NORTH-OPEN>>
 
